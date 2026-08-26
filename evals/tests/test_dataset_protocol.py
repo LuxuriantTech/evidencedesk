@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
+
+import pytest
 
 from evals.validate_dataset import validate_manifest
 
@@ -29,3 +32,29 @@ def test_validator_accepts_an_explicit_corpus_for_a_new_blind_holdout() -> None:
     )
 
     assert report.total_cases == 40
+
+
+def test_validator_rejects_a_document_without_runner_required_filename(
+    tmp_path: Path,
+) -> None:
+    corpus = {
+        "dataset_version": "schema-test-v1",
+        "synthetic_only": True,
+        "documents": [{"id": "doc-1", "pages": ["Synthetic evidence."]}],
+    }
+    manifest = {
+        "dataset_version": "schema-test-v1",
+        "parameters_version": "schema-test-params",
+        "mode": "extractive-local-onnx",
+        "seed": 1,
+        "metrics": {},
+        "cases": [],
+        "extraction_targets": [],
+    }
+    corpus_path = tmp_path / "corpus.json"
+    manifest_path = tmp_path / "manifest.json"
+    corpus_path.write_text(json.dumps(corpus), encoding="utf-8")
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="document filename"):
+        validate_manifest(manifest_path, corpus_path=corpus_path)

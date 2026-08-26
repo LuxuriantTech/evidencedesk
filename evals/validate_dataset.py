@@ -42,7 +42,27 @@ def validate_manifest(
     manifest = _load_json(path)
     root = path.parent.parent
     corpus = _load_json(corpus_path or root / "datasets" / "corpus_manifest.json")
-    documents = {item["id"]: item for item in corpus["documents"]}
+    raw_documents = corpus.get("documents")
+    if not isinstance(raw_documents, list) or not raw_documents:
+        raise ValueError("corpus documents must be a non-empty list")
+    documents: dict[str, dict[str, Any]] = {}
+    for item in raw_documents:
+        if not isinstance(item, dict):
+            raise ValueError("each corpus document must be an object")
+        document_id = item.get("id")
+        if not isinstance(document_id, str) or not document_id or document_id in documents:
+            raise ValueError("document ids must be unique non-empty strings")
+        filename = item.get("filename")
+        if not isinstance(filename, str) or not filename.strip():
+            raise ValueError(f"document filename is required for {document_id}")
+        pages = item.get("pages")
+        if (
+            not isinstance(pages, list)
+            or not pages
+            or not all(isinstance(page, str) and page.strip() for page in pages)
+        ):
+            raise ValueError(f"document pages must be non-empty strings for {document_id}")
+        documents[document_id] = item
     cases = manifest.get("cases", [])
     if not isinstance(cases, list):
         raise ValueError("cases must be a list")

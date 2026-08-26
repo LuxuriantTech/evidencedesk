@@ -1,0 +1,20 @@
+{
+  "schema_version": "holdout-preflight-failure-v1",
+  "dataset_version": "holdout-v5-2026.08.27",
+  "parameters_version": "semantic-local-v2.0-frozen-v5",
+  "attempted_at": "2026-08-26T22:39:26.813177+00:00",
+  "dataset_commit": "3c4a4f39fb70b91cb8f714ae3109aeb2b564d44c",
+  "engine_commit": "648c7f9e555265bcb3b47799cdf72c8572c3b12d",
+  "freeze_commit": "bb8211301111943974795d7f0ef2c16cf42bc24e",
+  "manifest_sha256": "2248d691c7ef2d857e24b3e15c941844b8e8ff8a6de622bd7e20bb12d80da871",
+  "corpus_sha256": "18687af201804215f302d479a07d554bb48e832d987471cdb21a993212982b2e",
+  "attestation_sha256": "80add0c6d09710f7a44e817489a6eaf201882ae2df2f6ff5a676fceb5272e5b0",
+  "lock_sha256": "7f8a6d4b09e7e1278163edb67e9d091a3c37d60024095b16fe65023475969ec9",
+  "failure_stage": "evaluate_manifest.build_chunks",
+  "error_type": "KeyError",
+  "error": "filename",
+  "evaluate_manifest_called": true,
+  "case_evaluation_started": false,
+  "raw_result_created": false,
+  "retry_permitted": false
+}
