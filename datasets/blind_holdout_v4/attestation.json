@@ -1,0 +1,26 @@
+{
+  "dataset_version": "holdout-v4-2026.08.27",
+  "parameters_version": "semantic-local-v2.0-frozen",
+  "mode": "extractive-local-onnx",
+  "seed": 20260827,
+  "author_role": "independent-holdout-author",
+  "generated_after_engine_freeze": true,
+  "synthetic_only": true,
+  "engine_commit": "6edd9ec5d9b07aca61c078a22144c34a4b003233",
+  "engine_fingerprint": "7b07504dffe79f2a64d346163c101a6f8434ec70e2ebce9a41b969fb02b4425f",
+  "config_sha256": "fa9b5c763e25e6c93d8ad7206601440fbba4129a5588677786929a39260e4bc8",
+  "model_manifest_sha256": "d930bf9c2c9f866ff606a50cba0a8ca498f3f51f6ef74b1881602e5af2e302cc",
+  "dependency_sha256": {
+    "pyproject.toml": "6ac4a0a7c4fad75c3777a31d3338b2e98bef6397254d2fa1ed0cfbc033e99576",
+    "uv.lock": "e44f77ab0ef5738ac0af82771560d701639cb4a499fcfbe042ce3ef586ab9f26"
+  },
+  "freeze_commit": "39be32e011f10fed4453acbce6052b3a4e4fc85f",
+  "freeze_sha256": "73c2be388623ec370b289f26af3954fc1ab70e68dd22c14fa9c24715decc29c7",
+  "development_overlap_check": {
+    "method": "exact identifier comparison: independently generated v4 document and case identifiers were compared against the development-v2 manifest identifiers only; no development questions, answers, or pages were read",
+    "matching_documents": 0,
+    "matching_case_ids": 0
+  },
+  "corpus_manifest_sha256": "5aeeff38c2ccf1b2ca1813725b1a67f2ce9869ac2b922a15884a4a56fc731bfe",
+  "evaluation_cases_sha256": "c704d385574b8965aecfeb15423bfb061aa5a9398405c8185ab60b69b2e41654"
+}
