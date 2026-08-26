@@ -1,0 +1,72 @@
+{
+  "dataset_version": "development-v2-2026.08.26",
+  "license": "CC0-1.0 synthetic",
+  "synthetic_only": true,
+  "generation_seed": 20260826,
+  "documents": [
+    {
+      "id": "devv2-alpine-supplier",
+      "filename": "alpine_field_agreement.md",
+      "pages": [
+        "# Accord de service terrain\nFournisseur : Alpine Field Services GmbH\nNature du document : accord de prestations fournisseur\nEntrée en vigueur le 1er février 2026.\nForfait annuel : 14 400 EUR\nContact opérationnel : Nora Vale",
+        "## Continuité\nLe contrat sera reconduit le 01/02/2027.\nAlpine s'engage à maintenir une ligne d'incident.\nRisque : une passation manquée peut retarder les réparations terrain."
+      ]
+    },
+    {
+      "id": "devv2-bramble-supplier",
+      "filename": "bramble_dpa.txt",
+      "pages": [
+        "DATA PROCESSING NOTE\nOrganization: Bramble Cloud Storage Ltd.\nDocument type: vendor data processing addendum\nThis addendum takes effect on March 10, 2026.\nTotal subscription: EUR 27,500\nAccountable lead — Owen Pike",
+        "RETENTION\nRenewal is scheduled for 10 March 2027.\nThe provider shall delete exported backups within 21 days.\nBackup deletion evidence is not automated, creating a control gap."
+      ]
+    },
+    {
+      "id": "devv2-cinder-supplier",
+      "filename": "cinder_order_form.md",
+      "pages": [
+        "# Bon de commande\nSociété concernée : Cinder Metering Inc.\nCatégorie : bon de commande fournisseur\nDate d'application : 2026-04-05\nPrix convenu : $36,000 USD\nResponsable : Priya Sen",
+        "## Service\nProchaine échéance de renouvellement : 5 avril 2027.\nCinder doit notifier le client de toute interruption de service.\nLes relevés de compteurs peuvent arriver tardivement pendant les tempêtes."
+      ]
+    },
+    {
+      "id": "devv2-delta-supplier",
+      "filename": "delta_framework.txt",
+      "pages": [
+        "SUPPLIER FRAMEWORK\nDelta Pantry Logistics LLC\nDocument type: supplier framework contract\nEffective date: 12 May 2026\nCommercial charge: €19,800\nOwner: Quinn Rho",
+        "OPERATING CONDITIONS\nIt renews on 2027-05-12.\nDelta is required to retain delivery temperature logs for 90 days.\nRisk note: temperature devices can lose cellular coverage."
+      ]
+    },
+    {
+      "id": "devv2-ember-supplier",
+      "filename": "ember_statement.md",
+      "pages": [
+        "# Statement of work\nClient record supplier: Ember Records Ltd.\nType de pièce : déclaration de travaux de gestion des archives\nEffective date: 2026-06-01\nBudget: GBP 12,600\nContact opérationnel — Rina Sol",
+        "## Access safeguards\nRenouvellement prévu le 1 juin 2027.\nEmber undertakes to restrict archive access to approved staff.\nUn ancien index contient des références dupliquées; this may confuse retrieval."
+      ]
+    },
+    {
+      "id": "devv2-fable-supplier",
+      "filename": "fable_support.txt",
+      "pages": [
+        "NETWORK SUPPORT SCHEDULE\nOrganization: Fable Network Services GmbH\nDocument type: network support schedule\nCommencement: July 15, 2026\nMontant mensuel : 3 500 EUR (42 000 EUR annualisé)\nAccountable lead: Sam Taro",
+        "REPORTING\nRenewal date: 15 July 2027\nFable must provide a monthly availability report.\nMaintenance windows may reduce reporting coverage."
+      ]
+    },
+    {
+      "id": "devv2-grove-supplier",
+      "filename": "grove_license.md",
+      "pages": [
+        "# Licence analytique\nFournisseur / Organization: Grove Safety Analytics Inc.\nDocument kind: supplier analytics licence\nPrise d'effet : le 20 août 2026\nAnnual licence fee — USD 31,200\nResponsable du compte : Tess Uma",
+        "## Identity controls\nRenewal is set for August 20, 2027.\nGrove s'engage à examiner les rôles d'accès chaque trimestre.\nRisque : les revues de rôles dépendent de flux d'identité complets."
+      ]
+    },
+    {
+      "id": "devv2-harbor-supplier",
+      "filename": "harbor_purchase.txt",
+      "pages": [
+        "PURCHASE AGREEMENT\nSupplier: Harbor Translation Services LLC\nDocument type: supplier purchase agreement\nEffective from 2026-09-01\nRate agreed: 9 600 EUR\nOwner / Responsable: Vik Wren",
+        "CONFIDENTIALITY\nLe renouvellement intervient le 1 septembre 2027.\nHarbor shall keep source files confidential.\nRare-language capacity may extend turnaround times."
+      ]
+    }
+  ]
+}

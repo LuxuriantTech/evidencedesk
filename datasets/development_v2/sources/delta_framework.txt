@@ -1,0 +1,11 @@
+SUPPLIER FRAMEWORK
+Delta Pantry Logistics LLC
+Document type: supplier framework contract
+Effective date: 12 May 2026
+Commercial charge: €19,800
+Owner: Quinn Rho
+
+OPERATING CONDITIONS
+It renews on 2027-05-12.
+Delta is required to retain delivery temperature logs for 90 days.
+Risk note: temperature devices can lose cellular coverage.

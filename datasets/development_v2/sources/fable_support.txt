@@ -1,0 +1,11 @@
+NETWORK SUPPORT SCHEDULE
+Organization: Fable Network Services GmbH
+Document type: network support schedule
+Commencement: July 15, 2026
+Montant mensuel : 3 500 EUR (42 000 EUR annualisé)
+Accountable lead: Sam Taro
+
+REPORTING
+Renewal date: 15 July 2027
+Fable must provide a monthly availability report.
+Maintenance windows may reduce reporting coverage.

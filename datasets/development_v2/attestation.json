@@ -1,0 +1,46 @@
+{
+  "dataset_version": "development-v2-2026.08.26",
+  "parameters_version": "semantic-dev-v2-preregistered",
+  "seed": 20260826,
+  "synthetic_only": true,
+  "intentional_overlap_with_holdouts": "none",
+  "case_counts": {
+    "total": 50,
+    "answerable": 30,
+    "unanswerable": 12,
+    "ambiguous_or_adversarial": 8
+  },
+  "supplier_v1_fields": [
+    "organization_name",
+    "document_type",
+    "effective_date",
+    "renewal_date",
+    "important_amounts",
+    "obligations",
+    "responsible_people",
+    "risks"
+  ],
+  "sha256": {
+    "corpus_manifest.json": "ec4a27e58b9eb9db2d2baee4fd62089ef86327670eb40b4e0275ab7c4a7e69bd",
+    "evaluation_cases.json": "8c7e72d5922f2a57b5ffd2a7133beb4f1a9ba627b5440020aafc113f3267b761",
+    "sources/alpine_field_agreement.md": "143f7a76a14fbd3416f176af61e058ab6e7ac399534286ff516f6ad76a942464",
+    "sources/bramble_dpa.txt": "6b84ed930cd18e54134b1132f51ab0a1ee17b3854fe00dbdc226444f88ad826f",
+    "sources/cinder_order_form.md": "e2facba1dadc7369e5cef44ad0f2566d19d16a9b31b541664c8ef1b2705baa72",
+    "sources/delta_framework.txt": "d12572526dac3b983cc2ce5e7cf95c1a8e64b7455c3f6fd735011b43c624e5a1",
+    "sources/ember_statement.md": "a0aeb5305cc422e6dbe2e5b1877285b4d1d091e8eec0922fd121adf4bbdbaa2b",
+    "sources/fable_support.txt": "3e8f46ed3a157123697f8e66f06b5d5f60f3a2bc61db118ad30d6e1a9fa32366",
+    "sources/grove_license.md": "9d23a1c7b559c20fa873e10ee54f1c547b52d57fdaf531ad5f9e01585e2ad4c5",
+    "sources/harbor_purchase.txt": "38cc6f75446abbd7d9ca59584d7155919ebecf923db16be555d8bbe175920bdc"
+  },
+  "source_files": [
+    "sources/alpine_field_agreement.md",
+    "sources/bramble_dpa.txt",
+    "sources/cinder_order_form.md",
+    "sources/delta_framework.txt",
+    "sources/ember_statement.md",
+    "sources/fable_support.txt",
+    "sources/grove_license.md",
+    "sources/harbor_purchase.txt"
+  ],
+  "generation": "Deterministic local literals only; no network, external corpus, holdout, or historical-result input was read."
+}

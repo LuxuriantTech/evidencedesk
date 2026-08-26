@@ -1,0 +1,11 @@
+DATA PROCESSING NOTE
+Organization: Bramble Cloud Storage Ltd.
+Document type: vendor data processing addendum
+This addendum takes effect on March 10, 2026.
+Total subscription: EUR 27,500
+Accountable lead — Owen Pike
+
+RETENTION
+Renewal is scheduled for 10 March 2027.
+The provider shall delete exported backups within 21 days.
+Backup deletion evidence is not automated, creating a control gap.
