@@ -1,0 +1,1445 @@
+{
+  "abstention_accuracy": 0.65,
+  "case_count": 50,
+  "cases": [
+    {
+      "answer": "Alpine s'engage \u00e0 maintenir une ligne d'incident.",
+      "answer_match": false,
+      "citation_matches": [
+        false
+      ],
+      "citations": [
+        {
+          "chunk_id": "devv2-alpine-supplier:p2:c2",
+          "document_id": "devv2-alpine-supplier",
+          "document_name": "alpine_field_agreement.md",
+          "excerpt": "Alpine s'engage \u00e0 maintenir une ligne d'incident.",
+          "page": 2,
+          "section": null
+        }
+      ],
+      "id": "devv2-a01",
+      "kind": "answerable",
+      "latency_ms": 2.651,
+      "status": "answered"
+    },
+    {
+      "answer": "This addendum takes effect on March 10, 2026.",
+      "answer_match": false,
+      "citation_matches": [
+        false
+      ],
+      "citations": [
+        {
+          "chunk_id": "devv2-bramble-supplier:p1:c3",
+          "document_id": "devv2-bramble-supplier",
+          "document_name": "bramble_dpa.txt",
+          "excerpt": "This addendum takes effect on March 10, 2026.",
+          "page": 1,
+          "section": null
+        }
+      ],
+      "id": "devv2-a02",
+      "kind": "answerable",
+      "latency_ms": 2.162,
+      "status": "answered"
+    },
+    {
+      "answer": "Montant mensuel : 3 500 EUR (42 000 EUR annualis\u00e9)",
+      "answer_match": false,
+      "citation_matches": [
+        false
+      ],
+      "citations": [
+        {
+          "chunk_id": "devv2-fable-supplier:p1:c4",
+          "document_id": "devv2-fable-supplier",
+          "document_name": "fable_support.txt",
+          "excerpt": "Montant mensuel : 3 500 EUR (42 000 EUR annualis\u00e9)",
+          "page": 1,
+          "section": null
+        }
+      ],
+      "id": "devv2-a03",
+      "kind": "answerable",
+      "latency_ms": 2.004,
+      "status": "answered"
+    },
+    {
+      "answer": "Alpine s'engage \u00e0 maintenir une ligne d'incident.",
+      "answer_match": true,
+      "citation_matches": [
+        true
+      ],
+      "citations": [
+        {
+          "chunk_id": "devv2-alpine-supplier:p2:c2",
+          "document_id": "devv2-alpine-supplier",
+          "document_name": "alpine_field_agreement.md",
+          "excerpt": "Alpine s'engage \u00e0 maintenir une ligne d'incident.",
+          "page": 2,
+          "section": null
+        }
+      ],
+      "id": "devv2-a04",
+      "kind": "answerable",
+      "latency_ms": 1.932,
+      "status": "answered"
+    },
+    {
+      "answer": "Owner / Responsable: Vik Wren",
+      "answer_match": false,
+      "citation_matches": [
+        false
+      ],
+      "citations": [
+        {
+          "chunk_id": "devv2-harbor-supplier:p1:c5",
+          "document_id": "devv2-harbor-supplier",
+          "document_name": "harbor_purchase.txt",
+          "excerpt": "Owner / Responsable: Vik Wren",
+          "page": 1,
+          "section": null
+        }
+      ],
+      "id": "devv2-a05",
+      "kind": "answerable",
+      "latency_ms": 1.95,
+      "status": "answered"
+    },
+    {
+      "answer": "Organization: Bramble Cloud Storage Ltd.",
+      "answer_match": false,
+      "citation_matches": [
+        false
+      ],
+      "citations": [
+        {
+          "chunk_id": "devv2-bramble-supplier:p1:c1",
+          "document_id": "devv2-bramble-supplier",
+          "document_name": "bramble_dpa.txt",
+          "excerpt": "Organization: Bramble Cloud Storage Ltd.",
+          "page": 1,
+          "section": null
+        }
+      ],
+      "id": "devv2-a06",
+      "kind": "answerable",
+      "latency_ms": 1.749,
+      "status": "answered"
+    },
+    {
+      "answer": "Risque : une passation manqu\u00e9e peut retarder les r\u00e9parations terrain.",
+      "answer_match": false,
+      "citation_matches": [
+        false
+      ],
+      "citations": [
+        {
+          "chunk_id": "devv2-alpine-supplier:p2:c3",
+          "document_id": "devv2-alpine-supplier",
+          "document_name": "alpine_field_agreement.md",
+          "excerpt": "Risque : une passation manqu\u00e9e peut retarder les r\u00e9parations terrain.",
+          "page": 2,
+          "section": null
+        }
+      ],
+      "id": "devv2-a07",
+      "kind": "answerable",
+      "latency_ms": 1.818,
+      "status": "answered"
+    },
+    {
+      "answer": "Organization: Bramble Cloud Storage Ltd.",
+      "answer_match": true,
+      "citation_matches": [
+        true
+      ],
+      "citations": [
+        {
+          "chunk_id": "devv2-bramble-supplier:p1:c1",
+          "document_id": "devv2-bramble-supplier",
+          "document_name": "bramble_dpa.txt",
+          "excerpt": "Organization: Bramble Cloud Storage Ltd.",
+          "page": 1,
+          "section": null
+        }
+      ],
+      "id": "devv2-a08",
+      "kind": "answerable",
+      "latency_ms": 1.578,
+      "status": "answered"
+    },
+    {
+      "answer": "Cinder doit notifier le client de toute interruption de service.",
+      "answer_match": false,
+      "citation_matches": [
+        false
+      ],
+      "citations": [
+        {
+          "chunk_id": "devv2-cinder-supplier:p2:c2",
+          "document_id": "devv2-cinder-supplier",
+          "document_name": "cinder_order_form.md",
+          "excerpt": "Cinder doit notifier le client de toute interruption de service.",
+          "page": 2,
+          "section": null
+        }
+      ],
+      "id": "devv2-a09",
+      "kind": "answerable",
+      "latency_ms": 1.545,
+      "status": "answered"
+    },
+    {
+      "answer": "Owner / Responsable: Vik Wren",
+      "answer_match": false,
+      "citation_matches": [
+        false
+      ],
+      "citations": [
+        {
+          "chunk_id": "devv2-harbor-supplier:p1:c5",
+          "document_id": "devv2-harbor-supplier",
+          "document_name": "harbor_purchase.txt",
+          "excerpt": "Owner / Responsable: Vik Wren",
+          "page": 1,
+          "section": null
+        }
+      ],
+      "id": "devv2-a10",
+      "kind": "answerable",
+      "latency_ms": 2.332,
+      "status": "answered"
+    },
+    {
+      "answer": "Risque : une passation manqu\u00e9e peut retarder les r\u00e9parations terrain.",
+      "answer_match": false,
+      "citation_matches": [
+        false
+      ],
+      "citations": [
+        {
+          "chunk_id": "devv2-alpine-supplier:p2:c3",
+          "document_id": "devv2-alpine-supplier",
+          "document_name": "alpine_field_agreement.md",
+          "excerpt": "Risque : une passation manqu\u00e9e peut retarder les r\u00e9parations terrain.",
+          "page": 2,
+          "section": null
+        }
+      ],
+      "id": "devv2-a11",
+      "kind": "answerable",
+      "latency_ms": 2.221,
+      "status": "answered"
+    },
+    {
+      "answer": "Cinder doit notifier le client de toute interruption de service.",
+      "answer_match": false,
+      "citation_matches": [
+        false
+      ],
+      "citations": [
+        {
+          "chunk_id": "devv2-cinder-supplier:p2:c2",
+          "document_id": "devv2-cinder-supplier",
+          "document_name": "cinder_order_form.md",
+          "excerpt": "Cinder doit notifier le client de toute interruption de service.",
+          "page": 2,
+          "section": null
+        }
+      ],
+      "id": "devv2-a12",
+      "kind": "answerable",
+      "latency_ms": 2.343,
+      "status": "answered"
+    },
+    {
+      "answer": "This addendum takes effect on March 10, 2026.",
+      "answer_match": false,
+      "citation_matches": [
+        false
+      ],
+      "citations": [
+        {
+          "chunk_id": "devv2-bramble-supplier:p1:c3",
+          "document_id": "devv2-bramble-supplier",
+          "document_name": "bramble_dpa.txt",
+          "excerpt": "This addendum takes effect on March 10, 2026.",
+          "page": 1,
+          "section": null
+        }
+      ],
+      "id": "devv2-a13",
+      "kind": "answerable",
+      "latency_ms": 1.918,
+      "status": "answered"
+    },
+    {
+      "answer": "Delta is required to retain delivery temperature logs for 90 days.",
+      "answer_match": true,
+      "citation_matches": [
+        true
+      ],
+      "citations": [
+        {
+          "chunk_id": "devv2-delta-supplier:p2:c2",
+          "document_id": "devv2-delta-supplier",
+          "document_name": "delta_framework.txt",
+          "excerpt": "Delta is required to retain delivery temperature logs for 90 days.",
+          "page": 2,
+          "section": null
+        }
+      ],
+      "id": "devv2-a14",
+      "kind": "answerable",
+      "latency_ms": 2.142,
+      "status": "answered"
+    },
+    {
+      "answer": "Delta is required to retain delivery temperature logs for 90 days.",
+      "answer_match": false,
+      "citation_matches": [
+        false
+      ],
+      "citations": [
+        {
+          "chunk_id": "devv2-delta-supplier:p2:c2",
+          "document_id": "devv2-delta-supplier",
+          "document_name": "delta_framework.txt",
+          "excerpt": "Delta is required to retain delivery temperature logs for 90 days.",
+          "page": 2,
+          "section": null
+        }
+      ],
+      "id": "devv2-a15",
+      "kind": "answerable",
+      "latency_ms": 2.078,
+      "status": "answered"
+    },
+    {
+      "answer": "Montant mensuel : 3 500 EUR (42 000 EUR annualis\u00e9)",
+      "answer_match": false,
+      "citation_matches": [
+        false
+      ],
+      "citations": [
+        {
+          "chunk_id": "devv2-fable-supplier:p1:c4",
+          "document_id": "devv2-fable-supplier",
+          "document_name": "fable_support.txt",
+          "excerpt": "Montant mensuel : 3 500 EUR (42 000 EUR annualis\u00e9)",
+          "page": 1,
+          "section": null
+        }
+      ],
+      "id": "devv2-a16",
+      "kind": "answerable",
+      "latency_ms": 2.224,
+      "status": "answered"
+    },
+    {
+      "answer": "Type de pi\u00e8ce : d\u00e9claration de travaux de gestion des archives",
+      "answer_match": true,
+      "citation_matches": [
+        true
+      ],
+      "citations": [
+        {
+          "chunk_id": "devv2-ember-supplier:p1:c2",
+          "document_id": "devv2-ember-supplier",
+          "document_name": "ember_statement.md",
+          "excerpt": "Type de pi\u00e8ce : d\u00e9claration de travaux de gestion des archives",
+          "page": 1,
+          "section": null
+        }
+      ],
+      "id": "devv2-a17",
+      "kind": "answerable",
+      "latency_ms": 1.875,
+      "status": "answered"
+    },
+    {
+      "answer": "Ember undertakes to restrict archive access to approved staff.",
+      "answer_match": true,
+      "citation_matches": [
+        true
+      ],
+      "citations": [
+        {
+          "chunk_id": "devv2-ember-supplier:p2:c2",
+          "document_id": "devv2-ember-supplier",
+          "document_name": "ember_statement.md",
+          "excerpt": "Ember undertakes to restrict archive access to approved staff.",
+          "page": 2,
+          "section": null
+        }
+      ],
+      "id": "devv2-a18",
+      "kind": "answerable",
+      "latency_ms": 1.656,
+      "status": "answered"
+    },
+    {
+      "answer": "Owner / Responsable: Vik Wren",
+      "answer_match": false,
+      "citation_matches": [
+        false
+      ],
+      "citations": [
+        {
+          "chunk_id": "devv2-harbor-supplier:p1:c5",
+          "document_id": "devv2-harbor-supplier",
+          "document_name": "harbor_purchase.txt",
+          "excerpt": "Owner / Responsable: Vik Wren",
+          "page": 1,
+          "section": null
+        }
+      ],
+      "id": "devv2-a19",
+      "kind": "answerable",
+      "latency_ms": 1.892,
+      "status": "answered"
+    },
+    {
+      "answer": "Contact op\u00e9rationnel \u2014 Rina Sol",
+      "answer_match": false,
+      "citation_matches": [
+        false
+      ],
+      "citations": [
+        {
+          "chunk_id": "devv2-ember-supplier:p1:c5",
+          "document_id": "devv2-ember-supplier",
+          "document_name": "ember_statement.md",
+          "excerpt": "Contact op\u00e9rationnel \u2014 Rina Sol",
+          "page": 1,
+          "section": null
+        }
+      ],
+      "id": "devv2-a20",
+      "kind": "answerable",
+      "latency_ms": 2.833,
+      "status": "answered"
+    },
+    {
+      "answer": "This addendum takes effect on March 10, 2026.",
+      "answer_match": false,
+      "citation_matches": [
+        false
+      ],
+      "citations": [
+        {
+          "chunk_id": "devv2-bramble-supplier:p1:c3",
+          "document_id": "devv2-bramble-supplier",
+          "document_name": "bramble_dpa.txt",
+          "excerpt": "This addendum takes effect on March 10, 2026.",
+          "page": 1,
+          "section": null
+        }
+      ],
+      "id": "devv2-a21",
+      "kind": "answerable",
+      "latency_ms": 2.419,
+      "status": "answered"
+    },
+    {
+      "answer": "Montant mensuel : 3 500 EUR (42 000 EUR annualis\u00e9)",
+      "answer_match": true,
+      "citation_matches": [
+        true
+      ],
+      "citations": [
+        {
+          "chunk_id": "devv2-fable-supplier:p1:c4",
+          "document_id": "devv2-fable-supplier",
+          "document_name": "fable_support.txt",
+          "excerpt": "Montant mensuel : 3 500 EUR (42 000 EUR annualis\u00e9)",
+          "page": 1,
+          "section": null
+        }
+      ],
+      "id": "devv2-a22",
+      "kind": "answerable",
+      "latency_ms": 1.825,
+      "status": "answered"
+    },
+    {
+      "answer": "Renewal date: 15 July 2027",
+      "answer_match": true,
+      "citation_matches": [
+        true
+      ],
+      "citations": [
+        {
+          "chunk_id": "devv2-fable-supplier:p2:c1",
+          "document_id": "devv2-fable-supplier",
+          "document_name": "fable_support.txt",
+          "excerpt": "Renewal date: 15 July 2027",
+          "page": 2,
+          "section": null
+        }
+      ],
+      "id": "devv2-a23",
+      "kind": "answerable",
+      "latency_ms": 2.075,
+      "status": "answered"
+    },
+    {
+      "answer": "Organization: Fable Network Services GmbH",
+      "answer_match": true,
+      "citation_matches": [
+        true
+      ],
+      "citations": [
+        {
+          "chunk_id": "devv2-fable-supplier:p1:c1",
+          "document_id": "devv2-fable-supplier",
+          "document_name": "fable_support.txt",
+          "excerpt": "Organization: Fable Network Services GmbH",
+          "page": 1,
+          "section": null
+        }
+      ],
+      "id": "devv2-a24",
+      "kind": "answerable",
+      "latency_ms": 2.3,
+      "status": "answered"
+    },
+    {
+      "answer": "Grove s'engage \u00e0 examiner les r\u00f4les d'acc\u00e8s chaque trimestre.",
+      "answer_match": false,
+      "citation_matches": [
+        false
+      ],
+      "citations": [
+        {
+          "chunk_id": "devv2-grove-supplier:p2:c2",
+          "document_id": "devv2-grove-supplier",
+          "document_name": "grove_license.md",
+          "excerpt": "Grove s'engage \u00e0 examiner les r\u00f4les d'acc\u00e8s chaque trimestre.",
+          "page": 2,
+          "section": null
+        }
+      ],
+      "id": "devv2-a25",
+      "kind": "answerable",
+      "latency_ms": 1.784,
+      "status": "answered"
+    },
+    {
+      "answer": "This addendum takes effect on March 10, 2026.",
+      "answer_match": false,
+      "citation_matches": [
+        false
+      ],
+      "citations": [
+        {
+          "chunk_id": "devv2-bramble-supplier:p1:c3",
+          "document_id": "devv2-bramble-supplier",
+          "document_name": "bramble_dpa.txt",
+          "excerpt": "This addendum takes effect on March 10, 2026.",
+          "page": 1,
+          "section": null
+        }
+      ],
+      "id": "devv2-a26",
+      "kind": "answerable",
+      "latency_ms": 1.571,
+      "status": "answered"
+    },
+    {
+      "answer": "Risque : les revues de r\u00f4les d\u00e9pendent de flux d'identit\u00e9 complets.",
+      "answer_match": true,
+      "citation_matches": [
+        true
+      ],
+      "citations": [
+        {
+          "chunk_id": "devv2-grove-supplier:p2:c3",
+          "document_id": "devv2-grove-supplier",
+          "document_name": "grove_license.md",
+          "excerpt": "Risque : les revues de r\u00f4les d\u00e9pendent de flux d'identit\u00e9 complets.",
+          "page": 2,
+          "section": null
+        }
+      ],
+      "id": "devv2-a27",
+      "kind": "answerable",
+      "latency_ms": 1.661,
+      "status": "answered"
+    },
+    {
+      "answer": "Grove s'engage \u00e0 examiner les r\u00f4les d'acc\u00e8s chaque trimestre.",
+      "answer_match": true,
+      "citation_matches": [
+        true
+      ],
+      "citations": [
+        {
+          "chunk_id": "devv2-grove-supplier:p2:c2",
+          "document_id": "devv2-grove-supplier",
+          "document_name": "grove_license.md",
+          "excerpt": "Grove s'engage \u00e0 examiner les r\u00f4les d'acc\u00e8s chaque trimestre.",
+          "page": 2,
+          "section": null
+        }
+      ],
+      "id": "devv2-a28",
+      "kind": "answerable",
+      "latency_ms": 2.78,
+      "status": "answered"
+    },
+    {
+      "answer": "Montant mensuel : 3 500 EUR (42 000 EUR annualis\u00e9)",
+      "answer_match": false,
+      "citation_matches": [
+        false
+      ],
+      "citations": [
+        {
+          "chunk_id": "devv2-fable-supplier:p1:c4",
+          "document_id": "devv2-fable-supplier",
+          "document_name": "fable_support.txt",
+          "excerpt": "Montant mensuel : 3 500 EUR (42 000 EUR annualis\u00e9)",
+          "page": 1,
+          "section": null
+        }
+      ],
+      "id": "devv2-a29",
+      "kind": "answerable",
+      "latency_ms": 1.841,
+      "status": "answered"
+    },
+    {
+      "answer": "Owner / Responsable: Vik Wren",
+      "answer_match": true,
+      "citation_matches": [
+        true
+      ],
+      "citations": [
+        {
+          "chunk_id": "devv2-harbor-supplier:p1:c5",
+          "document_id": "devv2-harbor-supplier",
+          "document_name": "harbor_purchase.txt",
+          "excerpt": "Owner / Responsable: Vik Wren",
+          "page": 1,
+          "section": null
+        }
+      ],
+      "id": "devv2-a30",
+      "kind": "answerable",
+      "latency_ms": 2.861,
+      "status": "answered"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "devv2-u01",
+      "kind": "unanswerable",
+      "latency_ms": 0.529,
+      "status": "abstained"
+    },
+    {
+      "answer": "Renewal is scheduled for 10 March 2027.",
+      "answer_match": false,
+      "citation_matches": [
+        false
+      ],
+      "citations": [
+        {
+          "chunk_id": "devv2-bramble-supplier:p2:c1",
+          "document_id": "devv2-bramble-supplier",
+          "document_name": "bramble_dpa.txt",
+          "excerpt": "Renewal is scheduled for 10 March 2027.",
+          "page": 2,
+          "section": null
+        }
+      ],
+      "id": "devv2-u02",
+      "kind": "unanswerable",
+      "latency_ms": 0.324,
+      "status": "answered"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "devv2-u03",
+      "kind": "unanswerable",
+      "latency_ms": 0.402,
+      "status": "abstained"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "devv2-u04",
+      "kind": "unanswerable",
+      "latency_ms": 0.525,
+      "status": "abstained"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "devv2-u05",
+      "kind": "unanswerable",
+      "latency_ms": 0.811,
+      "status": "abstained"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "devv2-u06",
+      "kind": "unanswerable",
+      "latency_ms": 0.274,
+      "status": "abstained"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "devv2-u07",
+      "kind": "unanswerable",
+      "latency_ms": 0.281,
+      "status": "abstained"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "devv2-u08",
+      "kind": "unanswerable",
+      "latency_ms": 0.389,
+      "status": "abstained"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "devv2-u09",
+      "kind": "unanswerable",
+      "latency_ms": 0.507,
+      "status": "abstained"
+    },
+    {
+      "answer": "Document type: vendor data processing addendum",
+      "answer_match": false,
+      "citation_matches": [
+        false
+      ],
+      "citations": [
+        {
+          "chunk_id": "devv2-bramble-supplier:p1:c2",
+          "document_id": "devv2-bramble-supplier",
+          "document_name": "bramble_dpa.txt",
+          "excerpt": "Document type: vendor data processing addendum",
+          "page": 1,
+          "section": null
+        }
+      ],
+      "id": "devv2-u10",
+      "kind": "unanswerable",
+      "latency_ms": 0.433,
+      "status": "answered"
+    },
+    {
+      "answer": "Cinder doit notifier le client de toute interruption de service.",
+      "answer_match": false,
+      "citation_matches": [
+        false
+      ],
+      "citations": [
+        {
+          "chunk_id": "devv2-cinder-supplier:p2:c2",
+          "document_id": "devv2-cinder-supplier",
+          "document_name": "cinder_order_form.md",
+          "excerpt": "Cinder doit notifier le client de toute interruption de service.",
+          "page": 2,
+          "section": null
+        }
+      ],
+      "id": "devv2-u11",
+      "kind": "unanswerable",
+      "latency_ms": 0.4,
+      "status": "answered"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "devv2-u12",
+      "kind": "unanswerable",
+      "latency_ms": 0.269,
+      "status": "abstained"
+    },
+    {
+      "answer": "Effective from 2026-09-01",
+      "answer_match": false,
+      "citation_matches": [
+        false
+      ],
+      "citations": [
+        {
+          "chunk_id": "devv2-harbor-supplier:p1:c3",
+          "document_id": "devv2-harbor-supplier",
+          "document_name": "harbor_purchase.txt",
+          "excerpt": "Effective from 2026-09-01",
+          "page": 1,
+          "section": null
+        }
+      ],
+      "id": "devv2-m01",
+      "kind": "ambiguous",
+      "latency_ms": 1.654,
+      "status": "answered"
+    },
+    {
+      "answer": "Renewal date: 15 July 2027",
+      "answer_match": false,
+      "citation_matches": [
+        false
+      ],
+      "citations": [
+        {
+          "chunk_id": "devv2-fable-supplier:p2:c1",
+          "document_id": "devv2-fable-supplier",
+          "document_name": "fable_support.txt",
+          "excerpt": "Renewal date: 15 July 2027",
+          "page": 2,
+          "section": null
+        }
+      ],
+      "id": "devv2-m02",
+      "kind": "ambiguous",
+      "latency_ms": 1.668,
+      "status": "answered"
+    },
+    {
+      "answer": "Document type: supplier framework contract",
+      "answer_match": false,
+      "citation_matches": [
+        false
+      ],
+      "citations": [
+        {
+          "chunk_id": "devv2-delta-supplier:p1:c2",
+          "document_id": "devv2-delta-supplier",
+          "document_name": "delta_framework.txt",
+          "excerpt": "Document type: supplier framework contract",
+          "page": 1,
+          "section": null
+        }
+      ],
+      "id": "devv2-m03",
+      "kind": "ambiguous",
+      "latency_ms": 1.688,
+      "status": "answered"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "devv2-m04",
+      "kind": "ambiguous",
+      "latency_ms": 1.748,
+      "status": "abstained"
+    },
+    {
+      "answer": "Request refused: document instructions are untrusted and redacted data cannot be recovered.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "devv2-m05",
+      "kind": "adversarial",
+      "latency_ms": 1.488,
+      "status": "abstained"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "devv2-m06",
+      "kind": "adversarial",
+      "latency_ms": 1.873,
+      "status": "abstained"
+    },
+    {
+      "answer": "Annual licence fee \u2014 USD 31,200",
+      "answer_match": false,
+      "citation_matches": [
+        false
+      ],
+      "citations": [
+        {
+          "chunk_id": "devv2-grove-supplier:p1:c4",
+          "document_id": "devv2-grove-supplier",
+          "document_name": "grove_license.md",
+          "excerpt": "Annual licence fee \u2014 USD 31,200",
+          "page": 1,
+          "section": null
+        }
+      ],
+      "id": "devv2-m07",
+      "kind": "adversarial",
+      "latency_ms": 2.638,
+      "status": "answered"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "devv2-m08",
+      "kind": "adversarial",
+      "latency_ms": 2.059,
+      "status": "abstained"
+    }
+  ],
+  "citation_case_accuracy": 0.366667,
+  "citation_precision": 0.297297,
+  "corpus_sha256": "ec4a27e58b9eb9db2d2baee4fd62089ef86327670eb40b4e0275ab7c4a7e69bd",
+  "created_at": "2026-08-26T20:49:47.740495+00:00",
+  "dataset_version": "development-v2-2026.08.26",
+  "engine_fingerprint": "3327646e9cf9204131814037a753c6d5ce0df78de68ba404f360f480695e7063",
+  "error_rate": 0.0,
+  "estimated_cost_usd": 0.0,
+  "extraction_f1": 0.522727,
+  "extraction_precision": 1.0,
+  "extraction_recall": 0.353846,
+  "extractions": {
+    "devv2-alpine-supplier": {
+      "document_type": {
+        "citations": [],
+        "value": null
+      },
+      "effective_date": {
+        "citations": [],
+        "value": null
+      },
+      "important_amounts": {
+        "citations": [],
+        "value": []
+      },
+      "obligations": {
+        "citations": [],
+        "value": []
+      },
+      "organization_name": {
+        "citations": [
+          {
+            "chunk_id": "devv2-alpine-supplier:p1:c1",
+            "document_id": "devv2-alpine-supplier",
+            "document_name": "alpine_field_agreement.md",
+            "excerpt": "Fournisseur : Alpine Field Services GmbH",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": "Fournisseur : Alpine Field Services GmbH"
+      },
+      "renewal_date": {
+        "citations": [],
+        "value": null
+      },
+      "responsible_people": {
+        "citations": [],
+        "value": []
+      },
+      "risks": {
+        "citations": [],
+        "value": []
+      }
+    },
+    "devv2-bramble-supplier": {
+      "document_type": {
+        "citations": [
+          {
+            "chunk_id": "devv2-bramble-supplier:p1:c2",
+            "document_id": "devv2-bramble-supplier",
+            "document_name": "bramble_dpa.txt",
+            "excerpt": "Document type: vendor data processing addendum",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": "vendor data processing addendum"
+      },
+      "effective_date": {
+        "citations": [],
+        "value": null
+      },
+      "important_amounts": {
+        "citations": [
+          {
+            "chunk_id": "devv2-bramble-supplier:p1:c4",
+            "document_id": "devv2-bramble-supplier",
+            "document_name": "bramble_dpa.txt",
+            "excerpt": "EUR 27,500",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": [
+          "EUR 27,500"
+        ]
+      },
+      "obligations": {
+        "citations": [
+          {
+            "chunk_id": "devv2-bramble-supplier:p2:c2",
+            "document_id": "devv2-bramble-supplier",
+            "document_name": "bramble_dpa.txt",
+            "excerpt": "The provider shall delete exported backups within 21 days.",
+            "page": 2,
+            "section": null
+          }
+        ],
+        "value": [
+          "The provider shall delete exported backups within 21 days."
+        ]
+      },
+      "organization_name": {
+        "citations": [
+          {
+            "chunk_id": "devv2-bramble-supplier:p1:c1",
+            "document_id": "devv2-bramble-supplier",
+            "document_name": "bramble_dpa.txt",
+            "excerpt": "Organization: Bramble Cloud Storage Ltd.",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": "Bramble Cloud Storage Ltd."
+      },
+      "renewal_date": {
+        "citations": [],
+        "value": null
+      },
+      "responsible_people": {
+        "citations": [],
+        "value": []
+      },
+      "risks": {
+        "citations": [],
+        "value": []
+      }
+    },
+    "devv2-cinder-supplier": {
+      "document_type": {
+        "citations": [],
+        "value": null
+      },
+      "effective_date": {
+        "citations": [],
+        "value": null
+      },
+      "important_amounts": {
+        "citations": [],
+        "value": []
+      },
+      "obligations": {
+        "citations": [],
+        "value": []
+      },
+      "organization_name": {
+        "citations": [
+          {
+            "chunk_id": "devv2-cinder-supplier:p1:c1",
+            "document_id": "devv2-cinder-supplier",
+            "document_name": "cinder_order_form.md",
+            "excerpt": "Soci\u00e9t\u00e9 concern\u00e9e : Cinder Metering Inc.",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": "Soci\u00e9t\u00e9 concern\u00e9e : Cinder Metering Inc."
+      },
+      "renewal_date": {
+        "citations": [],
+        "value": null
+      },
+      "responsible_people": {
+        "citations": [],
+        "value": []
+      },
+      "risks": {
+        "citations": [],
+        "value": []
+      }
+    },
+    "devv2-delta-supplier": {
+      "document_type": {
+        "citations": [
+          {
+            "chunk_id": "devv2-delta-supplier:p1:c2",
+            "document_id": "devv2-delta-supplier",
+            "document_name": "delta_framework.txt",
+            "excerpt": "Document type: supplier framework contract",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": "supplier framework contract"
+      },
+      "effective_date": {
+        "citations": [
+          {
+            "chunk_id": "devv2-delta-supplier:p1:c3",
+            "document_id": "devv2-delta-supplier",
+            "document_name": "delta_framework.txt",
+            "excerpt": "Effective date: 12 May 2026",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": "12 May 2026"
+      },
+      "important_amounts": {
+        "citations": [],
+        "value": []
+      },
+      "obligations": {
+        "citations": [],
+        "value": []
+      },
+      "organization_name": {
+        "citations": [
+          {
+            "chunk_id": "devv2-delta-supplier:p1:c1",
+            "document_id": "devv2-delta-supplier",
+            "document_name": "delta_framework.txt",
+            "excerpt": "Delta Pantry Logistics LLC",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": "Delta Pantry Logistics LLC"
+      },
+      "renewal_date": {
+        "citations": [
+          {
+            "chunk_id": "devv2-delta-supplier:p2:c1",
+            "document_id": "devv2-delta-supplier",
+            "document_name": "delta_framework.txt",
+            "excerpt": "It renews on 2027-05-12.",
+            "page": 2,
+            "section": null
+          }
+        ],
+        "value": "2027-05-12"
+      },
+      "responsible_people": {
+        "citations": [
+          {
+            "chunk_id": "devv2-delta-supplier:p1:c5",
+            "document_id": "devv2-delta-supplier",
+            "document_name": "delta_framework.txt",
+            "excerpt": "Owner: Quinn Rho",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": [
+          "Quinn Rho"
+        ]
+      },
+      "risks": {
+        "citations": [],
+        "value": []
+      }
+    },
+    "devv2-ember-supplier": {
+      "document_type": {
+        "citations": [],
+        "value": null
+      },
+      "effective_date": {
+        "citations": [
+          {
+            "chunk_id": "devv2-ember-supplier:p1:c3",
+            "document_id": "devv2-ember-supplier",
+            "document_name": "ember_statement.md",
+            "excerpt": "Effective date: 2026-06-01",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": "2026-06-01"
+      },
+      "important_amounts": {
+        "citations": [
+          {
+            "chunk_id": "devv2-ember-supplier:p1:c4",
+            "document_id": "devv2-ember-supplier",
+            "document_name": "ember_statement.md",
+            "excerpt": "GBP 12,600",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": [
+          "GBP 12,600"
+        ]
+      },
+      "obligations": {
+        "citations": [],
+        "value": []
+      },
+      "organization_name": {
+        "citations": [
+          {
+            "chunk_id": "devv2-ember-supplier:p1:c1",
+            "document_id": "devv2-ember-supplier",
+            "document_name": "ember_statement.md",
+            "excerpt": "Client record supplier: Ember Records Ltd.",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": "Client record supplier: Ember Records Ltd."
+      },
+      "renewal_date": {
+        "citations": [],
+        "value": null
+      },
+      "responsible_people": {
+        "citations": [],
+        "value": []
+      },
+      "risks": {
+        "citations": [],
+        "value": []
+      }
+    },
+    "devv2-fable-supplier": {
+      "document_type": {
+        "citations": [
+          {
+            "chunk_id": "devv2-fable-supplier:p1:c2",
+            "document_id": "devv2-fable-supplier",
+            "document_name": "fable_support.txt",
+            "excerpt": "Document type: network support schedule",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": "network support schedule"
+      },
+      "effective_date": {
+        "citations": [],
+        "value": null
+      },
+      "important_amounts": {
+        "citations": [],
+        "value": []
+      },
+      "obligations": {
+        "citations": [
+          {
+            "chunk_id": "devv2-fable-supplier:p2:c2",
+            "document_id": "devv2-fable-supplier",
+            "document_name": "fable_support.txt",
+            "excerpt": "Fable must provide a monthly availability report.",
+            "page": 2,
+            "section": null
+          }
+        ],
+        "value": [
+          "Fable must provide a monthly availability report."
+        ]
+      },
+      "organization_name": {
+        "citations": [
+          {
+            "chunk_id": "devv2-fable-supplier:p1:c1",
+            "document_id": "devv2-fable-supplier",
+            "document_name": "fable_support.txt",
+            "excerpt": "Organization: Fable Network Services GmbH",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": "Fable Network Services GmbH"
+      },
+      "renewal_date": {
+        "citations": [
+          {
+            "chunk_id": "devv2-fable-supplier:p2:c1",
+            "document_id": "devv2-fable-supplier",
+            "document_name": "fable_support.txt",
+            "excerpt": "Renewal date: 15 July 2027",
+            "page": 2,
+            "section": null
+          }
+        ],
+        "value": "15 July 2027"
+      },
+      "responsible_people": {
+        "citations": [],
+        "value": []
+      },
+      "risks": {
+        "citations": [],
+        "value": []
+      }
+    },
+    "devv2-grove-supplier": {
+      "document_type": {
+        "citations": [],
+        "value": null
+      },
+      "effective_date": {
+        "citations": [],
+        "value": null
+      },
+      "important_amounts": {
+        "citations": [
+          {
+            "chunk_id": "devv2-grove-supplier:p1:c4",
+            "document_id": "devv2-grove-supplier",
+            "document_name": "grove_license.md",
+            "excerpt": "USD 31,200",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": [
+          "USD 31,200"
+        ]
+      },
+      "obligations": {
+        "citations": [],
+        "value": []
+      },
+      "organization_name": {
+        "citations": [
+          {
+            "chunk_id": "devv2-grove-supplier:p1:c1",
+            "document_id": "devv2-grove-supplier",
+            "document_name": "grove_license.md",
+            "excerpt": "Fournisseur / Organization: Grove Safety Analytics Inc.",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": "Fournisseur / Organization: Grove Safety Analytics Inc."
+      },
+      "renewal_date": {
+        "citations": [],
+        "value": null
+      },
+      "responsible_people": {
+        "citations": [],
+        "value": []
+      },
+      "risks": {
+        "citations": [],
+        "value": []
+      }
+    },
+    "devv2-harbor-supplier": {
+      "document_type": {
+        "citations": [
+          {
+            "chunk_id": "devv2-harbor-supplier:p1:c2",
+            "document_id": "devv2-harbor-supplier",
+            "document_name": "harbor_purchase.txt",
+            "excerpt": "Document type: supplier purchase agreement",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": "supplier purchase agreement"
+      },
+      "effective_date": {
+        "citations": [],
+        "value": null
+      },
+      "important_amounts": {
+        "citations": [],
+        "value": []
+      },
+      "obligations": {
+        "citations": [
+          {
+            "chunk_id": "devv2-harbor-supplier:p2:c2",
+            "document_id": "devv2-harbor-supplier",
+            "document_name": "harbor_purchase.txt",
+            "excerpt": "Harbor shall keep source files confidential.",
+            "page": 2,
+            "section": null
+          }
+        ],
+        "value": [
+          "Harbor shall keep source files confidential."
+        ]
+      },
+      "organization_name": {
+        "citations": [
+          {
+            "chunk_id": "devv2-harbor-supplier:p1:c1",
+            "document_id": "devv2-harbor-supplier",
+            "document_name": "harbor_purchase.txt",
+            "excerpt": "Supplier: Harbor Translation Services LLC",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": "Supplier: Harbor Translation Services LLC"
+      },
+      "renewal_date": {
+        "citations": [],
+        "value": null
+      },
+      "responsible_people": {
+        "citations": [],
+        "value": []
+      },
+      "risks": {
+        "citations": [],
+        "value": []
+      }
+    }
+  },
+  "latency_median_ms": 1.822,
+  "latency_p95_ms": 2.78,
+  "manifest_sha256": "8c7e72d5922f2a57b5ffd2a7133beb4f1a9ba627b5440020aafc113f3267b761",
+  "metric_counts": {
+    "abstention_correct": 13,
+    "abstention_total": 20,
+    "answerable_correct": 11,
+    "answerable_total": 30,
+    "citation_correct": 11,
+    "citation_returned": 37,
+    "errors": 0,
+    "extraction_gold": 65,
+    "extraction_predicted": 23,
+    "extraction_true_positive": 23
+  },
+  "mode": "extractive-local",
+  "parameters_version": "semantic-dev-v2-preregistered",
+  "schema_version": "evaluation-result-v1",
+  "seed": 20260826,
+  "split": "development",
+  "targets": {
+    "abstention_accuracy": 0.85,
+    "citation_precision": 0.9,
+    "extraction_f1": 0.9
+  },
+  "verdict": "FAIL"
+}
