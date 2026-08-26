@@ -1,0 +1,25 @@
+{
+  "config_sha256": "ce5f8895191eabd064cc29d6e1184bd3eed0507576e5ccc661127c5a7ed6d23a",
+  "created_at": "2026-08-26T22:27:19.541814+00:00",
+  "dependency_sha256": {
+    "pyproject.toml": "6ac4a0a7c4fad75c3777a31d3338b2e98bef6397254d2fa1ed0cfbc033e99576",
+    "uv.lock": "e44f77ab0ef5738ac0af82771560d701639cb4a499fcfbe042ce3ef586ab9f26"
+  },
+  "engine_commit": "648c7f9e555265bcb3b47799cdf72c8572c3b12d",
+  "engine_fingerprint": "7b07504dffe79f2a64d346163c101a6f8434ec70e2ebce9a41b969fb02b4425f",
+  "engine_paths": [
+    "pyproject.toml",
+    "uv.lock",
+    "evals/runner.py",
+    "evals/holdout_v4.py",
+    "evals/validate_dataset.py",
+    "evals/benchmark.py",
+    "evals/recalculate.py",
+    "apps/api/evidencedesk_api/retrieval.py",
+    "apps/api/evidencedesk_api/extraction.py",
+    "apps/api/evidencedesk_api/providers.py",
+    "apps/api/evidencedesk_api/processing.py"
+  ],
+  "model_manifest_sha256": "d930bf9c2c9f866ff606a50cba0a8ca498f3f51f6ef74b1881602e5af2e302cc",
+  "schema_version": "semantic-v2-freeze-v1"
+}
