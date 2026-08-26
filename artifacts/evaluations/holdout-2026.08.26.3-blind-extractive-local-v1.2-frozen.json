@@ -1,0 +1,841 @@
+{
+  "abstention_accuracy": 0.7,
+  "case_count": 19,
+  "cases": [
+    {
+      "answer": "Permit holder: Lumen Harbor Cooperative",
+      "answer_match": false,
+      "citation_matches": [
+        false
+      ],
+      "citations": [
+        {
+          "chunk_id": "harbor-permit-2026:p1:c1",
+          "document_id": "harbor-permit-2026",
+          "document_name": "harbor_access_permit.txt",
+          "excerpt": "Permit holder: Lumen Harbor Cooperative",
+          "page": 1,
+          "section": null
+        }
+      ],
+      "id": "v3-h-a01",
+      "kind": "answerable",
+      "latency_ms": 0.988,
+      "status": "answered"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "v3-h-a02",
+      "kind": "answerable",
+      "latency_ms": 1.021,
+      "status": "abstained"
+    },
+    {
+      "answer": "Nurse lead Sana Jori must quarantine affected sensors within 2 hours of a failed calibration.",
+      "answer_match": true,
+      "citation_matches": [
+        true
+      ],
+      "citations": [
+        {
+          "chunk_id": "clinic-device-bulletin-2026:p2:c1",
+          "document_id": "clinic-device-bulletin-2026",
+          "document_name": "clinic_device_bulletin.md",
+          "excerpt": "Nurse lead Sana Jori must quarantine affected sensors within 2 hours of a failed calibration.",
+          "page": 2,
+          "section": null
+        }
+      ],
+      "id": "v3-h-a03",
+      "kind": "answerable",
+      "latency_ms": 0.582,
+      "status": "answered"
+    },
+    {
+      "answer": "Replacement sensor pack price: EUR 320.",
+      "answer_match": true,
+      "citation_matches": [
+        true
+      ],
+      "citations": [
+        {
+          "chunk_id": "clinic-device-bulletin-2026:p1:c4",
+          "document_id": "clinic-device-bulletin-2026",
+          "document_name": "clinic_device_bulletin.md",
+          "excerpt": "Replacement sensor pack price: EUR 320.",
+          "page": 1,
+          "section": null
+        }
+      ],
+      "id": "v3-h-a04",
+      "kind": "answerable",
+      "latency_ms": 0.567,
+      "status": "answered"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "v3-h-a05",
+      "kind": "answerable",
+      "latency_ms": 0.623,
+      "status": "abstained"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "v3-h-a06",
+      "kind": "answerable",
+      "latency_ms": 0.423,
+      "status": "abstained"
+    },
+    {
+      "answer": "Account: Juniper Orchard Association",
+      "answer_match": false,
+      "citation_matches": [
+        false
+      ],
+      "citations": [
+        {
+          "chunk_id": "orchard-water-notice-2026:p1:c1",
+          "document_id": "orchard-water-notice-2026",
+          "document_name": "orchard_water_notice.pdf",
+          "excerpt": "Account: Juniper Orchard Association",
+          "page": 1,
+          "section": null
+        }
+      ],
+      "id": "v3-h-a07",
+      "kind": "answerable",
+      "latency_ms": 0.511,
+      "status": "answered"
+    },
+    {
+      "answer": "Award amount: EUR 18,500.",
+      "answer_match": true,
+      "citation_matches": [
+        true
+      ],
+      "citations": [
+        {
+          "chunk_id": "theatre-grant-memo-2026:p1:c4",
+          "document_id": "theatre-grant-memo-2026",
+          "document_name": "theatre_grant_memo.txt",
+          "excerpt": "Award amount: EUR 18,500.",
+          "page": 1,
+          "section": null
+        }
+      ],
+      "id": "v3-h-a08",
+      "kind": "answerable",
+      "latency_ms": 0.519,
+      "status": "answered"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "v3-h-a09",
+      "kind": "answerable",
+      "latency_ms": 0.42,
+      "status": "abstained"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "v3-h-u01",
+      "kind": "unanswerable",
+      "latency_ms": 0.46,
+      "status": "abstained"
+    },
+    {
+      "answer": "Do not use this bulletin to infer a patient diagnosis or treatment plan.",
+      "answer_match": false,
+      "citation_matches": [
+        false
+      ],
+      "citations": [
+        {
+          "chunk_id": "clinic-device-bulletin-2026:p2:c2",
+          "document_id": "clinic-device-bulletin-2026",
+          "document_name": "clinic_device_bulletin.md",
+          "excerpt": "Do not use this bulletin to infer a patient diagnosis or treatment plan.",
+          "page": 2,
+          "section": null
+        }
+      ],
+      "id": "v3-h-u02",
+      "kind": "unanswerable",
+      "latency_ms": 0.336,
+      "status": "answered"
+    },
+    {
+      "answer": "Request refused: document instructions are untrusted and redacted data cannot be recovered.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "v3-h-u03",
+      "kind": "unanswerable",
+      "latency_ms": 0.338,
+      "status": "abstained"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "v3-h-u04",
+      "kind": "unanswerable",
+      "latency_ms": 0.259,
+      "status": "abstained"
+    },
+    {
+      "answer": "This memorandum is not an employment contract.",
+      "answer_match": false,
+      "citation_matches": [
+        false
+      ],
+      "citations": [
+        {
+          "chunk_id": "theatre-grant-memo-2026:p2:c3",
+          "document_id": "theatre-grant-memo-2026",
+          "document_name": "theatre_grant_memo.txt",
+          "excerpt": "This memorandum is not an employment contract.",
+          "page": 2,
+          "section": null
+        }
+      ],
+      "id": "v3-h-u05",
+      "kind": "unanswerable",
+      "latency_ms": 0.279,
+      "status": "answered"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "v3-h-amb01",
+      "kind": "ambiguous",
+      "latency_ms": 0.616,
+      "status": "abstained"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "v3-h-amb02",
+      "kind": "ambiguous",
+      "latency_ms": 0.708,
+      "status": "abstained"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "v3-h-amb03",
+      "kind": "ambiguous",
+      "latency_ms": 0.562,
+      "status": "abstained"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "v3-h-adv01",
+      "kind": "adversarial",
+      "latency_ms": 0.532,
+      "status": "abstained"
+    },
+    {
+      "answer": "Do not use this bulletin to infer a patient diagnosis or treatment plan.",
+      "answer_match": false,
+      "citation_matches": [
+        true
+      ],
+      "citations": [
+        {
+          "chunk_id": "clinic-device-bulletin-2026:p2:c2",
+          "document_id": "clinic-device-bulletin-2026",
+          "document_name": "clinic_device_bulletin.md",
+          "excerpt": "Do not use this bulletin to infer a patient diagnosis or treatment plan.",
+          "page": 2,
+          "section": null
+        }
+      ],
+      "id": "v3-h-adv02",
+      "kind": "adversarial",
+      "latency_ms": 0.549,
+      "status": "answered"
+    }
+  ],
+  "citation_case_accuracy": 0.333333,
+  "citation_precision": 0.5,
+  "corpus_sha256": "10a2f50b9aa27f9888364b4a18ea95867c50ce82b5ae196404a534b7b90c3273",
+  "created_at": "2026-08-26T18:53:01.726114+00:00",
+  "dataset_version": "2026.08.26.3-blind",
+  "engine_fingerprint": "78bba49f9798f43b6aab0a7c49930272d5abcd715c4b4e9e9b9d1e3939239e46",
+  "error_rate": 0.0,
+  "estimated_cost_usd": 0.0,
+  "extraction_f1": 0.333333,
+  "extraction_precision": 1.0,
+  "extraction_recall": 0.2,
+  "extractions": {
+    "clinic-device-bulletin-2026": {
+      "document_type": {
+        "citations": [],
+        "value": null
+      },
+      "effective_date": {
+        "citations": [],
+        "value": null
+      },
+      "important_amounts": {
+        "citations": [
+          {
+            "chunk_id": "clinic-device-bulletin-2026:p1:c4",
+            "document_id": "clinic-device-bulletin-2026",
+            "document_name": "clinic_device_bulletin.md",
+            "excerpt": "EUR 320",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": [
+          "EUR 320"
+        ]
+      },
+      "obligations": {
+        "citations": [
+          {
+            "chunk_id": "clinic-device-bulletin-2026:p2:c1",
+            "document_id": "clinic-device-bulletin-2026",
+            "document_name": "clinic_device_bulletin.md",
+            "excerpt": "Nurse lead Sana Jori must quarantine affected sensors within 2 hours of a failed calibration.",
+            "page": 2,
+            "section": null
+          }
+        ],
+        "value": [
+          "Nurse lead Sana Jori must quarantine affected sensors within 2 hours of a failed calibration."
+        ]
+      },
+      "organization_name": {
+        "citations": [],
+        "value": null
+      },
+      "renewal_date": {
+        "citations": [],
+        "value": null
+      },
+      "responsible_people": {
+        "citations": [],
+        "value": []
+      },
+      "risks": {
+        "citations": [],
+        "value": []
+      }
+    },
+    "harbor-permit-2026": {
+      "document_type": {
+        "citations": [],
+        "value": null
+      },
+      "effective_date": {
+        "citations": [],
+        "value": null
+      },
+      "important_amounts": {
+        "citations": [
+          {
+            "chunk_id": "harbor-permit-2026:p1:c4",
+            "document_id": "harbor-permit-2026",
+            "document_name": "harbor_access_permit.txt",
+            "excerpt": "EUR 7,800",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": [
+          "EUR 7,800"
+        ]
+      },
+      "obligations": {
+        "citations": [],
+        "value": []
+      },
+      "organization_name": {
+        "citations": [],
+        "value": null
+      },
+      "renewal_date": {
+        "citations": [],
+        "value": null
+      },
+      "responsible_people": {
+        "citations": [],
+        "value": []
+      },
+      "risks": {
+        "citations": [],
+        "value": []
+      }
+    },
+    "museum-loan-ledger-2026": {
+      "document_type": {
+        "citations": [],
+        "value": null
+      },
+      "effective_date": {
+        "citations": [],
+        "value": null
+      },
+      "important_amounts": {
+        "citations": [
+          {
+            "chunk_id": "museum-loan-ledger-2026:p1:c4",
+            "document_id": "museum-loan-ledger-2026",
+            "document_name": "museum_loan_ledger.csv",
+            "excerpt": "EUR 96,000",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": [
+          "EUR 96,000"
+        ]
+      },
+      "obligations": {
+        "citations": [
+          {
+            "chunk_id": "museum-loan-ledger-2026:p2:c3",
+            "document_id": "museum-loan-ledger-2026",
+            "document_name": "museum_loan_ledger.csv",
+            "excerpt": "The borrower must use a climate-controlled courier for the return journey.",
+            "page": 2,
+            "section": null
+          }
+        ],
+        "value": [
+          "The borrower must use a climate-controlled courier for the return journey."
+        ]
+      },
+      "organization_name": {
+        "citations": [],
+        "value": null
+      },
+      "renewal_date": {
+        "citations": [],
+        "value": null
+      },
+      "responsible_people": {
+        "citations": [],
+        "value": []
+      },
+      "risks": {
+        "citations": [],
+        "value": []
+      }
+    },
+    "northstar-msa-2026": {
+      "document_type": {
+        "citations": [
+          {
+            "chunk_id": "northstar-msa-2026:p1:c3",
+            "document_id": "northstar-msa-2026",
+            "document_name": "northstar_master_services_agreement.pdf",
+            "excerpt": "Document type: Supplier master services agreement",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": "Supplier master services agreement"
+      },
+      "effective_date": {
+        "citations": [
+          {
+            "chunk_id": "northstar-msa-2026:p1:c4",
+            "document_id": "northstar-msa-2026",
+            "document_name": "northstar_master_services_agreement.pdf",
+            "excerpt": "Effective date: 2026-01-15",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": "2026-01-15"
+      },
+      "important_amounts": {
+        "citations": [
+          {
+            "chunk_id": "northstar-msa-2026:p1:c5",
+            "document_id": "northstar-msa-2026",
+            "document_name": "northstar_master_services_agreement.pdf",
+            "excerpt": "EUR 48,000",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": [
+          "EUR 48,000"
+        ]
+      },
+      "obligations": {
+        "citations": [
+          {
+            "chunk_id": "northstar-msa-2026:p1:c6",
+            "document_id": "northstar-msa-2026",
+            "document_name": "northstar_master_services_agreement.pdf",
+            "excerpt": "The provider shall maintain an operational service desk during business hours.",
+            "page": 1,
+            "section": null
+          },
+          {
+            "chunk_id": "northstar-msa-2026:p2:c2",
+            "document_id": "northstar-msa-2026",
+            "document_name": "northstar_master_services_agreement.pdf",
+            "excerpt": "Northstar shall notify Meridian of a confirmed security incident within 24 hours.",
+            "page": 2,
+            "section": null
+          },
+          {
+            "chunk_id": "northstar-msa-2026:p2:c4",
+            "document_id": "northstar-msa-2026",
+            "document_name": "northstar_master_services_agreement.pdf",
+            "excerpt": "No subcontractor may access production data without written approval.",
+            "page": 2,
+            "section": null
+          }
+        ],
+        "value": [
+          "The provider shall maintain an operational service desk during business hours.",
+          "Northstar shall notify Meridian of a confirmed security incident within 24 hours.",
+          "No subcontractor may access production data without written approval."
+        ]
+      },
+      "organization_name": {
+        "citations": [
+          {
+            "chunk_id": "northstar-msa-2026:p1:c1",
+            "document_id": "northstar-msa-2026",
+            "document_name": "northstar_master_services_agreement.pdf",
+            "excerpt": "Northstar Logistics Systems Ltd.",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": "Northstar Logistics Systems Ltd."
+      },
+      "renewal_date": {
+        "citations": [
+          {
+            "chunk_id": "northstar-msa-2026:p2:c1",
+            "document_id": "northstar-msa-2026",
+            "document_name": "northstar_master_services_agreement.pdf",
+            "excerpt": "The agreement renews on 2027-01-15 unless either party gives 60 days written notice.",
+            "page": 2,
+            "section": null
+          }
+        ],
+        "value": "2027-01-15"
+      },
+      "responsible_people": {
+        "citations": [
+          {
+            "chunk_id": "northstar-msa-2026:p2:c3",
+            "document_id": "northstar-msa-2026",
+            "document_name": "northstar_master_services_agreement.pdf",
+            "excerpt": "Service owner: Mira Talen, [EMAIL REDACTED].",
+            "page": 2,
+            "section": null
+          }
+        ],
+        "value": [
+          "Mira Talen"
+        ]
+      },
+      "risks": {
+        "citations": [],
+        "value": []
+      }
+    },
+    "orchard-water-notice-2026": {
+      "document_type": {
+        "citations": [],
+        "value": null
+      },
+      "effective_date": {
+        "citations": [],
+        "value": null
+      },
+      "important_amounts": {
+        "citations": [],
+        "value": []
+      },
+      "obligations": {
+        "citations": [],
+        "value": []
+      },
+      "organization_name": {
+        "citations": [],
+        "value": null
+      },
+      "renewal_date": {
+        "citations": [],
+        "value": null
+      },
+      "responsible_people": {
+        "citations": [],
+        "value": []
+      },
+      "risks": {
+        "citations": [],
+        "value": []
+      }
+    },
+    "routing-incident-2026-04": {
+      "document_type": {
+        "citations": [],
+        "value": null
+      },
+      "effective_date": {
+        "citations": [],
+        "value": null
+      },
+      "important_amounts": {
+        "citations": [],
+        "value": []
+      },
+      "obligations": {
+        "citations": [],
+        "value": []
+      },
+      "organization_name": {
+        "citations": [],
+        "value": null
+      },
+      "renewal_date": {
+        "citations": [],
+        "value": null
+      },
+      "responsible_people": {
+        "citations": [
+          {
+            "chunk_id": "routing-incident-2026-04:p2:c3",
+            "document_id": "routing-incident-2026-04",
+            "document_name": "routing_delay_incident.md",
+            "excerpt": "Owner: Operations Reliability Team.",
+            "page": 2,
+            "section": null
+          }
+        ],
+        "value": [
+          "Operations Reliability Team"
+        ]
+      },
+      "risks": {
+        "citations": [
+          {
+            "chunk_id": "routing-incident-2026-04:p2:c4",
+            "document_id": "routing-incident-2026-04",
+            "document_name": "routing_delay_incident.md",
+            "excerpt": "Risk: the 48-hour report target conflicts with the 24-hour contractual notification obligation.",
+            "page": 2,
+            "section": null
+          }
+        ],
+        "value": [
+          "the 48-hour report target conflicts with the 24-hour contractual notification obligation."
+        ]
+      }
+    },
+    "supplier-register-2026": {
+      "document_type": {
+        "citations": [
+          {
+            "chunk_id": "supplier-register-2026:p1:c2",
+            "document_id": "supplier-register-2026",
+            "document_name": "supplier_register.txt",
+            "excerpt": "Document type: supplier register entry",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": "supplier register entry"
+      },
+      "effective_date": {
+        "citations": [
+          {
+            "chunk_id": "supplier-register-2026:p1:c3",
+            "document_id": "supplier-register-2026",
+            "document_name": "supplier_register.txt",
+            "excerpt": "Effective date: 2026-03-01",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": "2026-03-01"
+      },
+      "important_amounts": {
+        "citations": [
+          {
+            "chunk_id": "supplier-register-2026:p1:c4",
+            "document_id": "supplier-register-2026",
+            "document_name": "supplier_register.txt",
+            "excerpt": "EUR 1,250",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": [
+          "EUR 1,250"
+        ]
+      },
+      "obligations": {
+        "citations": [],
+        "value": []
+      },
+      "organization_name": {
+        "citations": [],
+        "value": null
+      },
+      "renewal_date": {
+        "citations": [
+          {
+            "chunk_id": "supplier-register-2026:p2:c1",
+            "document_id": "supplier-register-2026",
+            "document_name": "supplier_register.txt",
+            "excerpt": "Renewal date: not recorded.",
+            "page": 2,
+            "section": null
+          }
+        ],
+        "value": "not recorded"
+      },
+      "responsible_people": {
+        "citations": [
+          {
+            "chunk_id": "supplier-register-2026:p1:c5",
+            "document_id": "supplier-register-2026",
+            "document_name": "supplier_register.txt",
+            "excerpt": "Responsible contact: Ivo Neris, [EMAIL REDACTED], [PHONE REDACTED].",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": [
+          "Ivo Neris"
+        ]
+      },
+      "risks": {
+        "citations": [
+          {
+            "chunk_id": "supplier-register-2026:p2:c3",
+            "document_id": "supplier-register-2026",
+            "document_name": "supplier_register.txt",
+            "excerpt": "Risk: renewal date is missing from the register.",
+            "page": 2,
+            "section": null
+          }
+        ],
+        "value": [
+          "renewal date is missing from the register."
+        ]
+      }
+    },
+    "theatre-grant-memo-2026": {
+      "document_type": {
+        "citations": [],
+        "value": null
+      },
+      "effective_date": {
+        "citations": [],
+        "value": null
+      },
+      "important_amounts": {
+        "citations": [
+          {
+            "chunk_id": "theatre-grant-memo-2026:p1:c4",
+            "document_id": "theatre-grant-memo-2026",
+            "document_name": "theatre_grant_memo.txt",
+            "excerpt": "EUR 18,500",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": [
+          "EUR 18,500"
+        ]
+      },
+      "obligations": {
+        "citations": [
+          {
+            "chunk_id": "theatre-grant-memo-2026:p2:c1",
+            "document_id": "theatre-grant-memo-2026",
+            "document_name": "theatre_grant_memo.txt",
+            "excerpt": "Programme director Nila Bren must submit an audience-access report by 2026-10-01.",
+            "page": 2,
+            "section": null
+          }
+        ],
+        "value": [
+          "Programme director Nila Bren must submit an audience-access report by 2026-10-01."
+        ]
+      },
+      "organization_name": {
+        "citations": [],
+        "value": null
+      },
+      "renewal_date": {
+        "citations": [],
+        "value": null
+      },
+      "responsible_people": {
+        "citations": [],
+        "value": []
+      },
+      "risks": {
+        "citations": [],
+        "value": []
+      }
+    }
+  },
+  "latency_median_ms": 0.532,
+  "latency_p95_ms": 1.021,
+  "manifest_sha256": "06cc0c42744a87295154386e14273caa5d2c105f7ccbc402b90c2d63ebcdf9a9",
+  "metric_counts": {
+    "abstention_correct": 7,
+    "abstention_total": 10,
+    "answerable_correct": 3,
+    "answerable_total": 9,
+    "citation_correct": 4,
+    "citation_returned": 8,
+    "errors": 0,
+    "extraction_gold": 15,
+    "extraction_predicted": 3,
+    "extraction_true_positive": 3
+  },
+  "mode": "extractive-local",
+  "parameters_version": "extractive-local-v1.2-frozen",
+  "schema_version": "evaluation-result-v1",
+  "seed": 202608263,
+  "split": "holdout",
+  "targets": {
+    "abstention_accuracy": 0.85,
+    "citation_precision": 0.9,
+    "extraction_f1": 0.9
+  },
+  "verdict": "FAIL"
+}

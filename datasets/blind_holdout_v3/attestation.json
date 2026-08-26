@@ -1,0 +1,12 @@
+{
+  "dataset_version": "2026.08.26.3-blind",
+  "parameters_version": "extractive-local-v1.2-frozen",
+  "seed": 202608263,
+  "engine_commit": "d8b5dab7ed000adc52fc6cf3279f0dfcfe4f0696",
+  "engine_executed": false,
+  "generated_files_sha256": {
+    "corpus_manifest.json": "10a2f50b9aa27f9888364b4a18ea95867c50ce82b5ae196404a534b7b90c3273",
+    "evaluation_cases.json": "06cc0c42744a87295154386e14273caa5d2c105f7ccbc402b90c2d63ebcdf9a9"
+  },
+  "attestation_note": "The attestation is not self-hashed to avoid a recursive digest."
+}

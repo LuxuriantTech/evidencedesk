@@ -1,0 +1,8 @@
+{
+  "corpus_sha256": "10a2f50b9aa27f9888364b4a18ea95867c50ce82b5ae196404a534b7b90c3273",
+  "dataset_version": "2026.08.26.3-blind",
+  "engine_fingerprint": "78bba49f9798f43b6aab0a7c49930272d5abcd715c4b4e9e9b9d1e3939239e46",
+  "manifest_sha256": "06cc0c42744a87295154386e14273caa5d2c105f7ccbc402b90c2d63ebcdf9a9",
+  "opened_at": "2026-08-26T18:53:01.707253+00:00",
+  "parameters_version": "extractive-local-v1.2-frozen"
+}

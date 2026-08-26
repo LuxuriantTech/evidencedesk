@@ -1,0 +1,8 @@
+title = "EvidenceDesk local secret-scan allowlist"
+
+[allowlist]
+description = "Explicitly named, non-deployable JWT fixtures used only by authentication tests."
+regexes = [
+  '''test-secret-that-is-long-enough-123456''',
+  '''integration-secret-at-least-32-characters''',
+]

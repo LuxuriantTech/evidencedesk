@@ -1,6 +1,8 @@
+import json
+import re
 from dataclasses import dataclass
 from hashlib import sha256
-from pathlib import PurePosixPath
+from pathlib import Path, PurePosixPath
 
 
 class UploadRejected(ValueError):
@@ -25,6 +27,29 @@ _MEDIA_TYPES: dict[str, tuple[str, frozenset[str]]] = {
         frozenset({"text/markdown", "text/plain", "application/octet-stream"}),
     ),
 }
+
+
+def load_public_demo_hashes(path: Path) -> frozenset[str]:
+    try:
+        manifest = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise RuntimeError("invalid public demo allowlist") from exc
+    if not isinstance(manifest, dict) or manifest.get("synthetic_only") is not True:
+        raise RuntimeError("public demo allowlist must be synthetic-only")
+    documents = manifest.get("documents")
+    if not isinstance(documents, list) or not documents:
+        raise RuntimeError("public demo allowlist has no documents")
+    hashes: set[str] = set()
+    for document in documents:
+        if not isinstance(document, dict):
+            raise RuntimeError("invalid public demo allowlist document")
+        digest = document.get("sha256")
+        if not isinstance(digest, str) or re.fullmatch(r"[0-9a-f]{64}", digest) is None:
+            raise RuntimeError("invalid public demo allowlist digest")
+        hashes.add(digest)
+    if len(hashes) != len(documents):
+        raise RuntimeError("duplicate public demo allowlist digest")
+    return frozenset(hashes)
 
 
 def validate_upload(

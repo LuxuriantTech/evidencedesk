@@ -3,7 +3,7 @@ from typing import Any, ClassVar
 from arq.connections import RedisSettings
 from evidencedesk_api.config import get_settings
 from evidencedesk_api.db import build_engine, build_session_factory
-from evidencedesk_api.providers import DeterministicEmbeddingProvider
+from evidencedesk_api.provider_registry import build_provider_bundle
 from evidencedesk_api.storage import LocalDocumentStorage
 
 from evidencedesk_worker.jobs import WorkerContext, process_document
@@ -12,12 +12,13 @@ from evidencedesk_worker.jobs import WorkerContext, process_document
 async def startup(ctx: dict[str, Any]) -> None:
     settings = get_settings()
     engine = build_engine(settings)
+    providers = build_provider_bundle(settings.answer_mode)
     ctx["worker"] = WorkerContext(
         settings=settings,
         engine=engine,
         session_factory=build_session_factory(engine),
         storage=LocalDocumentStorage(settings.storage_root),
-        embeddings=DeterministicEmbeddingProvider(dimension=384),
+        embeddings=providers.embedding,
     )
 
 

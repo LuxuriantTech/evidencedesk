@@ -49,9 +49,10 @@ from evidencedesk_api.observability import (
     configure_logging,
     metrics_app,
 )
-from evidencedesk_api.providers import DeterministicEmbeddingProvider
+from evidencedesk_api.provider_registry import ProviderBundle, build_provider_bundle
 from evidencedesk_api.queueing import TaskQueue, build_task_queue
-from evidencedesk_api.retrieval import EvidenceChunk, ExtractiveAnswerProvider, hybrid_rank
+from evidencedesk_api.request_limits import RequestBodyLimitMiddleware
+from evidencedesk_api.retrieval import EvidenceChunk, hybrid_rank
 from evidencedesk_api.schemas import (
     AskRequest,
     AskResponse,
@@ -68,7 +69,7 @@ from evidencedesk_api.schemas import (
 )
 from evidencedesk_api.security import create_access_token, decode_access_token, verify_password
 from evidencedesk_api.storage import LocalDocumentStorage, build_storage_key
-from evidencedesk_api.uploads import UploadRejected, validate_upload
+from evidencedesk_api.uploads import UploadRejected, load_public_demo_hashes, validate_upload
 
 bearer = HTTPBearer(auto_error=False)
 
@@ -147,6 +148,13 @@ def _document_view(document: Document, task_id: UUID | None = None) -> DocumentV
 
 def create_app(*, settings: Settings | None = None, task_queue: TaskQueue | None = None) -> FastAPI:
     active_settings = settings or get_settings()
+    if active_settings.max_request_bytes <= active_settings.max_upload_bytes:
+        raise ValueError("max_request_bytes must exceed max_upload_bytes")
+    public_demo_hashes = (
+        load_public_demo_hashes(active_settings.public_demo_allowlist)
+        if active_settings.public_demo_mode
+        else frozenset()
+    )
     configure_logging()
     logger = structlog.get_logger("evidencedesk.api")
 
@@ -158,6 +166,8 @@ def create_app(*, settings: Settings | None = None, task_queue: TaskQueue | None
         app.state.settings = active_settings
         app.state.storage = LocalDocumentStorage(active_settings.storage_root)
         app.state.task_queue = task_queue or await build_task_queue(active_settings.redis_url)
+        app.state.providers = build_provider_bundle(active_settings.answer_mode)
+        app.state.public_demo_hashes = public_demo_hashes
         try:
             yield
         finally:
@@ -165,6 +175,10 @@ def create_app(*, settings: Settings | None = None, task_queue: TaskQueue | None
             await engine.dispose()
 
     app = FastAPI(title="EvidenceDesk API", version="0.1.0", lifespan=lifespan)
+    app.add_middleware(
+        RequestBodyLimitMiddleware,
+        max_bytes=active_settings.max_request_bytes,
+    )
     app.mount("/metrics", metrics_app())
 
     @app.middleware("http")
@@ -306,6 +320,14 @@ def create_app(*, settings: Settings | None = None, task_queue: TaskQueue | None
             )
         except UploadRejected as exc:
             raise HTTPException(status_code=422, detail={"code": exc.code}) from exc
+        if (
+            active_settings.public_demo_mode
+            and validated.sha256 not in request.app.state.public_demo_hashes
+        ):
+            raise HTTPException(
+                status_code=422,
+                detail={"code": "public_demo_file_not_approved"},
+            )
 
         existing = await session.scalar(
             select(Document).where(
@@ -416,13 +438,24 @@ def create_app(*, settings: Settings | None = None, task_queue: TaskQueue | None
         principal: Annotated[UserPrincipal, Depends(require_action(Action.DELETE_DOCUMENT))],
         session: Annotated[AsyncSession, Depends(get_session)],
     ) -> Response:
-        document = await session.get(Document, document_id)
+        task = await session.scalar(
+            select(ProcessingTask)
+            .where(ProcessingTask.document_id == document_id)
+            .with_for_update()
+        )
+        document = await session.scalar(
+            select(Document).where(Document.id == document_id).with_for_update()
+        )
         if document is None or document.deleted_at is not None:
             raise HTTPException(status_code=404, detail={"code": "document_not_found"})
         storage: LocalDocumentStorage = request.app.state.storage
         storage.delete(document.storage_key)
         await session.execute(delete(Chunk).where(Chunk.document_id == document_id))
         await session.execute(delete(Extraction).where(Extraction.document_id == document_id))
+        if task is not None and task.status not in {TaskStatus.COMPLETED, TaskStatus.FAILED}:
+            task.status = TaskStatus.FAILED
+            task.error_code = "document_deleted"
+            task.completed_at = datetime.now(UTC)
         document.status = DocumentStatus.DELETED
         document.deleted_at = datetime.now(UTC)
         _audit(
@@ -453,7 +486,8 @@ def create_app(*, settings: Settings | None = None, task_queue: TaskQueue | None
     @app.get("/api/v1/documents/{document_id}/content", response_model=list[ContentChunkView])
     async def get_document_content(
         document_id: UUID,
-        _principal: Annotated[UserPrincipal, Depends(require_action(Action.VIEW_DOCUMENT))],
+        request: Request,
+        principal: Annotated[UserPrincipal, Depends(require_action(Action.VIEW_DOCUMENT))],
         session: Annotated[AsyncSession, Depends(get_session)],
     ) -> list[ContentChunkView]:
         document = await session.get(Document, document_id)
@@ -466,6 +500,16 @@ def create_app(*, settings: Settings | None = None, task_queue: TaskQueue | None
                 .order_by(Chunk.page, Chunk.ordinal)
             )
         ).all()
+        _audit(
+            session,
+            actor_id=principal.id,
+            action="document.content.view",
+            result="success",
+            correlation_id=_correlation_id(request),
+            document_id=document_id,
+            metadata_safe={"chunk_count": len(chunks)},
+        )
+        await session.commit()
         return [ContentChunkView.model_validate(chunk) for chunk in chunks]
 
     @app.post("/api/v1/dossiers/{dossier_id}/ask", response_model=AskResponse)
@@ -479,8 +523,8 @@ def create_app(*, settings: Settings | None = None, task_queue: TaskQueue | None
         if await session.get(Dossier, dossier_id) is None:
             raise HTTPException(status_code=404, detail={"code": "dossier_not_found"})
         started = perf_counter()
-        embeddings = DeterministicEmbeddingProvider(dimension=384)
-        query_embedding = embeddings.embed(body.question)
+        providers: ProviderBundle = request.app.state.providers
+        query_embedding = providers.embedding.embed(body.question)
         eligible = (
             Document.dossier_id == dossier_id,
             Document.status == DocumentStatus.COMPLETED,
@@ -516,10 +560,10 @@ def create_app(*, settings: Settings | None = None, task_queue: TaskQueue | None
                 text=chunk.text,
                 embedding=list(chunk.embedding),
             )
-        ranked = hybrid_rank(body.question, list(candidates.values()), provider=embeddings)
-        result = ExtractiveAnswerProvider().answer(body.question, ranked)
+        ranked = hybrid_rank(body.question, list(candidates.values()), provider=providers.embedding)
+        result = providers.answer.answer(body.question, ranked)
         latency_ms = round((perf_counter() - started) * 1_000, 3)
-        SEARCH_LATENCY.labels("extractive-local", result.status).observe(latency_ms / 1_000)
+        SEARCH_LATENCY.labels(providers.answer.mode, result.status).observe(latency_ms / 1_000)
         correlation_id = _correlation_id(request)
         _audit(
             session,
@@ -531,7 +575,7 @@ def create_app(*, settings: Settings | None = None, task_queue: TaskQueue | None
                 "dossier_id": str(dossier_id),
                 "latency_ms": latency_ms,
                 "citation_count": len(result.citations),
-                "mode": "extractive-local",
+                "mode": providers.answer.mode,
             },
         )
         await session.commit()
@@ -539,7 +583,7 @@ def create_app(*, settings: Settings | None = None, task_queue: TaskQueue | None
             status=result.status,
             answer=result.answer,
             confidence=result.confidence,
-            mode="extractive-local",
+            mode=providers.answer.mode,
             citations=[CitationView.model_validate(item) for item in result.citations],
             correlation_id=correlation_id,
         )
@@ -550,7 +594,8 @@ def create_app(*, settings: Settings | None = None, task_queue: TaskQueue | None
     )
     async def get_dossier_extraction(
         dossier_id: UUID,
-        _principal: Annotated[UserPrincipal, Depends(require_action(Action.VIEW_EXTRACTION))],
+        request: Request,
+        principal: Annotated[UserPrincipal, Depends(require_action(Action.VIEW_EXTRACTION))],
         session: Annotated[AsyncSession, Depends(get_session)],
     ) -> list[DocumentExtractionView]:
         rows = (
@@ -565,6 +610,18 @@ def create_app(*, settings: Settings | None = None, task_queue: TaskQueue | None
                 .order_by(Document.filename)
             )
         ).all()
+        for _extraction, document in rows:
+            _audit(
+                session,
+                actor_id=principal.id,
+                action="document.extraction.view",
+                result="success",
+                correlation_id=_correlation_id(request),
+                document_id=document.id,
+                metadata_safe={"dossier_id": str(dossier_id)},
+            )
+        if rows:
+            await session.commit()
         return [
             DocumentExtractionView(
                 document_id=document.id,

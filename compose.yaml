@@ -1,0 +1,145 @@
+name: evidencedesk
+
+x-app-environment: &app-environment
+  ENVIRONMENT: development
+  DATABASE_URL: postgresql+asyncpg://evidencedesk:evidencedesk-local-only@postgres:5432/evidencedesk
+  REDIS_URL: redis://redis:6379/0
+  STORAGE_ROOT: /data/documents
+  # These credentials are intentionally local demo values, not deployable secrets.
+  JWT_SECRET: local-demo-jwt-secret-change-before-any-deployment-2026
+  ACCESS_TOKEN_MINUTES: "30"
+  PUBLIC_DEMO_MODE: "true"
+  PUBLIC_DEMO_ALLOWLIST: datasets/public_demo_uploads.json
+  MAX_UPLOAD_BYTES: "10485760"
+  MAX_REQUEST_BYTES: "11534336"
+  MAX_DOCUMENT_PAGES: "200"
+  MAX_EXTRACTED_CHARS: "1000000"
+  MAX_DOCUMENT_CHUNKS: "5000"
+  PDF_PARSE_TIMEOUT_SECONDS: "10"
+  PDF_PARSE_MEMORY_BYTES: "536870912"
+  ANSWER_MODE: extractive-local
+  DEMO_ADMIN_PASSWORD: EvidenceDemo-Admin-2026!
+  DEMO_ANALYST_PASSWORD: EvidenceDemo-Analyst-2026!
+  DEMO_READER_PASSWORD: EvidenceDemo-Reader-2026!
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16@sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b
+    environment:
+      POSTGRES_DB: evidencedesk
+      POSTGRES_USER: evidencedesk
+      POSTGRES_PASSWORD: evidencedesk-local-only
+    ports:
+      - "127.0.0.1:55432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U evidencedesk -d evidencedesk"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:7.4-alpine@sha256:ff02b58f971e7d7d156a1267e283fcbbeee91773b6aa36c49dac28ecfe28eadf
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    ports:
+      - "127.0.0.1:56379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+
+  migrate:
+    image: evidencedesk-api:local
+    pull_policy: build
+    build:
+      context: .
+      dockerfile: infra/docker/api.Dockerfile
+    environment: *app-environment
+    command: ["alembic", "upgrade", "head"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  seed:
+    image: evidencedesk-api:local
+    pull_policy: build
+    build:
+      context: .
+      dockerfile: infra/docker/api.Dockerfile
+    environment: *app-environment
+    command: ["python", "-m", "evidencedesk_api.seed_cli"]
+    volumes:
+      - documents_data:/data/documents
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    restart: "no"
+
+  api:
+    image: evidencedesk-api:local
+    pull_policy: build
+    build:
+      context: .
+      dockerfile: infra/docker/api.Dockerfile
+    environment: *app-environment
+    command:
+      ["uvicorn", "evidencedesk_api.main:create_app", "--factory", "--host", "0.0.0.0", "--port", "8000"]
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - documents_data:/data/documents
+    depends_on:
+      seed:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  worker:
+    image: evidencedesk-api:local
+    pull_policy: build
+    build:
+      context: .
+      dockerfile: infra/docker/api.Dockerfile
+    environment: *app-environment
+    command: ["arq", "evidencedesk_worker.main.WorkerSettings"]
+    volumes:
+      - documents_data:/data/documents
+    depends_on:
+      api:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "arq", "--check", "evidencedesk_worker.main.WorkerSettings"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  web:
+    build:
+      context: .
+      dockerfile: infra/docker/web.Dockerfile
+    ports:
+      - "127.0.0.1:8080:8080"
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  postgres_data:
+  documents_data:

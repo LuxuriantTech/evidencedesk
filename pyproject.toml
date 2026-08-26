@@ -29,7 +29,7 @@ dev = [
   "mypy>=1.17,<2",
   "pip-audit>=2.9,<3",
   "psycopg[binary]>=3.2,<4",
-  "pytest>=8.4,<9",
+  "pytest>=9.0.3,<10",
   "pytest-asyncio>=1.1,<2",
   "pytest-cov>=6.2,<7",
   "reportlab>=4.4,<5",
@@ -66,6 +66,7 @@ ignore = ["S101"]
 "apps/api/alembic/versions/*.py" = ["E501"]
 "apps/api/tests/**/*.py" = ["S105", "S106"]
 "apps/worker/tests/**/*.py" = ["S105", "S106"]
+"scripts/generate_blind_holdout*.py" = ["E501"]
 
 [tool.mypy]
 python_version = "3.12"

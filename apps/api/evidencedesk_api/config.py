@@ -18,9 +18,20 @@ class Settings(BaseSettings):
     access_token_minutes: int = Field(default=30, ge=1, le=30)
     public_demo_mode: bool = True
     max_upload_bytes: int = Field(default=10 * 1024 * 1024, ge=1)
+    max_request_bytes: int = Field(default=11 * 1024 * 1024, ge=1)
+    max_document_pages: int = Field(default=200, ge=1, le=10_000)
+    max_extracted_chars: int = Field(default=1_000_000, ge=1, le=50_000_000)
+    max_document_chunks: int = Field(default=5_000, ge=1, le=100_000)
+    pdf_parse_timeout_seconds: float = Field(default=10.0, ge=0.1, le=120.0)
+    pdf_parse_memory_bytes: int = Field(
+        default=512 * 1024 * 1024,
+        ge=64 * 1024 * 1024,
+        le=4 * 1024 * 1024 * 1024,
+    )
     answer_mode: str = "extractive-local"
     evaluation_manifest: Path = Path("datasets/evaluation_cases.json")
     corpus_manifest: Path = Path("datasets/corpus_manifest.json")
+    public_demo_allowlist: Path = Path("datasets/public_demo_uploads.json")
     demo_admin_password: str
     demo_analyst_password: str
     demo_reader_password: str

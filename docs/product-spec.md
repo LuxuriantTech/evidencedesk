@@ -61,7 +61,7 @@ n’effectue aucun appel externe et n’exige aucune clé.
 - FR-21: L’interface MUST proposer connexion, tableau de bord, dossier, suivi des tâches, vue document/réponse côte à côte, extraction, audit, évaluation et état administratif.
 - FR-22: Les citations MUST être activables au clavier et faire défiler la vue document jusqu’au passage/page correspondant.
 - FR-23: L’API MUST exposer santé, disponibilité et métriques ; traitements et recherches MUST émettre durée, succès/échec et corrélation dans des logs JSON structurés.
-- FR-24: En mode démonstration publique, l’import MUST exiger une attestation synthétique et afficher un avertissement d’absence de données réelles.
+- FR-24: En mode démonstration publique, l’import MUST exiger une attestation synthétique, limiter le contenu à une allowlist SHA-256 versionnée et afficher un avertissement d’absence de données réelles.
 - FR-25: Docker Compose MUST démarrer web, API, worker, PostgreSQL/pgvector et Redis avec données de démonstration reproductibles.
 - FR-26: Le dépôt MUST inclure script de démonstration, exemples API, règles de conservation, architecture, sécurité, évaluation, ADR, licence, contribution, signalement sécurité et préparation carrière fondée sur les mesures.
 
@@ -72,7 +72,7 @@ n’effectue aucun appel externe et n’exige aucune clé.
 - NFR-3: Ruff, mypy strict, ESLint et `tsc --noEmit` MUST passer sans erreur.
 - NFR-4: Le parcours principal MUST avoir zéro violation axe-core `critical` ou `serious` dans le test E2E.
 - NFR-5: Sur le corpus de démonstration local, la recherche SHOULD répondre avec une latence p95 inférieure à 750 ms hors première initialisation, mesurée par l’évaluateur.
-- NFR-6: Les fichiers importés MUST être limités à 10 MiB et les questions à 1 000 caractères.
+- NFR-6: Le corps HTTP MUST être limité avant parsing multipart, les fichiers importés MUST être limités à 10 MiB, les questions à 1 000 caractères et le traitement MUST borner pages, caractères extraits et chunks avec des valeurs configurables.
 - NFR-7: Les jetons MUST expirer au plus tard après 30 minutes et les réponses d’erreur MUST NOT divulguer de trace interne.
 - NFR-8: Les services Docker MUST avoir des contrôles de santé et l’API MUST rester indisponible tant que ses dépendances obligatoires ne répondent pas.
 - NFR-9: Le build et la démonstration MUST être reproductibles sous Linux/WSL ; la procédure Windows Docker Desktop MUST être vérifiée par commandes compatibles, sans prétendre à un test hôte non effectué.

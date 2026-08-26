@@ -1,0 +1,11 @@
+{
+  "answerable": [
+    "Quel montant de plateforme annuel est indiqué ?",
+    "Quel délai incident impose le contrat ?"
+  ],
+  "unanswerable": [
+    "Quel est le numéro TVA de Northstar ?",
+    "Quel tribunal compétent est prévu ?"
+  ],
+  "note": "Questions de démonstration uniquement. Les résultats officiels sont dans artifacts/evaluations."
+}

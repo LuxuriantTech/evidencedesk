@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0",
+  "synthetic_only": true,
+  "license": "CC0-1.0",
+  "documents": [
+    {
+      "filename": "demo-supplier-note.md",
+      "sha256": "7702cfdc823f42cc908d4971d6aeaa28588f487903747393ff8dc611a2a8af0d"
+    },
+    {
+      "filename": "northstar_master_services_agreement.pdf",
+      "sha256": "e7f1d97a46220bfc7e84c3ec9c5fa3d1b6e08097d283160ad30a227ec5041936"
+    },
+    {
+      "filename": "routing_delay_incident.md",
+      "sha256": "5deb2e2b4dd5f2a3e0dee6bfe13cdbb2a701923bd85a2cfdb73756f3c814c3bb"
+    },
+    {
+      "filename": "supplier_register.txt",
+      "sha256": "ad975e636864af4ca36f4e9a7ac1b70d046316e981c814aafc9440b88fa9ec6f"
+    }
+  ]
+}

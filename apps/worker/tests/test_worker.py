@@ -16,7 +16,13 @@ from evidencedesk_api.models import (
 )
 from evidencedesk_api.providers import DeterministicEmbeddingProvider
 from evidencedesk_api.storage import LocalDocumentStorage
-from evidencedesk_worker.jobs import WorkerContext, process_document
+from evidencedesk_worker.jobs import (
+    WorkerContext,
+    _record_parse_failure,
+    _record_processing_failure,
+    _record_storage_failure,
+    process_document,
+)
 from sqlalchemy import func, select, text
 
 DATABASE_URL = (
@@ -34,6 +40,29 @@ class FailsOnceStorage(LocalDocumentStorage):
             self.failed = True
             raise OSError("synthetic transient failure containing no document data")
         return super().get(key)
+
+
+class AlwaysUnavailableStorage(LocalDocumentStorage):
+    def get(self, key: str) -> bytes:
+        raise OSError("synthetic persistent storage outage")
+
+
+class AlwaysFailsEmbedding:
+    mode = "synthetic-failure"
+    dimension = 384
+    estimated_cost_usd = 0.0
+
+    def embed(self, _text: str) -> list[float]:
+        raise RuntimeError("synthetic provider failure with no document data")
+
+
+class InvalidDimensionEmbedding:
+    mode = "synthetic-invalid-dimension"
+    dimension = 384
+    estimated_cost_usd = 0.0
+
+    def embed(self, _text: str) -> list[float]:
+        return [1.0]
 
 
 async def _prepare(
@@ -168,6 +197,220 @@ def test_worker_retries_transient_storage_error_then_resumes(tmp_path: Path) -> 
                 assert task.status == TaskStatus.COMPLETED
                 assert count and count > 0
                 assert result["status"] == "completed"
+        finally:
+            await context.engine.dispose()
+
+    asyncio.run(scenario())
+
+
+@pytest.mark.integration
+def test_worker_stops_after_three_storage_attempts(tmp_path: Path) -> None:
+    async def scenario() -> None:
+        context, document_id, task_id = await _prepare(
+            tmp_path, storage_type=AlwaysUnavailableStorage
+        )
+        try:
+            for _attempt in range(2):
+                with pytest.raises(Retry):
+                    await process_document(
+                        {"worker": context}, str(document_id), str(task_id), str(uuid4())
+                    )
+            result = await process_document(
+                {"worker": context}, str(document_id), str(task_id), str(uuid4())
+            )
+            async with context.session_factory() as session:
+                task = await session.get(ProcessingTask, task_id)
+                document = await session.get(Document, document_id)
+                assert task is not None and task.attempts == 3
+                assert task.status == TaskStatus.FAILED
+                assert task.error_code == "storage_unavailable"
+                assert document is not None and document.status == DocumentStatus.FAILED
+                assert result == {"status": "failed", "error_code": "storage_unavailable"}
+        finally:
+            await context.engine.dispose()
+
+    asyncio.run(scenario())
+
+
+@pytest.mark.integration
+def test_worker_reports_invalid_pdf_and_missing_job(tmp_path: Path) -> None:
+    async def scenario() -> None:
+        context, document_id, task_id = await _prepare(tmp_path)
+        try:
+            async with context.session_factory() as session:
+                document = await session.get(Document, document_id)
+                assert document is not None
+                document.media_type = "application/pdf"
+                await session.commit()
+            failed = await process_document(
+                {"worker": context}, str(document_id), str(task_id), str(uuid4())
+            )
+            assert failed["status"] == "failed"
+            assert failed["error_code"] == "invalid_pdf"
+
+            missing = await process_document(
+                {"worker": context}, str(uuid4()), str(uuid4()), str(uuid4())
+            )
+            assert missing == {"status": "missing"}
+        finally:
+            await context.engine.dispose()
+
+    asyncio.run(scenario())
+
+
+@pytest.mark.integration
+def test_worker_retries_processing_failure_then_marks_terminal_failure(tmp_path: Path) -> None:
+    async def scenario() -> None:
+        context, document_id, task_id = await _prepare(tmp_path)
+        context.embeddings = AlwaysFailsEmbedding()
+        try:
+            for _attempt in range(2):
+                with pytest.raises(Retry):
+                    await process_document(
+                        {"worker": context}, str(document_id), str(task_id), str(uuid4())
+                    )
+            result = await process_document(
+                {"worker": context}, str(document_id), str(task_id), str(uuid4())
+            )
+            async with context.session_factory() as session:
+                task = await session.get(ProcessingTask, task_id)
+                document = await session.get(Document, document_id)
+                count = await session.scalar(
+                    select(func.count(Chunk.id)).where(Chunk.document_id == document_id)
+                )
+                assert task is not None and task.attempts == 3
+                assert task.status == TaskStatus.FAILED
+                assert task.error_code == "processing_failed"
+                assert document is not None and document.status == DocumentStatus.FAILED
+                assert count == 0
+                assert result == {"status": "failed", "error_code": "processing_failed"}
+        finally:
+            await context.engine.dispose()
+
+    asyncio.run(scenario())
+
+
+@pytest.mark.integration
+def test_worker_never_processes_a_deleted_document(tmp_path: Path) -> None:
+    async def scenario() -> None:
+        context, document_id, task_id = await _prepare(tmp_path)
+        try:
+            async with context.session_factory() as session:
+                document = await session.get(Document, document_id)
+                assert document is not None
+                document.status = DocumentStatus.DELETED
+                document.deleted_at = document.created_at
+                await session.commit()
+
+            result = await process_document(
+                {"worker": context}, str(document_id), str(task_id), str(uuid4())
+            )
+            async with context.session_factory() as session:
+                task = await session.get(ProcessingTask, task_id)
+                count = await session.scalar(
+                    select(func.count(Chunk.id)).where(Chunk.document_id == document_id)
+                )
+                assert task is not None and task.status == TaskStatus.FAILED
+                assert task.error_code == "document_deleted"
+                assert count == 0
+                assert result == {"status": "deleted"}
+        finally:
+            await context.engine.dispose()
+
+    asyncio.run(scenario())
+
+
+@pytest.mark.integration
+def test_worker_retries_database_write_failure_then_marks_terminal_failure(tmp_path: Path) -> None:
+    async def scenario() -> None:
+        context, document_id, task_id = await _prepare(tmp_path)
+        context.embeddings = InvalidDimensionEmbedding()
+        try:
+            for _attempt in range(2):
+                with pytest.raises(Retry):
+                    await process_document(
+                        {"worker": context}, str(document_id), str(task_id), str(uuid4())
+                    )
+            result = await process_document(
+                {"worker": context}, str(document_id), str(task_id), str(uuid4())
+            )
+            async with context.session_factory() as session:
+                task = await session.get(ProcessingTask, task_id)
+                document = await session.get(Document, document_id)
+                assert task is not None and task.attempts == 3
+                assert task.status == TaskStatus.FAILED
+                assert task.error_code == "processing_failed"
+                assert document is not None and document.status == DocumentStatus.FAILED
+                assert result == {"status": "failed", "error_code": "processing_failed"}
+        finally:
+            await context.engine.dispose()
+
+    asyncio.run(scenario())
+
+
+@pytest.mark.integration
+def test_worker_treats_document_budget_overflow_as_terminal(tmp_path: Path) -> None:
+    async def scenario() -> None:
+        context, document_id, task_id = await _prepare(tmp_path)
+        context.settings.max_document_chunks = 1
+        try:
+            result = await process_document(
+                {"worker": context}, str(document_id), str(task_id), str(uuid4())
+            )
+            async with context.session_factory() as session:
+                task = await session.get(ProcessingTask, task_id)
+                document = await session.get(Document, document_id)
+                count = await session.scalar(
+                    select(func.count(Chunk.id)).where(Chunk.document_id == document_id)
+                )
+                assert task is not None and task.attempts == 1
+                assert task.status == TaskStatus.FAILED
+                assert task.error_code == "too_many_chunks"
+                assert document is not None and document.status == DocumentStatus.FAILED
+                assert count == 0
+                assert result == {"status": "failed", "error_code": "too_many_chunks"}
+        finally:
+            await context.engine.dispose()
+
+    asyncio.run(scenario())
+
+
+@pytest.mark.integration
+def test_late_failure_handlers_never_revive_a_deleted_document(tmp_path: Path) -> None:
+    async def scenario() -> None:
+        context, document_id, task_id = await _prepare(tmp_path)
+        try:
+            async with context.session_factory() as session:
+                document = await session.get(Document, document_id)
+                assert document is not None
+                document.status = DocumentStatus.DELETED
+                document.deleted_at = document.created_at
+                await session.commit()
+
+            outcomes = [
+                await _record_storage_failure(
+                    context, document_id, task_id, retry=True
+                ),
+                await _record_processing_failure(
+                    context, document_id, task_id, retry=True
+                ),
+                await _record_parse_failure(
+                    context, document_id, task_id, "invalid_pdf"
+                ),
+            ]
+
+            async with context.session_factory() as session:
+                document = await session.get(Document, document_id)
+                task = await session.get(ProcessingTask, task_id)
+                assert document is not None and document.status == DocumentStatus.DELETED
+                assert document.deleted_at is not None
+                assert task is not None and task.status == TaskStatus.FAILED
+                assert task.error_code == "document_deleted"
+                assert outcomes == [
+                    {"status": "deleted"},
+                    {"status": "deleted"},
+                    {"status": "deleted"},
+                ]
         finally:
             await context.engine.dispose()
 

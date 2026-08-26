@@ -1,0 +1,29 @@
+# syntax=docker/dockerfile:1@sha256:ecfaec9ed6d810b56388c508f4121597bfbba70d41a6dfeee4d8cad5f295fc32
+FROM python:3.12-slim@sha256:7a8b475003c4fe15a2cd4e55e5cfc2f3560bdc9333d624f24cdd6d4340fd7a17 AS runtime
+
+COPY --from=ghcr.io/astral-sh/uv:0.11.7@sha256:240fb85ab0f263ef12f492d8476aa3a2e4e1e333f7d67fbdd923d00a506a516a /uv /uvx /bin/
+WORKDIR /app
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    UV_LINK_MODE=copy \
+    PATH=/app/.venv/bin:$PATH \
+    PYTHONPATH=/app/apps/api:/app/apps/worker:/app
+
+COPY pyproject.toml uv.lock README.md ./
+RUN uv sync --frozen --no-dev --no-install-project
+
+COPY alembic.ini ./
+COPY apps/api ./apps/api
+COPY apps/worker ./apps/worker
+COPY evals ./evals
+COPY datasets ./datasets
+COPY artifacts/evaluations ./artifacts/evaluations
+COPY scripts ./scripts
+
+RUN useradd --create-home --uid 10001 appuser \
+    && mkdir -p /data/documents \
+    && chown -R appuser:appuser /app /data
+USER appuser
+
+EXPOSE 8000

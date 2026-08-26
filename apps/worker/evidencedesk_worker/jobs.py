@@ -17,7 +17,7 @@ from evidencedesk_api.models import (
     ProcessingTask,
     TaskStatus,
 )
-from evidencedesk_api.observability import TASKS, configure_logging
+from evidencedesk_api.observability import MODEL_ERRORS, TASKS, configure_logging
 from evidencedesk_api.processing import DocumentParseError, ParsedPage, chunk_pages, parse_document
 from evidencedesk_api.providers import EmbeddingProvider
 from evidencedesk_api.redaction import redact_pii
@@ -43,18 +43,35 @@ async def _chunk_count(session: AsyncSession, document_id: UUID) -> int:
     return int(value or 0)
 
 
+async def _locked_task_and_document(
+    session: AsyncSession, task_id: UUID, document_id: UUID
+) -> tuple[ProcessingTask | None, Document | None]:
+    task = await session.scalar(
+        select(ProcessingTask).where(ProcessingTask.id == task_id).with_for_update()
+    )
+    if task is None or task.document_id != document_id:
+        return task, None
+    document = await session.scalar(
+        select(Document).where(Document.id == document_id).with_for_update()
+    )
+    return task, document
+
+
 async def _record_storage_failure(
     worker: WorkerContext, document_id: UUID, task_id: UUID, *, retry: bool
-) -> None:
+) -> dict[str, object] | None:
     async with worker.session_factory() as session:
-        task = await session.get(ProcessingTask, task_id)
-        document = await session.get(Document, document_id)
+        task, document = await _locked_task_and_document(session, task_id, document_id)
         if task is None or document is None:
-            return
+            return {"status": "missing"}
+        if document.deleted_at is not None or document.status == DocumentStatus.DELETED:
+            return await _cancel_deleted_document(session, task, document)
         task.status = TaskStatus.QUEUED if retry else TaskStatus.FAILED
         document.status = DocumentStatus.QUEUED if retry else DocumentStatus.FAILED
         task.error_code = "storage_temporarily_unavailable" if retry else "storage_unavailable"
         document.error_code = task.error_code
+        if not retry:
+            task.completed_at = datetime.now(UTC)
         session.add(
             AuditEvent(
                 actor_id=None,
@@ -66,32 +83,91 @@ async def _record_storage_failure(
             )
         )
         await session.commit()
+    return None
 
 
 async def _record_parse_failure(
     worker: WorkerContext, document_id: UUID, task_id: UUID, error_code: str
 ) -> dict[str, object]:
     async with worker.session_factory() as session:
-        task = await session.get(ProcessingTask, task_id)
-        document = await session.get(Document, document_id)
-        if task is not None and document is not None:
-            task.status = TaskStatus.FAILED
-            task.error_code = error_code
-            task.completed_at = datetime.now(UTC)
-            document.status = DocumentStatus.FAILED
-            document.error_code = error_code
-            session.add(
-                AuditEvent(
-                    actor_id=None,
-                    action="document.process",
-                    document_id=document_id,
-                    result="failed",
-                    correlation_id=task.correlation_id,
-                    metadata_safe={"error_code": error_code, "attempt": task.attempts},
-                )
+        task, document = await _locked_task_and_document(session, task_id, document_id)
+        if task is None or document is None:
+            return {"status": "missing"}
+        if document.deleted_at is not None or document.status == DocumentStatus.DELETED:
+            return await _cancel_deleted_document(session, task, document)
+        task.status = TaskStatus.FAILED
+        task.error_code = error_code
+        task.completed_at = datetime.now(UTC)
+        document.status = DocumentStatus.FAILED
+        document.error_code = error_code
+        session.add(
+            AuditEvent(
+                actor_id=None,
+                action="document.process",
+                document_id=document_id,
+                result="failed",
+                correlation_id=task.correlation_id,
+                metadata_safe={"error_code": error_code, "attempt": task.attempts},
             )
-            await session.commit()
+        )
+        await session.commit()
     return {"status": "failed", "error_code": error_code}
+
+
+async def _record_processing_failure(
+    worker: WorkerContext, document_id: UUID, task_id: UUID, *, retry: bool
+) -> dict[str, object]:
+    error_code = "processing_temporarily_unavailable" if retry else "processing_failed"
+    async with worker.session_factory() as session:
+        task, document = await _locked_task_and_document(session, task_id, document_id)
+        if task is None or document is None:
+            return {"status": "missing"}
+        if document.deleted_at is not None or document.status == DocumentStatus.DELETED:
+            return await _cancel_deleted_document(session, task, document)
+        task.status = TaskStatus.QUEUED if retry else TaskStatus.FAILED
+        task.error_code = error_code
+        document.status = DocumentStatus.QUEUED if retry else DocumentStatus.FAILED
+        document.error_code = error_code
+        if not retry:
+            task.completed_at = datetime.now(UTC)
+        session.add(
+            AuditEvent(
+                actor_id=None,
+                action="document.process",
+                document_id=document_id,
+                result="retry" if retry else "failed",
+                correlation_id=task.correlation_id,
+                metadata_safe={"error_code": error_code, "attempt": task.attempts},
+            )
+        )
+        await session.commit()
+    return {"status": "failed", "error_code": error_code}
+
+
+async def _cancel_deleted_document(
+    session: AsyncSession, task: ProcessingTask, document: Document
+) -> dict[str, object]:
+    already_cancelled = (
+        task.status == TaskStatus.FAILED and task.error_code == "document_deleted"
+    )
+    task.status = TaskStatus.FAILED
+    task.error_code = "document_deleted"
+    task.completed_at = datetime.now(UTC)
+    if not already_cancelled:
+        session.add(
+            AuditEvent(
+                actor_id=None,
+                action="document.process",
+                document_id=document.id,
+                result="cancelled",
+                correlation_id=task.correlation_id,
+                metadata_safe={"error_code": "document_deleted", "attempt": task.attempts},
+            )
+        )
+    await session.commit()
+    if not already_cancelled:
+        TASKS.labels("cancelled").inc()
+    return {"status": "deleted"}
 
 
 async def process_document(
@@ -106,13 +182,12 @@ async def process_document(
     UUID(correlation_id_raw)
 
     async with worker.session_factory() as session:
-        task = await session.scalar(
-            select(ProcessingTask).where(ProcessingTask.id == task_id).with_for_update()
-        )
-        document = await session.get(Document, document_id)
-        if task is None or document is None or task.document_id != document.id:
+        task, document = await _locked_task_and_document(session, task_id, document_id)
+        if task is None or document is None:
             TASKS.labels("missing").inc()
             return {"status": "missing"}
+        if document.deleted_at is not None or document.status == DocumentStatus.DELETED:
+            return await _cancel_deleted_document(session, task, document)
         if document.status == DocumentStatus.COMPLETED:
             chunks = await _chunk_count(session, document_id)
             logger.info(
@@ -142,7 +217,11 @@ async def process_document(
         raw_data = worker.storage.get(storage_key)
     except OSError:
         should_retry = attempt < 3
-        await _record_storage_failure(worker, document_id, task_id, retry=should_retry)
+        terminal = await _record_storage_failure(
+            worker, document_id, task_id, retry=should_retry
+        )
+        if terminal is not None:
+            return terminal
         if should_retry:
             TASKS.labels("retry").inc()
             logger.warning(
@@ -156,7 +235,14 @@ async def process_document(
         return {"status": "failed", "error_code": "storage_unavailable"}
 
     try:
-        pages = parse_document(raw_data, media_type=media_type)
+        pages = parse_document(
+            raw_data,
+            media_type=media_type,
+            max_pages=worker.settings.max_document_pages,
+            max_extracted_chars=worker.settings.max_extracted_chars,
+            pdf_timeout_seconds=worker.settings.pdf_parse_timeout_seconds,
+            pdf_memory_bytes=worker.settings.pdf_parse_memory_bytes,
+        )
     except DocumentParseError as exc:
         TASKS.labels("failed").inc()
         logger.warning(
@@ -167,84 +253,135 @@ async def process_document(
         )
         return await _record_parse_failure(worker, document_id, task_id, str(exc))
 
-    redacted_pages = [
-        ParsedPage(
-            page=page.page,
-            blocks=tuple((section, redact_pii(text).text) for section, text in page.blocks),
-        )
-        for page in pages
-    ]
-    parsed_chunks = chunk_pages(redacted_pages)
-    chunk_models: list[Chunk] = []
-    evidence_chunks: list[EvidenceChunk] = []
-    for parsed in parsed_chunks:
-        chunk_id = uuid4()
-        embedding = worker.embeddings.embed(parsed.text)
-        chunk_models.append(
-            Chunk(
-                id=chunk_id,
-                document_id=document_id,
-                page=parsed.page,
-                section=parsed.section,
-                ordinal=parsed.ordinal,
-                text=parsed.text,
-                embedding=embedding,
+    try:
+        redacted_pages = [
+            ParsedPage(
+                page=page.page,
+                blocks=tuple((section, redact_pii(text).text) for section, text in page.blocks),
             )
+            for page in pages
+        ]
+        parsed_chunks = chunk_pages(
+            redacted_pages, max_chunks=worker.settings.max_document_chunks
         )
-        evidence_chunks.append(
-            EvidenceChunk(
-                id=str(chunk_id),
-                document_id=str(document_id),
-                document_name=document_name,
-                page=parsed.page,
-                section=parsed.section,
-                text=parsed.text,
-                embedding=embedding,
+        chunk_models: list[Chunk] = []
+        evidence_chunks: list[EvidenceChunk] = []
+        for parsed in parsed_chunks:
+            chunk_id = uuid4()
+            embedding = worker.embeddings.embed(parsed.text)
+            chunk_models.append(
+                Chunk(
+                    id=chunk_id,
+                    document_id=document_id,
+                    page=parsed.page,
+                    section=parsed.section,
+                    ordinal=parsed.ordinal,
+                    text=parsed.text,
+                    embedding=embedding,
+                )
             )
+            evidence_chunks.append(
+                EvidenceChunk(
+                    id=str(chunk_id),
+                    document_id=str(document_id),
+                    document_name=document_name,
+                    page=parsed.page,
+                    section=parsed.section,
+                    text=parsed.text,
+                    embedding=embedding,
+                )
+            )
+        extraction = extract_supplier_fields(evidence_chunks)
+    except DocumentParseError as exc:
+        TASKS.labels("failed").inc()
+        logger.warning(
+            "document_processing_failed",
+            document_id=str(document_id),
+            task_id=str(task_id),
+            error_code=str(exc),
         )
-    extraction = extract_supplier_fields(evidence_chunks)
+        return await _record_parse_failure(worker, document_id, task_id, str(exc))
+    except Exception as exc:
+        MODEL_ERRORS.labels(worker.embeddings.mode).inc()
+        should_retry = attempt < 3
+        failure = await _record_processing_failure(
+            worker, document_id, task_id, retry=should_retry
+        )
+        logger.warning(
+            "document_processing_stage_failed",
+            document_id=str(document_id),
+            task_id=str(task_id),
+            attempt=attempt,
+            error_type=type(exc).__name__,
+        )
+        if failure.get("status") in {"deleted", "missing"}:
+            return failure
+        if should_retry:
+            TASKS.labels("retry").inc()
+            raise Retry(defer=attempt * 2) from None
+        TASKS.labels("failed").inc()
+        return {"status": "failed", "error_code": "processing_failed"}
 
-    async with worker.session_factory() as session:
-        task = await session.scalar(
-            select(ProcessingTask).where(ProcessingTask.id == task_id).with_for_update()
-        )
-        document = await session.get(Document, document_id)
-        if task is None or document is None:
-            TASKS.labels("missing").inc()
-            return {"status": "missing"}
-        if document.status == DocumentStatus.COMPLETED:
-            return {
-                "status": "already_completed",
-                "chunks": await _chunk_count(session, document_id),
-            }
-        await session.execute(delete(Chunk).where(Chunk.document_id == document_id))
-        await session.execute(delete(Extraction).where(Extraction.document_id == document_id))
-        session.add_all(chunk_models)
-        session.add(
-            Extraction(
-                document_id=document_id,
-                schema_version="supplier-v1",
-                payload=asdict(extraction),
+    try:
+        async with worker.session_factory() as session:
+            task, document = await _locked_task_and_document(session, task_id, document_id)
+            if task is None or document is None:
+                TASKS.labels("missing").inc()
+                return {"status": "missing"}
+            if document.deleted_at is not None or document.status == DocumentStatus.DELETED:
+                return await _cancel_deleted_document(session, task, document)
+            if document.status == DocumentStatus.COMPLETED:
+                return {
+                    "status": "already_completed",
+                    "chunks": await _chunk_count(session, document_id),
+                }
+            await session.execute(delete(Chunk).where(Chunk.document_id == document_id))
+            await session.execute(delete(Extraction).where(Extraction.document_id == document_id))
+            session.add_all(chunk_models)
+            session.add(
+                Extraction(
+                    document_id=document_id,
+                    schema_version="supplier-v1",
+                    payload=asdict(extraction),
+                )
             )
-        )
-        completed_at = datetime.now(UTC)
-        task.status = TaskStatus.COMPLETED
-        task.completed_at = completed_at
-        task.error_code = None
-        document.status = DocumentStatus.COMPLETED
-        document.completed_at = completed_at
-        document.error_code = None
-        session.add(
-            AuditEvent(
-                actor_id=None,
-                action="document.process",
-                document_id=document_id,
-                result="completed",
-                correlation_id=task.correlation_id,
-                metadata_safe={"chunks": len(chunk_models), "attempt": task.attempts},
+            completed_at = datetime.now(UTC)
+            task.status = TaskStatus.COMPLETED
+            task.completed_at = completed_at
+            task.error_code = None
+            document.status = DocumentStatus.COMPLETED
+            document.completed_at = completed_at
+            document.error_code = None
+            session.add(
+                AuditEvent(
+                    actor_id=None,
+                    action="document.process",
+                    document_id=document_id,
+                    result="completed",
+                    correlation_id=task.correlation_id,
+                    metadata_safe={"chunks": len(chunk_models), "attempt": task.attempts},
+                )
             )
+            await session.commit()
+    except Exception as exc:
+        should_retry = attempt < 3
+        failure = await _record_processing_failure(
+            worker, document_id, task_id, retry=should_retry
         )
-        await session.commit()
+        logger.warning(
+            "document_persistence_failed",
+            document_id=str(document_id),
+            task_id=str(task_id),
+            attempt=attempt,
+            error_type=type(exc).__name__,
+        )
+        if failure.get("status") in {"deleted", "missing"}:
+            return failure
+        if should_retry:
+            TASKS.labels("retry").inc()
+            raise Retry(defer=attempt * 2) from None
+        TASKS.labels("failed").inc()
+        return {"status": "failed", "error_code": "processing_failed"}
     duration_ms = round((perf_counter() - started) * 1_000, 3)
     TASKS.labels("completed").inc()
     logger.info(

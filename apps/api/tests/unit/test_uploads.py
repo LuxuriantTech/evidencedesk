@@ -1,9 +1,16 @@
+from hashlib import sha256
 from pathlib import Path
 from uuid import UUID
 
 import pytest
 from evidencedesk_api.storage import LocalDocumentStorage, build_storage_key
-from evidencedesk_api.uploads import UploadRejected, validate_upload
+from evidencedesk_api.uploads import (
+    UploadRejected,
+    load_public_demo_hashes,
+    validate_upload,
+)
+
+ROOT = Path(__file__).resolve().parents[4]
 
 
 def test_valid_markdown_is_identified_and_named_safely() -> None:
@@ -60,3 +67,16 @@ def test_local_storage_uses_only_a_generated_key(tmp_path: Path) -> None:
     assert key == "e8ae755c-124d-4970-a8e6-66acf5709f62/document.md"
     assert (tmp_path / key).read_bytes() == b"safe"
     assert not (tmp_path.parent / "supplier-notes.md").exists()
+
+
+def test_public_demo_allowlist_matches_only_versioned_synthetic_files() -> None:
+    paths = [
+        ROOT / "examples/demo-supplier-note.md",
+        ROOT / "datasets/generated/northstar_master_services_agreement.pdf",
+        ROOT / "datasets/sources/routing_delay_incident.md",
+        ROOT / "datasets/sources/supplier_register.txt",
+    ]
+
+    assert load_public_demo_hashes(ROOT / "datasets/public_demo_uploads.json") == frozenset(
+        sha256(path.read_bytes()).hexdigest() for path in paths
+    )
