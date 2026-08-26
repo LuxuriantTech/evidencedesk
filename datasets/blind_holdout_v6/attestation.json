@@ -1,0 +1,28 @@
+{
+  "dataset_version": "holdout-v6-2026.08.27",
+  "parameters_version": "semantic-local-v2.0-frozen-v6",
+  "mode": "extractive-local-onnx",
+  "seed": 20260829,
+  "engine_commit": "113333901f4a287d67f5ba84808964d2aabd805c",
+  "engine_fingerprint": "a8371922b582caccc2f4560544e3b1a8261570c0a0dbafffd55c8d1c86289206",
+  "config_sha256": "83dc9ef8cae532df8e8adb07b2e648326352decb45393dab0e17458fde37e032",
+  "model_manifest_sha256": "d930bf9c2c9f866ff606a50cba0a8ca498f3f51f6ef74b1881602e5af2e302cc",
+  "dependency_sha256": {
+    "pyproject.toml": "6ac4a0a7c4fad75c3777a31d3338b2e98bef6397254d2fa1ed0cfbc033e99576",
+    "uv.lock": "e44f77ab0ef5738ac0af82771560d701639cb4a499fcfbe042ce3ef586ab9f26"
+  },
+  "freeze_commit": "0d9301227c387edb03815756662c231ad9acd038",
+  "freeze_sha256": "387a768cbefde9588848136b28b2645b725824c58065d27a5f74e92f0e9f2a39",
+  "author_role": "independent-holdout-author",
+  "generated_after_engine_freeze": true,
+  "synthetic_only": true,
+  "development_overlap_check": {
+    "method": "independent synthetic authoring with fresh fictional identifiers; no development corpus or case content consulted",
+    "matching_documents": 0,
+    "matching_case_ids": 0
+  },
+  "sha256": {
+    "corpus_manifest.json": "50ec02cf013b60599fe1a5d387cbec30a0826df2fa76cf33919012161f300f96",
+    "evaluation_cases.json": "85e7dcaa1f683a32206d37313b8e8aa0bda42393df59c62c16b25edf3daae555"
+  }
+}
