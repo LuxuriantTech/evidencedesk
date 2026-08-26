@@ -1,0 +1,25 @@
+{
+  "abstention_accuracy": 1.0,
+  "citation_case_accuracy": 1.0,
+  "citation_precision": 1.0,
+  "created_at": "2026-08-26T22:15:17.749208+00:00",
+  "error_rate": 0.0,
+  "extraction_f1": 1.0,
+  "extraction_precision": 1.0,
+  "extraction_recall": 1.0,
+  "metric_counts": {
+    "abstention_correct": 20,
+    "abstention_total": 20,
+    "answerable_correct": 30,
+    "answerable_total": 30,
+    "citation_correct": 30,
+    "citation_returned": 30,
+    "errors": 0,
+    "extraction_gold": 65,
+    "extraction_predicted": 65,
+    "extraction_true_positive": 65
+  },
+  "raw_artifact_sha256": "75b4f48badda1c1de8b65a5234407666605c1b724a788b260d188bec65a66091",
+  "schema_version": "evaluation-recalculation-v2",
+  "verdict": "PASS"
+}

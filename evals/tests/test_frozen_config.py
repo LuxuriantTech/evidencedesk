@@ -34,11 +34,11 @@ def test_frozen_config_matches_code_and_immutable_development_inputs() -> None:
         ROOT / "datasets/development_v2/corpus_manifest.json"
     )
     assert config["development_comparison_sha256"] == _sha256(
-        ROOT / "artifacts/evaluations/development_v2_comparison/iteration-06-final.json"
+        ROOT / "artifacts/evaluations/development_v2_comparison/iteration-07-final.json"
     )
     assert config["selected_evaluation_artifact_sha256"] == _sha256(
-        ROOT / "artifacts/evaluations/development-v2-semantic-v2-frozen.json"
+        ROOT / "artifacts/evaluations/development-v2-semantic-v2-frozen-final.json"
     )
     assert config["development_recalculation_sha256"] == _sha256(
-        ROOT / "artifacts/evaluations/development-v2-semantic-v2-recalculated.json"
+        ROOT / "artifacts/evaluations/development-v2-semantic-v2-recalculated-final.json"
     )
