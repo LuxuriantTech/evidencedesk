@@ -1,0 +1,78 @@
+[project]
+name = "evidencedesk"
+version = "0.1.0"
+description = "Evidence-grounded document operations assistant"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+dependencies = [
+  "alembic>=1.16,<2",
+  "asyncpg>=0.30,<1",
+  "arq>=0.26,<1",
+  "fastapi>=0.116,<1",
+  "pgvector>=0.4,<1",
+  "prometheus-client>=0.22,<1",
+  "pwdlib[argon2]>=0.3,<1",
+  "pydantic-settings>=2.10,<3",
+  "pyjwt[crypto]>=2.10,<3",
+  "pypdf>=6,<7",
+  "python-multipart>=0.0.20,<1",
+  "redis>=5,<6",
+  "sqlalchemy[asyncio]>=2.0.43,<3",
+  "structlog>=25,<26",
+  "uvicorn[standard]>=0.35,<1",
+]
+
+[dependency-groups]
+dev = [
+  "httpx2>=2.12,<3",
+  "mypy>=1.17,<2",
+  "pip-audit>=2.9,<3",
+  "psycopg[binary]>=3.2,<4",
+  "pytest>=8.4,<9",
+  "pytest-asyncio>=1.1,<2",
+  "pytest-cov>=6.2,<7",
+  "reportlab>=4.4,<5",
+  "ruff>=0.12,<1",
+]
+
+[tool.pytest.ini_options]
+addopts = "--strict-config --strict-markers"
+asyncio_mode = "auto"
+pythonpath = ["apps/api", "apps/worker", "."]
+testpaths = ["apps/api/tests", "apps/worker/tests", "evals/tests"]
+markers = [
+  "integration: requires local PostgreSQL and Redis services",
+  "e2e: exercises the complete running stack",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["evidencedesk_api", "evidencedesk_worker"]
+
+[tool.coverage.report]
+fail_under = 80
+show_missing = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "S", "ASYNC", "RUF"]
+ignore = ["S101"]
+
+[tool.ruff.lint.per-file-ignores]
+"apps/api/alembic/versions/*.py" = ["E501"]
+"apps/api/tests/**/*.py" = ["S105", "S106"]
+"apps/worker/tests/**/*.py" = ["S105", "S106"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+packages = ["evidencedesk_api", "evidencedesk_worker"]
+mypy_path = ["apps/api", "apps/worker"]
+plugins = ["pydantic.mypy"]
+
+[tool.uv]
+package = false

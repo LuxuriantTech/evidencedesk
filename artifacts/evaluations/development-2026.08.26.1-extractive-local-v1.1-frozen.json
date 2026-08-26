@@ -1,0 +1,699 @@
+{
+  "abstention_accuracy": 1.0,
+  "case_count": 21,
+  "cases": [
+    {
+      "answer": "Effective date: 2026-01-15",
+      "answer_match": true,
+      "citation_matches": [
+        true
+      ],
+      "citations": [
+        {
+          "chunk_id": "northstar-msa-2026:p1:c4",
+          "document_id": "northstar-msa-2026",
+          "document_name": "northstar_master_services_agreement.pdf",
+          "excerpt": "Effective date: 2026-01-15",
+          "page": 1,
+          "section": null
+        }
+      ],
+      "id": "dev-a01",
+      "kind": "answerable",
+      "latency_ms": 1.57,
+      "status": "answered"
+    },
+    {
+      "answer": "Annual platform fee: EUR 48,000",
+      "answer_match": true,
+      "citation_matches": [
+        true
+      ],
+      "citations": [
+        {
+          "chunk_id": "northstar-msa-2026:p1:c5",
+          "document_id": "northstar-msa-2026",
+          "document_name": "northstar_master_services_agreement.pdf",
+          "excerpt": "Annual platform fee: EUR 48,000",
+          "page": 1,
+          "section": null
+        }
+      ],
+      "id": "dev-a02",
+      "kind": "answerable",
+      "latency_ms": 0.949,
+      "status": "answered"
+    },
+    {
+      "answer": "The agreement renews on 2027-01-15 unless either party gives 60 days written notice.",
+      "answer_match": true,
+      "citation_matches": [
+        true
+      ],
+      "citations": [
+        {
+          "chunk_id": "northstar-msa-2026:p2:c1",
+          "document_id": "northstar-msa-2026",
+          "document_name": "northstar_master_services_agreement.pdf",
+          "excerpt": "The agreement renews on 2027-01-15 unless either party gives 60 days written notice.",
+          "page": 2,
+          "section": null
+        }
+      ],
+      "id": "dev-a03",
+      "kind": "answerable",
+      "latency_ms": 0.731,
+      "status": "answered"
+    },
+    {
+      "answer": "The agreement renews on 2027-01-15 unless either party gives 60 days written notice.",
+      "answer_match": true,
+      "citation_matches": [
+        true
+      ],
+      "citations": [
+        {
+          "chunk_id": "northstar-msa-2026:p2:c1",
+          "document_id": "northstar-msa-2026",
+          "document_name": "northstar_master_services_agreement.pdf",
+          "excerpt": "The agreement renews on 2027-01-15 unless either party gives 60 days written notice.",
+          "page": 2,
+          "section": null
+        }
+      ],
+      "id": "dev-a04",
+      "kind": "answerable",
+      "latency_ms": 1.053,
+      "status": "answered"
+    },
+    {
+      "answer": "Northstar shall notify Meridian of a confirmed security incident within 24 hours.",
+      "answer_match": true,
+      "citation_matches": [
+        true
+      ],
+      "citations": [
+        {
+          "chunk_id": "northstar-msa-2026:p2:c2",
+          "document_id": "northstar-msa-2026",
+          "document_name": "northstar_master_services_agreement.pdf",
+          "excerpt": "Northstar shall notify Meridian of a confirmed security incident within 24 hours.",
+          "page": 2,
+          "section": null
+        }
+      ],
+      "id": "dev-a05",
+      "kind": "answerable",
+      "latency_ms": 0.812,
+      "status": "answered"
+    },
+    {
+      "answer": "Service owner: Mira Talen, [EMAIL REDACTED].",
+      "answer_match": true,
+      "citation_matches": [
+        true
+      ],
+      "citations": [
+        {
+          "chunk_id": "northstar-msa-2026:p2:c3",
+          "document_id": "northstar-msa-2026",
+          "document_name": "northstar_master_services_agreement.pdf",
+          "excerpt": "Service owner: Mira Talen, [EMAIL REDACTED].",
+          "page": 2,
+          "section": null
+        }
+      ],
+      "id": "dev-a06",
+      "kind": "answerable",
+      "latency_ms": 0.731,
+      "status": "answered"
+    },
+    {
+      "answer": "No subcontractor may access production data without written approval.",
+      "answer_match": true,
+      "citation_matches": [
+        true
+      ],
+      "citations": [
+        {
+          "chunk_id": "northstar-msa-2026:p2:c4",
+          "document_id": "northstar-msa-2026",
+          "document_name": "northstar_master_services_agreement.pdf",
+          "excerpt": "No subcontractor may access production data without written approval.",
+          "page": 2,
+          "section": null
+        }
+      ],
+      "id": "dev-a07",
+      "kind": "answerable",
+      "latency_ms": 0.84,
+      "status": "answered"
+    },
+    {
+      "answer": "The provider shall maintain an operational service desk during business hours.",
+      "answer_match": true,
+      "citation_matches": [
+        true
+      ],
+      "citations": [
+        {
+          "chunk_id": "northstar-msa-2026:p1:c6",
+          "document_id": "northstar-msa-2026",
+          "document_name": "northstar_master_services_agreement.pdf",
+          "excerpt": "The provider shall maintain an operational service desk during business hours.",
+          "page": 1,
+          "section": null
+        }
+      ],
+      "id": "dev-a08",
+      "kind": "answerable",
+      "latency_ms": 0.862,
+      "status": "answered"
+    },
+    {
+      "answer": "Incident date: 2026-04-12",
+      "answer_match": true,
+      "citation_matches": [
+        true
+      ],
+      "citations": [
+        {
+          "chunk_id": "routing-incident-2026-04:p1:c1",
+          "document_id": "routing-incident-2026-04",
+          "document_name": "routing_delay_incident.md",
+          "excerpt": "Incident date: 2026-04-12",
+          "page": 1,
+          "section": null
+        }
+      ],
+      "id": "dev-a09",
+      "kind": "answerable",
+      "latency_ms": 0.889,
+      "status": "answered"
+    },
+    {
+      "answer": "Northstar's route optimisation feed was delayed for 18 minutes between 09:14 and 09:32 UTC.",
+      "answer_match": true,
+      "citation_matches": [
+        true
+      ],
+      "citations": [
+        {
+          "chunk_id": "routing-incident-2026-04:p1:c2",
+          "document_id": "routing-incident-2026-04",
+          "document_name": "routing_delay_incident.md",
+          "excerpt": "Northstar's route optimisation feed was delayed for 18 minutes between 09:14 and 09:32 UTC.",
+          "page": 1,
+          "section": null
+        }
+      ],
+      "id": "dev-a10",
+      "kind": "answerable",
+      "latency_ms": 0.885,
+      "status": "answered"
+    },
+    {
+      "answer": "The on-call coordinator recorded the incident as SEV-2.",
+      "answer_match": true,
+      "citation_matches": [
+        true
+      ],
+      "citations": [
+        {
+          "chunk_id": "routing-incident-2026-04:p1:c3",
+          "document_id": "routing-incident-2026-04",
+          "document_name": "routing_delay_incident.md",
+          "excerpt": "The on-call coordinator recorded the incident as SEV-2.",
+          "page": 1,
+          "section": null
+        }
+      ],
+      "id": "dev-a11",
+      "kind": "answerable",
+      "latency_ms": 0.718,
+      "status": "answered"
+    },
+    {
+      "answer": "Owner: Operations Reliability Team.",
+      "answer_match": true,
+      "citation_matches": [
+        true
+      ],
+      "citations": [
+        {
+          "chunk_id": "routing-incident-2026-04:p2:c3",
+          "document_id": "routing-incident-2026-04",
+          "document_name": "routing_delay_incident.md",
+          "excerpt": "Owner: Operations Reliability Team.",
+          "page": 2,
+          "section": null
+        }
+      ],
+      "id": "dev-a12",
+      "kind": "answerable",
+      "latency_ms": 0.941,
+      "status": "answered"
+    },
+    {
+      "answer": "Effective date: 2026-03-01",
+      "answer_match": true,
+      "citation_matches": [
+        true
+      ],
+      "citations": [
+        {
+          "chunk_id": "supplier-register-2026:p1:c3",
+          "document_id": "supplier-register-2026",
+          "document_name": "supplier_register.txt",
+          "excerpt": "Effective date: 2026-03-01",
+          "page": 1,
+          "section": null
+        }
+      ],
+      "id": "dev-a13",
+      "kind": "answerable",
+      "latency_ms": 0.794,
+      "status": "answered"
+    },
+    {
+      "answer": "Monthly archive fee: EUR 1,250",
+      "answer_match": true,
+      "citation_matches": [
+        true
+      ],
+      "citations": [
+        {
+          "chunk_id": "supplier-register-2026:p1:c4",
+          "document_id": "supplier-register-2026",
+          "document_name": "supplier_register.txt",
+          "excerpt": "Monthly archive fee: EUR 1,250",
+          "page": 1,
+          "section": null
+        }
+      ],
+      "id": "dev-a14",
+      "kind": "answerable",
+      "latency_ms": 1.223,
+      "status": "answered"
+    },
+    {
+      "answer": "Retention obligation: destroy export copies within 30 days after termination.",
+      "answer_match": true,
+      "citation_matches": [
+        true
+      ],
+      "citations": [
+        {
+          "chunk_id": "supplier-register-2026:p2:c0",
+          "document_id": "supplier-register-2026",
+          "document_name": "supplier_register.txt",
+          "excerpt": "Retention obligation: destroy export copies within 30 days after termination.",
+          "page": 2,
+          "section": null
+        }
+      ],
+      "id": "dev-a15",
+      "kind": "answerable",
+      "latency_ms": 1.398,
+      "status": "answered"
+    },
+    {
+      "answer": "Risk: renewal date is missing from the register.",
+      "answer_match": true,
+      "citation_matches": [
+        true
+      ],
+      "citations": [
+        {
+          "chunk_id": "supplier-register-2026:p2:c3",
+          "document_id": "supplier-register-2026",
+          "document_name": "supplier_register.txt",
+          "excerpt": "Risk: renewal date is missing from the register.",
+          "page": 2,
+          "section": null
+        }
+      ],
+      "id": "dev-a16",
+      "kind": "answerable",
+      "latency_ms": 1.662,
+      "status": "answered"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "dev-u01",
+      "kind": "unanswerable",
+      "latency_ms": 0.926,
+      "status": "abstained"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "dev-u02",
+      "kind": "unanswerable",
+      "latency_ms": 1.085,
+      "status": "abstained"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "dev-u03",
+      "kind": "unanswerable",
+      "latency_ms": 1.084,
+      "status": "abstained"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "dev-u04",
+      "kind": "unanswerable",
+      "latency_ms": 1.049,
+      "status": "abstained"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "dev-u05",
+      "kind": "unanswerable",
+      "latency_ms": 0.908,
+      "status": "abstained"
+    }
+  ],
+  "citation_case_accuracy": 1.0,
+  "citation_precision": 1.0,
+  "created_at": "2026-08-26T18:29:51.097837+00:00",
+  "dataset_version": "2026.08.26.1",
+  "error_rate": 0.0,
+  "estimated_cost_usd": 0.0,
+  "extraction_f1": 1.0,
+  "extraction_precision": 1.0,
+  "extraction_recall": 1.0,
+  "extractions": {
+    "northstar-msa-2026": {
+      "document_type": {
+        "citations": [
+          {
+            "chunk_id": "northstar-msa-2026:p1:c3",
+            "document_id": "northstar-msa-2026",
+            "document_name": "northstar_master_services_agreement.pdf",
+            "excerpt": "Document type: Supplier master services agreement",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": "Supplier master services agreement"
+      },
+      "effective_date": {
+        "citations": [
+          {
+            "chunk_id": "northstar-msa-2026:p1:c4",
+            "document_id": "northstar-msa-2026",
+            "document_name": "northstar_master_services_agreement.pdf",
+            "excerpt": "Effective date: 2026-01-15",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": "2026-01-15"
+      },
+      "important_amounts": {
+        "citations": [
+          {
+            "chunk_id": "northstar-msa-2026:p1:c5",
+            "document_id": "northstar-msa-2026",
+            "document_name": "northstar_master_services_agreement.pdf",
+            "excerpt": "EUR 48,000",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": [
+          "EUR 48,000"
+        ]
+      },
+      "obligations": {
+        "citations": [
+          {
+            "chunk_id": "northstar-msa-2026:p1:c6",
+            "document_id": "northstar-msa-2026",
+            "document_name": "northstar_master_services_agreement.pdf",
+            "excerpt": "The provider shall maintain an operational service desk during business hours.",
+            "page": 1,
+            "section": null
+          },
+          {
+            "chunk_id": "northstar-msa-2026:p2:c2",
+            "document_id": "northstar-msa-2026",
+            "document_name": "northstar_master_services_agreement.pdf",
+            "excerpt": "Northstar shall notify Meridian of a confirmed security incident within 24 hours.",
+            "page": 2,
+            "section": null
+          },
+          {
+            "chunk_id": "northstar-msa-2026:p2:c4",
+            "document_id": "northstar-msa-2026",
+            "document_name": "northstar_master_services_agreement.pdf",
+            "excerpt": "No subcontractor may access production data without written approval.",
+            "page": 2,
+            "section": null
+          }
+        ],
+        "value": [
+          "The provider shall maintain an operational service desk during business hours.",
+          "Northstar shall notify Meridian of a confirmed security incident within 24 hours.",
+          "No subcontractor may access production data without written approval."
+        ]
+      },
+      "organization_name": {
+        "citations": [
+          {
+            "chunk_id": "northstar-msa-2026:p1:c1",
+            "document_id": "northstar-msa-2026",
+            "document_name": "northstar_master_services_agreement.pdf",
+            "excerpt": "Northstar Logistics Systems Ltd.",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": "Northstar Logistics Systems Ltd."
+      },
+      "renewal_date": {
+        "citations": [
+          {
+            "chunk_id": "northstar-msa-2026:p2:c1",
+            "document_id": "northstar-msa-2026",
+            "document_name": "northstar_master_services_agreement.pdf",
+            "excerpt": "The agreement renews on 2027-01-15 unless either party gives 60 days written notice.",
+            "page": 2,
+            "section": null
+          }
+        ],
+        "value": "2027-01-15"
+      },
+      "responsible_people": {
+        "citations": [
+          {
+            "chunk_id": "northstar-msa-2026:p2:c3",
+            "document_id": "northstar-msa-2026",
+            "document_name": "northstar_master_services_agreement.pdf",
+            "excerpt": "Service owner: Mira Talen, [EMAIL REDACTED].",
+            "page": 2,
+            "section": null
+          }
+        ],
+        "value": [
+          "Mira Talen"
+        ]
+      },
+      "risks": {
+        "citations": [],
+        "value": []
+      }
+    },
+    "routing-incident-2026-04": {
+      "document_type": {
+        "citations": [],
+        "value": null
+      },
+      "effective_date": {
+        "citations": [],
+        "value": null
+      },
+      "important_amounts": {
+        "citations": [],
+        "value": []
+      },
+      "obligations": {
+        "citations": [],
+        "value": []
+      },
+      "organization_name": {
+        "citations": [],
+        "value": null
+      },
+      "renewal_date": {
+        "citations": [],
+        "value": null
+      },
+      "responsible_people": {
+        "citations": [
+          {
+            "chunk_id": "routing-incident-2026-04:p2:c3",
+            "document_id": "routing-incident-2026-04",
+            "document_name": "routing_delay_incident.md",
+            "excerpt": "Owner: Operations Reliability Team.",
+            "page": 2,
+            "section": null
+          }
+        ],
+        "value": [
+          "Operations Reliability Team"
+        ]
+      },
+      "risks": {
+        "citations": [
+          {
+            "chunk_id": "routing-incident-2026-04:p2:c4",
+            "document_id": "routing-incident-2026-04",
+            "document_name": "routing_delay_incident.md",
+            "excerpt": "Risk: the 48-hour report target conflicts with the 24-hour contractual notification obligation.",
+            "page": 2,
+            "section": null
+          }
+        ],
+        "value": [
+          "the 48-hour report target conflicts with the 24-hour contractual notification obligation."
+        ]
+      }
+    },
+    "supplier-register-2026": {
+      "document_type": {
+        "citations": [
+          {
+            "chunk_id": "supplier-register-2026:p1:c2",
+            "document_id": "supplier-register-2026",
+            "document_name": "supplier_register.txt",
+            "excerpt": "Document type: supplier register entry",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": "supplier register entry"
+      },
+      "effective_date": {
+        "citations": [
+          {
+            "chunk_id": "supplier-register-2026:p1:c3",
+            "document_id": "supplier-register-2026",
+            "document_name": "supplier_register.txt",
+            "excerpt": "Effective date: 2026-03-01",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": "2026-03-01"
+      },
+      "important_amounts": {
+        "citations": [
+          {
+            "chunk_id": "supplier-register-2026:p1:c4",
+            "document_id": "supplier-register-2026",
+            "document_name": "supplier_register.txt",
+            "excerpt": "EUR 1,250",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": [
+          "EUR 1,250"
+        ]
+      },
+      "obligations": {
+        "citations": [],
+        "value": []
+      },
+      "organization_name": {
+        "citations": [],
+        "value": null
+      },
+      "renewal_date": {
+        "citations": [
+          {
+            "chunk_id": "supplier-register-2026:p2:c1",
+            "document_id": "supplier-register-2026",
+            "document_name": "supplier_register.txt",
+            "excerpt": "Renewal date: not recorded.",
+            "page": 2,
+            "section": null
+          }
+        ],
+        "value": "not recorded"
+      },
+      "responsible_people": {
+        "citations": [
+          {
+            "chunk_id": "supplier-register-2026:p1:c5",
+            "document_id": "supplier-register-2026",
+            "document_name": "supplier_register.txt",
+            "excerpt": "Responsible contact: Ivo Neris, [EMAIL REDACTED], [PHONE REDACTED].",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": [
+          "Ivo Neris"
+        ]
+      },
+      "risks": {
+        "citations": [
+          {
+            "chunk_id": "supplier-register-2026:p2:c3",
+            "document_id": "supplier-register-2026",
+            "document_name": "supplier_register.txt",
+            "excerpt": "Risk: renewal date is missing from the register.",
+            "page": 2,
+            "section": null
+          }
+        ],
+        "value": [
+          "renewal date is missing from the register."
+        ]
+      }
+    }
+  },
+  "latency_median_ms": 0.926,
+  "latency_p95_ms": 1.57,
+  "metric_counts": {
+    "abstention_correct": 5,
+    "abstention_total": 5,
+    "answerable_correct": 16,
+    "answerable_total": 16,
+    "citation_correct": 16,
+    "citation_returned": 16,
+    "errors": 0,
+    "extraction_gold": 9,
+    "extraction_predicted": 9,
+    "extraction_true_positive": 9
+  },
+  "mode": "extractive-local",
+  "parameters_version": "extractive-local-v1.1-frozen",
+  "schema_version": "evaluation-result-v1",
+  "seed": 20260826,
+  "split": "development",
+  "targets": {
+    "abstention_accuracy": 0.85,
+    "citation_precision": 0.9,
+    "extraction_f1": 0.9
+  },
+  "verdict": "PASS"
+}
