@@ -2,16 +2,12 @@
 
 ## Décision
 
-Le mode par défaut est `extractive-local` avec feature hashing déterministe et recherche PostgreSQL hybride. Il n’appelle aucun fournisseur externe.
+Le mode par défaut reste `extractive-local`, sans appel à un fournisseur externe ni clé API. Son embedding est le modèle local ONNX `paraphrase-multilingual-minilm-l12-v2-onnx-q@faf4aa4225822f3bc6376869cb1164e8e3feedd0`; la recherche hybride combine dense et lexical. Le lexical reste une voie legacy et un composant du classement hybride, pas l'espace vectoriel.
 
 ## Raisons
 
-Les tests, la CI, la démonstration et les évaluations doivent être exécutables sans coût ni secret. Les réponses peuvent donc rester liées à un passage exact et s’abstenir sans génération libre.
+Tests, CI et démonstration doivent fonctionner sans coût ni secret. Les réponses restent extractives, liées à des passages, et peuvent s'abstenir ; ce mode n'est pas présenté comme un LLM complet.
 
 ## Limites acceptées
 
-Le vecteur déterministe n’est pas un embedding sémantique pré-entraîné ; il est surtout lexical. Le
-système n’est pas présenté comme un LLM complet. `ProviderBundle` expose les protocoles
-`EmbeddingProvider` et `AnswerProvider` ; le registre n'accepte actuellement que
-`extractive-local`. Un mode local ou externe ultérieur exige une implémentation explicite, un accord
-sur les coûts et une nouvelle revue sécurité/évaluation.
+Le modèle est local et CPU, mais son téléchargement initial et son cache doivent être disponibles ou vérifiés. L'espace vectoriel est identifié par `embedding_model_id`; les chunks issus du feature hashing historique (`deterministic-hash-v1:384`) ne sont pas interchangeables avec le modèle ONNX. Un fournisseur local ou externe ultérieur exige mode explicite, coût explicite et nouvelle revue sécurité/évaluation.

@@ -35,7 +35,7 @@ Les chunks conservent page, section, ordinal et texte masqué. La recherche comb
 
 ## Modes de réponse
 
-Le mode livré est `extractive-local`. Son vecteur est un feature hashing déterministe (tokens et trigrammes), de dimension 384, complété par la recherche lexicale PostgreSQL. Il est reproductible, gratuit et ne nécessite pas de clé, mais **ce n’est ni un embedding sémantique pré-entraîné ni un LLM complet**. Ses résultats sont surtout sensibles au recouvrement lexical et aux formulations du corpus.
+Le mode livré est `extractive-local-onnx`. Son vecteur est l'embedding ONNX local `paraphrase-multilingual-minilm-l12-v2-onnx-q@faf4aa4225822f3bc6376869cb1164e8e3feedd0`, de dimension 384, calculé par fastembed/onnxruntime sur CPU. `embedding_model_id` définit l'espace vectoriel : les embeddings feature-hashing historiques ne sont pas compatibles. La recherche lexicale PostgreSQL est conservée comme voie legacy et fusionnée avec le dense dans le classement hybride retenu. Le mode n'est pas un LLM complet et ne nécessite pas de clé.
 
 `ProviderBundle` regroupe les protocoles `EmbeddingProvider` et `AnswerProvider`. Le registre refuse
 tout mode inconnu ; un fournisseur local ou compatible OpenAI peut être ajouté à ces deux frontières

@@ -94,6 +94,41 @@ def test_seed_loader_accepts_raw_v4_but_not_recalculation(tmp_path: Path) -> Non
     ]
 
 
+def test_seed_loader_keeps_latest_artifact_for_the_same_run_identity(tmp_path: Path) -> None:
+    identity = {
+        "schema_version": "evaluation-result-v1",
+        "dataset_version": "development-v2",
+        "parameters_version": "semantic-v2",
+        "split": "development",
+    }
+    (tmp_path / "development-final.json").write_text(
+        json.dumps(
+            {
+                **identity,
+                "created_at": "2026-08-26T22:15:10+00:00",
+                "latency_p95_ms": 46.786,
+            }
+        ),
+        encoding="utf-8",
+    )
+    (tmp_path / "development-v6.json").write_text(
+        json.dumps(
+            {
+                **identity,
+                "created_at": "2026-08-26T22:41:01+00:00",
+                "latency_p95_ms": 50.054,
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    loaded = _load_evaluation_artifacts(tmp_path)
+
+    assert len(loaded) == 1
+    assert loaded[0][0].name == "development-v6.json"
+    assert loaded[0][1]["latency_p95_ms"] == 50.054
+
+
 def build_engine_from_url():
     settings = Settings(
         database_url=DATABASE_URL,

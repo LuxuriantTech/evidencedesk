@@ -203,6 +203,7 @@ def _load_evaluation_artifacts(artifacts_dir: Path) -> list[tuple[Path, dict[str
     if not artifacts_dir.exists():
         return []
     loaded: list[tuple[Path, dict[str, object]]] = []
+    latest_by_identity: dict[tuple[str, str, str], tuple[Path, dict[str, object]]] = {}
     for path in sorted(artifacts_dir.glob("*.json")):
         result = json.loads(path.read_text(encoding="utf-8"))
         if not isinstance(result, dict):
@@ -212,8 +213,21 @@ def _load_evaluation_artifacts(artifacts_dir: Path) -> list[tuple[Path, dict[str
             "holdout-v4-raw-result-v2",
         }:
             continue
-        loaded.append((path, result))
-    return loaded
+        dataset_version = result.get("dataset_version")
+        parameters_version = result.get("parameters_version")
+        split = result.get("split")
+        if not (
+            isinstance(dataset_version, str)
+            and isinstance(parameters_version, str)
+            and isinstance(split, str)
+        ):
+            loaded.append((path, result))
+            continue
+        identity = (dataset_version, parameters_version, split)
+        current = latest_by_identity.get(identity)
+        if current is None or _artifact_created_at(path, result) > _artifact_created_at(*current):
+            latest_by_identity[identity] = (path, result)
+    return sorted([*loaded, *latest_by_identity.values()], key=lambda item: item[0].name)
 
 
 async def seed(settings: Settings) -> None:

@@ -5,10 +5,10 @@ TXT et Markdown synthétiques, les traite hors requête HTTP, extrait des champs
 uniquement avec le document, la page et le passage utilisés. Quand la preuve manque ou se
 contredit, il doit s'abstenir.
 
-Le projet est une démonstration technique locale, pas un service utilisé par des clients. Deux jeux
-holdout distincts ont échoué aux objectifs déclarés avant leurs runs archivés ; les résultats
-négatifs sont conservés dans le dépôt au lieu d'être masqués. Les locks et hashes sont des contrôles
-locaux, pas une preuve externe d'absence de consultation ou de réexécution.
+Le projet est une démonstration technique locale, pas un service utilisé par des clients. Après une
+comparaison sur développement, un holdout indépendant valide a échoué aux objectifs déclarés. Le
+résultat négatif, deux préflights avortés et leurs verrous sont conservés au lieu d'être masqués. Les
+commits, hashes et locks sont des preuves locales cohérentes, pas un scellement externe.
 
 ![Réponse avec sa source](docs/screenshots/02-sourced-answer-desktop.png)
 
@@ -37,13 +37,16 @@ le contrôle serveur.
 - limite du corps HTTP avant parsing multipart, y compris sans `Content-Length` ;
 - budgets worker sur pages, caractères extraits et chunks, avec échec terminal explicite ;
 - découpage par page/bloc, masquage e-mail/téléphone, extraction fournisseur avec citations par champ ;
-- recherche hybride locale et réponse extractive, audit PostgreSQL, logs JSON et métriques Prometheus ;
+- embeddings ONNX locaux, recherche lexicale/dense/hybride, réponse extractive, audit PostgreSQL,
+  logs JSON et métriques Prometheus ;
 - Docker Compose, tests pytest/Vitest/Playwright, axe-core et CI GitHub Actions préparée ;
 - corpus synthétique CC0, jeux d'évaluation versionnés, hashes, fingerprint moteur et locks holdout.
 
-Limite importante : le vecteur local est un feature hashing déterministe, pas un embedding
-sémantique pré-entraîné. La pondération reste principalement lexicale. `pgvector` est utilisé, mais
-le projet ne revendique donc pas une recherche sémantique de niveau production.
+Le mode par défaut utilise réellement
+`Qdrant/paraphrase-multilingual-MiniLM-L12-v2-onnx-Q` (révision figée, Apache-2.0,
+environ 118 M paramètres, vecteurs 384 dimensions) sur CPU avec FastEmbed/ONNX Runtime. La réponse
+reste extractive : EvidenceDesk n'est pas présenté comme un LLM complet. Le holdout v6 montre aussi
+qu'une bonne récupération top-5 ne suffit pas à garantir une bonne réponse ou extraction.
 
 ## Architecture
 
@@ -70,13 +73,17 @@ Prérequis : Docker Engine avec Compose v2. Aucun compte ou clé de modèle n'es
 ```bash
 git clone <URL_A_AJOUTER_APRES_PUBLICATION>
 cd evidencedesk
-docker compose up --build --wait --wait-timeout 180
+docker compose up --build --wait --wait-timeout 600
 docker compose ps
 ```
 
 Sans dépôt publié, utiliser directement le chemin local de ce projet. L'interface écoute sur
 `http://localhost:8080`, l'API sur `http://localhost:8000`, PostgreSQL sur `55432` et Redis sur
 `56379`. Ces quatre publications sont liées à `127.0.0.1`, pas aux interfaces LAN.
+
+Le manifeste enregistre un téléchargement modèle mesuré à 266 906 689 octets ; sa durée dépend du
+réseau. Docker met ensuite cette couche en cache. Le modèle s'exécute sur CPU ; le benchmark
+d'évaluation a culminé à environ 726 Mo de RSS.
 
 Comptes de démonstration locaux :
 
@@ -107,7 +114,7 @@ La procédure vérifiée a été exécutée dans Ubuntu sous WSL2 avec Docker ac
 cd ~/dev/evidencedesk
 docker version
 docker compose version
-docker compose up --build --wait --wait-timeout 180
+docker compose up --build --wait --wait-timeout 600
 curl -fsS http://localhost:8080/health
 ```
 
@@ -123,7 +130,7 @@ Backend :
 uv sync --frozen --all-groups
 uv run alembic upgrade head
 uv run ruff check apps/api apps/worker evals scripts
-uv run mypy apps/api/evidencedesk_api apps/worker/evidencedesk_worker
+uv run mypy apps/api/evidencedesk_api apps/worker/evidencedesk_worker evals --exclude 'evals/tests'
 uv run python scripts/check_supply_chain_refs.py
 uv run pytest --cov --cov-report=term-missing --cov-report=json:artifacts/coverage.json
 uv run pip-audit --strict
@@ -157,40 +164,44 @@ web → API → Redis/worker → PostgreSQL. Elle n'a pas été exécutée sur G
 
 ## Évaluation reproductible
 
-Le manifeste contient 40 cas : 25 répondables, 10 sans réponse et 5 ambigus/adversariaux, avec
-21 cas de développement et 19 cas holdout. Les holdouts déjà ouverts ne doivent jamais être
-relancés.
+Le développement v2 comporte 50 questions et 65 valeurs d'extraction. Quatre méthodes ont été
+recalculées sur ce jeu uniquement avant le gel :
 
-| Jeu | Paramètres | Citations rapportées | Abstention | F1 extraction | p95 | Verdict |
-|---|---|---:|---:|---:|---:|---|
-| Développement v1.2 | `extractive-local-v1.2-frozen` | 100,0 % | 100,0 % | 100,0 % | 0,533 ms | PASS développement |
-| Holdout v2 | `extractive-local-v1.1-frozen` | 70,0 % | 80,0 % | 94,1 % | 1,976 ms | FAIL |
-| Holdout v3 | `extractive-local-v1.2-frozen` | 50,0 % | 70,0 % | 33,3 % | 1,021 ms | FAIL |
+| Méthode | Citations | Abstention | F1 extraction | Recall@5 | MRR@5 | p95 |
+|---|---:|---:|---:|---:|---:|---:|
+| Lexicale | 100 % | 100 % | 100 % | 83,33 % | 0,5678 | 48,034 ms |
+| Embeddings | 100 % | 100 % | 100 % | 73,33 % | 0,5022 | 56,952 ms |
+| Hybride | 100 % | 100 % | 100 % | 100 % | 0,8667 | 50,054 ms |
+| Hybride + reranking | 100 % | 100 % | 100 % | 96,67 % | 0,6917 | 59,398 ms |
 
-L'audit indépendant v3 a montré que le matcher comptait les sous-chaînes comme citations exactes.
-Avec une égalité littérale stricte, la précision v3 est 0/8 et non 4/8. Les 50,0 % restent affichés
-comme résultat historique du runner gelé, pas comme précision exacte. L'évaluateur mesure le moteur
-en mémoire ; il ne couvre pas la latence réseau, l'ingestion, PostgreSQL ou le worker.
+La méthode hybride sans reranking a été figée : le reranking n'ajoutait aucune réponse correcte et
+faisait reculer la récupération. Le holdout v6 indépendant, ouvert une seule fois ensuite, contient
+40 questions et 120 valeurs d'extraction. Il échoue aux trois objectifs : citations 2/5 (40 %),
+cas répondables correctement cités 2/25 (8 %), abstention 12/15 (80 %) et F1 extraction 45,16 %.
+Son Recall@5 est pourtant de 25/25, ce qui localise l'échec après la récupération des candidats.
 
-Voir [`docs/evaluation.md`](docs/evaluation.md) et les JSON dans `artifacts/evaluations/`. La seule
-commande autorisée sans nouveau protocole est la validation structurelle :
-
-```bash
-PYTHONPATH=apps/api:apps/worker:. uv run python -m evals.validate_dataset \
-  datasets/blind_holdout_v3/evaluation_cases.json \
-  --corpus datasets/blind_holdout_v3/corpus_manifest.json
-```
+Les tentatives v4 et v5 se sont arrêtées avant toute inférence, respectivement sur une attestation
+incomplète et un champ corpus requis absent. Leurs locks et rapports d'échec sont conservés ; aucun
+résultat de qualité n'existe et aucune relance n'a été faite. Le v6 est le holdout de remplacement
+indépendant valide. Les résultats bruts et leur recalcul indépendant sont dans
+[`artifacts/evaluations/`](artifacts/evaluations/) ; définitions, hashes, gel et commandes sont dans
+[`docs/evaluation.md`](docs/evaluation.md). L'évaluateur reste en mémoire et ne mesure pas le réseau,
+l'ingestion, PostgreSQL ou le worker.
 
 ## Modes IA
 
 | Mode | État | Appel externe | Coût mesuré |
 |---|---|---|---:|
-| `extractive-local` | implémenté et utilisé | aucun | 0 USD |
+| `extractive-local-onnx` | mode actif : lexical, dense et hybride | aucun | 0 USD |
+| feature hashing historique | baseline conservée, non sélectionnée | aucun | 0 USD |
 | fournisseur local, par exemple Ollama | interface d'extension seulement | non implémenté | non mesuré |
 | fournisseur compatible OpenAI | interface d'extension seulement | non implémenté | non mesuré |
 
-Le mode actuel n'est pas un LLM complet. Aucun appel payant n'a été effectué. Un futur fournisseur
-devra conserver les citations, l'abstention, la journalisation des erreurs et un coût explicite.
+Le mode actuel est un encodeur sémantique local avec réponse déterministe, pas un LLM génératif. Son
+identité, sa révision, sa licence, sa taille et les SHA-256 de ses fichiers sont figés dans
+[`infra/models/paraphrase-multilingual-minilm-l12-v2.json`](infra/models/paraphrase-multilingual-minilm-l12-v2.json).
+Aucun appel payant n'a été effectué. Un futur fournisseur devra conserver citations, abstention,
+journalisation des erreurs et coût explicite.
 
 ## Sécurité et données
 
@@ -225,12 +236,13 @@ La politique de conservation, le modèle de menace et les limites sont détaill�
 Statut : prototype local fonctionnel, avec résultat empirique `HONEST_NEGATIVE`.
 
 - les objectifs holdout ne sont pas atteints ;
-- le feature hashing échoue sur des formulations et domaines nouveaux ;
-- le matcher historique de citation accepte une sous-chaîne, contrairement à son libellé « exact » ;
+- sur v6, la récupération trouve la preuve dans le top 5, mais la sélection finale, l'abstention et
+  l'extraction généralisent mal ;
+- v4 et v5 n'ont produit aucune métrique à cause de défauts de préflight conservés comme preuves ;
 - les PDF image/OCR, tableaux complexes et documents chiffrés ne sont pas pris en charge ;
 - la limite mémoire du sous-processus PDF est POSIX uniquement et la suppression
   fichier/transaction DB n'est pas atomique ;
-- pas de multi-tenant, chiffrement applicatif, stockage S3 réel, LLM local ou fournisseur externe ;
+- pas de multi-tenant, chiffrement applicatif, stockage S3 réel, LLM génératif local ou fournisseur externe ;
 - aucune CI distante, URL publique, charge concurrente ou procédure Windows native n'a été validée ;
 - aucun utilisateur, client, témoignage ou SLA de production n'est revendiqué.
 

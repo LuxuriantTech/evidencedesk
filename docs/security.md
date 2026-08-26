@@ -4,6 +4,10 @@
 
 Le mode `PUBLIC_DEMO_MODE=true` exige à la fois `is_synthetic=true` et un SHA-256 présent dans `datasets/public_demo_uploads.json`. Cette liste ne contient que quatre fichiers synthétiques versionnés dont les hashes sont vérifiés par test. Le chemin HTTP et le seed refusent tous deux un digest absent : un client ou un manifeste alternatif ne peut pas contourner la limite par une simple attestation. Pour importer un autre document synthétique en développement local, il faut désactiver explicitement ce mode ; aucun document réel ne doit être utilisé dans la démonstration.
 
+## Modèle local et intégrité
+
+L'embedding par défaut est téléchargé localement puis exécuté hors ligne sur CPU ; aucune question ni chunk n'est envoyé à un fournisseur par ce mode. Le manifest versionné fixe le dépôt Qdrant, sa révision et les SHA-256 de ses fichiers, dont `model_optimized.onnx`. Ces hashes détectent une divergence locale au contrôle, mais ne constituent ni signature de l'éditeur, ni preuve de provenance, ni protection contre un administrateur local qui remplace manifest et fichiers ensemble. Les évaluations et la démonstration documentées utilisent uniquement des données synthétiques ; aucune garantie de traitement approprié de données réelles n'en découle.
+
 ## Authentification et autorisation
 
 - Les mots de passe sont hachés et vérifiés avec Argon2 ; ni mot de passe ni jeton n’est journalisé par l’application.

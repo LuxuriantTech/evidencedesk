@@ -215,9 +215,12 @@ describe("EvidenceDesk REST flow", () => {
               mode: "extractive-local",
               metrics: {
                 citation_precision: 0.7,
+                citation_case_accuracy: 0.777778,
                 extraction_f1: 0.941176,
                 abstention_accuracy: 0.8,
+                latency_median_ms: 1.448,
                 latency_p95_ms: 1.976,
+                retrieval_recall_at_5: 0.9,
                 error_rate: 0,
                 estimated_cost_usd: 0,
               },
@@ -241,7 +244,10 @@ describe("EvidenceDesk REST flow", () => {
       screen.getByRole("button", { name: /source accord.pdf, page 1/i }),
     ).toBeInTheDocument();
     expect(await screen.findByText("70,0 %")).toBeInTheDocument();
+    expect(screen.getByText("77,8 %")).toBeInTheDocument();
     expect(screen.getByText("94,1 %")).toBeInTheDocument();
+    expect(screen.getByText("1.448 ms")).toBeInTheDocument();
+    expect(screen.getByText("90,0 %")).toBeInTheDocument();
     fetchMock.mockRestore();
   });
 });

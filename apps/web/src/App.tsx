@@ -186,12 +186,24 @@ function EvaluationCard({ run }: { run: EvaluationRun }) {
           <dd>{percentage(metrics.citation_precision)}</dd>
         </div>
         <div>
+          <dt>Exactitude cas sourcés</dt>
+          <dd>{percentage(metrics.citation_case_accuracy)}</dd>
+        </div>
+        <div>
           <dt>F1 extraction</dt>
           <dd>{percentage(metrics.extraction_f1)}</dd>
         </div>
         <div>
           <dt>Exactitude abstention</dt>
           <dd>{percentage(metrics.abstention_accuracy)}</dd>
+        </div>
+        <div>
+          <dt>Recall récupération @5</dt>
+          <dd>{percentage(metrics.retrieval_recall_at_5)}</dd>
+        </div>
+        <div>
+          <dt>Latence médiane</dt>
+          <dd>{numberMetric(metrics.latency_median_ms, "ms")}</dd>
         </div>
         <div>
           <dt>Latence p95</dt>

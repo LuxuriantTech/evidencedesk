@@ -137,3 +137,9 @@ l'extracteur reçoit tous les chunks du document (`d8b5dab7:evals/runner.py:270-
 Les colonnes de catégories peuvent dépasser les erreurs uniques, car une même
 question peut relever simultanément de l'abstention et de la
 récupération/citation. Aucun réglage n'est dérivé de ces holdouts ouverts.
+
+## Suite de protocole v4 à v6 (sans réinterpréter v2/v3)
+
+Les erreurs v2/v3 ci-dessus sont des erreurs historiques détaillées, pas des paramètres de réglage. Les tentatives suivantes sont consignées pour distinguer un échec de protocole d'un résultat moteur : v4 s'est arrêté au préflight parce que l'attestation ne fournissait pas les hashes exigés; aucun raw n'a été créé et le lock est conservé. v5 s'est arrêté dans `evaluate_manifest.build_chunks` avec `KeyError: filename`, avant toute évaluation de cas et sans raw; le lock est conservé. Le validateur contrôle désormais qu'un `filename` non vide est présent dans chaque document avant le runner.
+
+v6 est le premier raw de récupération : son SHA-256 est `033ac62953fe8e447443f69cb185080a17e72989f2f00b706686a6efefd05d03`; le recalcul séparé référencé par cet artefact a le SHA-256 `5d920dc073b5d839be3125188388743974f1434e5de26f229b304df5b46ea6ed` et confirme `FAIL`. Cela ne modifie pas les constats v2/v3 et ne prouve pas un scellement indépendant : les locks restent locaux et non WORM.

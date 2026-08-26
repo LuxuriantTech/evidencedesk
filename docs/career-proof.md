@@ -2,136 +2,113 @@
 
 ## Résumé en 30 secondes
 
-J'ai construit une application full-stack de revue documentaire pour un dossier fournisseur
-entièrement synthétique. React appelle une API FastAPI sécurisée par rôles ; les imports passent par
-Redis et un worker ARQ, puis PostgreSQL/pgvector conserve les passages, extractions et audits. Le
-mode sans clé répond de façon extractive avec document, page et extrait, ou s'abstient. J'ai aussi
-archivé deux jeux holdout distincts avec hashes et locks locaux : ils ont échoué, ce qui montre
-précisément où la méthode lexicale ne généralise pas encore. Ces contrôles ne valent pas scellement
-externe.
+J'ai construit localement une application full-stack de revue documentaire pour un dossier
+fournisseur entièrement synthétique. React appelle une API FastAPI avec RBAC ; les imports passent
+par Redis/ARQ, puis PostgreSQL/pgvector conserve passages, extractions et audits. Le moteur actif
+utilise un embedding ONNX local et une recherche hybride, sans clé ni appel externe ; la réponse
+reste extractive, sourcée ou abstentionniste. Son holdout v6 a échoué : c'est un prototype technique
+et non une preuve de qualité RAG généralisable.
 
-## Problème résolu
+## Architecture et choix défendables
 
-Une équipe opérations doit retrouver rapidement une date, un montant ou une obligation sans accepter
-une réponse impossible à vérifier. EvidenceDesk relie chaque réponse et champ extrait au passage
-masqué utilisé, conserve un audit corrélé et refuse les questions sans preuve suffisante.
+- React/TypeScript et nginx ; API REST FastAPI, JWT court, Argon2 et RBAC
+  `admin`/`analyst`/`reader` ;
+- PostgreSQL 16 avec pgvector HNSW et recherche textuelle GIN ; Redis/ARQ pour les tâches,
+  trois tentatives et l'idempotence par SHA-256 ;
+- stockage local derrière un protocole substituable, logs JSON, UUID de corrélation et métriques
+  Prometheus ;
+- modèle local : `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`, export ONNX Qdrant
+  figé, 384 dimensions, licence Apache-2.0 ; le code du projet est sous licence MIT ;
+- recherche hybride : fusion de rangs entre candidats lexicaux et denses. Le choix évite de traiter
+  des scores bruts hétérogènes comme s'ils étaient calibrés.
 
-## Architecture défendable
+## Difficultés et compromis
 
-- React/TypeScript et nginx pour l'interface ;
-- API REST FastAPI, JWT court, Argon2 et RBAC `admin`/`analyst`/`reader` ;
-- PostgreSQL 16 avec pgvector HNSW et recherche textuelle GIN ;
-- Redis/ARQ pour les tâches, trois tentatives et idempotence par SHA-256 ;
-- stockage local derrière un protocole substituable ;
-- logs JSON, UUID de corrélation et métriques Prometheus ;
-- Docker Compose et CI préparée, tests pytest/Vitest/Playwright/axe.
+1. Une suppression pouvait courir contre le worker : API et worker verrouillent désormais tâche puis
+   document ; un test concurrent couvre la disparition des chunks et extractions.
+2. Les échecs d'embedding, extraction ou insertion pouvaient laisser `processing` : les tests
+   injectent ces pannes et vérifient reprise ou échec terminal.
+3. Un E2E simulé ne suffisait pas : le parcours local couvre navigateur → API → Redis/worker →
+   PostgreSQL.
+4. La réponse extractive, l'abstention et les citations réduisent le risque d'invention, mais ne
+   produisent pas de synthèse multi-passage comme un LLM.
+5. CPU local et aucun fournisseur payant simplifient confidentialité et coût, au prix d'un modèle de
+   384 dimensions, d'un téléchargement mesuré à 266 906 689 octets et de performances à démontrer
+   hors corpus de test.
 
-## Difficultés rencontrées
+## Résultat réellement mesuré
 
-1. Une suppression pouvait courir contre le worker : API et worker verrouillent maintenant tâche
-   puis document, et un test concurrent prouve que les chunks/extractions ne survivent pas.
-2. Une erreur d'embedding, d'extraction ou d'insertion pouvait laisser `processing` : des tests
-   injectent désormais ces pannes et vérifient reprise puis échec terminal.
-3. Le premier E2E simulait l'API : un job distinct démarre maintenant la pile et vérifie réellement
-   navigateur → API → Redis/worker → PostgreSQL.
-4. axe-core a trouvé des listes de définitions invalides et des zones scrollables non focalisables ;
-   la structure HTML et l'accès clavier ont été corrigés.
-5. Le holdout a falsifié l'hypothèse de généralisation ; v2 et v3 sont conservés et déclarés
-   interdits de réutilisation pour l'optimisation.
-6. La limite fichier dans le handler ne bornait pas le spool multipart : un middleware ASGI coupe
-   maintenant le corps complet avant le parseur, y compris sans `Content-Length`.
+Le holdout v6 est l'artefact de qualité à citer, pas la démo ni le développement : 40 cas,
+`extractive-local-onnx` avec récupération `hybrid`, sur CPU (`12th Gen Intel Core i5-12600KF`,
+16 CPU logiques, environ 16,8 GB de RAM, ONNX Runtime `CPUExecutionProvider`). Verdict : **FAIL**.
 
-## Compromis techniques
+- précision de citation : 40 % (2 citations correctes sur 5 retournées) ;
+- cas répondables corrects : 8 % (2/25) ;
+- abstention correcte : 80 % (12/15) ;
+- F1 d'extraction : 45,16 % ; Recall@5 : 100 % (25/25) ;
+- taux d'erreur : 0 % ; coût API externe : 0 USD.
 
-- Le feature hashing est rapide, déterministe et sans clé, mais il n'est pas sémantique et généralise
-  mal aux synonymes/domaines nouveaux.
-- La réponse extractive limite l'hallucination et le coût, mais ne synthétise pas plusieurs passages
-  comme un LLM.
-- Le stockage local rend la démo simple ; le protocole prépare S3 sans prétendre qu'un adaptateur S3
-  a été testé.
-- Les identifiants de démo sont publics et acceptables localement seulement.
-- Les budgets bornent pages, caractères et chunks ; le parsing PDF isolé a un timeout et des
-  limites POSIX, mais la limite mémoire dure n'existe pas sous Windows natif.
-
-## Résultats mesurés
-
-- corpus versionné : 40 cas, dont 25 répondables, 10 sans réponse et 5 ambigus/adversariaux ;
-- développement v1.2 : 100 % sur les trois portes, utile seulement pour le développement ;
-- holdout v2 : citations 70 %, abstention 80 %, extraction F1 94,12 %, verdict FAIL ;
-- holdout v3 : matcher citations 50 %, abstention 70 %, extraction F1 33,33 %, verdict FAIL ;
-- audit citation v3 à égalité littérale : 0/8, révélant une métrique historique trop permissive ;
-- parcours Playwright réel : import `202 queued` jusqu'à `completed`, réponse/citation, abstention,
-  extraction, PII, audit, évaluation et suppression ;
-- axe-core : aucune violation `critical` ou `serious` sur ce parcours desktop et mobile ;
-- coût fournisseur mesuré : 0 USD, car aucun fournisseur externe n'est appelé.
-
-Les sorties exactes sont dans `artifacts/evaluations/`, `artifacts/coverage.json` et les journaux de
-tests locaux. Les latences de l'évaluateur sont en mémoire et ne sont pas des latences API.
+Ces chiffres montrent que retrouver une preuve dans les cinq premiers candidats ne suffit pas à
+produire une réponse/citation/extraction correcte. Les v4 et v5 se sont arrêtés au préflight,
+sans métrique de qualité, et ne sont pas rejoués. Les résultats de développement servent au réglage,
+pas à établir une qualité générale.
 
 ## Limites à dire spontanément
 
-- prototype local, aucun client ni usage production ;
-- objectifs holdout non atteints ;
-- pas d'embedding sémantique pré-entraîné ni de LLM ;
-- OCR, PDF image, tableaux complexes et chiffrement au repos hors périmètre ;
-- pas de limite mémoire PDF dure sous Windows natif ni d'atomicité fichier/transaction DB ;
-- CI GitHub préparée mais non exécutée tant que le dépôt n'est pas publié ;
-- pas de benchmark de charge ni de validation Windows native.
+- prototype local ; aucun client, usage production, SLA, URL publique ou CI GitHub exécutée ;
+- holdout v6 en échec : aucun objectif de qualité ne doit être présenté comme atteint ;
+- les locks et hashes locaux améliorent la traçabilité mais ne prouvent pas un scellement externe ni
+  l'absence de consultation ;
+- OCR, PDF image, tableaux complexes, chiffrement applicatif, charge concurrente et validation
+  Windows native restent hors périmètre ;
+- le benchmark du moteur ne remplace pas une validation de toute la pile, et le parcours E2E ne
+  remplace pas une mesure de qualité documentaire.
+
+## Réponses d'entretien
+
+### Pourquoi pgvector et un embedding ONNX local ?
+
+Pour exercer une chaîne dense réellement locale, vérifiée par manifest et hash, sans clé runtime.
+La récupération hybride conserve aussi le lexical. Le holdout v6 échoue toutefois : l'intégration
+technique est démontrée, pas l'efficacité finale du système.
+
+### Pourquoi garder un résultat FAIL ?
+
+Parce qu'une démo choisie ne mesure pas la généralisation. Le FAIL v6, les compteurs bruts et les
+artefacts permettent d'expliquer précisément la limite : Recall@5 parfait, mais réponse, citation
+et extraction insuffisantes.
+
+### Quel serait le prochain travail ?
+
+Analyser les erreurs sur le développement, modifier puis geler un nouveau moteur, et créer un
+nouveau holdout indépendant. Les v4, v5 et v6 déjà ouverts ne doivent pas devenir des jeux de
+réglage.
+
+### L'évaluation couvre-t-elle tout le produit ?
+
+Non. L'évaluateur mesure le moteur ; Playwright couvre séparément le flux réel. Ce sont deux
+preuves complémentaires, aucune ne valide à elle seule la qualité de production.
 
 ## Points CV proposés — anglais
 
-- Built a Docker Compose document-review application with FastAPI, React/TypeScript,
-  PostgreSQL/pgvector and Redis/ARQ, including server-side RBAC, page-level citations, PII redaction
-  and correlated audit logs.
-- Implemented a versioned 40-case evaluation protocol with local run locks, dataset hashes and
-  engine fingerprints; retained failed holdout results and documented that the controls are not an
-  external proof of one-shot execution.
-- Verified a real browser-to-worker workflow with Playwright and axe-core, covering asynchronous
-  ingestion, sourced answers, abstention, extraction, audit and controlled deletion with no critical
-  or serious accessibility finding on the tested desktop/mobile path.
+- Built a local document-review prototype with FastAPI, React/TypeScript, PostgreSQL/pgvector and
+  Redis/ARQ, including server-side RBAC, page-level evidence, PII redaction and correlated audit logs.
+- Implemented a local, CPU-only ONNX embedding pipeline and hybrid retrieval with pinned model
+  identity, file hashes and a 40-case evaluation artifact; reported the v6 holdout FAIL rather than
+  presenting development or demo results as general quality.
+- Verified a real browser-to-worker workflow with Playwright, covering asynchronous ingestion,
+  sourced answers, abstention, extraction, audit and controlled deletion.
 
 ## Points CV proposés — français
 
-- Développement d'une application Docker Compose de revue documentaire avec FastAPI,
-  React/TypeScript, PostgreSQL/pgvector et Redis/ARQ, incluant RBAC serveur, citations par page,
-  masquage PII et audit corrélé.
-- Mise en place d'un protocole versionné de 40 cas avec locks locaux, empreintes des datasets et
-  fingerprint moteur ; conservation des résultats holdout négatifs et limites de scellement
-  documentées.
-- Validation d'un parcours réel navigateur–worker avec Playwright et axe-core : ingestion
-  asynchrone, réponse sourcée, abstention, extraction, audit et suppression contrôlée, sans finding
-  d'accessibilité critique ou sérieux sur le parcours desktop/mobile testé.
-
-## Questions probables d'entretien
-
-### Pourquoi pgvector si le mode n'est pas vraiment sémantique ?
-
-Le schéma, les index et la requête vectorielle prouvent l'intégration. Le vecteur actuel est un
-baseline déterministe sans clé ; le holdout montre qu'il ne faut pas le vendre comme un embedding
-sémantique. La prochaine version remplacerait le fournisseur derrière l'interface, puis utiliserait
-un nouveau holdout.
-
-### Comment empêchez-vous une instruction malveillante dans un document ?
-
-Le document est traité comme donnée non fiable. Le fournisseur extractif ne possède aucun outil et
-refuse les requêtes d'injection/élévation reconnues ; surtout, aucun passage ne peut modifier les
-rôles ou la politique serveur.
-
-### Pourquoi conserver un FAIL dans un portfolio ?
-
-Parce qu'un système RAG ne se juge pas sur une démo choisie. Le produit fonctionne, mais le holdout
-falsifie la généralisation. Conserver le FAIL, le lock et les hashes rend la démarche vérifiable.
-
-### L'évaluation couvre-t-elle le système complet ?
-
-Non. Elle appelle le moteur en mémoire. Le parcours complet est vérifié séparément par Playwright ;
-il ne faut pas confondre exactitude documentaire et intégration système.
-
-### Que feriez-vous ensuite ?
-
-Corriger la définition stricte des citations, introduire un vrai embedding local versionné, élargir
-l'extraction, geler les paramètres, puis créer un holdout v4 indépendant. Les v2/v3 resteraient
-historiques et ne serviraient plus au réglage.
+- Développement d'un prototype local de revue documentaire avec FastAPI, React/TypeScript,
+  PostgreSQL/pgvector et Redis/ARQ, incluant RBAC serveur, preuves par page, masquage PII et audit
+  corrélé.
+- Mise en place d'un pipeline d'embedding ONNX local sur CPU et de recherche hybride, avec identité
+  modèle figée, hashes de fichiers et artefact d'évaluation de 40 cas ; conservation du FAIL holdout
+  v6 sans présenter la démo ou le développement comme preuve de qualité générale.
+- Vérification d'un parcours réel navigateur–worker avec Playwright : ingestion asynchrone, réponse
+  sourcée, abstention, extraction, audit et suppression contrôlée.
 
 ## Cohérence scolaire à corriger avant publication
 

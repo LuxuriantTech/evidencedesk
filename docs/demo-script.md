@@ -1,6 +1,6 @@
 # Démonstration EvidenceDesk — moins de trois minutes
 
-Prérequis : `docker compose up --build --wait --wait-timeout 180` terminé et interface ouverte sur
+Prérequis : `docker compose up --build --wait --wait-timeout 600` terminé et interface ouverte sur
 `http://localhost:8080`. Utiliser uniquement les fichiers synthétiques versionnés.
 
 ## 0:00–0:25 — Connexion et dossier
@@ -19,12 +19,14 @@ Prérequis : `docker compose up --build --wait --wait-timeout 180` terminé et i
 Le worker local est rapide : l'état intermédiaire peut ne rester visible qu'une seconde. Le test
 Playwright vérifie la réponse HTTP `202 queued`, puis attend le statut terminal réel.
 
-## 0:55–1:35 — Réponse et preuve
+## 0:55–1:35 — Réponse sourcée et recherche locale
 
 1. Poser : **Quel montant de plateforme annuel est indiqué ?**
 2. Montrer `Annual platform fee: EUR 48,000`.
 3. Activer la citation `northstar_master_services_agreement.pdf · page 1`.
 4. Vérifier que le panneau source sélectionne le document et affiche exactement le passage.
+5. Indiquer le mode affiché : recherche hybride locale avec embedding ONNX, sans clé ni appel
+   fournisseur externe. Ce résultat est une démonstration de parcours, pas une validation de qualité.
 
 ## 1:35–1:55 — Abstention
 
@@ -37,12 +39,14 @@ Playwright vérifie la réponse HTTP `202 queued`, puis attend le statut termina
 2. Montrer organisation, date, montant, obligations et boutons de preuve.
 3. Sélectionner `supplier_register.txt` et montrer `[EMAIL REDACTED]` et `[PHONE REDACTED]`.
 
-## 2:30–3:00 — Audit et évaluation
+## 2:30–3:00 — Audit et résultat v6
 
 1. Montrer `document.upload`, `document.process`, `dossier.ask` et les UUID de corrélation.
-2. Montrer les cartes holdout en **FAIL** : le produit ne transforme pas un résultat négatif en
-   chiffre marketing.
-3. Conclure : pile locale fonctionnelle, qualité RAG encore insuffisante sur holdout.
+2. Montrer le résultat holdout v6 : **FAIL**. Il porte sur 40 cas et rapporte notamment 40 % de
+   précision de citation, 8 % de cas répondables corrects, 80 % d'abstention correcte, F1
+   d'extraction 45,16 %, Recall@5 100 %, zéro erreur et 0 USD de coût externe.
+3. Dire explicitement : le moteur local et le parcours fonctionnent, mais cette évaluation ne valide
+   pas la qualité RAG. Les préflights v4 et v5 n'ont produit aucune métrique et ne sont pas rejoués.
 
 Après la démo, l'administrateur peut supprimer le document importé ; le fichier, les chunks et
 l'extraction sont retirés, tandis qu'un audit minimal demeure.
