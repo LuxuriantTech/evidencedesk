@@ -1,0 +1,19 @@
+{
+  "schema_version": "holdout-preflight-failure-v1",
+  "dataset_version": "holdout-v4-2026.08.27",
+  "parameters_version": "semantic-local-v2.0-frozen",
+  "attempted_at": "2026-08-26T22:25:33.584124+00:00",
+  "dataset_commit": "b5b7b36f58cfb6d36e6aea660d6c369509d1bbc0",
+  "engine_commit": "6edd9ec5d9b07aca61c078a22144c34a4b003233",
+  "freeze_commit": "39be32e011f10fed4453acbce6052b3a4e4fc85f",
+  "manifest_sha256": "c704d385574b8965aecfeb15423bfb061aa5a9398405c8185ab60b69b2e41654",
+  "corpus_sha256": "5aeeff38c2ccf1b2ca1813725b1a67f2ce9869ac2b922a15884a4a56fc731bfe",
+  "attestation_sha256": "7e3e882392471117dd5e7efa009bab70bcd10a1dd1bcb241cf3c03a26ffe4976",
+  "lock_sha256": "e0998c95ef271696b15b67b45dea19c13ee16a4dea29fafc260d874f6ebbcee4",
+  "failure_stage": "verify_freeze_attestation",
+  "error_type": "EvaluationError",
+  "error": "holdout attestation hashes are missing",
+  "evaluate_manifest_called": false,
+  "raw_result_created": false,
+  "retry_permitted": false
+}
