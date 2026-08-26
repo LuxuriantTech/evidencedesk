@@ -1,0 +1,74 @@
+{
+  "parameters_version": "semantic-local-v2.0-frozen-v6",
+  "frozen_at": "2026-08-27",
+  "development_dataset_version": "development-v2-2026.08.26",
+  "development_manifest_sha256": "8c7e72d5922f2a57b5ffd2a7133beb4f1a9ba627b5440020aafc113f3267b761",
+  "development_corpus_sha256": "ec4a27e58b9eb9db2d2baee4fd62089ef86327670eb40b4e0275ab7c4a7e69bd",
+  "development_comparison_sha256": "3c53aca733426cc0abb05f323fdfdb80ac4fdfaf2e9492cc65e00bc4f0b0046d",
+  "selected_evaluation_artifact_sha256": "e94530853a869b24ef8185bcc2c5d7c9bf150d2ee4679f66a8f9cf5005173c2c",
+  "development_recalculation_sha256": "5e0b6f34e8e80258998f635338ff22a6e555cef370f1621c32c0401f3566f033",
+  "engine_fingerprint_at_selection": "a8371922b582caccc2f4560544e3b1a8261570c0a0dbafffd55c8d1c86289206",
+  "mode": "extractive-local-onnx",
+  "retrieval_method": "hybrid",
+  "answer_candidate_limit": 20,
+  "retrieval_metric_cutoff": 5,
+  "rank_fusion": {
+    "algorithm": "reciprocal-rank-fusion",
+    "rrf_k": 60,
+    "named_entity_document_boost": 0.01
+  },
+  "embedding": {
+    "model_id": "paraphrase-multilingual-minilm-l12-v2-onnx-q@faf4aa4225822f3bc6376869cb1164e8e3feedd0",
+    "model_manifest_sha256": "d930bf9c2c9f866ff606a50cba0a8ca498f3f51f6ef74b1881602e5af2e302cc",
+    "fastembed_version": "0.8.0",
+    "onnxruntime_version": "1.29.0",
+    "dimension": 384,
+    "pooling": "mean",
+    "provider": "CPUExecutionProvider",
+    "normalize_l2": true,
+    "batch_size": 32
+  },
+  "reranker": {
+    "retained": false,
+    "candidate": "intent-evidence-reranker-v1",
+    "reason": "0 additional correct answers and Recall@5 regressed from 30/30 to 29/30"
+  },
+  "evaluation": {
+    "citation_match": "exact document and page; returned normalized excerpt must be an informative subspan of expected evidence with at least two alphanumeric tokens",
+    "answer_value_match": "typed date/money normalization or one-way expected-value containment",
+    "extraction_match": "typed exact equivalence plus a strict citation per value",
+    "status_match": "ambiguous must be ambiguous; unanswerable and adversarial must be abstained",
+    "targets": {
+      "citation_precision": 0.9,
+      "citation_case_accuracy": 0.9,
+      "abstention_accuracy": 0.85,
+      "extraction_f1": 0.9,
+      "error_rate": 0.0
+    }
+  },
+  "predecessor_attempts": [
+    {
+      "dataset_version": "holdout-v4-2026.08.27",
+      "outcome": "PRECHECK_FAILED",
+      "lock_sha256": "e0998c95ef271696b15b67b45dea19c13ee16a4dea29fafc260d874f6ebbcee4"
+    },
+    {
+      "dataset_version": "holdout-v5-2026.08.27",
+      "outcome": "PRECHECK_FAILED",
+      "lock_sha256": "7f8a6d4b09e7e1278163edb67e9d091a3c37d60024095b16fe65023475969ec9"
+    }
+  ],
+  "holdout_v4_protocol": {
+    "protocol_label": "holdout-v6-independent-recovery",
+    "seed": 20260829,
+    "total_cases": 40,
+    "minimum_answerable": 25,
+    "minimum_unanswerable": 10,
+    "minimum_ambiguous_or_adversarial": 5,
+    "generation_after_engine_freeze": true,
+    "independent_author_required": true,
+    "execution_limit": 1,
+    "gold_may_not_change_after_commit": true,
+    "recalculation_from_raw_artifact_only": true
+  }
+}

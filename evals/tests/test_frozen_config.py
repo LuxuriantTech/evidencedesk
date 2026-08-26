@@ -42,3 +42,22 @@ def test_frozen_config_matches_code_and_immutable_development_inputs() -> None:
     assert config["development_recalculation_sha256"] == _sha256(
         ROOT / "artifacts/evaluations/development-v2-semantic-v2-recalculated-final.json"
     )
+
+
+def test_v6_recovery_config_binds_the_recomputed_development_artifacts() -> None:
+    config = json.loads(
+        (ROOT / "evals/configs/semantic-v2-frozen-v6.json").read_text(encoding="utf-8")
+    )
+
+    assert config["engine_fingerprint_at_selection"] == (
+        "a8371922b582caccc2f4560544e3b1a8261570c0a0dbafffd55c8d1c86289206"
+    )
+    assert config["development_comparison_sha256"] == _sha256(
+        ROOT / "artifacts/evaluations/development_v2_comparison/iteration-08-v6-final.json"
+    )
+    assert config["selected_evaluation_artifact_sha256"] == _sha256(
+        ROOT / "artifacts/evaluations/development-v2-semantic-v2-frozen-v6.json"
+    )
+    assert config["development_recalculation_sha256"] == _sha256(
+        ROOT / "artifacts/evaluations/development-v2-semantic-v2-recalculated-v6.json"
+    )
