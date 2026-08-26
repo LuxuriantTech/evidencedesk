@@ -28,8 +28,13 @@ class Settings(BaseSettings):
         ge=64 * 1024 * 1024,
         le=4 * 1024 * 1024 * 1024,
     )
-    answer_mode: str = "extractive-local"
-    evaluation_manifest: Path = Path("datasets/evaluation_cases.json")
+    answer_mode: str = "extractive-local-onnx"
+    embedding_model_path: Path = Path("models/paraphrase-multilingual-minilm-l12-v2")
+    embedding_manifest_path: Path = Path(
+        "infra/models/paraphrase-multilingual-minilm-l12-v2.json"
+    )
+    evaluation_manifest: Path = Path("datasets/development_v2/evaluation_cases.json")
+    evaluation_corpus_manifest: Path = Path("datasets/development_v2/corpus_manifest.json")
     corpus_manifest: Path = Path("datasets/corpus_manifest.json")
     public_demo_allowlist: Path = Path("datasets/public_demo_uploads.json")
     demo_admin_password: str

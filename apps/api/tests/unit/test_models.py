@@ -1,6 +1,6 @@
 from evidencedesk_api.models import Base, Chunk, Document, DocumentStatus
 from pgvector.sqlalchemy import Vector
-from sqlalchemy import UniqueConstraint
+from sqlalchemy import String, UniqueConstraint
 
 
 def test_database_schema_contains_operational_entities() -> None:
@@ -23,8 +23,17 @@ def test_chunk_embedding_is_a_384_dimension_pgvector() -> None:
     assert vector_type.dim == 384
     assert {index.name for index in Chunk.__table__.indexes} >= {
         "ix_chunks_embedding_hnsw",
+        "ix_chunks_embedding_model_id",
         "ix_chunks_search_vector_gin",
     }
+
+
+def test_chunk_records_the_embedding_space_for_safe_vector_filtering() -> None:
+    column = Chunk.__table__.c.embedding_model_id
+
+    assert isinstance(column.type, String)
+    assert column.type.length == 160
+    assert column.nullable is False
 
 
 def test_document_content_is_unique_per_active_dossier() -> None:

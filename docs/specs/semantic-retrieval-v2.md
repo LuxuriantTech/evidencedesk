@@ -34,7 +34,7 @@ L'inférence CPU utilisera l'export ONNX Qdrant au commit exact
 - FR-4: Chaque chunk MUST stocker son `embedding_model_id`, et une recherche dense MUST ignorer les vecteurs produits par un autre espace d'embedding.
 - FR-5: Le banc de développement MUST comparer `lexical`, `dense`, `hybrid` et `hybrid_rerank`; l'hybride MUST employer une fusion de rangs qui ne suppose pas des scores bruts calibrés.
 - FR-6: Le reranker MAY être retenu seulement s'il corrige au moins un couple réponse/citation sur le développement sans régression sur les autres métriques obligatoires ; une égalité MUST privilégier la méthode la plus simple et la plus rapide.
-- FR-7: Une citation correcte MUST faire correspondre exactement l'identifiant du document et la page attendus, et son extrait normalisé MUST être contenu dans la page source attendue.
+- FR-7: Une citation correcte MUST faire correspondre exactement l'identifiant du document et la page attendus ; son extrait normalisé MUST être un sous-passage informatif de la preuve attendue avec au moins deux jetons alphanumériques.
 - FR-8: Une réponse MUST exiger une preuve de l'intention et de la valeur demandées ; la similarité de noms ou d'entités seule MUST NOT suffire.
 - FR-9: Un cas `unanswerable` ou `adversarial` MUST produire `abstained`; un cas `ambiguous` MUST produire `ambiguous`.
 - FR-10: L'extraction `supplier-v1` MUST couvrir organisation, type de document, date d'effet, date de renouvellement, montants, obligations, responsables et risques à partir de libellés normalisés, descriptions de champs et types génériques, sans constante issue des holdouts v2/v3.
@@ -93,7 +93,7 @@ et la règle de sélection désigne une configuration unique sans lire v2/v3.
 
 Given une réponse avec le bon texte mais la mauvaise page ou le mauvais document,
 When l'évaluateur strict la note,
-Then la citation est incorrecte ; seul un extrait normalisé présent dans la bonne page est accepté.
+Then la citation est incorrecte ; seul un sous-passage informatif normalisé présent dans la bonne page est accepté.
 
 ### AC-5: Abstention stricte (FR-8, FR-9)
 
@@ -152,7 +152,7 @@ Then aucun push, dépôt public, déploiement, CV ou profil n'a été modifié.
 - EC-5: aucun score ne franchit les preuves d'intention et de valeur -> abstention.
 - EC-6: deux passages plausibles se contredisent -> statut ambigu et citations des passages conflictuels.
 - EC-7: bonne valeur sur mauvaise page -> citation et champ d'extraction notés faux.
-- EC-8: sortie/lock v4 déjà présent -> refus avant chargement du corpus et avant inférence.
+- EC-8: sortie/lock v4 déjà présent -> refus avant hachage ou chargement du corpus et avant inférence.
 - EC-9: reranker indisponible -> méthode non sélectionnée ; aucun fallback silencieux pendant une mesure.
 
 ## API Contracts

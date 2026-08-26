@@ -52,7 +52,7 @@ from evidencedesk_api.observability import (
 from evidencedesk_api.provider_registry import ProviderBundle, build_provider_bundle
 from evidencedesk_api.queueing import TaskQueue, build_task_queue
 from evidencedesk_api.request_limits import RequestBodyLimitMiddleware
-from evidencedesk_api.retrieval import EvidenceChunk, hybrid_rank
+from evidencedesk_api.retrieval import EvidenceChunk, RetrievalMethod, hybrid_rank
 from evidencedesk_api.schemas import (
     AskRequest,
     AskResponse,
@@ -166,7 +166,11 @@ def create_app(*, settings: Settings | None = None, task_queue: TaskQueue | None
         app.state.settings = active_settings
         app.state.storage = LocalDocumentStorage(active_settings.storage_root)
         app.state.task_queue = task_queue or await build_task_queue(active_settings.redis_url)
-        app.state.providers = build_provider_bundle(active_settings.answer_mode)
+        app.state.providers = build_provider_bundle(
+            active_settings.answer_mode,
+            model_path=active_settings.embedding_model_path,
+            manifest_path=active_settings.embedding_manifest_path,
+        )
         app.state.public_demo_hashes = public_demo_hashes
         try:
             yield
@@ -534,7 +538,10 @@ def create_app(*, settings: Settings | None = None, task_queue: TaskQueue | None
             await session.execute(
                 select(Chunk, Document)
                 .join(Document, Document.id == Chunk.document_id)
-                .where(*eligible)
+                .where(
+                    *eligible,
+                    Chunk.embedding_model_id == providers.embedding.model_id,
+                )
                 .order_by(Chunk.embedding.cosine_distance(query_embedding))
                 .limit(20)
             )
@@ -544,7 +551,9 @@ def create_app(*, settings: Settings | None = None, task_queue: TaskQueue | None
             await session.execute(
                 select(Chunk, Document)
                 .join(Document, Document.id == Chunk.document_id)
-                .where(*eligible)
+                .where(
+                    *eligible,
+                )
                 .order_by(func.ts_rank_cd(Chunk.search_vector, query).desc())
                 .limit(20)
             )
@@ -559,6 +568,7 @@ def create_app(*, settings: Settings | None = None, task_queue: TaskQueue | None
                 section=chunk.section,
                 text=chunk.text,
                 embedding=list(chunk.embedding),
+                embedding_model_id=chunk.embedding_model_id,
             )
         ranked = hybrid_rank(body.question, list(candidates.values()), provider=providers.embedding)
         result = providers.answer.answer(body.question, ranked)
@@ -666,8 +676,10 @@ def create_app(*, settings: Settings | None = None, task_queue: TaskQueue | None
         result = await run_in_threadpool(
             evaluate_manifest,
             active_settings.evaluation_manifest,
-            active_settings.corpus_manifest,
+            active_settings.evaluation_corpus_manifest,
             split=body.split,
+            provider=request.app.state.providers.embedding,
+            method=RetrievalMethod.HYBRID,
         )
         excluded = {
             "schema_version",
@@ -680,6 +692,7 @@ def create_app(*, settings: Settings | None = None, task_queue: TaskQueue | None
             "verdict",
             "cases",
             "extractions",
+            "extraction_evaluation",
         }
         run = EvaluationRun(
             dataset_version=str(result["dataset_version"]),

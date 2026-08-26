@@ -12,7 +12,11 @@ from evidencedesk_worker.jobs import WorkerContext, process_document
 async def startup(ctx: dict[str, Any]) -> None:
     settings = get_settings()
     engine = build_engine(settings)
-    providers = build_provider_bundle(settings.answer_mode)
+    providers = build_provider_bundle(
+        settings.answer_mode,
+        model_path=settings.embedding_model_path,
+        manifest_path=settings.embedding_manifest_path,
+    )
     ctx["worker"] = WorkerContext(
         settings=settings,
         engine=engine,

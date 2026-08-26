@@ -24,6 +24,7 @@ class ValidationReport:
     document_ids_are_known: bool
     citations_are_exact: bool
     extraction_expectations_are_traceable: bool
+    synthetic_only: bool
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -47,8 +48,8 @@ def validate_manifest(
         raise ValueError("cases must be a list")
     if manifest.get("dataset_version") != corpus.get("dataset_version"):
         raise ValueError("evaluation and corpus versions must match")
-    if manifest.get("mode") != "extractive-local":
-        raise ValueError("the sealed baseline must use extractive-local")
+    if manifest.get("mode") not in {"extractive-local", "extractive-local-onnx"}:
+        raise ValueError("the sealed dataset must use an approved local extractive mode")
     if not isinstance(manifest.get("seed"), int):
         raise ValueError("manifest seed is required")
 
@@ -147,6 +148,7 @@ def validate_manifest(
         document_ids_are_known=known,
         citations_are_exact=exact,
         extraction_expectations_are_traceable=traceable_extractions,
+        synthetic_only=corpus.get("synthetic_only") is True,
     )
 
 

@@ -10,9 +10,26 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PATH=/app/.venv/bin:$PATH \
     PYTHONPATH=/app/apps/api:/app/apps/worker:/app
 
-COPY pyproject.toml uv.lock README.md ./
+COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen --no-dev --no-install-project
 
+COPY scripts/download_local_model.py ./scripts/download_local_model.py
+COPY infra/models ./infra/models
+RUN --mount=type=bind,source=models,target=/local-models,ro \
+    --mount=type=cache,id=evidencedesk-model-v1,target=/model-cache \
+    mkdir -p /model-cache/paraphrase-multilingual-minilm-l12-v2 \
+    && if [ -f /local-models/paraphrase-multilingual-minilm-l12-v2/model_optimized.onnx ]; then \
+         cp -a /local-models/paraphrase-multilingual-minilm-l12-v2/. \
+           /model-cache/paraphrase-multilingual-minilm-l12-v2/; \
+       fi \
+    && python scripts/download_local_model.py \
+         --manifest infra/models/paraphrase-multilingual-minilm-l12-v2.json \
+         --output /model-cache/paraphrase-multilingual-minilm-l12-v2 \
+    && mkdir -p /opt/evidencedesk/models/paraphrase-multilingual-minilm-l12-v2 \
+    && cp -a /model-cache/paraphrase-multilingual-minilm-l12-v2/. \
+         /opt/evidencedesk/models/paraphrase-multilingual-minilm-l12-v2/
+
+COPY README.md ./
 COPY alembic.ini ./
 COPY apps/api ./apps/api
 COPY apps/worker ./apps/worker
@@ -20,6 +37,9 @@ COPY evals ./evals
 COPY datasets ./datasets
 COPY artifacts/evaluations ./artifacts/evaluations
 COPY scripts ./scripts
+
+ENV EMBEDDING_MODEL_PATH=/opt/evidencedesk/models/paraphrase-multilingual-minilm-l12-v2 \
+    EMBEDDING_MANIFEST_PATH=/app/infra/models/paraphrase-multilingual-minilm-l12-v2.json
 
 RUN useradd --create-home --uid 10001 appuser \
     && mkdir -p /data/documents \

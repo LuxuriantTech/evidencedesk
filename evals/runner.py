@@ -13,6 +13,7 @@ import math
 import re
 import statistics
 import time
+import unicodedata
 from dataclasses import asdict
 from datetime import UTC, datetime
 from pathlib import Path
@@ -20,9 +21,15 @@ from typing import Any, Protocol
 
 from evidencedesk_api.extraction import SupplierExtraction, extract_supplier_fields
 from evidencedesk_api.processing import ParsedPage, chunk_pages
-from evidencedesk_api.providers import DeterministicEmbeddingProvider
+from evidencedesk_api.providers import DeterministicEmbeddingProvider, EmbeddingProvider
 from evidencedesk_api.redaction import redact_pii
-from evidencedesk_api.retrieval import EvidenceChunk, ExtractiveAnswerProvider, hybrid_rank
+from evidencedesk_api.retrieval import (
+    EvidenceChunk,
+    ExtractiveAnswerProvider,
+    Reranker,
+    RetrievalMethod,
+    rank_chunks,
+)
 
 
 class EvaluationError(RuntimeError):
@@ -48,17 +55,120 @@ def _load(path: Path) -> dict[str, Any]:
 
 
 def _normalize(value: object) -> str:
-    return re.sub(r"[^a-z0-9]+", " ", str(value).casefold()).strip()
+    folded = unicodedata.normalize("NFKD", str(value).casefold())
+    ascii_value = folded.encode("ascii", "ignore").decode()
+    return re.sub(r"[^a-z0-9]+", " ", ascii_value).strip()
+
+
+_MONTH_NUMBERS = {
+    "january": 1,
+    "janvier": 1,
+    "february": 2,
+    "fevrier": 2,
+    "march": 3,
+    "mars": 3,
+    "april": 4,
+    "avril": 4,
+    "may": 5,
+    "mai": 5,
+    "june": 6,
+    "juin": 6,
+    "july": 7,
+    "juillet": 7,
+    "august": 8,
+    "aout": 8,
+    "september": 9,
+    "septembre": 9,
+    "october": 10,
+    "octobre": 10,
+    "november": 11,
+    "novembre": 11,
+    "december": 12,
+    "decembre": 12,
+}
+
+
+def _normalize_typed(value: object, *, value_type: str) -> str:
+    text = str(value).strip()
+    folded = _normalize(text)
+    if value_type == "date":
+        iso = re.search(r"\b(\d{4})-(\d{2})-(\d{2})\b", text)
+        if iso:
+            return f"{iso.group(1)}-{iso.group(2)}-{iso.group(3)}"
+        slash = re.search(r"\b(\d{2})/(\d{2})/(\d{4})\b", text)
+        if slash:
+            return f"{slash.group(3)}-{slash.group(2)}-{slash.group(1)}"
+        day_first = re.search(r"\b(\d{1,2})(?:er)?\s+([a-z]+)\s+(\d{4})\b", folded)
+        month_first = re.search(r"\b([a-z]+)\s+(\d{1,2})\s+(\d{4})\b", folded)
+        if day_first and day_first.group(2) in _MONTH_NUMBERS:
+            return (
+                f"{int(day_first.group(3)):04d}-{_MONTH_NUMBERS[day_first.group(2)]:02d}-"
+                f"{int(day_first.group(1)):02d}"
+            )
+        if month_first and month_first.group(1) in _MONTH_NUMBERS:
+            return (
+                f"{int(month_first.group(3)):04d}-{_MONTH_NUMBERS[month_first.group(1)]:02d}-"
+                f"{int(month_first.group(2)):02d}"
+            )
+        return folded
+    if value_type == "money":
+        currency = ""
+        upper = text.upper()
+        currency_symbols = {
+            "EUR": ("EUR", "€"),
+            "USD": ("USD", "$"),
+            "GBP": ("GBP", "£"),
+        }
+        for code, symbols in currency_symbols.items():
+            if any(symbol in upper for symbol in symbols):
+                currency = code
+                break
+        number_match = re.search(r"\d[\d ,.]*\d|\d", text)
+        digits = re.sub(r"\D", "", number_match.group(0)) if number_match else ""
+        return f"{currency}:{int(digits) if digits else ''}"
+    return folded
+
+
+def _value_matches(actual: object, expected: object, *, value_type: str) -> bool:
+    return _normalize_typed(actual, value_type=value_type) == _normalize_typed(
+        expected, value_type=value_type
+    )
+
+
+def _answer_matches(answer: object, expected: object) -> bool:
+    expected_text = str(expected)
+    normalized_expected = _normalize(expected_text)
+    month_pattern = "|".join(re.escape(month) for month in _MONTH_NUMBERS)
+    date_like = bool(
+        re.search(r"\b\d{4}-\d{2}-\d{2}\b", expected_text)
+        or re.search(rf"\b\d{{1,2}}(?:er)?\s+(?:{month_pattern})\s+\d{{4}}\b", normalized_expected)
+        or re.search(rf"\b(?:{month_pattern})\s+\d{{1,2}}\s+\d{{4}}\b", normalized_expected)
+    )
+    if date_like:
+        expected_date = _normalize_typed(expected_text, value_type="date")
+        return expected_date in {
+            _normalize_typed(match, value_type="date")
+            for match in re.findall(
+                r"\d{4}-\d{2}-\d{2}|\d{1,2}(?:er)?\s+[A-Za-zÀ-ÿ]+\s+\d{4}|"
+                r"[A-Za-zÀ-ÿ]+\s+\d{1,2},?\s+\d{4}",
+                str(answer),
+            )
+        }
+    if re.search(r"(?:EUR|USD|GBP|[$€£]).*\d|\d.*(?:EUR|USD|GBP|[$€£])", expected_text):
+        return _normalize_typed(expected_text, value_type="money") == _normalize_typed(
+            answer, value_type="money"
+        )
+    return _normalize(expected) in _normalize(answer)
 
 
 def _build_chunks(
     corpus: dict[str, Any],
+    provider: EmbeddingProvider,
 ) -> tuple[list[EvidenceChunk], dict[str, list[EvidenceChunk]]]:
-    provider = DeterministicEmbeddingProvider(dimension=384)
     chunks: list[EvidenceChunk] = []
     by_document: dict[str, list[EvidenceChunk]] = {}
+    pending: list[tuple[str, str, str, int, str | None, str]] = []
     for document in corpus["documents"]:
-        document_chunks: list[EvidenceChunk] = []
         for page_number, raw_page in enumerate(document["pages"], start=1):
             page = ParsedPage(
                 page=page_number,
@@ -66,18 +176,31 @@ def _build_chunks(
             )
             for chunk in chunk_pages([page], max_chars=900):
                 identifier = f"{document['id']}:p{page_number}:c{chunk.ordinal}"
-                evidence = EvidenceChunk(
-                    id=identifier,
-                    document_id=str(document["id"]),
-                    document_name=str(document["filename"]),
-                    page=page_number,
-                    section=chunk.section,
-                    text=chunk.text,
-                    embedding=provider.embed(chunk.text),
+                pending.append(
+                    (
+                        identifier,
+                        str(document["id"]),
+                        str(document["filename"]),
+                        page_number,
+                        chunk.section,
+                        chunk.text,
+                    )
                 )
-                chunks.append(evidence)
-                document_chunks.append(evidence)
-        by_document[str(document["id"])] = document_chunks
+    embeddings = provider.embed_many([item[5] for item in pending])
+    for item, embedding in zip(pending, embeddings, strict=True):
+        identifier, document_id, document_name, page_number, section, text = item
+        evidence = EvidenceChunk(
+            id=identifier,
+            document_id=document_id,
+            document_name=document_name,
+            page=page_number,
+            section=section,
+            text=text,
+            embedding=embedding,
+            embedding_model_id=provider.model_id,
+        )
+        chunks.append(evidence)
+        by_document.setdefault(document_id, []).append(evidence)
     return chunks, by_document
 
 
@@ -107,10 +230,12 @@ def _citation_matches(
     document_id = returned.document_id
     page = returned.page
     excerpt = returned.excerpt
-    return any(
+    returned_excerpt = _normalize(excerpt)
+    informative_tokens = re.findall(r"[a-z0-9]+", returned_excerpt)
+    return len(informative_tokens) >= 2 and any(
         document_id == item.get("document_id", default_document_id)
         and page == item.get("page")
-        and (str(item.get("excerpt", "")) in excerpt or excerpt in str(item.get("excerpt", "")))
+        and returned_excerpt in _normalize(item.get("excerpt", ""))
         for item in expected
     )
 
@@ -119,17 +244,25 @@ def _field_values(value: object) -> list[str]:
     if value is None:
         return []
     if isinstance(value, (list, tuple)):
-        return [_normalize(item) for item in value]
-    return [_normalize(value)]
+        return [str(item) for item in value]
+    return [str(value)]
 
 
-def _extraction_counts(
+_FIELD_VALUE_TYPES = {
+    "effective_date": "date",
+    "renewal_date": "date",
+    "important_amounts": "money",
+}
+
+
+def _extraction_evaluation(
     manifest: dict[str, Any],
     extractions: dict[str, SupplierExtraction],
     *,
     split: str,
-) -> tuple[int, int, int]:
+) -> tuple[int, int, int, list[dict[str, Any]]]:
     true_positive = predicted = gold = 0
+    details: list[dict[str, Any]] = []
     for target in manifest.get("extraction_targets", []):
         target_split = target.get("split", "development")
         if target_split != split:
@@ -137,7 +270,22 @@ def _extraction_counts(
         document_id = str(target["document_id"])
         extraction = extractions.get(document_id)
         if extraction is None:
-            gold += sum(len(_field_values(value)) for value in target["fields"].values())
+            for field_name, expected_value in target["fields"].items():
+                expected_values = _field_values(expected_value)
+                gold += len(expected_values)
+                details.append(
+                    {
+                        "document_id": document_id,
+                        "field": field_name,
+                        "expected_values": expected_values,
+                        "actual_values": [],
+                        "value_decisions": [False] * len(expected_values),
+                        "citation_decisions": [False] * len(expected_values),
+                        "true_positive": 0,
+                        "predicted": 0,
+                        "gold": len(expected_values),
+                    }
+                )
             continue
         actual = extraction.as_mapping()
         expected_citations = target.get("field_citations", {})
@@ -149,6 +297,9 @@ def _extraction_counts(
             predicted += len(actual_values)
             citation_gold = expected_citations.get(field_name, [])
             unmatched = list(actual_values)
+            value_decisions: list[bool] = []
+            citation_decisions: list[bool] = []
+            field_true_positive = 0
             for expected_index, expected_item in enumerate(expected_values):
                 expected_value_citations = (
                     [citation_gold[expected_index]]
@@ -167,17 +318,47 @@ def _extraction_counts(
                     (
                         candidate
                         for candidate in unmatched
-                        if expected_item in candidate or candidate in expected_item
+                        if _value_matches(
+                            candidate,
+                            expected_item,
+                            value_type=_FIELD_VALUE_TYPES.get(field_name, "text"),
+                        )
                     ),
                     None,
                 )
                 if match is not None and citation_ok:
                     true_positive += 1
+                    field_true_positive += 1
                     unmatched.remove(match)
+                value_decisions.append(match is not None)
+                citation_decisions.append(citation_ok)
+            details.append(
+                {
+                    "document_id": document_id,
+                    "field": field_name,
+                    "expected_values": expected_values,
+                    "actual_values": actual_values,
+                    "value_decisions": value_decisions,
+                    "citation_decisions": citation_decisions,
+                    "true_positive": field_true_positive,
+                    "predicted": len(actual_values),
+                    "gold": len(expected_values),
+                }
+            )
+    return true_positive, predicted, gold, details
+
+
+def _extraction_counts(
+    manifest: dict[str, Any],
+    extractions: dict[str, SupplierExtraction],
+    *,
+    split: str,
+) -> tuple[int, int, int]:
+    true_positive, predicted, gold, _ = _extraction_evaluation(manifest, extractions, split=split)
     return true_positive, predicted, gold
 
 
-def _safe_ratio(numerator: int, denominator: int) -> float:
+def _safe_ratio(numerator: int | float, denominator: int | float) -> float:
     return numerator / denominator if denominator else 0.0
 
 
@@ -188,7 +369,16 @@ def _p95(values: list[float]) -> float:
     return ordered[max(0, math.ceil(0.95 * len(ordered)) - 1)]
 
 
-def evaluate_manifest(manifest_path: Path, corpus_path: Path, *, split: str) -> dict[str, Any]:
+def evaluate_manifest(
+    manifest_path: Path,
+    corpus_path: Path,
+    *,
+    split: str,
+    provider: EmbeddingProvider | None = None,
+    method: RetrievalMethod = RetrievalMethod.HYBRID,
+    reranker: Reranker | None = None,
+    runtime_metadata: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     if split not in {"development", "holdout"}:
         raise EvaluationError("split must be development or holdout")
     manifest = _load(manifest_path)
@@ -196,25 +386,38 @@ def evaluate_manifest(manifest_path: Path, corpus_path: Path, *, split: str) -> 
     if manifest.get("dataset_version") != corpus.get("dataset_version"):
         raise EvaluationError("dataset versions do not match")
 
-    provider = DeterministicEmbeddingProvider(dimension=384)
-    answer_provider = ExtractiveAnswerProvider()
-    all_chunks, chunks_by_document = _build_chunks(corpus)
+    active_provider = provider or DeterministicEmbeddingProvider(dimension=384)
+    answer_mode = (
+        "extractive-local-onnx"
+        if active_provider.mode == "local-semantic-onnx-v1"
+        else "extractive-local-hash"
+    )
+    answer_provider = ExtractiveAnswerProvider(mode=answer_mode)
+    indexing_started = time.perf_counter()
+    all_chunks, chunks_by_document = _build_chunks(corpus, active_provider)
+    indexing_ms = (time.perf_counter() - indexing_started) * 1_000
     cases = [item for item in manifest["cases"] if item.get("split") == split]
     latencies: list[float] = []
     errors = 0
     citation_correct = 0
     citation_returned = 0
     answerable_correct = 0
-    answerable_total = 0
+    answerable_total = sum(case.get("kind") == "answerable" for case in cases)
     abstention_correct = 0
-    abstention_total = 0
+    abstention_total = len(cases) - answerable_total
+    retrieval_hits = 0
+    retrieval_reciprocal_rank = 0.0
     case_results: list[dict[str, Any]] = []
 
     for case in cases:
         started = time.perf_counter()
         try:
-            ranked = hybrid_rank(
-                str(case["question"]), _scoped_chunks(case, all_chunks), provider=provider
+            ranked = rank_chunks(
+                str(case["question"]),
+                _scoped_chunks(case, all_chunks),
+                provider=active_provider,
+                method=method,
+                reranker=reranker,
             )
             answer = answer_provider.answer(str(case["question"]), ranked)
             elapsed_ms = (time.perf_counter() - started) * 1_000
@@ -224,20 +427,36 @@ def evaluate_manifest(manifest_path: Path, corpus_path: Path, *, split: str) -> 
             citation_matches = [
                 _citation_matches(citation, expected_citations) for citation in answer.citations
             ]
-            citation_correct += sum(citation_matches)
-            citation_returned += len(citation_matches)
-            expected_answer = case.get("expected_answer")
-            answer_match = expected_answer is not None and _normalize(
-                expected_answer
-            ) in _normalize(answer.answer)
             if kind == "answerable":
-                answerable_total += 1
+                citation_correct += sum(citation_matches)
+                citation_returned += len(citation_matches)
+                expected_locations = {
+                    (str(item.get("document_id")), int(item.get("page", 0)))
+                    for item in expected_citations
+                }
+                retrieved_rank = next(
+                    (
+                        index
+                        for index, item in enumerate(ranked[:5], start=1)
+                        if (item.chunk.document_id, item.chunk.page) in expected_locations
+                    ),
+                    None,
+                )
+                if retrieved_rank is not None:
+                    retrieval_hits += 1
+                    retrieval_reciprocal_rank += 1.0 / retrieved_rank
+            expected_answer = case.get("expected_answer")
+            answer_match = expected_answer is not None and _answer_matches(
+                answer.answer, expected_answer
+            )
+            if kind == "answerable":
                 if answer.status == "answered" and answer_match and any(citation_matches):
                     answerable_correct += 1
             else:
-                abstention_total += 1
-                acceptable = answer.status == "abstained" or (
-                    kind == "ambiguous" and answer.status == "ambiguous"
+                acceptable = (
+                    answer.status == "ambiguous"
+                    if kind == "ambiguous"
+                    else answer.status == "abstained"
                 )
                 if acceptable:
                     abstention_correct += 1
@@ -250,6 +469,23 @@ def evaluate_manifest(manifest_path: Path, corpus_path: Path, *, split: str) -> 
                     "answer_match": answer_match,
                     "citations": [asdict(citation) for citation in answer.citations],
                     "citation_matches": citation_matches,
+                    "retrieval_rank": retrieved_rank if kind == "answerable" else None,
+                    "retrieved": [
+                        {
+                            "chunk_id": item.chunk.id,
+                            "document_id": item.chunk.document_id,
+                            "page": item.chunk.page,
+                            "score": round(item.score, 8),
+                            "lexical_score": round(item.lexical_score, 8),
+                            "dense_score": round(item.dense_score, 8),
+                            "rerank_score": (
+                                round(item.rerank_score, 8)
+                                if item.rerank_score is not None
+                                else None
+                            ),
+                        }
+                        for item in ranked
+                    ],
                     "latency_ms": round(elapsed_ms, 3),
                 }
             )
@@ -271,9 +507,12 @@ def evaluate_manifest(manifest_path: Path, corpus_path: Path, *, split: str) -> 
         document_id: extract_supplier_fields(document_chunks)
         for document_id, document_chunks in chunks_by_document.items()
     }
-    extraction_tp, extraction_predicted, extraction_gold = _extraction_counts(
-        manifest, extractions, split=split
-    )
+    (
+        extraction_tp,
+        extraction_predicted,
+        extraction_gold,
+        extraction_evaluation,
+    ) = _extraction_evaluation(manifest, extractions, split=split)
     extraction_precision = _safe_ratio(extraction_tp, extraction_predicted)
     extraction_recall = _safe_ratio(extraction_tp, extraction_gold)
     extraction_f1 = (
@@ -291,10 +530,15 @@ def evaluate_manifest(manifest_path: Path, corpus_path: Path, *, split: str) -> 
         "parameters_version": manifest["parameters_version"],
         "seed": manifest["seed"],
         "split": split,
-        "mode": manifest["mode"],
+        "mode": answer_provider.mode,
+        "embedding_model_id": active_provider.model_id,
+        "retrieval_method": method.value,
+        "reranker_model_id": reranker.model_id if reranker is not None else None,
         "case_count": len(cases),
         "citation_precision": round(citation_precision, 6),
         "citation_case_accuracy": round(citation_case_accuracy, 6),
+        "retrieval_recall_at_5": round(_safe_ratio(retrieval_hits, answerable_total), 6),
+        "retrieval_mrr_at_5": round(_safe_ratio(retrieval_reciprocal_rank, answerable_total), 6),
         "extraction_precision": round(extraction_precision, 6),
         "extraction_recall": round(extraction_recall, 6),
         "extraction_f1": round(extraction_f1, 6),
@@ -302,7 +546,8 @@ def evaluate_manifest(manifest_path: Path, corpus_path: Path, *, split: str) -> 
         "latency_median_ms": round(statistics.median(latencies), 3) if latencies else 0.0,
         "latency_p95_ms": round(_p95(latencies), 3),
         "error_rate": round(_safe_ratio(errors, len(cases)), 6),
-        "estimated_cost_usd": 0.0,
+        "indexing_ms": round(indexing_ms, 3),
+        "estimated_cost_usd": active_provider.estimated_cost_usd,
         "manifest_sha256": _sha256_file(manifest_path),
         "corpus_sha256": _sha256_file(corpus_path),
         "engine_fingerprint": _engine_fingerprint(),
@@ -311,6 +556,7 @@ def evaluate_manifest(manifest_path: Path, corpus_path: Path, *, split: str) -> 
             "citation_returned": citation_returned,
             "answerable_correct": answerable_correct,
             "answerable_total": answerable_total,
+            "retrieval_hits_at_5": retrieval_hits,
             "abstention_correct": abstention_correct,
             "abstention_total": abstention_total,
             "extraction_true_positive": extraction_tp,
@@ -320,15 +566,19 @@ def evaluate_manifest(manifest_path: Path, corpus_path: Path, *, split: str) -> 
         },
         "targets": {
             "citation_precision": 0.90,
+            "citation_case_accuracy": 0.90,
             "abstention_accuracy": 0.85,
             "extraction_f1": 0.90,
         },
         "cases": case_results,
         "extractions": {key: asdict(value) for key, value in extractions.items()},
+        "extraction_evaluation": extraction_evaluation,
+        "runtime": runtime_metadata or {},
     }
     result["verdict"] = (
         "PASS"
         if result["citation_precision"] >= 0.90
+        and result["citation_case_accuracy"] >= 0.90
         and result["abstention_accuracy"] >= 0.85
         and result["extraction_f1"] >= 0.90
         and result["error_rate"] == 0.0
@@ -341,17 +591,26 @@ def _sha256_file(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+ENGINE_FINGERPRINT_PATHS = (
+    "pyproject.toml",
+    "uv.lock",
+    "evals/runner.py",
+    "evals/holdout_v4.py",
+    "evals/validate_dataset.py",
+    "evals/benchmark.py",
+    "evals/recalculate.py",
+    "apps/api/evidencedesk_api/retrieval.py",
+    "apps/api/evidencedesk_api/extraction.py",
+    "apps/api/evidencedesk_api/providers.py",
+    "apps/api/evidencedesk_api/processing.py",
+)
+
+
 def _engine_fingerprint() -> str:
     root = Path(__file__).resolve().parents[1]
-    sources = (
-        root / "evals" / "runner.py",
-        root / "apps" / "api" / "evidencedesk_api" / "retrieval.py",
-        root / "apps" / "api" / "evidencedesk_api" / "extraction.py",
-        root / "apps" / "api" / "evidencedesk_api" / "providers.py",
-        root / "apps" / "api" / "evidencedesk_api" / "processing.py",
-    )
     digest = hashlib.sha256()
-    for source in sources:
+    for relative in ENGINE_FINGERPRINT_PATHS:
+        source = root / relative
         digest.update(source.relative_to(root).as_posix().encode("utf-8"))
         digest.update(b"\0")
         digest.update(source.read_bytes())

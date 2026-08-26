@@ -266,9 +266,9 @@ async def process_document(
         )
         chunk_models: list[Chunk] = []
         evidence_chunks: list[EvidenceChunk] = []
-        for parsed in parsed_chunks:
+        embeddings = worker.embeddings.embed_many([parsed.text for parsed in parsed_chunks])
+        for parsed, embedding in zip(parsed_chunks, embeddings, strict=True):
             chunk_id = uuid4()
-            embedding = worker.embeddings.embed(parsed.text)
             chunk_models.append(
                 Chunk(
                     id=chunk_id,
@@ -278,6 +278,7 @@ async def process_document(
                     ordinal=parsed.ordinal,
                     text=parsed.text,
                     embedding=embedding,
+                    embedding_model_id=worker.embeddings.model_id,
                 )
             )
             evidence_chunks.append(
@@ -289,6 +290,7 @@ async def process_document(
                     section=parsed.section,
                     text=parsed.text,
                     embedding=embedding,
+                    embedding_model_id=worker.embeddings.model_id,
                 )
             )
         extraction = extract_supplier_fields(evidence_chunks)

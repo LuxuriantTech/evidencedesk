@@ -1,0 +1,61 @@
+{
+  "parameters_version": "semantic-local-v2.0-frozen",
+  "frozen_at": "2026-08-26",
+  "development_dataset_version": "development-v2-2026.08.26",
+  "development_manifest_sha256": "8c7e72d5922f2a57b5ffd2a7133beb4f1a9ba627b5440020aafc113f3267b761",
+  "development_corpus_sha256": "ec4a27e58b9eb9db2d2baee4fd62089ef86327670eb40b4e0275ab7c4a7e69bd",
+  "development_comparison_sha256": "b79e5350f46c29c11e356478cab2312a03a60d1153f2dfde6c2ebd0c9de6d7ef",
+  "selected_evaluation_artifact_sha256": "d002e083b54b336580242c5e810db0172f1f63006bd08722199341483c3681f5",
+  "development_recalculation_sha256": "d42be15f354ad57b9949e2df24649dfad05b30e51ad47c744cfaa6a0f60aea37",
+  "engine_fingerprint_at_selection": "ecf4c16575cdb6ab52e6f703ae5e98c46919ab8c124410b80f252ee4b84dd602",
+  "mode": "extractive-local-onnx",
+  "retrieval_method": "hybrid",
+  "answer_candidate_limit": 20,
+  "retrieval_metric_cutoff": 5,
+  "rank_fusion": {
+    "algorithm": "reciprocal-rank-fusion",
+    "rrf_k": 60,
+    "named_entity_document_boost": 0.01
+  },
+  "embedding": {
+    "model_id": "paraphrase-multilingual-minilm-l12-v2-onnx-q@faf4aa4225822f3bc6376869cb1164e8e3feedd0",
+    "model_manifest_sha256": "d930bf9c2c9f866ff606a50cba0a8ca498f3f51f6ef74b1881602e5af2e302cc",
+    "fastembed_version": "0.8.0",
+    "onnxruntime_version": "1.29.0",
+    "dimension": 384,
+    "pooling": "mean",
+    "provider": "CPUExecutionProvider",
+    "normalize_l2": true,
+    "batch_size": 32
+  },
+  "reranker": {
+    "retained": false,
+    "candidate": "intent-evidence-reranker-v1",
+    "reason": "0 additional correct answers and Recall@5 regressed from 30/30 to 29/30"
+  },
+  "evaluation": {
+    "citation_match": "exact document and page; returned normalized excerpt must be an informative subspan of expected evidence with at least two alphanumeric tokens",
+    "answer_value_match": "typed date/money normalization or one-way expected-value containment",
+    "extraction_match": "typed exact equivalence plus a strict citation per value",
+    "status_match": "ambiguous must be ambiguous; unanswerable and adversarial must be abstained",
+    "targets": {
+      "citation_precision": 0.9,
+      "citation_case_accuracy": 0.9,
+      "abstention_accuracy": 0.85,
+      "extraction_f1": 0.9,
+      "error_rate": 0.0
+    }
+  },
+  "holdout_v4_protocol": {
+    "seed": 20260827,
+    "total_cases": 40,
+    "minimum_answerable": 25,
+    "minimum_unanswerable": 10,
+    "minimum_ambiguous_or_adversarial": 5,
+    "generation_after_engine_freeze": true,
+    "independent_author_required": true,
+    "execution_limit": 1,
+    "gold_may_not_change_after_commit": true,
+    "recalculation_from_raw_artifact_only": true
+  }
+}

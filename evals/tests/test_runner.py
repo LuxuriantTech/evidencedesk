@@ -28,7 +28,7 @@ def test_development_evaluation_never_opens_holdout_cases() -> None:
     assert result["split"] == "development"
     assert result["case_count"] == 21
     assert all(case["id"].startswith("dev-") for case in result["cases"])
-    assert result["mode"] == "extractive-local"
+    assert result["mode"] == "extractive-local-hash"
     assert result["estimated_cost_usd"] == 0.0
     assert result["latency_median_ms"] >= 0
     assert result["latency_p95_ms"] >= result["latency_median_ms"]

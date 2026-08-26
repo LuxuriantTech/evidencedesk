@@ -1,7 +1,13 @@
+from collections.abc import Callable
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Protocol
 
-from evidencedesk_api.providers import DeterministicEmbeddingProvider, EmbeddingProvider
+from evidencedesk_api.providers import (
+    DeterministicEmbeddingProvider,
+    EmbeddingProvider,
+    LocalSemanticEmbeddingProvider,
+)
 from evidencedesk_api.retrieval import (
     AnswerResult,
     ExtractiveAnswerProvider,
@@ -30,10 +36,27 @@ class UnsupportedProviderMode(ValueError):
     pass
 
 
-def build_provider_bundle(mode: str) -> ProviderBundle:
-    if mode != "extractive-local":
+def build_provider_bundle(
+    mode: str,
+    *,
+    embedding_factory: Callable[[], EmbeddingProvider] | None = None,
+    model_path: Path = Path("models/paraphrase-multilingual-minilm-l12-v2"),
+    manifest_path: Path = Path("infra/models/paraphrase-multilingual-minilm-l12-v2.json"),
+) -> ProviderBundle:
+    if mode == "extractive-local-hash":
+        embedding: EmbeddingProvider = DeterministicEmbeddingProvider(dimension=384)
+    elif mode == "extractive-local-onnx":
+        embedding = (
+            embedding_factory()
+            if embedding_factory is not None
+            else LocalSemanticEmbeddingProvider(
+                manifest_path=manifest_path,
+                model_path=model_path,
+            )
+        )
+    else:
         raise UnsupportedProviderMode(f"unsupported answer mode: {mode}")
     return ProviderBundle(
-        embedding=DeterministicEmbeddingProvider(dimension=384),
-        answer=ExtractiveAnswerProvider(),
+        embedding=embedding,
+        answer=ExtractiveAnswerProvider(mode=mode),
     )

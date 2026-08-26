@@ -17,8 +17,10 @@ from evidencedesk_api.models import (
     ProcessingTask,
     TaskStatus,
 )
+from evidencedesk_api.provider_registry import ProviderBundle
 from evidencedesk_api.providers import DeterministicEmbeddingProvider
 from evidencedesk_api.queueing import TaskQueue
+from evidencedesk_api.retrieval import ExtractiveAnswerProvider
 from evidencedesk_api.seed import seed_demo_data
 from evidencedesk_api.storage import LocalDocumentStorage
 from evidencedesk_worker.jobs import WorkerContext, process_document
@@ -78,6 +80,7 @@ def api(tmp_path: Path) -> AsyncIterator[tuple[TestClient, RecordingQueue, Setti
         storage_root=tmp_path,
         jwt_secret="integration-secret-at-least-32-characters",
         public_demo_mode=False,
+        answer_mode="extractive-local-hash",
         demo_admin_password="EvidenceDemo-Admin-2026!",
         demo_analyst_password="EvidenceDemo-Analyst-2026!",
         demo_reader_password="EvidenceDemo-Reader-2026!",
@@ -159,7 +162,7 @@ def test_auth_upload_idempotence_audit_and_deletion(
     assert client.get("/api/v1/status", headers=_headers(reader)).status_code == 403
     status_response = client.get("/api/v1/status", headers=_headers(admin))
     assert status_response.status_code == 200
-    assert status_response.json()["mode"] == "extractive-local"
+    assert status_response.json()["mode"] == "extractive-local-hash"
     assert status_response.json()["documents"]["queued"] == 1
 
     deleted = client.delete(f"/api/v1/documents/{first.json()['id']}", headers=_headers(admin))
@@ -313,6 +316,7 @@ def test_public_demo_rejects_unattested_upload(
         storage_root=tmp_path / "storage",
         jwt_secret="integration-secret-at-least-32-characters",
         public_demo_mode=True,
+        answer_mode="extractive-local-hash",
         public_demo_allowlist=allowlist,
         demo_admin_password="EvidenceDemo-Admin-2026!",
         demo_analyst_password="EvidenceDemo-Analyst-2026!",
@@ -395,6 +399,22 @@ def test_processed_document_can_be_queried_with_exact_evidence(
 
     asyncio.run(run_worker())
 
+    async def mark_chunks_as_legacy() -> None:
+        engine = build_engine(settings)
+        try:
+            async with build_session_factory(engine)() as session:
+                chunks = (
+                    await session.scalars(select(Chunk).where(Chunk.document_id == document_id))
+                ).all()
+                assert chunks
+                for chunk in chunks:
+                    chunk.embedding_model_id = "deterministic-hash-v0:384"
+                await session.commit()
+        finally:
+            await engine.dispose()
+
+    asyncio.run(mark_chunks_as_legacy())
+
     answer = client.post(
         f"/api/v1/dossiers/{dossier_id}/ask",
         headers=_headers(reader),
@@ -403,7 +423,7 @@ def test_processed_document_can_be_queried_with_exact_evidence(
     assert answer.status_code == 200, answer.text
     payload = answer.json()
     assert payload["status"] == "answered"
-    assert payload["mode"] == "extractive-local"
+    assert payload["mode"] == "extractive-local-hash"
     assert payload["citations"][0]["document_id"] == str(document_id)
     assert payload["citations"][0]["page"] == 1
     assert payload["citations"][0]["excerpt"] in payload["answer"]
@@ -456,13 +476,24 @@ def test_evaluation_endpoint_persists_only_calculated_results(
     )
     assert denied.status_code == 403
 
+    probe = DeterministicEmbeddingProvider(dimension=384)
+    probe.mode = "local-semantic-onnx-v1"
+    probe.model_id = "semantic-probe@frozen"
+    client.app.state.providers = ProviderBundle(
+        embedding=probe,
+        answer=ExtractiveAnswerProvider(mode="extractive-local-onnx"),
+    )
+
     executed = client.post(
         "/api/v1/evaluations/run", headers=_headers(admin), json={"split": "development"}
     )
     assert executed.status_code == 201, executed.text
     result = executed.json()
     assert result["split"] == "development"
-    assert result["metrics"]["case_count"] == 21
+    assert result["mode"] == "extractive-local-onnx"
+    assert result["metrics"]["case_count"] == 50
+    assert result["metrics"]["embedding_model_id"] == "semantic-probe@frozen"
+    assert result["metrics"]["retrieval_method"] == "hybrid"
     assert result["metrics"]["estimated_cost_usd"] == 0.0
     assert result["metrics"]["citation_precision"] >= 0
 
@@ -518,6 +549,7 @@ def test_unavailable_queue_fails_readiness_and_marks_upload_failed(tmp_path: Pat
         storage_root=tmp_path,
         jwt_secret="integration-secret-at-least-32-characters",
         public_demo_mode=False,
+        answer_mode="extractive-local-hash",
         demo_admin_password="EvidenceDemo-Admin-2026!",
         demo_analyst_password="EvidenceDemo-Analyst-2026!",
         demo_reader_password="EvidenceDemo-Reader-2026!",

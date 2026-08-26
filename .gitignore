@@ -15,5 +15,7 @@ playwright-report/
 test-results/
 storage/*
 !storage/.gitkeep
+models/*
+!models/.gitkeep
 artifacts/runtime/*
 !artifacts/runtime/.gitkeep

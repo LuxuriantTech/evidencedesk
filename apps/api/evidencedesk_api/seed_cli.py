@@ -3,6 +3,7 @@
 import asyncio
 import hashlib
 import json
+from datetime import datetime
 from pathlib import Path
 from uuid import uuid4
 
@@ -21,6 +22,7 @@ from evidencedesk_api.models import (
     TaskStatus,
 )
 from evidencedesk_api.provider_registry import build_provider_bundle
+from evidencedesk_api.providers import EmbeddingProvider
 from evidencedesk_api.seed import DEMO_DOSSIER_ID, seed_demo_data
 from evidencedesk_api.storage import LocalDocumentStorage, build_storage_key
 from evidencedesk_api.uploads import load_public_demo_hashes
@@ -42,6 +44,7 @@ _EVALUATION_METADATA = {
     "verdict",
     "cases",
     "extractions",
+    "extraction_evaluation",
 }
 
 
@@ -62,6 +65,27 @@ def _assert_seed_digest_allowed(
     allowed = public_demo_hashes or load_public_demo_hashes(settings.public_demo_allowlist)
     if digest not in allowed:
         raise RuntimeError("demo corpus document is not approved")
+
+
+def _artifact_created_at(path: Path, result: dict[str, object]) -> datetime:
+    value = result.get("created_at")
+    if not isinstance(value, str):
+        raise RuntimeError(f"evaluation artifact has no timestamp: {path.name}")
+    try:
+        parsed = datetime.fromisoformat(value)
+    except ValueError as exc:
+        raise RuntimeError(f"evaluation artifact timestamp is invalid: {path.name}") from exc
+    if parsed.tzinfo is None:
+        raise RuntimeError(f"evaluation artifact timestamp has no timezone: {path.name}")
+    return parsed
+
+
+def _build_seed_embeddings(settings: Settings) -> EmbeddingProvider:
+    return build_provider_bundle(
+        settings.answer_mode,
+        model_path=settings.embedding_model_path,
+        manifest_path=settings.embedding_manifest_path,
+    ).embedding
 
 
 async def _add_document(
@@ -169,6 +193,7 @@ async def _seed_evaluation_artifacts(
                         if key not in _EVALUATION_METADATA
                     },
                     verdict=str(result["verdict"]),
+                    created_at=_artifact_created_at(path, result),
                 )
             )
         await session.commit()
@@ -182,6 +207,11 @@ def _load_evaluation_artifacts(artifacts_dir: Path) -> list[tuple[Path, dict[str
         result = json.loads(path.read_text(encoding="utf-8"))
         if not isinstance(result, dict):
             raise RuntimeError(f"invalid evaluation artifact: {path.name}")
+        if result.get("schema_version") not in {
+            "evaluation-result-v1",
+            "holdout-v4-raw-result-v2",
+        }:
+            continue
         loaded.append((path, result))
     return loaded
 
@@ -196,7 +226,7 @@ async def seed(settings: Settings) -> None:
             engine=engine,
             session_factory=factory,
             storage=LocalDocumentStorage(settings.storage_root),
-            embeddings=build_provider_bundle(settings.answer_mode).embedding,
+            embeddings=_build_seed_embeddings(settings),
         )
         public_demo_hashes = (
             load_public_demo_hashes(settings.public_demo_allowlist)

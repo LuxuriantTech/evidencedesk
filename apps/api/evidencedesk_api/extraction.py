@@ -46,101 +46,209 @@ def _citation(chunk: EvidenceChunk, excerpt: str) -> Citation:
     )
 
 
-def _first_label(
-    chunks: list[EvidenceChunk], label: str
+_MONTHS = (
+    r"January|February|March|April|May|June|July|August|September|October|November|"
+    r"December|janvier|février|fevrier|mars|avril|mai|juin|juillet|août|aout|"
+    r"septembre|octobre|novembre|décembre|decembre"
+)
+_DATE = re.compile(
+    rf"\b(?:\d{{4}}-\d{{2}}-\d{{2}}|\d{{2}}/\d{{2}}/\d{{4}}|"
+    rf"\d{{1,2}}(?:er)?\s+(?:{_MONTHS})\s+\d{{4}}|"
+    rf"(?:{_MONTHS})\s+\d{{1,2}},?\s+\d{{4}})\b",
+    re.IGNORECASE,
+)
+_AMOUNT = re.compile(
+    r"(?:\b(?:EUR|USD|GBP)\s+[$€£]?\s*[0-9][0-9 ,.]*[0-9]|"
+    r"[$€£]\s*[0-9][0-9 ,.]*[0-9](?:\s+(?:EUR|USD|GBP))?|"
+    r"\b[0-9][0-9 ,.]*[0-9]\s+(?:EUR|USD|GBP|€|£|\$))",
+    re.IGNORECASE,
+)
+_LEGAL_ENTITY = re.compile(r"\b[^\n:—]+?\s+(?:Ltd\.?|LLC|GmbH|Inc\.?)\s*$", re.IGNORECASE)
+_DOCUMENT_TITLE = re.compile(
+    r"\b(?:agreement|contract|addendum|schedule|statement of work|order form|licence|"
+    r"accord|contrat|bon de commande|déclaration de travaux)\b",
+    re.IGNORECASE,
+)
+_OBLIGATION = re.compile(
+    r"(?:\bshall\b|\bmust\b|\bis required to\b|\bundertakes? to\b|\bdoit\b|"
+    r"\bs'engage à\b|\best tenu de\b|^No\s+.+\bmay\b)",
+    re.IGNORECASE,
+)
+
+
+def _line_entries(chunks: list[EvidenceChunk]) -> list[tuple[EvidenceChunk, str]]:
+    return [
+        (chunk, line.strip())
+        for chunk in chunks
+        for line in chunk.text.splitlines()
+        if line.strip() and not line.lstrip().startswith("#")
+    ]
+
+
+def _label_match(line: str, aliases: tuple[str, ...]) -> str | None:
+    joined = "|".join(re.escape(alias) for alias in aliases)
+    match = re.match(rf"^(?:{joined})\s*(?::|—|-)\s*(.+?)\s*$", line, re.IGNORECASE)
+    return match.group(1).strip() if match else None
+
+
+def _first_label_value(
+    entries: list[tuple[EvidenceChunk, str]], aliases: tuple[str, ...]
 ) -> tuple[str | None, tuple[Citation, ...]]:
-    pattern = re.compile(rf"^{re.escape(label)}:\s*(.+)$", re.IGNORECASE)
-    for chunk in chunks:
-        for line in chunk.text.splitlines():
-            match = pattern.match(line.strip())
-            if match:
-                value = match.group(1).strip()
-                if label.casefold().endswith("date"):
-                    value = value.removesuffix(".")
-                return value, (_citation(chunk, line.strip()),)
+    for chunk, line in entries:
+        value = _label_match(line, aliases)
+        if value is not None:
+            return value, (_citation(chunk, line),)
     return None, ()
 
 
-def _all_label(
-    chunks: list[EvidenceChunk], label: str
-) -> tuple[tuple[str, ...], tuple[Citation, ...]]:
+def _date_from_entries(
+    entries: list[tuple[EvidenceChunk, str]],
+    *,
+    labels: tuple[str, ...],
+    context_pattern: re.Pattern[str],
+) -> tuple[list[str], list[Citation]]:
     values: list[str] = []
     citations: list[Citation] = []
-    pattern = re.compile(rf"^{re.escape(label)}:\s*(.+?)$", re.IGNORECASE)
-    for chunk in chunks:
-        for line in chunk.text.splitlines():
-            stripped = line.strip()
-            match = pattern.match(stripped)
-            if match:
-                value = match.group(1).strip()
-                if label.casefold() in {"renewal date", "responsible manager"}:
-                    value = value.removesuffix(".")
-                values.append(value)
-                citations.append(_citation(chunk, stripped))
-    return tuple(values), tuple(citations)
+    for chunk, line in entries:
+        labelled = _label_match(line, labels)
+        match = _DATE.search(labelled or line)
+        if match is None or (labelled is None and context_pattern.search(line) is None):
+            continue
+        value = match.group(0).removeprefix("le ").removesuffix(".")
+        if value not in values:
+            values.append(value)
+            citations.append(_citation(chunk, line))
+    return values, citations
+
+
+def _append_unique(
+    values: list[str], citations: list[Citation], value: str, citation: Citation
+) -> None:
+    if value not in values:
+        values.append(value)
+        citations.append(citation)
 
 
 def extract_supplier_fields(chunks: list[EvidenceChunk]) -> SupplierExtraction:
-    organization, organization_citations = _first_label(chunks, "Organization")
+    entries = _line_entries(chunks)
+    organization, organization_citations = _first_label_value(
+        entries,
+        (
+            "Organization",
+            "Organisation",
+            "Supplier",
+            "Fournisseur",
+            "Vendor legal entity",
+            "Client record supplier",
+            "Société concernée",
+            "Fournisseur / Organization",
+        ),
+    )
     if organization is None:
-        legal_entity = re.compile(r"\b(?:Ltd\.?|LLC|GmbH|Inc\.?)$")
-        for chunk in chunks:
-            candidate = chunk.text.strip()
-            if chunk.page == 1 and legal_entity.search(candidate):
-                organization = candidate
-                organization_citations = (_citation(chunk, candidate),)
+        for chunk, line in entries:
+            match = _LEGAL_ENTITY.search(line)
+            if chunk.page == 1 and match:
+                organization = match.group(0).strip()
+                organization_citations = (_citation(chunk, line),)
                 break
-    document_type, document_type_citations = _first_label(chunks, "Document type")
-    effective_date, effective_date_citations = _first_label(chunks, "Effective date")
-    renewal_dates, renewal_citations = _all_label(chunks, "Renewal date")
-    renewal_values = list(renewal_dates)
-    renewal_evidence = list(renewal_citations)
-    renewal_pattern = re.compile(r"\brenews?\s+on\s+(\d{4}-\d{2}-\d{2})\b", re.IGNORECASE)
-    for chunk in chunks:
-        match = renewal_pattern.search(chunk.text)
-        if match and match.group(1) not in renewal_values:
-            renewal_values.append(match.group(1))
-            renewal_evidence.append(_citation(chunk, chunk.text))
+
+    document_type, document_type_citations = _first_label_value(
+        entries,
+        (
+            "Document type",
+            "Document kind",
+            "Category",
+            "Catégorie",
+            "Nature du document",
+            "Type de pièce",
+        ),
+    )
+    if document_type is None:
+        for chunk in chunks:
+            for line in chunk.text.splitlines():
+                candidate = line.strip().lstrip("#").strip()
+                if chunk.page == 1 and candidate.isupper() and _DOCUMENT_TITLE.search(candidate):
+                    document_type = candidate
+                    document_type_citations = (_citation(chunk, line.strip()),)
+                    break
+            if document_type is not None:
+                break
+
+    effective_values, effective_evidence = _date_from_entries(
+        entries,
+        labels=(
+            "Effective date",
+            "Effective from",
+            "Commencement",
+            "Date d'application",
+            "Prise d'effet",
+            "Entrée en vigueur",
+        ),
+        context_pattern=re.compile(
+            r"\b(?:takes? effect|commences?|effective from|entre en vigueur|vigueur)\b",
+            re.IGNORECASE,
+        ),
+    )
+    renewal_values, renewal_evidence = _date_from_entries(
+        entries,
+        labels=("Renewal date", "Renouvellement", "Prochaine échéance de renouvellement"),
+        context_pattern=re.compile(
+            r"\b(?:renewal|renews?|reconduit|renouvellement)\b", re.IGNORECASE
+        ),
+    )
 
     amount_values: list[str] = []
     amount_citations: list[Citation] = []
-    amount_pattern = re.compile(r"\b(?:EUR|USD|GBP)\s+[0-9][0-9,.]*\b")
-    for chunk in chunks:
-        for match in amount_pattern.finditer(chunk.text):
-            amount_values.append(match.group(0))
-            amount_citations.append(_citation(chunk, match.group(0)))
+    for chunk, line in entries:
+        for match in _AMOUNT.finditer(line):
+            amount = match.group(0).strip()
+            _append_unique(amount_values, amount_citations, amount, _citation(chunk, amount))
 
-    labelled_obligations, labelled_obligation_citations = _all_label(chunks, "Obligation")
-    obligations = list(labelled_obligations)
-    obligation_citations = list(labelled_obligation_citations)
-    obligation_pattern = re.compile(r"(?:\bshall\b|\bmust\b|^No\s+.+\bmay\b)", re.IGNORECASE)
-    for chunk in chunks:
-        for line in chunk.text.splitlines():
-            candidate = line.strip()
-            if candidate.casefold().startswith("obligation:"):
-                continue
-            if obligation_pattern.search(candidate) and candidate not in obligations:
-                obligations.append(candidate)
-                obligation_citations.append(_citation(chunk, candidate))
+    obligations: list[str] = []
+    obligation_citations: list[Citation] = []
+    for chunk, line in entries:
+        labelled = _label_match(line, ("Obligation", "Engagement"))
+        candidate = labelled or line
+        if labelled is not None or _OBLIGATION.search(candidate):
+            _append_unique(
+                obligations,
+                obligation_citations,
+                candidate,
+                _citation(chunk, line),
+            )
 
-    labelled_people, labelled_people_citations = _all_label(chunks, "Responsible manager")
-    people = list(labelled_people)
-    people_citations = list(labelled_people_citations)
-    person_pattern = re.compile(
-        r"^(?:Service owner|Responsible contact|Owner):\s*([^,\n.]+)", re.IGNORECASE
+    people: list[str] = []
+    people_citations: list[Citation] = []
+    person_aliases = (
+        "Responsible manager",
+        "Responsible contact",
+        "Service owner",
+        "Owner",
+        "Accountable lead",
+        "Contact opérationnel",
+        "Responsable",
+        "Responsable du compte",
+        "Owner / Responsable",
     )
-    for chunk in chunks:
-        for line in chunk.text.splitlines():
-            match = person_pattern.match(line.strip())
-            if match:
-                person = match.group(1).strip()
-                if person not in people:
-                    people.append(person)
-                    people_citations.append(_citation(chunk, line.strip()))
-    explicit_risks, explicit_risk_citations = _all_label(chunks, "Risk")
+    for chunk, line in entries:
+        value = _label_match(line, person_aliases)
+        if value is not None:
+            person = value.split(",", maxsplit=1)[0].strip().removesuffix(".")
+            _append_unique(people, people_citations, person, _citation(chunk, line))
 
-    risks = list(explicit_risks)
-    risk_citations = list(explicit_risk_citations)
+    risks: list[str] = []
+    risk_citations: list[Citation] = []
+    for chunk, line in entries:
+        labelled = _label_match(line, ("Risk", "Risque", "Risk note", "Exposure note"))
+        candidate = labelled or line
+        implicit = bool(
+            re.search(r"\bcontrol gap\b", candidate, re.IGNORECASE)
+            or re.search(r"\b(?:may|might|could)\b", candidate)
+            or re.search(r"\b(?:peut|peuvent)\b", candidate, re.IGNORECASE)
+        )
+        if (labelled is not None or implicit) and not _OBLIGATION.search(candidate):
+            _append_unique(risks, risk_citations, candidate, _citation(chunk, line))
+
     unique_renewal_dates = tuple(dict.fromkeys(renewal_values))
     if len(unique_renewal_dates) > 1:
         risks.insert(0, f"Conflicting renewal dates: {', '.join(sorted(unique_renewal_dates))}")
@@ -154,7 +262,10 @@ def extract_supplier_fields(chunks: list[EvidenceChunk]) -> SupplierExtraction:
     return SupplierExtraction(
         organization_name=EvidenceValue(organization, organization_citations),
         document_type=EvidenceValue(document_type, document_type_citations),
-        effective_date=EvidenceValue(effective_date, effective_date_citations),
+        effective_date=EvidenceValue(
+            effective_values[0] if effective_values else None,
+            (effective_evidence[0],) if effective_evidence else (),
+        ),
         renewal_date=EvidenceValue(renewal_date, selected_renewal_citations),
         important_amounts=EvidenceValue(tuple(amount_values), tuple(amount_citations)),
         obligations=EvidenceValue(tuple(obligations), tuple(obligation_citations)),

@@ -125,6 +125,7 @@ class Chunk(Base):
             postgresql_using="hnsw",
             postgresql_ops={"embedding": "vector_cosine_ops"},
         ),
+        Index("ix_chunks_embedding_model_id", "embedding_model_id"),
         Index("ix_chunks_search_vector_gin", "search_vector", postgresql_using="gin"),
     )
 
@@ -137,6 +138,9 @@ class Chunk(Base):
     ordinal: Mapped[int] = mapped_column(Integer)
     text: Mapped[str] = mapped_column(Text)
     embedding: Mapped[list[float]] = mapped_column(Vector(384))
+    embedding_model_id: Mapped[str] = mapped_column(
+        String(160), default="deterministic-hash-v1:384"
+    )
     search_vector: Mapped[Any] = mapped_column(
         TSVECTOR,
         Computed("to_tsvector('english', coalesce(text, ''))", persisted=True),

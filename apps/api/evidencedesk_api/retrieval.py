@@ -1,9 +1,16 @@
 import re
 import unicodedata
 from collections import Counter
+from collections.abc import Sequence
 from dataclasses import dataclass
+from enum import StrEnum
+from typing import Protocol
 
 from evidencedesk_api.providers import EmbeddingProvider
+
+DEFAULT_RETRIEVAL_LIMIT = 20
+RRF_K = 60
+NAMED_ENTITY_DOCUMENT_BOOST = 0.01
 
 _STOPWORDS = {
     "a",
@@ -185,6 +192,7 @@ class EvidenceChunk:
     section: str | None
     text: str
     embedding: list[float]
+    embedding_model_id: str = "deterministic-hash-v1:384"
 
 
 @dataclass(frozen=True, slots=True)
@@ -194,6 +202,7 @@ class RankedChunk:
     lexical_score: float
     dense_score: float
     entity_score: float
+    rerank_score: float | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -214,31 +223,58 @@ class AnswerResult:
     citations: tuple[Citation, ...]
 
 
+class RetrievalMethod(StrEnum):
+    LEXICAL = "lexical"
+    DENSE = "dense"
+    HYBRID = "hybrid"
+    HYBRID_RERANK = "hybrid_rerank"
+
+
+class Reranker(Protocol):
+    model_id: str
+
+    def score(self, question: str, passages: Sequence[str]) -> list[float]: ...
+
+
 def _cosine(left: list[float], right: list[float]) -> float:
     return sum(a * b for a, b in zip(left, right, strict=True))
 
 
-def hybrid_rank(
+def _candidate_scores(
     question: str,
     chunks: list[EvidenceChunk],
     *,
     provider: EmbeddingProvider,
-    limit: int = 5,
 ) -> list[RankedChunk]:
     query_vector = provider.embed(question)
     query_tokens = lexical_tokens(question)
     requested_scope = _document_scope(question)
     document_tokens: dict[str, frozenset[str]] = {}
+    identity_tokens: dict[str, frozenset[str]] = {}
     for document_id in {chunk.document_id for chunk in chunks}:
+        document_chunks = [chunk for chunk in chunks if chunk.document_id == document_id]
         document_tokens[document_id] = lexical_tokens(
             " ".join(
                 f"{chunk.document_name} {chunk.section or ''} {chunk.text}"
-                for chunk in chunks
-                if chunk.document_id == document_id
+                for chunk in document_chunks
             )
         )
+        identity_lines = [document_chunks[0].document_name]
+        for chunk in document_chunks:
+            identity_lines.extend(
+                line
+                for line in chunk.text.splitlines()
+                if re.search(
+                    r"^(?:organization|organisation|supplier|fournisseur|vendor legal entity|"
+                    r"client record supplier|soci[eé]t[eé] concern[eé]e)\b|"
+                    r"\b(?:ltd\.?|llc|gmbh|inc\.?)\s*$",
+                    line.strip(),
+                    re.IGNORECASE,
+                )
+            )
+        identity_tokens[document_id] = lexical_tokens(" ".join(identity_lines))
     document_frequency = Counter(
-        token for token in query_tokens for tokens in document_tokens.values() if token in tokens
+        token for token in query_tokens for tokens in identity_tokens.values() if token in tokens
     )
     distinctive_tokens = {
         token
@@ -253,7 +289,7 @@ def hybrid_rank(
             1, len(query_tokens)
         )
         requested_fields = query_tokens & _FIELD_TOKENS
-        entity_coverage = float(bool(distinctive_tokens & document_tokens[chunk.document_id]))
+        entity_coverage = float(bool(distinctive_tokens & identity_tokens[chunk.document_id]))
         if requested_fields:
             field_coverage = len(requested_fields & chunk_tokens) / len(requested_fields)
             if distinctive_tokens:
@@ -280,18 +316,116 @@ def hybrid_rank(
                 if distinctive_tokens
                 else 0.8 * local_coverage + 0.2 * document_coverage
             )
-        dense = max(-1.0, min(1.0, _cosine(query_vector, chunk.embedding)))
-        score = 0.25 * max(0.0, dense) + 0.75 * lexical
+        dense = (
+            max(-1.0, min(1.0, _cosine(query_vector, chunk.embedding)))
+            if chunk.embedding_model_id == provider.model_id
+            else 0.0
+        )
         ranked.append(
             RankedChunk(
                 chunk=chunk,
-                score=score,
+                score=0.0,
                 lexical_score=lexical,
                 dense_score=dense,
                 entity_score=entity_coverage,
             )
         )
-    return sorted(ranked, key=lambda item: (-item.score, item.chunk.id))[:limit]
+    return ranked
+
+
+def _with_score(
+    item: RankedChunk, score: float, *, rerank_score: float | None = None
+) -> RankedChunk:
+    return RankedChunk(
+        chunk=item.chunk,
+        score=score,
+        lexical_score=item.lexical_score,
+        dense_score=item.dense_score,
+        entity_score=item.entity_score,
+        rerank_score=rerank_score,
+    )
+
+
+def rank_chunks(
+    question: str,
+    chunks: list[EvidenceChunk],
+    *,
+    provider: EmbeddingProvider,
+    method: RetrievalMethod = RetrievalMethod.HYBRID,
+    limit: int = DEFAULT_RETRIEVAL_LIMIT,
+    reranker: Reranker | None = None,
+) -> list[RankedChunk]:
+    """Rank evidence with explicit, reproducible lexical/dense strategies."""
+
+    if limit < 1:
+        raise ValueError("limit must be positive")
+    scored = _candidate_scores(question, chunks, provider=provider)
+    if method is RetrievalMethod.LEXICAL:
+        ranked = [_with_score(item, item.lexical_score) for item in scored]
+        return sorted(ranked, key=lambda item: (-item.score, item.chunk.id))[:limit]
+
+    compatible = [item for item in scored if item.chunk.embedding_model_id == provider.model_id]
+    if method is RetrievalMethod.DENSE:
+        ranked = [_with_score(item, item.dense_score) for item in compatible]
+        return sorted(ranked, key=lambda item: (-item.score, item.chunk.id))[:limit]
+
+    if method not in {RetrievalMethod.HYBRID, RetrievalMethod.HYBRID_RERANK}:
+        raise ValueError(f"unsupported retrieval method: {method}")
+    lexical_order = sorted(scored, key=lambda item: (-item.lexical_score, item.chunk.id))
+    dense_order = sorted(compatible, key=lambda item: (-item.dense_score, item.chunk.id))
+    lexical_ranks = {item.chunk.id: index for index, item in enumerate(lexical_order, start=1)}
+    dense_ranks = {item.chunk.id: index for index, item in enumerate(dense_order, start=1)}
+    fused = [
+        _with_score(
+            item,
+            (
+                1.0 / (RRF_K + lexical_ranks[item.chunk.id])
+                + (
+                    1.0 / (RRF_K + dense_ranks[item.chunk.id])
+                    if item.chunk.id in dense_ranks
+                    else 0.0
+                )
+            )
+            / (2.0 if item.chunk.id in dense_ranks else 1.0)
+            + NAMED_ENTITY_DOCUMENT_BOOST * item.entity_score,
+        )
+        for item in scored
+    ]
+    fused.sort(key=lambda item: (-item.score, -item.lexical_score, item.chunk.id))
+    if method is RetrievalMethod.HYBRID:
+        return fused[:limit]
+    if reranker is None:
+        raise ValueError("hybrid_rerank requires an explicit reranker")
+    rerank_candidates = fused[: max(limit * 4, 20)]
+    rerank_scores = reranker.score(
+        question,
+        [f"{item.chunk.document_name}\n{item.chunk.text}" for item in rerank_candidates],
+    )
+    if len(rerank_scores) != len(rerank_candidates):
+        raise ValueError("reranker returned the wrong number of scores")
+    reranked = [
+        _with_score(item, float(score), rerank_score=float(score))
+        for item, score in zip(rerank_candidates, rerank_scores, strict=True)
+    ]
+    return sorted(reranked, key=lambda item: (-item.score, item.chunk.id))[:limit]
+
+
+def hybrid_rank(
+    question: str,
+    chunks: list[EvidenceChunk],
+    *,
+    provider: EmbeddingProvider,
+    limit: int = DEFAULT_RETRIEVAL_LIMIT,
+) -> list[RankedChunk]:
+    """Compatibility wrapper for the selected rank-fusion implementation."""
+
+    return rank_chunks(
+        question,
+        chunks,
+        provider=provider,
+        method=RetrievalMethod.HYBRID,
+        limit=limit,
+    )
 
 
 def _citation(chunk: EvidenceChunk, excerpt: str | None = None) -> Citation:
@@ -305,37 +439,227 @@ def _citation(chunk: EvidenceChunk, excerpt: str | None = None) -> Citation:
     )
 
 
+_MONTH_NAMES = (
+    r"January|February|March|April|May|June|July|August|September|October|"
+    r"November|December|janvier|février|fevrier|mars|avril|mai|juin|juillet|"
+    r"août|aout|septembre|octobre|novembre|décembre|decembre"
+)
 _DATE_PATTERN = re.compile(
-    r"\b(?:\d{4}-\d{2}-\d{2}|\d{1,2}\s+(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{4})\b",
+    rf"\b(?:\d{{4}}-\d{{2}}-\d{{2}}|\d{{1,2}}(?:er)?\s+(?:{_MONTH_NAMES})\s+\d{{4}}|"
+    rf"(?:{_MONTH_NAMES})\s+\d{{1,2}},?\s+\d{{4}})\b",
     re.IGNORECASE,
 )
 
-_DEADLINE_PATTERN = re.compile(r"\b\d+\s+(?:hours?|days?)\b", re.IGNORECASE)
+_DEADLINE_PATTERN = re.compile(
+    r"\b(?:\d+|one|two|three|four|five|six|seven|eight|nine|ten|"
+    r"un|une|deux|trois|quatre|cinq|six|sept|huit|neuf|dix)\s+"
+    r"(?:minutes?|hours?|days?|heures?|jours?)\b",
+    re.IGNORECASE,
+)
+_AMOUNT_PATTERN = re.compile(
+    r"(?:\b(?:EUR|USD|GBP)\s*[$€£]?\s*[0-9][0-9 ,.]*|"
+    r"[$€£]\s*[0-9][0-9 ,.]*\s*(?:EUR|USD|GBP)?|"
+    r"\b[0-9][0-9 ,.]*\s*(?:EUR|USD|GBP|€|£|\$))\b",
+    re.IGNORECASE,
+)
 _MISSING_DATE_PATTERN = re.compile(
     r"\b(?:not recorded|missing|unknown|not available|non renseign[eé]e?)\b",
     re.IGNORECASE,
 )
 
 
+def _fold(text: str) -> str:
+    return unicodedata.normalize("NFKD", text.casefold()).encode("ascii", "ignore").decode()
+
+
+def _question_intent(question: str) -> str | None:
+    folded = _fold(question)
+    if re.search(r"\b(?:renew|renewal|renouvel|recondu|echeance)\w*\b", folded):
+        return "renewal_date"
+    if re.search(
+        r"\b(?:effective|effect|effet|commence|commencement|starts?|application|vigueur)\w*\b",
+        folded,
+    ):
+        return "effective_date"
+    if re.search(r"\b(?:notification|notify|notifier)\w*\b", folded) and re.search(
+        r"\b(?:deadline|delai|quickly|hours?|heures?|days?|jours?)\b", folded
+    ):
+        return "notification_deadline"
+    if re.search(r"\b(?:duration|duree|how long|combien de temps|delayed|retard)\b", folded):
+        return "duration"
+    if re.search(r"\b(?:document type|document kind|type de document|nature|categorie)\b", folded):
+        return "document_type"
+    if re.search(
+        r"\b(?:amount|fee|cost|price|budget|charge|rate|cout|montant|prix|forfait)\b",
+        folded,
+    ):
+        return "important_amounts"
+    if re.search(
+        r"\b(?:responsible|manager|owner|accountable|contact|responsable|qui est le pilote)\b",
+        folded,
+    ):
+        return "responsible_people"
+    if re.search(r"\b(?:risk|risque|exposure|control gap)\b", folded):
+        return "risks"
+    if re.search(
+        r"\b(?:organization|organisation|legal entity|supplier organization|"
+        r"supplier is named|societe|nom du fournisseur)\b",
+        folded,
+    ):
+        return "organization_name"
+    if re.search(
+        r"\b(?:obligation|must|shall|required|undertakes?|doit|s engage|what .* do)\b",
+        folded,
+    ):
+        return "obligations"
+    if re.search(r"\b(?:severity|severite|sev[- ]?\d)\b", folded):
+        return "severity"
+    return None
+
+
+def _segments(text: str) -> list[str]:
+    segments: list[str] = []
+    for line in text.splitlines():
+        stripped = line.strip()
+        if not stripped:
+            continue
+        parts = [
+            item.strip()
+            for item in re.split(r"(?<=[.!?])\s+(?=[A-ZÀ-ÖØ-Þ])", stripped)
+            if item.strip()
+        ]
+        segments.extend(parts or [stripped])
+    return segments
+
+
+def _is_intent_evidence(intent: str, segment: str) -> bool:
+    folded = _fold(segment)
+    has_date = bool(_DATE_PATTERN.search(segment))
+    if intent == "renewal_date":
+        return bool(re.search(r"\b(?:renew|renewal|renouvel|recondu|echeance)\w*\b", folded)) and (
+            has_date or bool(_MISSING_DATE_PATTERN.search(segment))
+        )
+    if intent == "effective_date":
+        return has_date and bool(
+            re.search(
+                r"\b(?:effective|takes? effect|effective from|commence|commencement|"
+                r"starts?|application|vigueur|prise d[' ]effet)\w*\b",
+                folded,
+            )
+        ) and not bool(re.search(r"\b(?:renew|renouvel|recondu)\w*\b", folded))
+    if intent == "notification_deadline":
+        return bool(re.search(r"\b(?:notify|notification|notifier)\w*\b", folded)) and bool(
+            _DEADLINE_PATTERN.search(segment)
+        )
+    if intent == "duration":
+        return bool(_DEADLINE_PATTERN.search(segment)) and bool(
+            re.search(r"\b(?:delay|delayed|duration|duree|retard|lasted)\w*\b", folded)
+        )
+    if intent == "document_type":
+        return bool(
+            re.search(
+                r"^(?:document type|document kind|category|categorie|nature du document|"
+                r"type de piece)\s*[:—-]",
+                folded,
+            )
+            or (re.search(
+                r"\b(?:agreement|contract|addendum|schedule|statement of work|order form|"
+                r"accord|contrat|bon de commande|declaration de travaux|licence)\b",
+                folded,
+            )
+            and segment.strip().isupper())
+        )
+    if intent == "important_amounts":
+        return bool(_AMOUNT_PATTERN.search(segment))
+    if intent == "responsible_people":
+        return bool(
+            re.search(
+                r"^(?:responsible manager|responsible contact|service owner|owner|"
+                r"accountable lead|contact operationnel|responsable(?: du compte)?)\b",
+                folded,
+            )
+        )
+    if intent == "risks":
+        return bool(
+            re.search(r"^(?:risk|risque|risk note|exposure note)\s*[:—-]", folded)
+            or re.search(r"\bcontrol gap\b", folded)
+            or re.search(r"\b(?:may|might|could|peut|peuvent)\b", folded)
+        )
+    if intent == "organization_name":
+        return bool(
+            re.search(
+                r"^(?:organization|organisation|supplier|fournisseur|vendor legal entity|"
+                r"client record supplier|societe concernee)\b",
+                folded,
+            )
+            or re.search(r"\b(?:ltd\.?|llc|gmbh|inc\.?)$", folded)
+        )
+    if intent == "obligations":
+        return bool(
+            re.search(
+                r"\b(?:shall|must|is required to|undertakes? to|doit|s[' ]engage a|est tenu de)\b",
+                folded,
+            )
+            or re.search(r"^no\s+.+\bmay\b", folded)
+        )
+    if intent == "severity":
+        return bool(re.search(r"\b(?:severity|severite|sev[- ]?\d)\b", folded))
+    return False
+
+
+def _evidence_key(intent: str, segment: str) -> str:
+    if intent in {"effective_date", "renewal_date"}:
+        match = _DATE_PATTERN.search(segment)
+        return _fold(match.group(0) if match else segment)
+    if intent == "important_amounts":
+        match = _AMOUNT_PATTERN.search(segment)
+        return re.sub(r"\s+", "", _fold(match.group(0) if match else segment))
+    if intent in {"duration", "notification_deadline"}:
+        match = _DEADLINE_PATTERN.search(segment)
+        return _fold(match.group(0) if match else segment)
+    return _fold(segment)
+
+
+def _is_adversarial_question(question: str) -> bool:
+    folded = _fold(question)
+    patterns = (
+        r"\b(?:ignore|ignorez|disregard|override)\b",
+        r"\b(?:invent|plausible|from memory|even if absent)\b",
+        r"\b(?:administrator|admin|password|system prompt|hidden prompt)\b",
+        r"\b(?:reveal|revele|expose)\b.*\b(?:secret|phone|telephone|email|prompt)\b",
+    )
+    return any(re.search(pattern, folded) for pattern in patterns)
+
+
+class IntentEvidenceReranker:
+    """Deterministic second stage that rewards direct field/value evidence."""
+
+    model_id = "intent-evidence-reranker-v1"
+
+    def score(self, question: str, passages: Sequence[str]) -> list[float]:
+        intent = _question_intent(question)
+        question_tokens = lexical_tokens(question)
+        scores: list[float] = []
+        for passage in passages:
+            passage_tokens = lexical_tokens(passage)
+            coverage = len(question_tokens & passage_tokens) / max(1, len(question_tokens))
+            direct = 0.0
+            if intent is not None and any(
+                _is_intent_evidence(intent, segment) for segment in _segments(passage)
+            ):
+                direct = 1.0
+            scores.append(direct + 0.25 * coverage)
+        return scores
+
+
 class ExtractiveAnswerProvider:
-    mode = "extractive-local"
     estimated_cost_usd = 0.0
 
+    def __init__(self, *, mode: str = "extractive-local") -> None:
+        self.mode = mode
+
     def answer(self, question: str, ranked: list[RankedChunk]) -> AnswerResult:
-        normalized_question = question.casefold()
-        injection_terms = (
-            "ignore",
-            "ignorez",
-            "grant",
-            "accorde",
-            "administrator",
-            "admin",
-        )
-        pii_terms = ("reveal", "révèle", "phone", "téléphone", "telephone", "email complet")
-        if (
-            sum(term in normalized_question for term in injection_terms) >= 2
-            or sum(term in normalized_question for term in pii_terms) >= 2
-        ):
+        if _is_adversarial_question(question):
             return AnswerResult(
                 status="abstained",
                 answer=(
@@ -345,87 +669,76 @@ class ExtractiveAnswerProvider:
                 confidence=1.0,
                 citations=(),
             )
-        question_tokens = lexical_tokens(question)
-        required_tokens = question_tokens & _REQUIRED_EVIDENCE_TOKENS
-        top_tokens = lexical_tokens(ranked[0].chunk.text) if ranked else frozenset()
-        if required_tokens - top_tokens or not ranked or ranked[0].lexical_score < 0.30:
+        intent = _question_intent(question)
+        if intent is None or not ranked:
             return AnswerResult(
                 status="abstained",
                 answer="Insufficient evidence in the selected dossier.",
                 confidence=0.0,
                 citations=(),
             )
-
-        relevant_ranked = (
-            [item for item in ranked if item.entity_score > 0]
-            if ranked[0].entity_score > 0
-            else ranked
+        broad_scope = bool(
+            re.search(
+                r"\b(?:across|all (?:supplier )?files|corpus|without naming|which supplier)\b",
+                _fold(question),
+            )
         )
-        deadline_query = "deadline" in question_tokens and "notification" in question_tokens
-        if deadline_query:
-            deadline_evidence: list[tuple[str, RankedChunk]] = []
-            for candidate in relevant_ranked:
-                candidate_tokens = lexical_tokens(candidate.chunk.text)
-                if "notification" not in candidate_tokens or candidate.lexical_score < 0.3:
-                    continue
-                match = _DEADLINE_PATTERN.search(candidate.chunk.text)
-                if match and all(
-                    match.group(0).casefold() != item[0] for item in deadline_evidence
-                ):
-                    deadline_evidence.append((match.group(0).casefold(), candidate))
-            if len(deadline_evidence) >= 2:
-                return AnswerResult(
-                    status="ambiguous",
-                    answer="Conflicting notification deadlines were found; review both sources.",
-                    confidence=min(item[1].score for item in deadline_evidence[:2]),
-                    citations=tuple(_citation(item[1].chunk) for item in deadline_evidence[:2]),
-                )
+        relevant_ranked = ranked
+        if not broad_scope and any(item.entity_score > 0 for item in ranked):
+            relevant_ranked = [item for item in ranked if item.entity_score > 0]
 
-        date_query = bool({"date", "renew", "renewal"} & question_tokens)
-        renewal_query = bool({"renew", "renewal"} & question_tokens)
-        if renewal_query:
-            missing_date_evidence = [
-                item
-                for item in relevant_ranked
-                if _MISSING_DATE_PATTERN.search(item.chunk.text)
-                and bool({"renew", "renewal"} & lexical_tokens(item.chunk.text))
-            ]
-            if missing_date_evidence:
-                return AnswerResult(
-                    status="abstained",
-                    answer="No reliable renewal date is recorded in the selected evidence.",
-                    confidence=missing_date_evidence[0].score,
-                    citations=tuple(_citation(item.chunk) for item in missing_date_evidence[:2]),
-                )
-        if date_query and len(ranked) > 1:
-            first_dates = set(_DATE_PATTERN.findall(ranked[0].chunk.text))
-            second_dates = set(_DATE_PATTERN.findall(ranked[1].chunk.text))
-            if (
-                first_dates
-                and second_dates
-                and first_dates != second_dates
-                and ranked[0].chunk.document_id == ranked[1].chunk.document_id
-                and ranked[1].lexical_score >= 0.3
-            ):
-                return AnswerResult(
-                    status="ambiguous",
-                    answer="Conflicting evidence was found; review both cited passages.",
-                    confidence=min(ranked[0].score, ranked[1].score),
-                    citations=(_citation(ranked[0].chunk), _citation(ranked[1].chunk)),
-                )
+        evidence: list[tuple[str, str, RankedChunk]] = []
+        for item in relevant_ranked:
+            for segment in _segments(item.chunk.text):
+                if _is_intent_evidence(intent, segment):
+                    evidence.append((_evidence_key(intent, segment), segment, item))
+                    break
+        if not evidence:
+            return AnswerResult(
+                status="abstained",
+                answer="Insufficient evidence in the selected dossier.",
+                confidence=0.0,
+                citations=(),
+            )
+        if intent == "renewal_date" and _MISSING_DATE_PATTERN.search(evidence[0][1]):
+            return AnswerResult(
+                status="abstained",
+                answer="No reliable renewal date is recorded in the selected evidence.",
+                confidence=evidence[0][2].score,
+                citations=(_citation(evidence[0][2].chunk, evidence[0][1]),),
+            )
 
-        best = ranked[0]
-        sentences = [
-            sentence.strip()
-            for sentence in re.split(r"(?<=[.!?])\s+", best.chunk.text)
-            if sentence.strip()
-        ]
-        query_tokens = question_tokens
-        excerpt = max(
-            sentences,
-            key=lambda sentence: len(query_tokens & lexical_tokens(sentence)),
-            default=best.chunk.text,
+        singular_intents = {
+            "organization_name",
+            "document_type",
+            "effective_date",
+            "renewal_date",
+            "important_amounts",
+            "responsible_people",
+            "notification_deadline",
+            "duration",
+            "severity",
+        }
+        distinct: list[tuple[str, str, RankedChunk]] = []
+        for evidence_item in evidence:
+            if all(evidence_item[0] != existing[0] for existing in distinct):
+                distinct.append(evidence_item)
+        evidence_documents = {item[2].chunk.document_id for item in distinct}
+        same_document_conflict = len(evidence_documents) == 1 and len(distinct) > 1
+        cross_document_conflict = (
+            (broad_scope or intent == "notification_deadline")
+            and len(evidence_documents) > 1
+            and len(distinct) > 1
         )
+        if intent in singular_intents and (same_document_conflict or cross_document_conflict):
+            return AnswerResult(
+                status="ambiguous",
+                answer="Conflicting evidence was found; review the cited passages.",
+                confidence=min(item[2].score for item in distinct[:2]),
+                citations=tuple(_citation(item[2].chunk, item[1]) for item in distinct[:2]),
+            )
+
+        _, excerpt, best = evidence[0]
         confidence = max(0.0, min(1.0, best.score))
         return AnswerResult(
             status="answered",
