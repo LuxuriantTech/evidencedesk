@@ -1,0 +1,5776 @@
+{
+  "abstention_accuracy": 0.8,
+  "case_count": 40,
+  "cases": [
+    {
+      "answer": "Effective date: 2027-01-14.",
+      "answer_match": true,
+      "citation_matches": [
+        true
+      ],
+      "citations": [
+        {
+          "chunk_id": "aurora-slate:p1:c1",
+          "document_id": "aurora-slate",
+          "document_name": "aurora_slate_terms.md",
+          "excerpt": "Effective date: 2027-01-14.",
+          "page": 1,
+          "section": null
+        }
+      ],
+      "id": "v6-a01",
+      "kind": "answerable",
+      "latency_ms": 41.351,
+      "retrieval_rank": 1,
+      "retrieved": [
+        {
+          "chunk_id": "aurora-slate:p1:c1",
+          "dense_score": 0.55150974,
+          "document_id": "aurora-slate",
+          "lexical_score": 0.89,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02639344
+        },
+        {
+          "chunk_id": "aurora-slate:p1:c0",
+          "dense_score": 0.50308226,
+          "document_id": "aurora-slate",
+          "lexical_score": 0.49,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02612903
+        },
+        {
+          "chunk_id": "aurora-slate:p1:c2",
+          "dense_score": 0.3843253,
+          "document_id": "aurora-slate",
+          "lexical_score": 0.46,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02587302
+        },
+        {
+          "chunk_id": "aurora-slate:p1:c3",
+          "dense_score": 0.1784274,
+          "document_id": "aurora-slate",
+          "lexical_score": 0.43,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02550481
+        },
+        {
+          "chunk_id": "aurora-slate:p2:c0",
+          "dense_score": 0.21061812,
+          "document_id": "aurora-slate",
+          "lexical_score": 0.43,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02550481
+        },
+        {
+          "chunk_id": "aurora-slate:p2:c1",
+          "dense_score": 0.04934815,
+          "document_id": "aurora-slate",
+          "lexical_score": 0.43,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02503844
+        },
+        {
+          "chunk_id": "aurora-slate:p2:c2",
+          "dense_score": 0.15597267,
+          "document_id": "aurora-slate",
+          "lexical_score": 0.43,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02503844
+        }
+      ],
+      "status": "answered"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "v6-a02",
+      "kind": "answerable",
+      "latency_ms": 37.663,
+      "retrieval_rank": 2,
+      "retrieved": [
+        {
+          "chunk_id": "aurora-slate:p1:c0",
+          "dense_score": 0.55734315,
+          "document_id": "aurora-slate",
+          "lexical_score": 0.65,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02639344
+        },
+        {
+          "chunk_id": "aurora-slate:p2:c1",
+          "dense_score": 0.50788388,
+          "document_id": "aurora-slate",
+          "lexical_score": 0.65,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02612903
+        },
+        {
+          "chunk_id": "aurora-slate:p1:c1",
+          "dense_score": 0.11868751,
+          "document_id": "aurora-slate",
+          "lexical_score": 0.43,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02551227
+        },
+        {
+          "chunk_id": "aurora-slate:p1:c3",
+          "dense_score": 0.2113828,
+          "document_id": "aurora-slate",
+          "lexical_score": 0.43,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02550481
+        },
+        {
+          "chunk_id": "aurora-slate:p2:c2",
+          "dense_score": 0.23226366,
+          "document_id": "aurora-slate",
+          "lexical_score": 0.43,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02539919
+        },
+        {
+          "chunk_id": "aurora-slate:p1:c2",
+          "dense_score": 0.09451223,
+          "document_id": "aurora-slate",
+          "lexical_score": 0.43,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02527519
+        },
+        {
+          "chunk_id": "aurora-slate:p2:c0",
+          "dense_score": 0.1710533,
+          "document_id": "aurora-slate",
+          "lexical_score": 0.43,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02526807
+        }
+      ],
+      "status": "abstained"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "v6-a03",
+      "kind": "answerable",
+      "latency_ms": 39.509,
+      "retrieval_rank": 1,
+      "retrieved": [
+        {
+          "chunk_id": "brindle-works:p1:c0",
+          "dense_score": 0.50949326,
+          "document_id": "brindle-works",
+          "lexical_score": 0.725,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02639344
+        },
+        {
+          "chunk_id": "brindle-works:p1:c3",
+          "dense_score": 0.50651387,
+          "document_id": "brindle-works",
+          "lexical_score": 0.725,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02612903
+        },
+        {
+          "chunk_id": "brindle-works:p1:c1",
+          "dense_score": 0.31460241,
+          "document_id": "brindle-works",
+          "lexical_score": 0.45,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02574901
+        },
+        {
+          "chunk_id": "brindle-works:p2:c0",
+          "dense_score": 0.39240291,
+          "document_id": "brindle-works",
+          "lexical_score": 0.45,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02562882
+        },
+        {
+          "chunk_id": "brindle-works:p1:c2",
+          "dense_score": 0.26276352,
+          "document_id": "brindle-works",
+          "lexical_score": 0.45,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02550481
+        },
+        {
+          "chunk_id": "brindle-works:p2:c1",
+          "dense_score": 0.22600121,
+          "document_id": "brindle-works",
+          "lexical_score": 0.45,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02503844
+        },
+        {
+          "chunk_id": "brindle-works:p2:c2",
+          "dense_score": 0.26017468,
+          "document_id": "brindle-works",
+          "lexical_score": 0.45,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02503844
+        }
+      ],
+      "status": "abstained"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "v6-a04",
+      "kind": "answerable",
+      "latency_ms": 38.095,
+      "retrieval_rank": 1,
+      "retrieved": [
+        {
+          "chunk_id": "brindle-works:p2:c0",
+          "dense_score": 0.5548663,
+          "document_id": "brindle-works",
+          "lexical_score": 0.825,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.01639344
+        },
+        {
+          "chunk_id": "brindle-works:p1:c1",
+          "dense_score": 0.38461001,
+          "document_id": "brindle-works",
+          "lexical_score": 0.05,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01600102
+        },
+        {
+          "chunk_id": "brindle-works:p1:c0",
+          "dense_score": -0.03734703,
+          "document_id": "brindle-works",
+          "lexical_score": 0.05,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.0155272
+        },
+        {
+          "chunk_id": "brindle-works:p1:c2",
+          "dense_score": 0.22598498,
+          "document_id": "brindle-works",
+          "lexical_score": 0.05,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01550481
+        },
+        {
+          "chunk_id": "brindle-works:p2:c2",
+          "dense_score": 0.29392994,
+          "document_id": "brindle-works",
+          "lexical_score": 0.05,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.01539919
+        },
+        {
+          "chunk_id": "brindle-works:p2:c1",
+          "dense_score": 0.27724205,
+          "document_id": "brindle-works",
+          "lexical_score": 0.05,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.01538826
+        },
+        {
+          "chunk_id": "brindle-works:p1:c3",
+          "dense_score": 0.19990558,
+          "document_id": "brindle-works",
+          "lexical_score": 0.05,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01526807
+        }
+      ],
+      "status": "abstained"
+    },
+    {
+      "answer": "Important amounts: USD 3,300 review allowance; USD 75 per reviewed packet.",
+      "answer_match": false,
+      "citation_matches": [
+        false
+      ],
+      "citations": [
+        {
+          "chunk_id": "cinder-orbit:p1:c3",
+          "document_id": "cinder-orbit",
+          "document_name": "cinder_orbit_addendum.pdf",
+          "excerpt": "Important amounts: USD 3,300 review allowance; USD 75 per reviewed packet.",
+          "page": 1,
+          "section": null
+        }
+      ],
+      "id": "v6-a05",
+      "kind": "answerable",
+      "latency_ms": 43.836,
+      "retrieval_rank": 1,
+      "retrieved": [
+        {
+          "chunk_id": "cinder-orbit:p1:c3",
+          "dense_score": 0.42656253,
+          "document_id": "cinder-orbit",
+          "lexical_score": 0.9,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02626124
+        },
+        {
+          "chunk_id": "cinder-orbit:p1:c0",
+          "dense_score": 0.56193833,
+          "document_id": "cinder-orbit",
+          "lexical_score": 0.5,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02626124
+        },
+        {
+          "chunk_id": "cinder-orbit:p2:c2",
+          "dense_score": 0.25781042,
+          "document_id": "cinder-orbit",
+          "lexical_score": 0.45714286,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02587302
+        },
+        {
+          "chunk_id": "cinder-orbit:p1:c1",
+          "dense_score": 0.1888501,
+          "document_id": "cinder-orbit",
+          "lexical_score": 0.43571429,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02538826
+        },
+        {
+          "chunk_id": "cinder-orbit:p2:c1",
+          "dense_score": 0.2237517,
+          "document_id": "cinder-orbit",
+          "lexical_score": 0.43571429,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02527519
+        },
+        {
+          "chunk_id": "cinder-orbit:p2:c0",
+          "dense_score": 0.18901146,
+          "document_id": "cinder-orbit",
+          "lexical_score": 0.43571429,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02526807
+        },
+        {
+          "chunk_id": "cinder-orbit:p1:c2",
+          "dense_score": 0.13596123,
+          "document_id": "cinder-orbit",
+          "lexical_score": 0.43571429,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02515499
+        }
+      ],
+      "status": "answered"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "v6-a06",
+      "kind": "answerable",
+      "latency_ms": 33.319,
+      "retrieval_rank": 1,
+      "retrieved": [
+        {
+          "chunk_id": "cinder-orbit:p2:c2",
+          "dense_score": 0.66816436,
+          "document_id": "cinder-orbit",
+          "lexical_score": 0.86,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.01639344
+        },
+        {
+          "chunk_id": "cinder-orbit:p1:c0",
+          "dense_score": 0.1986477,
+          "document_id": "cinder-orbit",
+          "lexical_score": 0.06,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01600102
+        },
+        {
+          "chunk_id": "cinder-orbit:p1:c1",
+          "dense_score": 0.08617891,
+          "document_id": "cinder-orbit",
+          "lexical_score": 0.06,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01562882
+        },
+        {
+          "chunk_id": "cinder-orbit:p2:c1",
+          "dense_score": 0.29708535,
+          "document_id": "cinder-orbit",
+          "lexical_score": 0.06,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.0155272
+        },
+        {
+          "chunk_id": "cinder-orbit:p1:c3",
+          "dense_score": 0.15096963,
+          "document_id": "cinder-orbit",
+          "lexical_score": 0.06,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01550481
+        },
+        {
+          "chunk_id": "cinder-orbit:p1:c2",
+          "dense_score": 0.01704639,
+          "document_id": "cinder-orbit",
+          "lexical_score": 0.06,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01527519
+        },
+        {
+          "chunk_id": "cinder-orbit:p2:c0",
+          "dense_score": 0.0560092,
+          "document_id": "cinder-orbit",
+          "lexical_score": 0.06,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.01515152
+        }
+      ],
+      "status": "abstained"
+    },
+    {
+      "answer": "Date de renouvellement : 2027-10-09.",
+      "answer_match": true,
+      "citation_matches": [
+        true
+      ],
+      "citations": [
+        {
+          "chunk_id": "dune-papier:p1:c2",
+          "document_id": "dune-papier",
+          "document_name": "dune_papier_charte.md",
+          "excerpt": "Date de renouvellement : 2027-10-09.",
+          "page": 1,
+          "section": null
+        }
+      ],
+      "id": "v6-a07",
+      "kind": "answerable",
+      "latency_ms": 44.596,
+      "retrieval_rank": 1,
+      "retrieved": [
+        {
+          "chunk_id": "dune-papier:p1:c2",
+          "dense_score": 0.66028552,
+          "document_id": "dune-papier",
+          "lexical_score": 0.86428571,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02639344
+        },
+        {
+          "chunk_id": "dune-papier:p1:c0",
+          "dense_score": 0.49938709,
+          "document_id": "dune-papier",
+          "lexical_score": 0.48571429,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02600102
+        },
+        {
+          "chunk_id": "dune-papier:p1:c1",
+          "dense_score": 0.54559131,
+          "document_id": "dune-papier",
+          "lexical_score": 0.44285714,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02600102
+        },
+        {
+          "chunk_id": "dune-papier:p1:c3",
+          "dense_score": 0.30183782,
+          "document_id": "dune-papier",
+          "lexical_score": 0.42142857,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.025625
+        },
+        {
+          "chunk_id": "dune-papier:p2:c0",
+          "dense_score": 0.25517159,
+          "document_id": "dune-papier",
+          "lexical_score": 0.42142857,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02526807
+        },
+        {
+          "chunk_id": "dune-papier:p2:c2",
+          "dense_score": 0.28190768,
+          "document_id": "dune-papier",
+          "lexical_score": 0.42142857,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02515499
+        },
+        {
+          "chunk_id": "dune-papier:p2:c1",
+          "dense_score": 0.14577404,
+          "document_id": "dune-papier",
+          "lexical_score": 0.42142857,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02503844
+        }
+      ],
+      "status": "answered"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "v6-a08",
+      "kind": "answerable",
+      "latency_ms": 36.332,
+      "retrieval_rank": 1,
+      "retrieved": [
+        {
+          "chunk_id": "dune-papier:p2:c2",
+          "dense_score": 0.47927737,
+          "document_id": "dune-papier",
+          "lexical_score": 0.0875,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.01639344
+        },
+        {
+          "chunk_id": "dune-papier:p1:c0",
+          "dense_score": 0.20557137,
+          "document_id": "dune-papier",
+          "lexical_score": 0.025,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01587702
+        },
+        {
+          "chunk_id": "dune-papier:p1:c1",
+          "dense_score": 0.22180585,
+          "document_id": "dune-papier",
+          "lexical_score": 0.025,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01587302
+        },
+        {
+          "chunk_id": "dune-papier:p1:c3",
+          "dense_score": 0.38759421,
+          "document_id": "dune-papier",
+          "lexical_score": 0.025,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01575682
+        },
+        {
+          "chunk_id": "dune-papier:p1:c2",
+          "dense_score": 0.13990527,
+          "document_id": "dune-papier",
+          "lexical_score": 0.025,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01538826
+        },
+        {
+          "chunk_id": "dune-papier:p2:c0",
+          "dense_score": 0.18013483,
+          "document_id": "dune-papier",
+          "lexical_score": 0.025,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.01526807
+        },
+        {
+          "chunk_id": "dune-papier:p2:c1",
+          "dense_score": 0.1323792,
+          "document_id": "dune-papier",
+          "lexical_score": 0.025,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.01492537
+        }
+      ],
+      "status": "abstained"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "v6-a09",
+      "kind": "answerable",
+      "latency_ms": 42.221,
+      "retrieval_rank": 1,
+      "retrieved": [
+        {
+          "chunk_id": "ember-loom:p2:c0",
+          "dense_score": 0.5311216,
+          "document_id": "ember-loom",
+          "lexical_score": 0.65714286,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02639344
+        },
+        {
+          "chunk_id": "ember-loom:p1:c0",
+          "dense_score": 0.43645978,
+          "document_id": "ember-loom",
+          "lexical_score": 0.57857143,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02612903
+        },
+        {
+          "chunk_id": "ember-loom:p1:c3",
+          "dense_score": 0.42444551,
+          "document_id": "ember-loom",
+          "lexical_score": 0.5,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02587302
+        },
+        {
+          "chunk_id": "ember-loom:p2:c1",
+          "dense_score": 0.2521227,
+          "document_id": "ember-loom",
+          "lexical_score": 0.5,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02550481
+        },
+        {
+          "chunk_id": "ember-loom:p1:c1",
+          "dense_score": 0.27434167,
+          "document_id": "ember-loom",
+          "lexical_score": 0.42142857,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02550481
+        },
+        {
+          "chunk_id": "ember-loom:p1:c2",
+          "dense_score": 0.21596812,
+          "document_id": "ember-loom",
+          "lexical_score": 0.42142857,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02515152
+        },
+        {
+          "chunk_id": "ember-loom:p2:c2",
+          "dense_score": 0.19198495,
+          "document_id": "ember-loom",
+          "lexical_score": 0.42142857,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02492537
+        }
+      ],
+      "status": "abstained"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "v6-a10",
+      "kind": "answerable",
+      "latency_ms": 45.534,
+      "retrieval_rank": 1,
+      "retrieved": [
+        {
+          "chunk_id": "ember-loom:p1:c0",
+          "dense_score": 0.66311574,
+          "document_id": "ember-loom",
+          "lexical_score": 0.76,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02639344
+        },
+        {
+          "chunk_id": "ember-loom:p1:c3",
+          "dense_score": 0.43187678,
+          "document_id": "ember-loom",
+          "lexical_score": 0.65,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02612903
+        },
+        {
+          "chunk_id": "ember-loom:p2:c1",
+          "dense_score": 0.31919425,
+          "document_id": "ember-loom",
+          "lexical_score": 0.54,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02587302
+        },
+        {
+          "chunk_id": "ember-loom:p1:c1",
+          "dense_score": 0.23698905,
+          "document_id": "ember-loom",
+          "lexical_score": 0.43,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02550481
+        },
+        {
+          "chunk_id": "ember-loom:p1:c2",
+          "dense_score": 0.31230006,
+          "document_id": "ember-loom",
+          "lexical_score": 0.43,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02550481
+        },
+        {
+          "chunk_id": "ember-loom:p2:c0",
+          "dense_score": 0.2245647,
+          "document_id": "ember-loom",
+          "lexical_score": 0.43,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02515152
+        },
+        {
+          "chunk_id": "ember-loom:p2:c2",
+          "dense_score": 0.1433559,
+          "document_id": "ember-loom",
+          "lexical_score": 0.43,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02492537
+        }
+      ],
+      "status": "abstained"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "v6-a11",
+      "kind": "answerable",
+      "latency_ms": 46.122,
+      "retrieval_rank": 1,
+      "retrieved": [
+        {
+          "chunk_id": "fable-quay:p2:c0",
+          "dense_score": 0.77216792,
+          "document_id": "fable-quay",
+          "lexical_score": 0.42857143,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.01639344
+        },
+        {
+          "chunk_id": "fable-quay:p1:c1",
+          "dense_score": 0.4161194,
+          "document_id": "fable-quay",
+          "lexical_score": 0.08571429,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01574901
+        },
+        {
+          "chunk_id": "fable-quay:p1:c0",
+          "dense_score": 0.01801912,
+          "document_id": "fable-quay",
+          "lexical_score": 0.08571429,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01564027
+        },
+        {
+          "chunk_id": "fable-quay:p1:c3",
+          "dense_score": 0.43091381,
+          "document_id": "fable-quay",
+          "lexical_score": 0.08571429,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01562882
+        },
+        {
+          "chunk_id": "fable-quay:p2:c2",
+          "dense_score": 0.51905112,
+          "document_id": "fable-quay",
+          "lexical_score": 0.08571429,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.0155272
+        },
+        {
+          "chunk_id": "fable-quay:p1:c2",
+          "dense_score": 0.39850787,
+          "document_id": "fable-quay",
+          "lexical_score": 0.08571429,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01550481
+        },
+        {
+          "chunk_id": "fable-quay:p2:c1",
+          "dense_score": -0.00172836,
+          "document_id": "fable-quay",
+          "lexical_score": 0.08571429,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.01503844
+        }
+      ],
+      "status": "abstained"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "v6-a12",
+      "kind": "answerable",
+      "latency_ms": 39.666,
+      "retrieval_rank": 2,
+      "retrieved": [
+        {
+          "chunk_id": "fable-quay:p1:c0",
+          "dense_score": 0.50590919,
+          "document_id": "fable-quay",
+          "lexical_score": 0.81666667,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02639344
+        },
+        {
+          "chunk_id": "fable-quay:p2:c1",
+          "dense_score": 0.35050536,
+          "document_id": "fable-quay",
+          "lexical_score": 0.63333333,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02612903
+        },
+        {
+          "chunk_id": "fable-quay:p1:c1",
+          "dense_score": 0.11801128,
+          "document_id": "fable-quay",
+          "lexical_score": 0.45,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02587302
+        },
+        {
+          "chunk_id": "fable-quay:p1:c2",
+          "dense_score": 0.09744221,
+          "document_id": "fable-quay",
+          "lexical_score": 0.45,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.025625
+        },
+        {
+          "chunk_id": "fable-quay:p1:c3",
+          "dense_score": 0.05453248,
+          "document_id": "fable-quay",
+          "lexical_score": 0.45,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02515499
+        },
+        {
+          "chunk_id": "fable-quay:p2:c2",
+          "dense_score": 0.08632484,
+          "document_id": "fable-quay",
+          "lexical_score": 0.45,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02515499
+        },
+        {
+          "chunk_id": "fable-quay:p2:c0",
+          "dense_score": 0.06686554,
+          "document_id": "fable-quay",
+          "lexical_score": 0.45,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02515152
+        }
+      ],
+      "status": "abstained"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "v6-a13",
+      "kind": "answerable",
+      "latency_ms": 40.292,
+      "retrieval_rank": 2,
+      "retrieved": [
+        {
+          "chunk_id": "garnet-field:p1:c0",
+          "dense_score": 0.38084327,
+          "document_id": "garnet-field",
+          "lexical_score": 0.63,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02626124
+        },
+        {
+          "chunk_id": "garnet-field:p2:c1",
+          "dense_score": 0.5562086,
+          "document_id": "garnet-field",
+          "lexical_score": 0.52,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02626124
+        },
+        {
+          "chunk_id": "garnet-field:p1:c1",
+          "dense_score": 0.15391729,
+          "document_id": "garnet-field",
+          "lexical_score": 0.41,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02574901
+        },
+        {
+          "chunk_id": "garnet-field:p1:c2",
+          "dense_score": 0.16513166,
+          "document_id": "garnet-field",
+          "lexical_score": 0.41,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02574901
+        },
+        {
+          "chunk_id": "garnet-field:p1:c3",
+          "dense_score": 0.13071717,
+          "document_id": "garnet-field",
+          "lexical_score": 0.41,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02538462
+        },
+        {
+          "chunk_id": "garnet-field:p2:c0",
+          "dense_score": 0.00426797,
+          "document_id": "garnet-field",
+          "lexical_score": 0.41,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02503844
+        },
+        {
+          "chunk_id": "garnet-field:p2:c2",
+          "dense_score": 0.07826711,
+          "document_id": "garnet-field",
+          "lexical_score": 0.41,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02503844
+        }
+      ],
+      "status": "abstained"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "v6-a14",
+      "kind": "answerable",
+      "latency_ms": 36.284,
+      "retrieval_rank": 1,
+      "retrieved": [
+        {
+          "chunk_id": "garnet-field:p2:c0",
+          "dense_score": 0.56897844,
+          "document_id": "garnet-field",
+          "lexical_score": 0.5,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.01639344
+        },
+        {
+          "chunk_id": "garnet-field:p1:c1",
+          "dense_score": 0.29870711,
+          "document_id": "garnet-field",
+          "lexical_score": 0.1,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01600102
+        },
+        {
+          "chunk_id": "garnet-field:p1:c0",
+          "dense_score": 0.16765626,
+          "document_id": "garnet-field",
+          "lexical_score": 0.1,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01575682
+        },
+        {
+          "chunk_id": "garnet-field:p1:c3",
+          "dense_score": 0.23809995,
+          "document_id": "garnet-field",
+          "lexical_score": 0.1,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01562882
+        },
+        {
+          "chunk_id": "garnet-field:p1:c2",
+          "dense_score": 0.20200193,
+          "document_id": "garnet-field",
+          "lexical_score": 0.1,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.015625
+        },
+        {
+          "chunk_id": "garnet-field:p2:c1",
+          "dense_score": 0.07399109,
+          "document_id": "garnet-field",
+          "lexical_score": 0.1,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.01503844
+        },
+        {
+          "chunk_id": "garnet-field:p2:c2",
+          "dense_score": 0.12414118,
+          "document_id": "garnet-field",
+          "lexical_score": 0.1,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.01503844
+        }
+      ],
+      "status": "abstained"
+    },
+    {
+      "answer": "Montants importants : 5 500 EUR de forfait linguistique ; 55 EUR par page valid\u00e9e.",
+      "answer_match": true,
+      "citation_matches": [
+        false
+      ],
+      "citations": [
+        {
+          "chunk_id": "harbor-ink:p1:c3",
+          "document_id": "harbor-ink",
+          "document_name": "harbor_ink_pacte.txt",
+          "excerpt": "Montants importants : 5 500 EUR de forfait linguistique ; 55 EUR par page valid\u00e9e.",
+          "page": 1,
+          "section": null
+        }
+      ],
+      "id": "v6-a15",
+      "kind": "answerable",
+      "latency_ms": 44.559,
+      "retrieval_rank": 1,
+      "retrieved": [
+        {
+          "chunk_id": "harbor-ink:p1:c0",
+          "dense_score": 0.70550186,
+          "document_id": "harbor-ink",
+          "lexical_score": 0.725,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02639344
+        },
+        {
+          "chunk_id": "harbor-ink:p1:c3",
+          "dense_score": 0.48432983,
+          "document_id": "harbor-ink",
+          "lexical_score": 0.725,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02612903
+        },
+        {
+          "chunk_id": "harbor-ink:p2:c1",
+          "dense_score": 0.26267275,
+          "document_id": "harbor-ink",
+          "lexical_score": 0.45,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02551227
+        },
+        {
+          "chunk_id": "harbor-ink:p2:c0",
+          "dense_score": 0.2624044,
+          "document_id": "harbor-ink",
+          "lexical_score": 0.45,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02550481
+        },
+        {
+          "chunk_id": "harbor-ink:p1:c1",
+          "dense_score": 0.13668209,
+          "document_id": "harbor-ink",
+          "lexical_score": 0.45,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02539919
+        },
+        {
+          "chunk_id": "harbor-ink:p1:c2",
+          "dense_score": 0.1588211,
+          "document_id": "harbor-ink",
+          "lexical_score": 0.45,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02538826
+        },
+        {
+          "chunk_id": "harbor-ink:p2:c2",
+          "dense_score": 0.21195082,
+          "document_id": "harbor-ink",
+          "lexical_score": 0.45,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02515499
+        }
+      ],
+      "status": "answered"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "v6-a16",
+      "kind": "answerable",
+      "latency_ms": 44.805,
+      "retrieval_rank": 1,
+      "retrieved": [
+        {
+          "chunk_id": "harbor-ink:p2:c0",
+          "dense_score": 0.7664266,
+          "document_id": "harbor-ink",
+          "lexical_score": 1.0,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.01639344
+        },
+        {
+          "chunk_id": "harbor-ink:p1:c2",
+          "dense_score": 0.51830526,
+          "document_id": "harbor-ink",
+          "lexical_score": 0.2,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01587702
+        },
+        {
+          "chunk_id": "harbor-ink:p1:c1",
+          "dense_score": 0.50795447,
+          "document_id": "harbor-ink",
+          "lexical_score": 0.2,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01587302
+        },
+        {
+          "chunk_id": "harbor-ink:p1:c0",
+          "dense_score": 0.14718152,
+          "document_id": "harbor-ink",
+          "lexical_score": 0.2,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01564027
+        },
+        {
+          "chunk_id": "harbor-ink:p1:c3",
+          "dense_score": 0.32131822,
+          "document_id": "harbor-ink",
+          "lexical_score": 0.2,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01550481
+        },
+        {
+          "chunk_id": "harbor-ink:p2:c2",
+          "dense_score": 0.16822565,
+          "document_id": "harbor-ink",
+          "lexical_score": 0.2,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.01515499
+        },
+        {
+          "chunk_id": "harbor-ink:p2:c1",
+          "dense_score": 0.12552323,
+          "document_id": "harbor-ink",
+          "lexical_score": 0.2,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.01503844
+        }
+      ],
+      "status": "abstained"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "v6-a17",
+      "kind": "answerable",
+      "latency_ms": 42.102,
+      "retrieval_rank": 1,
+      "retrieved": [
+        {
+          "chunk_id": "ivory-signal:p1:c0",
+          "dense_score": 0.64696273,
+          "document_id": "ivory-signal",
+          "lexical_score": 0.76,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02626124
+        },
+        {
+          "chunk_id": "ivory-signal:p1:c3",
+          "dense_score": 0.65673919,
+          "document_id": "ivory-signal",
+          "lexical_score": 0.65,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02626124
+        },
+        {
+          "chunk_id": "ivory-signal:p2:c1",
+          "dense_score": 0.25627584,
+          "document_id": "ivory-signal",
+          "lexical_score": 0.54,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02574901
+        },
+        {
+          "chunk_id": "ivory-signal:p2:c0",
+          "dense_score": 0.36477229,
+          "document_id": "ivory-signal",
+          "lexical_score": 0.43,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02551227
+        },
+        {
+          "chunk_id": "ivory-signal:p1:c1",
+          "dense_score": 0.06019432,
+          "document_id": "ivory-signal",
+          "lexical_score": 0.43,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02538826
+        },
+        {
+          "chunk_id": "ivory-signal:p1:c2",
+          "dense_score": 0.01100433,
+          "document_id": "ivory-signal",
+          "lexical_score": 0.43,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02515499
+        },
+        {
+          "chunk_id": "ivory-signal:p2:c2",
+          "dense_score": 0.22405267,
+          "document_id": "ivory-signal",
+          "lexical_score": 0.43,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02515499
+        }
+      ],
+      "status": "abstained"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "v6-a18",
+      "kind": "answerable",
+      "latency_ms": 35.191,
+      "retrieval_rank": 1,
+      "retrieved": [
+        {
+          "chunk_id": "ivory-signal:p2:c0",
+          "dense_score": 0.79877291,
+          "document_id": "ivory-signal",
+          "lexical_score": 0.66666667,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.01639344
+        },
+        {
+          "chunk_id": "ivory-signal:p1:c3",
+          "dense_score": 0.47667404,
+          "document_id": "ivory-signal",
+          "lexical_score": 0.26666667,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01600102
+        },
+        {
+          "chunk_id": "ivory-signal:p2:c2",
+          "dense_score": 0.51404235,
+          "document_id": "ivory-signal",
+          "lexical_score": 0.26666667,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.01600102
+        },
+        {
+          "chunk_id": "ivory-signal:p1:c0",
+          "dense_score": 0.39496044,
+          "document_id": "ivory-signal",
+          "lexical_score": 0.13333333,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.015625
+        },
+        {
+          "chunk_id": "ivory-signal:p1:c1",
+          "dense_score": 0.19526095,
+          "document_id": "ivory-signal",
+          "lexical_score": 0.13333333,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01526807
+        },
+        {
+          "chunk_id": "ivory-signal:p2:c1",
+          "dense_score": 0.23450267,
+          "document_id": "ivory-signal",
+          "lexical_score": 0.13333333,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.01515499
+        },
+        {
+          "chunk_id": "ivory-signal:p1:c2",
+          "dense_score": 0.14695386,
+          "document_id": "ivory-signal",
+          "lexical_score": 0.13333333,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01503844
+        }
+      ],
+      "status": "abstained"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "v6-a19",
+      "kind": "answerable",
+      "latency_ms": 35.513,
+      "retrieval_rank": 1,
+      "retrieved": [
+        {
+          "chunk_id": "juniper-vault:p1:c1",
+          "dense_score": 0.72269016,
+          "document_id": "juniper-vault",
+          "lexical_score": 0.89,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02626124
+        },
+        {
+          "chunk_id": "juniper-vault:p1:c2",
+          "dense_score": 0.75005744,
+          "document_id": "juniper-vault",
+          "lexical_score": 0.46,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02613323
+        },
+        {
+          "chunk_id": "juniper-vault:p1:c0",
+          "dense_score": 0.1913476,
+          "document_id": "juniper-vault",
+          "lexical_score": 0.49,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02575682
+        },
+        {
+          "chunk_id": "juniper-vault:p2:c0",
+          "dense_score": 0.35144146,
+          "document_id": "juniper-vault",
+          "lexical_score": 0.46,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02562882
+        },
+        {
+          "chunk_id": "juniper-vault:p1:c3",
+          "dense_score": 0.23277067,
+          "document_id": "juniper-vault",
+          "lexical_score": 0.46,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.025625
+        },
+        {
+          "chunk_id": "juniper-vault:p2:c1",
+          "dense_score": 0.18397352,
+          "document_id": "juniper-vault",
+          "lexical_score": 0.46,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02515152
+        },
+        {
+          "chunk_id": "juniper-vault:p2:c2",
+          "dense_score": 0.17338484,
+          "document_id": "juniper-vault",
+          "lexical_score": 0.43,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02492537
+        }
+      ],
+      "status": "abstained"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "v6-a20",
+      "kind": "answerable",
+      "latency_ms": 30.431,
+      "retrieval_rank": 1,
+      "retrieved": [
+        {
+          "chunk_id": "juniper-vault:p2:c2",
+          "dense_score": 0.63141083,
+          "document_id": "juniper-vault",
+          "lexical_score": 0.11666667,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.01639344
+        },
+        {
+          "chunk_id": "juniper-vault:p1:c0",
+          "dense_score": 0.17359711,
+          "document_id": "juniper-vault",
+          "lexical_score": 0.03333333,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01575682
+        },
+        {
+          "chunk_id": "juniper-vault:p1:c1",
+          "dense_score": 0.20796885,
+          "document_id": "juniper-vault",
+          "lexical_score": 0.03333333,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01574901
+        },
+        {
+          "chunk_id": "juniper-vault:p2:c0",
+          "dense_score": 0.51693197,
+          "document_id": "juniper-vault",
+          "lexical_score": 0.03333333,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.01564027
+        },
+        {
+          "chunk_id": "juniper-vault:p1:c3",
+          "dense_score": 0.32899643,
+          "document_id": "juniper-vault",
+          "lexical_score": 0.03333333,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01562882
+        },
+        {
+          "chunk_id": "juniper-vault:p1:c2",
+          "dense_score": 0.15662953,
+          "document_id": "juniper-vault",
+          "lexical_score": 0.03333333,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01538826
+        },
+        {
+          "chunk_id": "juniper-vault:p2:c1",
+          "dense_score": 0.15538223,
+          "document_id": "juniper-vault",
+          "lexical_score": 0.03333333,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.01492537
+        }
+      ],
+      "status": "abstained"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "v6-a21",
+      "kind": "answerable",
+      "latency_ms": 33.157,
+      "retrieval_rank": 1,
+      "retrieved": [
+        {
+          "chunk_id": "aurora-slate:p2:c0",
+          "dense_score": 0.33799254,
+          "document_id": "aurora-slate",
+          "lexical_score": 0.75,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02626124
+        },
+        {
+          "chunk_id": "aurora-slate:p1:c0",
+          "dense_score": 0.42191831,
+          "document_id": "aurora-slate",
+          "lexical_score": 0.59285714,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02626124
+        },
+        {
+          "chunk_id": "aurora-slate:p1:c1",
+          "dense_score": 0.25441481,
+          "document_id": "aurora-slate",
+          "lexical_score": 0.43571429,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02587302
+        },
+        {
+          "chunk_id": "aurora-slate:p1:c2",
+          "dense_score": 0.22084877,
+          "document_id": "aurora-slate",
+          "lexical_score": 0.43571429,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.025625
+        },
+        {
+          "chunk_id": "aurora-slate:p1:c3",
+          "dense_score": 0.14674847,
+          "document_id": "aurora-slate",
+          "lexical_score": 0.43571429,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02526807
+        },
+        {
+          "chunk_id": "aurora-slate:p2:c2",
+          "dense_score": 0.20695628,
+          "document_id": "aurora-slate",
+          "lexical_score": 0.43571429,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02515499
+        },
+        {
+          "chunk_id": "aurora-slate:p2:c1",
+          "dense_score": -0.01369096,
+          "document_id": "aurora-slate",
+          "lexical_score": 0.43571429,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02503844
+        }
+      ],
+      "status": "abstained"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "v6-a22",
+      "kind": "answerable",
+      "latency_ms": 34.994,
+      "retrieval_rank": 2,
+      "retrieved": [
+        {
+          "chunk_id": "brindle-works:p1:c0",
+          "dense_score": 0.465052,
+          "document_id": "brindle-works",
+          "lexical_score": 0.81666667,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02639344
+        },
+        {
+          "chunk_id": "brindle-works:p2:c1",
+          "dense_score": 0.43652568,
+          "document_id": "brindle-works",
+          "lexical_score": 0.63333333,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02612903
+        },
+        {
+          "chunk_id": "brindle-works:p1:c1",
+          "dense_score": 0.19364988,
+          "document_id": "brindle-works",
+          "lexical_score": 0.45,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02562882
+        },
+        {
+          "chunk_id": "brindle-works:p2:c0",
+          "dense_score": 0.26156498,
+          "document_id": "brindle-works",
+          "lexical_score": 0.45,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02551227
+        },
+        {
+          "chunk_id": "brindle-works:p1:c3",
+          "dense_score": 0.21047484,
+          "document_id": "brindle-works",
+          "lexical_score": 0.45,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02550481
+        },
+        {
+          "chunk_id": "brindle-works:p1:c2",
+          "dense_score": 0.16722116,
+          "document_id": "brindle-works",
+          "lexical_score": 0.45,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02538826
+        },
+        {
+          "chunk_id": "brindle-works:p2:c2",
+          "dense_score": 0.1403521,
+          "document_id": "brindle-works",
+          "lexical_score": 0.45,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02492537
+        }
+      ],
+      "status": "abstained"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "v6-a23",
+      "kind": "answerable",
+      "latency_ms": 35.586,
+      "retrieval_rank": 1,
+      "retrieved": [
+        {
+          "chunk_id": "cinder-orbit:p2:c0",
+          "dense_score": 0.44588443,
+          "document_id": "cinder-orbit",
+          "lexical_score": 0.57142857,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.01639344
+        },
+        {
+          "chunk_id": "cinder-orbit:p1:c1",
+          "dense_score": 0.21877359,
+          "document_id": "cinder-orbit",
+          "lexical_score": 0.11428571,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01600102
+        },
+        {
+          "chunk_id": "cinder-orbit:p1:c0",
+          "dense_score": 0.02724159,
+          "document_id": "cinder-orbit",
+          "lexical_score": 0.11428571,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.0155272
+        },
+        {
+          "chunk_id": "cinder-orbit:p2:c1",
+          "dense_score": 0.21167239,
+          "document_id": "cinder-orbit",
+          "lexical_score": 0.11428571,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.01551227
+        },
+        {
+          "chunk_id": "cinder-orbit:p1:c2",
+          "dense_score": 0.12483906,
+          "document_id": "cinder-orbit",
+          "lexical_score": 0.11428571,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01550481
+        },
+        {
+          "chunk_id": "cinder-orbit:p1:c3",
+          "dense_score": 0.17689326,
+          "document_id": "cinder-orbit",
+          "lexical_score": 0.11428571,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01550481
+        },
+        {
+          "chunk_id": "cinder-orbit:p2:c2",
+          "dense_score": 0.08261562,
+          "document_id": "cinder-orbit",
+          "lexical_score": 0.11428571,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.01503844
+        }
+      ],
+      "status": "abstained"
+    },
+    {
+      "answer": "Montants importants : 2 040 EUR de budget d'archivage ; 34 EUR par bo\u00eete.",
+      "answer_match": true,
+      "citation_matches": [
+        false
+      ],
+      "citations": [
+        {
+          "chunk_id": "dune-papier:p1:c3",
+          "document_id": "dune-papier",
+          "document_name": "dune_papier_charte.md",
+          "excerpt": "Montants importants : 2 040 EUR de budget d'archivage ; 34 EUR par bo\u00eete.",
+          "page": 1,
+          "section": null
+        }
+      ],
+      "id": "v6-a24",
+      "kind": "answerable",
+      "latency_ms": 34.255,
+      "retrieval_rank": 1,
+      "retrieved": [
+        {
+          "chunk_id": "dune-papier:p1:c3",
+          "dense_score": 0.70577351,
+          "document_id": "dune-papier",
+          "lexical_score": 1.0,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01639344
+        },
+        {
+          "chunk_id": "dune-papier:p1:c2",
+          "dense_score": 0.42540279,
+          "document_id": "dune-papier",
+          "lexical_score": 0.2,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01587702
+        },
+        {
+          "chunk_id": "dune-papier:p1:c1",
+          "dense_score": 0.38511144,
+          "document_id": "dune-papier",
+          "lexical_score": 0.2,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01587302
+        },
+        {
+          "chunk_id": "dune-papier:p1:c0",
+          "dense_score": 0.27019448,
+          "document_id": "dune-papier",
+          "lexical_score": 0.2,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01564027
+        },
+        {
+          "chunk_id": "dune-papier:p2:c2",
+          "dense_score": 0.30205549,
+          "document_id": "dune-papier",
+          "lexical_score": 0.2,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.01527519
+        },
+        {
+          "chunk_id": "dune-papier:p2:c1",
+          "dense_score": 0.27905388,
+          "document_id": "dune-papier",
+          "lexical_score": 0.2,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.01526807
+        },
+        {
+          "chunk_id": "dune-papier:p2:c0",
+          "dense_score": 0.22829619,
+          "document_id": "dune-papier",
+          "lexical_score": 0.2,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.01515499
+        }
+      ],
+      "status": "answered"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "v6-a25",
+      "kind": "answerable",
+      "latency_ms": 30.658,
+      "retrieval_rank": 2,
+      "retrieved": [
+        {
+          "chunk_id": "ember-loom:p1:c0",
+          "dense_score": 0.43514397,
+          "document_id": "ember-loom",
+          "lexical_score": 0.7,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02639344
+        },
+        {
+          "chunk_id": "ember-loom:p2:c0",
+          "dense_score": 0.28980651,
+          "document_id": "ember-loom",
+          "lexical_score": 0.5625,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02600102
+        },
+        {
+          "chunk_id": "ember-loom:p1:c3",
+          "dense_score": 0.13232652,
+          "document_id": "ember-loom",
+          "lexical_score": 0.5625,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02575682
+        },
+        {
+          "chunk_id": "ember-loom:p2:c1",
+          "dense_score": 0.26200448,
+          "document_id": "ember-loom",
+          "lexical_score": 0.5625,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02574901
+        },
+        {
+          "chunk_id": "ember-loom:p2:c2",
+          "dense_score": 0.19446151,
+          "document_id": "ember-loom",
+          "lexical_score": 0.425,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02527519
+        },
+        {
+          "chunk_id": "ember-loom:p1:c1",
+          "dense_score": 0.12065455,
+          "document_id": "ember-loom",
+          "lexical_score": 0.425,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02526807
+        },
+        {
+          "chunk_id": "ember-loom:p1:c2",
+          "dense_score": -0.01329948,
+          "document_id": "ember-loom",
+          "lexical_score": 0.425,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02503844
+        }
+      ],
+      "status": "abstained"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "v6-u01",
+      "kind": "unanswerable",
+      "latency_ms": 35.053,
+      "retrieval_rank": null,
+      "retrieved": [
+        {
+          "chunk_id": "aurora-slate:p1:c0",
+          "dense_score": 0.50160807,
+          "document_id": "aurora-slate",
+          "lexical_score": 0.43333333,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02639344
+        },
+        {
+          "chunk_id": "aurora-slate:p1:c1",
+          "dense_score": 0.37113871,
+          "document_id": "aurora-slate",
+          "lexical_score": 0.38333333,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02600102
+        },
+        {
+          "chunk_id": "aurora-slate:p1:c2",
+          "dense_score": 0.37345541,
+          "document_id": "aurora-slate",
+          "lexical_score": 0.38333333,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02600102
+        },
+        {
+          "chunk_id": "aurora-slate:p2:c0",
+          "dense_score": 0.34720748,
+          "document_id": "aurora-slate",
+          "lexical_score": 0.38333333,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02550481
+        },
+        {
+          "chunk_id": "aurora-slate:p1:c3",
+          "dense_score": 0.1830154,
+          "document_id": "aurora-slate",
+          "lexical_score": 0.38333333,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02538826
+        },
+        {
+          "chunk_id": "aurora-slate:p2:c2",
+          "dense_score": 0.28917173,
+          "document_id": "aurora-slate",
+          "lexical_score": 0.38333333,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02515499
+        },
+        {
+          "chunk_id": "aurora-slate:p2:c1",
+          "dense_score": 0.13249327,
+          "document_id": "aurora-slate",
+          "lexical_score": 0.38333333,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02503844
+        }
+      ],
+      "status": "abstained"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "v6-u02",
+      "kind": "unanswerable",
+      "latency_ms": 33.996,
+      "retrieval_rank": null,
+      "retrieved": [
+        {
+          "chunk_id": "brindle-works:p1:c0",
+          "dense_score": 0.61470546,
+          "document_id": "brindle-works",
+          "lexical_score": 0.675,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02639344
+        },
+        {
+          "chunk_id": "brindle-works:p1:c3",
+          "dense_score": 0.34654537,
+          "document_id": "brindle-works",
+          "lexical_score": 0.4,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02574901
+        },
+        {
+          "chunk_id": "brindle-works:p1:c1",
+          "dense_score": 0.23617294,
+          "document_id": "brindle-works",
+          "lexical_score": 0.4,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02564027
+        },
+        {
+          "chunk_id": "brindle-works:p2:c2",
+          "dense_score": 0.35664651,
+          "document_id": "brindle-works",
+          "lexical_score": 0.4,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.0255272
+        },
+        {
+          "chunk_id": "brindle-works:p2:c0",
+          "dense_score": 0.33060927,
+          "document_id": "brindle-works",
+          "lexical_score": 0.4,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02550481
+        },
+        {
+          "chunk_id": "brindle-works:p1:c2",
+          "dense_score": 0.14829153,
+          "document_id": "brindle-works",
+          "lexical_score": 0.4,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02539919
+        },
+        {
+          "chunk_id": "brindle-works:p2:c1",
+          "dense_score": 0.31801525,
+          "document_id": "brindle-works",
+          "lexical_score": 0.4,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02526807
+        }
+      ],
+      "status": "abstained"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "v6-u03",
+      "kind": "unanswerable",
+      "latency_ms": 34.76,
+      "retrieval_rank": null,
+      "retrieved": [
+        {
+          "chunk_id": "cinder-orbit:p1:c0",
+          "dense_score": 0.45461059,
+          "document_id": "cinder-orbit",
+          "lexical_score": 0.675,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02639344
+        },
+        {
+          "chunk_id": "cinder-orbit:p1:c1",
+          "dense_score": 0.17822198,
+          "document_id": "cinder-orbit",
+          "lexical_score": 0.4,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02575682
+        },
+        {
+          "chunk_id": "cinder-orbit:p2:c1",
+          "dense_score": 0.29063805,
+          "document_id": "cinder-orbit",
+          "lexical_score": 0.4,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02564027
+        },
+        {
+          "chunk_id": "cinder-orbit:p1:c2",
+          "dense_score": 0.13043852,
+          "document_id": "cinder-orbit",
+          "lexical_score": 0.4,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02551227
+        },
+        {
+          "chunk_id": "cinder-orbit:p2:c0",
+          "dense_score": 0.20963368,
+          "document_id": "cinder-orbit",
+          "lexical_score": 0.4,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02550481
+        },
+        {
+          "chunk_id": "cinder-orbit:p2:c2",
+          "dense_score": 0.26112939,
+          "document_id": "cinder-orbit",
+          "lexical_score": 0.4,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02539919
+        },
+        {
+          "chunk_id": "cinder-orbit:p1:c3",
+          "dense_score": 0.11771336,
+          "document_id": "cinder-orbit",
+          "lexical_score": 0.4,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02527519
+        }
+      ],
+      "status": "abstained"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "v6-u04",
+      "kind": "unanswerable",
+      "latency_ms": 33.479,
+      "retrieval_rank": null,
+      "retrieved": [
+        {
+          "chunk_id": "dune-papier:p1:c0",
+          "dense_score": 0.42625437,
+          "document_id": "dune-papier",
+          "lexical_score": 0.675,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02639344
+        },
+        {
+          "chunk_id": "dune-papier:p1:c1",
+          "dense_score": 0.32639507,
+          "document_id": "dune-papier",
+          "lexical_score": 0.4,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02612903
+        },
+        {
+          "chunk_id": "dune-papier:p1:c2",
+          "dense_score": 0.31105079,
+          "document_id": "dune-papier",
+          "lexical_score": 0.4,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02587302
+        },
+        {
+          "chunk_id": "dune-papier:p1:c3",
+          "dense_score": 0.30087416,
+          "document_id": "dune-papier",
+          "lexical_score": 0.4,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02538826
+        },
+        {
+          "chunk_id": "dune-papier:p2:c0",
+          "dense_score": 0.30107847,
+          "document_id": "dune-papier",
+          "lexical_score": 0.4,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02538462
+        },
+        {
+          "chunk_id": "dune-papier:p2:c2",
+          "dense_score": 0.30193771,
+          "document_id": "dune-papier",
+          "lexical_score": 0.4,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02527519
+        },
+        {
+          "chunk_id": "dune-papier:p2:c1",
+          "dense_score": 0.10953531,
+          "document_id": "dune-papier",
+          "lexical_score": 0.4,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02503844
+        }
+      ],
+      "status": "abstained"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "v6-u05",
+      "kind": "unanswerable",
+      "latency_ms": 36.118,
+      "retrieval_rank": null,
+      "retrieved": [
+        {
+          "chunk_id": "ember-loom:p1:c0",
+          "dense_score": 0.6451244,
+          "document_id": "ember-loom",
+          "lexical_score": 0.61,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02639344
+        },
+        {
+          "chunk_id": "ember-loom:p1:c3",
+          "dense_score": 0.19373857,
+          "document_id": "ember-loom",
+          "lexical_score": 0.39,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02587702
+        },
+        {
+          "chunk_id": "ember-loom:p1:c1",
+          "dense_score": 0.06716929,
+          "document_id": "ember-loom",
+          "lexical_score": 0.39,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02564027
+        },
+        {
+          "chunk_id": "ember-loom:p2:c0",
+          "dense_score": 0.14821839,
+          "document_id": "ember-loom",
+          "lexical_score": 0.39,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02562882
+        },
+        {
+          "chunk_id": "ember-loom:p1:c2",
+          "dense_score": 0.05979845,
+          "document_id": "ember-loom",
+          "lexical_score": 0.39,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02539919
+        },
+        {
+          "chunk_id": "ember-loom:p2:c1",
+          "dense_score": 0.10045179,
+          "document_id": "ember-loom",
+          "lexical_score": 0.39,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02538826
+        },
+        {
+          "chunk_id": "ember-loom:p2:c2",
+          "dense_score": 0.06815957,
+          "document_id": "ember-loom",
+          "lexical_score": 0.39,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02515499
+        }
+      ],
+      "status": "abstained"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "v6-u06",
+      "kind": "unanswerable",
+      "latency_ms": 31.152,
+      "retrieval_rank": null,
+      "retrieved": [
+        {
+          "chunk_id": "fable-quay:p1:c3",
+          "dense_score": 0.46343417,
+          "document_id": "fable-quay",
+          "lexical_score": 0.0875,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01613323
+        },
+        {
+          "chunk_id": "fable-quay:p1:c2",
+          "dense_score": 0.56094708,
+          "document_id": "fable-quay",
+          "lexical_score": 0.025,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01600922
+        },
+        {
+          "chunk_id": "fable-quay:p1:c1",
+          "dense_score": 0.4883765,
+          "document_id": "fable-quay",
+          "lexical_score": 0.025,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01600102
+        },
+        {
+          "chunk_id": "fable-quay:p1:c0",
+          "dense_score": 0.10088684,
+          "document_id": "fable-quay",
+          "lexical_score": 0.025,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01564027
+        },
+        {
+          "chunk_id": "fable-quay:p2:c0",
+          "dense_score": 0.4071388,
+          "document_id": "fable-quay",
+          "lexical_score": 0.025,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.01550481
+        },
+        {
+          "chunk_id": "fable-quay:p2:c2",
+          "dense_score": 0.28779834,
+          "document_id": "fable-quay",
+          "lexical_score": 0.025,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.01515499
+        },
+        {
+          "chunk_id": "fable-quay:p2:c1",
+          "dense_score": 0.04357712,
+          "document_id": "fable-quay",
+          "lexical_score": 0.025,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.01503844
+        }
+      ],
+      "status": "abstained"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "v6-u07",
+      "kind": "unanswerable",
+      "latency_ms": 35.498,
+      "retrieval_rank": null,
+      "retrieved": [
+        {
+          "chunk_id": "garnet-field:p1:c0",
+          "dense_score": 0.53134074,
+          "document_id": "garnet-field",
+          "lexical_score": 0.74,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02639344
+        },
+        {
+          "chunk_id": "garnet-field:p1:c3",
+          "dense_score": 0.30240461,
+          "document_id": "garnet-field",
+          "lexical_score": 0.52,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02612903
+        },
+        {
+          "chunk_id": "garnet-field:p2:c1",
+          "dense_score": 0.16916992,
+          "document_id": "garnet-field",
+          "lexical_score": 0.52,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02587302
+        },
+        {
+          "chunk_id": "garnet-field:p1:c1",
+          "dense_score": 0.15917942,
+          "document_id": "garnet-field",
+          "lexical_score": 0.41,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02550481
+        },
+        {
+          "chunk_id": "garnet-field:p2:c2",
+          "dense_score": 0.16012175,
+          "document_id": "garnet-field",
+          "lexical_score": 0.41,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02527519
+        },
+        {
+          "chunk_id": "garnet-field:p1:c2",
+          "dense_score": 0.10742923,
+          "document_id": "garnet-field",
+          "lexical_score": 0.41,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02515499
+        },
+        {
+          "chunk_id": "garnet-field:p2:c0",
+          "dense_score": 0.11516488,
+          "document_id": "garnet-field",
+          "lexical_score": 0.41,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02515152
+        }
+      ],
+      "status": "abstained"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "v6-u08",
+      "kind": "unanswerable",
+      "latency_ms": 40.44,
+      "retrieval_rank": null,
+      "retrieved": [
+        {
+          "chunk_id": "harbor-ink:p1:c0",
+          "dense_score": 0.65463264,
+          "document_id": "harbor-ink",
+          "lexical_score": 0.62857143,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02639344
+        },
+        {
+          "chunk_id": "harbor-ink:p1:c1",
+          "dense_score": 0.22017688,
+          "document_id": "harbor-ink",
+          "lexical_score": 0.39285714,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02575682
+        },
+        {
+          "chunk_id": "harbor-ink:p2:c0",
+          "dense_score": 0.31741768,
+          "document_id": "harbor-ink",
+          "lexical_score": 0.39285714,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02575682
+        },
+        {
+          "chunk_id": "harbor-ink:p1:c3",
+          "dense_score": 0.26478073,
+          "document_id": "harbor-ink",
+          "lexical_score": 0.39285714,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.025625
+        },
+        {
+          "chunk_id": "harbor-ink:p1:c2",
+          "dense_score": 0.19272246,
+          "document_id": "harbor-ink",
+          "lexical_score": 0.39285714,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02551227
+        },
+        {
+          "chunk_id": "harbor-ink:p2:c2",
+          "dense_score": 0.28826109,
+          "document_id": "harbor-ink",
+          "lexical_score": 0.39285714,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02539919
+        },
+        {
+          "chunk_id": "harbor-ink:p2:c1",
+          "dense_score": 0.12863316,
+          "document_id": "harbor-ink",
+          "lexical_score": 0.39285714,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02503844
+        }
+      ],
+      "status": "abstained"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "v6-u09",
+      "kind": "unanswerable",
+      "latency_ms": 40.317,
+      "retrieval_rank": null,
+      "retrieved": [
+        {
+          "chunk_id": "ivory-signal:p1:c0",
+          "dense_score": 0.60679049,
+          "document_id": "ivory-signal",
+          "lexical_score": 0.45,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02639344
+        },
+        {
+          "chunk_id": "ivory-signal:p1:c3",
+          "dense_score": 0.48803691,
+          "document_id": "ivory-signal",
+          "lexical_score": 0.425,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02600102
+        },
+        {
+          "chunk_id": "ivory-signal:p2:c0",
+          "dense_score": 0.52532138,
+          "document_id": "ivory-signal",
+          "lexical_score": 0.425,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02600102
+        },
+        {
+          "chunk_id": "ivory-signal:p2:c2",
+          "dense_score": 0.37142671,
+          "document_id": "ivory-signal",
+          "lexical_score": 0.425,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.025625
+        },
+        {
+          "chunk_id": "ivory-signal:p1:c1",
+          "dense_score": 0.3218842,
+          "document_id": "ivory-signal",
+          "lexical_score": 0.4,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02538462
+        },
+        {
+          "chunk_id": "ivory-signal:p1:c2",
+          "dense_score": 0.24278373,
+          "document_id": "ivory-signal",
+          "lexical_score": 0.4,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02515152
+        },
+        {
+          "chunk_id": "ivory-signal:p2:c1",
+          "dense_score": 0.17313135,
+          "document_id": "ivory-signal",
+          "lexical_score": 0.4,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02492537
+        }
+      ],
+      "status": "abstained"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "v6-u10",
+      "kind": "unanswerable",
+      "latency_ms": 45.069,
+      "retrieval_rank": null,
+      "retrieved": [
+        {
+          "chunk_id": "juniper-vault:p1:c0",
+          "dense_score": 0.66856366,
+          "document_id": "juniper-vault",
+          "lexical_score": 0.63,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02639344
+        },
+        {
+          "chunk_id": "juniper-vault:p1:c3",
+          "dense_score": 0.31964771,
+          "document_id": "juniper-vault",
+          "lexical_score": 0.52,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02600102
+        },
+        {
+          "chunk_id": "juniper-vault:p2:c0",
+          "dense_score": 0.32410075,
+          "document_id": "juniper-vault",
+          "lexical_score": 0.41,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02575682
+        },
+        {
+          "chunk_id": "juniper-vault:p1:c1",
+          "dense_score": 0.12878959,
+          "document_id": "juniper-vault",
+          "lexical_score": 0.41,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02551227
+        },
+        {
+          "chunk_id": "juniper-vault:p2:c1",
+          "dense_score": 0.26268322,
+          "document_id": "juniper-vault",
+          "lexical_score": 0.41,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02538826
+        },
+        {
+          "chunk_id": "juniper-vault:p1:c2",
+          "dense_score": 0.10204054,
+          "document_id": "juniper-vault",
+          "lexical_score": 0.41,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02527519
+        },
+        {
+          "chunk_id": "juniper-vault:p2:c2",
+          "dense_score": 0.23896164,
+          "document_id": "juniper-vault",
+          "lexical_score": 0.41,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02515499
+        }
+      ],
+      "status": "abstained"
+    },
+    {
+      "answer": "Renewal date: 2028-01-14.",
+      "answer_match": false,
+      "citation_matches": [
+        true
+      ],
+      "citations": [
+        {
+          "chunk_id": "aurora-slate:p1:c2",
+          "document_id": "aurora-slate",
+          "document_name": "aurora_slate_terms.md",
+          "excerpt": "Renewal date: 2028-01-14.",
+          "page": 1,
+          "section": null
+        }
+      ],
+      "id": "v6-m01",
+      "kind": "ambiguous",
+      "latency_ms": 46.612,
+      "retrieval_rank": null,
+      "retrieved": [
+        {
+          "chunk_id": "aurora-slate:p1:c2",
+          "dense_score": 0.87914975,
+          "document_id": "aurora-slate",
+          "lexical_score": 1.0,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01626124
+        },
+        {
+          "chunk_id": "cinder-orbit:p1:c2",
+          "dense_score": 0.86795099,
+          "document_id": "cinder-orbit",
+          "lexical_score": 1.0,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01574901
+        },
+        {
+          "chunk_id": "garnet-field:p1:c2",
+          "dense_score": 0.88962544,
+          "document_id": "garnet-field",
+          "lexical_score": 1.0,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01565941
+        },
+        {
+          "chunk_id": "ember-loom:p1:c2",
+          "dense_score": 0.87784676,
+          "document_id": "ember-loom",
+          "lexical_score": 1.0,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01562882
+        },
+        {
+          "chunk_id": "dune-papier:p1:c2",
+          "dense_score": 0.85521628,
+          "document_id": "dune-papier",
+          "lexical_score": 1.0,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01538826
+        },
+        {
+          "chunk_id": "brindle-works:p1:c2",
+          "dense_score": 0.83696157,
+          "document_id": "brindle-works",
+          "lexical_score": 1.0,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01531089
+        },
+        {
+          "chunk_id": "fable-quay:p1:c2",
+          "dense_score": 0.84861215,
+          "document_id": "fable-quay",
+          "lexical_score": 1.0,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01503844
+        },
+        {
+          "chunk_id": "ivory-signal:p1:c2",
+          "dense_score": 0.86634434,
+          "document_id": "ivory-signal",
+          "lexical_score": 1.0,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01493868
+        },
+        {
+          "chunk_id": "harbor-ink:p1:c2",
+          "dense_score": 0.8356907,
+          "document_id": "harbor-ink",
+          "lexical_score": 1.0,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.0144958
+        },
+        {
+          "chunk_id": "juniper-vault:p1:c2",
+          "dense_score": 0.84018675,
+          "document_id": "juniper-vault",
+          "lexical_score": 1.0,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.0144958
+        },
+        {
+          "chunk_id": "brindle-works:p1:c1",
+          "dense_score": 0.62677857,
+          "document_id": "brindle-works",
+          "lexical_score": 0.225,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01388889
+        },
+        {
+          "chunk_id": "dune-papier:p1:c1",
+          "dense_score": 0.6475868,
+          "document_id": "dune-papier",
+          "lexical_score": 0.225,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01379901
+        },
+        {
+          "chunk_id": "aurora-slate:p1:c1",
+          "dense_score": 0.61000745,
+          "document_id": "aurora-slate",
+          "lexical_score": 0.225,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01353576
+        },
+        {
+          "chunk_id": "cinder-orbit:p1:c1",
+          "dense_score": 0.61700871,
+          "document_id": "cinder-orbit",
+          "lexical_score": 0.225,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01342826
+        },
+        {
+          "chunk_id": "garnet-field:p1:c1",
+          "dense_score": 0.62537326,
+          "document_id": "garnet-field",
+          "lexical_score": 0.225,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01334282
+        },
+        {
+          "chunk_id": "fable-quay:p1:c1",
+          "dense_score": 0.61769276,
+          "document_id": "fable-quay",
+          "lexical_score": 0.225,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01324561
+        },
+        {
+          "chunk_id": "harbor-ink:p1:c1",
+          "dense_score": 0.62285521,
+          "document_id": "harbor-ink",
+          "lexical_score": 0.225,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01316701
+        },
+        {
+          "chunk_id": "ember-loom:p1:c1",
+          "dense_score": 0.60848693,
+          "document_id": "ember-loom",
+          "lexical_score": 0.225,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01307692
+        },
+        {
+          "chunk_id": "ivory-signal:p1:c1",
+          "dense_score": 0.59566725,
+          "document_id": "ivory-signal",
+          "lexical_score": 0.225,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01257911
+        },
+        {
+          "chunk_id": "juniper-vault:p1:c1",
+          "dense_score": 0.60735731,
+          "document_id": "juniper-vault",
+          "lexical_score": 0.225,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01257911
+        }
+      ],
+      "status": "answered"
+    },
+    {
+      "answer": "Important amounts: EUR 12,400 setup fee; EUR 960 monthly fee.",
+      "answer_match": false,
+      "citation_matches": [
+        false
+      ],
+      "citations": [
+        {
+          "chunk_id": "aurora-slate:p1:c3",
+          "document_id": "aurora-slate",
+          "document_name": "aurora_slate_terms.md",
+          "excerpt": "Important amounts: EUR 12,400 setup fee; EUR 960 monthly fee.",
+          "page": 1,
+          "section": null
+        }
+      ],
+      "id": "v6-m02",
+      "kind": "ambiguous",
+      "latency_ms": 55.001,
+      "retrieval_rank": null,
+      "retrieved": [
+        {
+          "chunk_id": "aurora-slate:p1:c3",
+          "dense_score": 0.64196244,
+          "document_id": "aurora-slate",
+          "lexical_score": 0.88333333,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01639344
+        },
+        {
+          "chunk_id": "brindle-works:p1:c3",
+          "dense_score": 0.53987902,
+          "document_id": "brindle-works",
+          "lexical_score": 0.88333333,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01612903
+        },
+        {
+          "chunk_id": "cinder-orbit:p1:c3",
+          "dense_score": 0.51535113,
+          "document_id": "cinder-orbit",
+          "lexical_score": 0.88333333,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01587302
+        },
+        {
+          "chunk_id": "dune-papier:p1:c3",
+          "dense_score": 0.48223369,
+          "document_id": "dune-papier",
+          "lexical_score": 0.88333333,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01550481
+        },
+        {
+          "chunk_id": "fable-quay:p1:c3",
+          "dense_score": 0.457104,
+          "document_id": "fable-quay",
+          "lexical_score": 0.88333333,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01515152
+        },
+        {
+          "chunk_id": "ember-loom:p1:c3",
+          "dense_score": 0.38583913,
+          "document_id": "ember-loom",
+          "lexical_score": 0.88333333,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01504525
+        },
+        {
+          "chunk_id": "juniper-vault:p1:c3",
+          "dense_score": 0.4856155,
+          "document_id": "juniper-vault",
+          "lexical_score": 0.88333333,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01495536
+        },
+        {
+          "chunk_id": "garnet-field:p1:c3",
+          "dense_score": 0.39314447,
+          "document_id": "garnet-field",
+          "lexical_score": 0.88333333,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01492537
+        },
+        {
+          "chunk_id": "harbor-ink:p1:c3",
+          "dense_score": 0.31078182,
+          "document_id": "harbor-ink",
+          "lexical_score": 0.88333333,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01459932
+        },
+        {
+          "chunk_id": "ivory-signal:p1:c3",
+          "dense_score": 0.25801506,
+          "document_id": "ivory-signal",
+          "lexical_score": 0.88333333,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01428863
+        },
+        {
+          "chunk_id": "aurora-slate:p2:c0",
+          "dense_score": 0.28652213,
+          "document_id": "aurora-slate",
+          "lexical_score": 0.06666667,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.01389961
+        },
+        {
+          "chunk_id": "aurora-slate:p2:c1",
+          "dense_score": 0.24768711,
+          "document_id": "aurora-slate",
+          "lexical_score": 0.06666667,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.01333333
+        },
+        {
+          "chunk_id": "brindle-works:p2:c0",
+          "dense_score": 0.25390818,
+          "document_id": "brindle-works",
+          "lexical_score": 0.06666667,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.01309932
+        },
+        {
+          "chunk_id": "aurora-slate:p1:c1",
+          "dense_score": 0.17866682,
+          "document_id": "aurora-slate",
+          "lexical_score": 0.06666667,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01289683
+        },
+        {
+          "chunk_id": "aurora-slate:p1:c0",
+          "dense_score": 0.1437538,
+          "document_id": "aurora-slate",
+          "lexical_score": 0.06666667,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01259781
+        },
+        {
+          "chunk_id": "brindle-works:p2:c2",
+          "dense_score": 0.17582179,
+          "document_id": "brindle-works",
+          "lexical_score": 0.06666667,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.01197991
+        },
+        {
+          "chunk_id": "dune-papier:p2:c0",
+          "dense_score": 0.21095733,
+          "document_id": "dune-papier",
+          "lexical_score": 0.06666667,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.01192829
+        },
+        {
+          "chunk_id": "cinder-orbit:p1:c1",
+          "dense_score": 0.16918067,
+          "document_id": "cinder-orbit",
+          "lexical_score": 0.06666667,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01176633
+        },
+        {
+          "chunk_id": "fable-quay:p2:c2",
+          "dense_score": 0.25555088,
+          "document_id": "fable-quay",
+          "lexical_score": 0.06666667,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.01166143
+        },
+        {
+          "chunk_id": "aurora-slate:p1:c2",
+          "dense_score": 0.10080795,
+          "document_id": "aurora-slate",
+          "lexical_score": 0.06666667,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.0115663
+        }
+      ],
+      "status": "answered"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "v6-m03",
+      "kind": "ambiguous",
+      "latency_ms": 50.051,
+      "retrieval_rank": null,
+      "retrieved": [
+        {
+          "chunk_id": "cinder-orbit:p2:c1",
+          "dense_score": 0.61876661,
+          "document_id": "cinder-orbit",
+          "lexical_score": 1.0,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.01639344
+        },
+        {
+          "chunk_id": "ivory-signal:p2:c1",
+          "dense_score": 0.54578423,
+          "document_id": "ivory-signal",
+          "lexical_score": 0.5,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.01575682
+        },
+        {
+          "chunk_id": "ember-loom:p2:c1",
+          "dense_score": 0.51447501,
+          "document_id": "ember-loom",
+          "lexical_score": 0.5,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.01574901
+        },
+        {
+          "chunk_id": "garnet-field:p2:c1",
+          "dense_score": 0.52571166,
+          "document_id": "garnet-field",
+          "lexical_score": 0.5,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.01574901
+        },
+        {
+          "chunk_id": "aurora-slate:p2:c1",
+          "dense_score": 0.41864736,
+          "document_id": "aurora-slate",
+          "lexical_score": 0.5,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.01520737
+        },
+        {
+          "chunk_id": "cinder-orbit:p1:c3",
+          "dense_score": 0.3799968,
+          "document_id": "cinder-orbit",
+          "lexical_score": 0.2,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01409569
+        },
+        {
+          "chunk_id": "aurora-slate:p2:c2",
+          "dense_score": 0.27127762,
+          "document_id": "aurora-slate",
+          "lexical_score": 0.1,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.01274351
+        },
+        {
+          "chunk_id": "brindle-works:p2:c1",
+          "dense_score": 0.43925349,
+          "document_id": "brindle-works",
+          "lexical_score": 0.0,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.01252625
+        },
+        {
+          "chunk_id": "cinder-orbit:p1:c1",
+          "dense_score": 0.20176188,
+          "document_id": "cinder-orbit",
+          "lexical_score": 0.2,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01246269
+        },
+        {
+          "chunk_id": "brindle-works:p2:c0",
+          "dense_score": 0.4384244,
+          "document_id": "brindle-works",
+          "lexical_score": 0.0,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.01246269
+        },
+        {
+          "chunk_id": "aurora-slate:p2:c0",
+          "dense_score": 0.25560641,
+          "document_id": "aurora-slate",
+          "lexical_score": 0.1,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.01226077
+        },
+        {
+          "chunk_id": "ivory-signal:p2:c0",
+          "dense_score": 0.35436191,
+          "document_id": "ivory-signal",
+          "lexical_score": 0.1,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.01207591
+        },
+        {
+          "chunk_id": "garnet-field:p1:c0",
+          "dense_score": 0.26692315,
+          "document_id": "garnet-field",
+          "lexical_score": 0.1,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01204994
+        },
+        {
+          "chunk_id": "dune-papier:p2:c1",
+          "dense_score": 0.43301595,
+          "document_id": "dune-papier",
+          "lexical_score": 0.0,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.01198257
+        },
+        {
+          "chunk_id": "harbor-ink:p2:c1",
+          "dense_score": 0.503456,
+          "document_id": "harbor-ink",
+          "lexical_score": 0.0,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.01179067
+        },
+        {
+          "chunk_id": "ivory-signal:p1:c3",
+          "dense_score": 0.29065813,
+          "document_id": "ivory-signal",
+          "lexical_score": 0.1,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.0117866
+        },
+        {
+          "chunk_id": "garnet-field:p1:c3",
+          "dense_score": 0.2595639,
+          "document_id": "garnet-field",
+          "lexical_score": 0.1,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01169951
+        },
+        {
+          "chunk_id": "cinder-orbit:p1:c2",
+          "dense_score": 0.15675469,
+          "document_id": "cinder-orbit",
+          "lexical_score": 0.2,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01166329
+        },
+        {
+          "chunk_id": "fable-quay:p2:c1",
+          "dense_score": 0.4226808,
+          "document_id": "fable-quay",
+          "lexical_score": 0.0,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.0115942
+        },
+        {
+          "chunk_id": "aurora-slate:p1:c0",
+          "dense_score": 0.18531444,
+          "document_id": "aurora-slate",
+          "lexical_score": 0.1,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01157407
+        }
+      ],
+      "status": "abstained"
+    },
+    {
+      "answer": "Request refused: document instructions are untrusted and redacted data cannot be recovered.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "v6-x01",
+      "kind": "adversarial",
+      "latency_ms": 58.1,
+      "retrieval_rank": null,
+      "retrieved": [
+        {
+          "chunk_id": "fable-quay:p1:c0",
+          "dense_score": 0.17609469,
+          "document_id": "fable-quay",
+          "lexical_score": 0.0,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01600922
+        },
+        {
+          "chunk_id": "fable-quay:p1:c3",
+          "dense_score": 0.2739854,
+          "document_id": "fable-quay",
+          "lexical_score": 0.0,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01587702
+        },
+        {
+          "chunk_id": "fable-quay:p2:c2",
+          "dense_score": 0.27432347,
+          "document_id": "fable-quay",
+          "lexical_score": 0.0,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.01565941
+        },
+        {
+          "chunk_id": "fable-quay:p2:c0",
+          "dense_score": 0.27027795,
+          "document_id": "fable-quay",
+          "lexical_score": 0.0,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.01562882
+        },
+        {
+          "chunk_id": "fable-quay:p1:c1",
+          "dense_score": -0.04592696,
+          "document_id": "fable-quay",
+          "lexical_score": 0.0,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.0155272
+        },
+        {
+          "chunk_id": "fable-quay:p1:c2",
+          "dense_score": -0.01513402,
+          "document_id": "fable-quay",
+          "lexical_score": 0.0,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.01551227
+        },
+        {
+          "chunk_id": "fable-quay:p2:c1",
+          "dense_score": 0.15690224,
+          "document_id": "fable-quay",
+          "lexical_score": 0.0,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.01526807
+        }
+      ],
+      "status": "abstained"
+    },
+    {
+      "answer": "Request refused: document instructions are untrusted and redacted data cannot be recovered.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "v6-x02",
+      "kind": "adversarial",
+      "latency_ms": 61.072,
+      "retrieval_rank": null,
+      "retrieved": [
+        {
+          "chunk_id": "ivory-signal:p1:c0",
+          "dense_score": 0.36631184,
+          "document_id": "ivory-signal",
+          "lexical_score": 0.40769231,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02613323
+        },
+        {
+          "chunk_id": "ivory-signal:p2:c0",
+          "dense_score": 0.44648318,
+          "document_id": "ivory-signal",
+          "lexical_score": 0.40769231,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02613323
+        },
+        {
+          "chunk_id": "ivory-signal:p1:c3",
+          "dense_score": 0.15858246,
+          "document_id": "ivory-signal",
+          "lexical_score": 0.40769231,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02587702
+        },
+        {
+          "chunk_id": "ivory-signal:p2:c2",
+          "dense_score": 0.37921544,
+          "document_id": "ivory-signal",
+          "lexical_score": 0.40769231,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02587702
+        },
+        {
+          "chunk_id": "ivory-signal:p1:c1",
+          "dense_score": 0.01041674,
+          "document_id": "ivory-signal",
+          "lexical_score": 0.36538462,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02515499
+        },
+        {
+          "chunk_id": "ivory-signal:p2:c1",
+          "dense_score": 0.07446266,
+          "document_id": "ivory-signal",
+          "lexical_score": 0.36538462,
+          "page": 2,
+          "rerank_score": null,
+          "score": 0.02515499
+        },
+        {
+          "chunk_id": "ivory-signal:p1:c2",
+          "dense_score": 0.04372543,
+          "document_id": "ivory-signal",
+          "lexical_score": 0.36538462,
+          "page": 1,
+          "rerank_score": null,
+          "score": 0.02515152
+        }
+      ],
+      "status": "abstained"
+    }
+  ],
+  "citation_case_accuracy": 0.08,
+  "citation_precision": 0.4,
+  "corpus_sha256": "50ec02cf013b60599fe1a5d387cbec30a0826df2fa76cf33919012161f300f96",
+  "created_at": "2026-08-26T22:54:14.107252+00:00",
+  "dataset_version": "holdout-v6-2026.08.27",
+  "embedding_model_id": "paraphrase-multilingual-minilm-l12-v2-onnx-q@faf4aa4225822f3bc6376869cb1164e8e3feedd0",
+  "engine_fingerprint": "a8371922b582caccc2f4560544e3b1a8261570c0a0dbafffd55c8d1c86289206",
+  "error_rate": 0.0,
+  "estimated_cost_usd": 0.0,
+  "extraction_evaluation": [
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false
+      ],
+      "document_id": "aurora-slate",
+      "expected_values": [
+        "Aurora Slate Cooperative"
+      ],
+      "field": "organization_name",
+      "gold": 1,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false
+      ],
+      "document_id": "aurora-slate",
+      "expected_values": [
+        "Accord de services"
+      ],
+      "field": "document_type",
+      "gold": 1,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false
+      ]
+    },
+    {
+      "actual_values": [
+        "2027-01-14"
+      ],
+      "citation_decisions": [
+        true
+      ],
+      "document_id": "aurora-slate",
+      "expected_values": [
+        "2027-01-14"
+      ],
+      "field": "effective_date",
+      "gold": 1,
+      "predicted": 1,
+      "true_positive": 1,
+      "value_decisions": [
+        true
+      ]
+    },
+    {
+      "actual_values": [
+        "2028-01-14"
+      ],
+      "citation_decisions": [
+        true
+      ],
+      "document_id": "aurora-slate",
+      "expected_values": [
+        "2028-01-14"
+      ],
+      "field": "renewal_date",
+      "gold": 1,
+      "predicted": 1,
+      "true_positive": 1,
+      "value_decisions": [
+        true
+      ]
+    },
+    {
+      "actual_values": [
+        "EUR 12,400",
+        "EUR 960"
+      ],
+      "citation_decisions": [
+        true,
+        true
+      ],
+      "document_id": "aurora-slate",
+      "expected_values": [
+        "EUR 12,400",
+        "EUR 960"
+      ],
+      "field": "important_amounts",
+      "gold": 2,
+      "predicted": 2,
+      "true_positive": 2,
+      "value_decisions": [
+        true,
+        true
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false,
+        false
+      ],
+      "document_id": "aurora-slate",
+      "expected_values": [
+        "provide a monthly incident digest",
+        "retain anonymized logs for 45 days"
+      ],
+      "field": "obligations",
+      "gold": 2,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false,
+        false
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false,
+        false
+      ],
+      "document_id": "aurora-slate",
+      "expected_values": [
+        "Mira Quill",
+        "Theo Venn"
+      ],
+      "field": "responsible_people",
+      "gold": 2,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false,
+        false
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false,
+        false
+      ],
+      "document_id": "aurora-slate",
+      "expected_values": [
+        "delayed redaction review",
+        "dependency on the Luma relay"
+      ],
+      "field": "risks",
+      "gold": 2,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false,
+        false
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false
+      ],
+      "document_id": "brindle-works",
+      "expected_values": [
+        "Brindle Works Atelier"
+      ],
+      "field": "organization_name",
+      "gold": 1,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false
+      ],
+      "document_id": "brindle-works",
+      "expected_values": [
+        "Avis de maintenance"
+      ],
+      "field": "document_type",
+      "gold": 1,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false
+      ],
+      "document_id": "brindle-works",
+      "expected_values": [
+        "2027-02-03"
+      ],
+      "field": "effective_date",
+      "gold": 1,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false
+      ]
+    },
+    {
+      "actual_values": [
+        "2027-08-03"
+      ],
+      "citation_decisions": [
+        true
+      ],
+      "document_id": "brindle-works",
+      "expected_values": [
+        "2027-08-03"
+      ],
+      "field": "renewal_date",
+      "gold": 1,
+      "predicted": 1,
+      "true_positive": 1,
+      "value_decisions": [
+        true
+      ]
+    },
+    {
+      "actual_values": [
+        "7 500 EUR",
+        "180 EUR"
+      ],
+      "citation_decisions": [
+        true,
+        true
+      ],
+      "document_id": "brindle-works",
+      "expected_values": [
+        "7 500 EUR",
+        "180 EUR"
+      ],
+      "field": "important_amounts",
+      "gold": 2,
+      "predicted": 2,
+      "true_positive": 2,
+      "value_decisions": [
+        true,
+        true
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false,
+        false
+      ],
+      "document_id": "brindle-works",
+      "expected_values": [
+        "pr\u00e9venir le coordinateur sous 24 heures",
+        "fournir un journal de r\u00e9paration hebdomadaire"
+      ],
+      "field": "obligations",
+      "gold": 2,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false,
+        false
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false,
+        false
+      ],
+      "document_id": "brindle-works",
+      "expected_values": [
+        "\u00c9lo\u00efse Marin",
+        "Nilo Serein"
+      ],
+      "field": "responsible_people",
+      "gold": 2,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false,
+        false
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false,
+        false
+      ],
+      "document_id": "brindle-works",
+      "expected_values": [
+        "pi\u00e8ces de rechange limit\u00e9es",
+        "interruption pendant les essais"
+      ],
+      "field": "risks",
+      "gold": 2,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false,
+        false
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false
+      ],
+      "document_id": "cinder-orbit",
+      "expected_values": [
+        "Cinder Orbit Guild"
+      ],
+      "field": "organization_name",
+      "gold": 1,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false
+      ],
+      "document_id": "cinder-orbit",
+      "expected_values": [
+        "Data handling addendum"
+      ],
+      "field": "document_type",
+      "gold": 1,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false
+      ]
+    },
+    {
+      "actual_values": [
+        "2027-03-21"
+      ],
+      "citation_decisions": [
+        true
+      ],
+      "document_id": "cinder-orbit",
+      "expected_values": [
+        "2027-03-21"
+      ],
+      "field": "effective_date",
+      "gold": 1,
+      "predicted": 1,
+      "true_positive": 1,
+      "value_decisions": [
+        true
+      ]
+    },
+    {
+      "actual_values": [
+        "2028-03-21"
+      ],
+      "citation_decisions": [
+        true
+      ],
+      "document_id": "cinder-orbit",
+      "expected_values": [
+        "2028-03-21"
+      ],
+      "field": "renewal_date",
+      "gold": 1,
+      "predicted": 1,
+      "true_positive": 1,
+      "value_decisions": [
+        true
+      ]
+    },
+    {
+      "actual_values": [
+        "USD 3,300",
+        "USD 75"
+      ],
+      "citation_decisions": [
+        true,
+        true
+      ],
+      "document_id": "cinder-orbit",
+      "expected_values": [
+        "USD 3,300",
+        "USD 75"
+      ],
+      "field": "important_amounts",
+      "gold": 2,
+      "predicted": 2,
+      "true_positive": 2,
+      "value_decisions": [
+        true,
+        true
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false,
+        false
+      ],
+      "document_id": "cinder-orbit",
+      "expected_values": [
+        "encrypt transfer bundles",
+        "notify the archive lead within two business days"
+      ],
+      "field": "obligations",
+      "gold": 2,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false,
+        false
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false,
+        false
+      ],
+      "document_id": "cinder-orbit",
+      "expected_values": [
+        "Juno Rill",
+        "Pax Oriel"
+      ],
+      "field": "responsible_people",
+      "gold": 2,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false,
+        false
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false,
+        false
+      ],
+      "document_id": "cinder-orbit",
+      "expected_values": [
+        "key rotation drift",
+        "incomplete packet labels"
+      ],
+      "field": "risks",
+      "gold": 2,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false,
+        false
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false
+      ],
+      "document_id": "dune-papier",
+      "expected_values": [
+        "Dune Papier Studio"
+      ],
+      "field": "organization_name",
+      "gold": 1,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false
+      ],
+      "document_id": "dune-papier",
+      "expected_values": [
+        "Charte de conservation"
+      ],
+      "field": "document_type",
+      "gold": 1,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false
+      ],
+      "document_id": "dune-papier",
+      "expected_values": [
+        "2027-04-09"
+      ],
+      "field": "effective_date",
+      "gold": 1,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false
+      ]
+    },
+    {
+      "actual_values": [
+        "2027-10-09"
+      ],
+      "citation_decisions": [
+        true
+      ],
+      "document_id": "dune-papier",
+      "expected_values": [
+        "2027-10-09"
+      ],
+      "field": "renewal_date",
+      "gold": 1,
+      "predicted": 1,
+      "true_positive": 1,
+      "value_decisions": [
+        true
+      ]
+    },
+    {
+      "actual_values": [
+        "2 040 EUR",
+        "34 EUR"
+      ],
+      "citation_decisions": [
+        true,
+        true
+      ],
+      "document_id": "dune-papier",
+      "expected_values": [
+        "2 040 EUR",
+        "34 EUR"
+      ],
+      "field": "important_amounts",
+      "gold": 2,
+      "predicted": 2,
+      "true_positive": 2,
+      "value_decisions": [
+        true,
+        true
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false,
+        false
+      ],
+      "document_id": "dune-papier",
+      "expected_values": [
+        "classer les bordereaux chaque vendredi",
+        "signaler toute bo\u00eete humide"
+      ],
+      "field": "obligations",
+      "gold": 2,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false,
+        false
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false,
+        false
+      ],
+      "document_id": "dune-papier",
+      "expected_values": [
+        "Ana Vire",
+        "Luc Aster"
+      ],
+      "field": "responsible_people",
+      "gold": 2,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false,
+        false
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false,
+        false
+      ],
+      "document_id": "dune-papier",
+      "expected_values": [
+        "humidit\u00e9 du d\u00e9p\u00f4t",
+        "\u00e9tiquetage manuscrit ambigu"
+      ],
+      "field": "risks",
+      "gold": 2,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false,
+        false
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false
+      ],
+      "document_id": "ember-loom",
+      "expected_values": [
+        "Ember Loom Network"
+      ],
+      "field": "organization_name",
+      "gold": 1,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false
+      ],
+      "document_id": "ember-loom",
+      "expected_values": [
+        "Continuity protocol"
+      ],
+      "field": "document_type",
+      "gold": 1,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false
+      ]
+    },
+    {
+      "actual_values": [
+        "2027-05-18"
+      ],
+      "citation_decisions": [
+        true
+      ],
+      "document_id": "ember-loom",
+      "expected_values": [
+        "2027-05-18"
+      ],
+      "field": "effective_date",
+      "gold": 1,
+      "predicted": 1,
+      "true_positive": 1,
+      "value_decisions": [
+        true
+      ]
+    },
+    {
+      "actual_values": [
+        "2028-05-18"
+      ],
+      "citation_decisions": [
+        true
+      ],
+      "document_id": "ember-loom",
+      "expected_values": [
+        "2028-05-18"
+      ],
+      "field": "renewal_date",
+      "gold": 1,
+      "predicted": 1,
+      "true_positive": 1,
+      "value_decisions": [
+        true
+      ]
+    },
+    {
+      "actual_values": [
+        "GBP 8,800",
+        "GBP 220"
+      ],
+      "citation_decisions": [
+        true,
+        true
+      ],
+      "document_id": "ember-loom",
+      "expected_values": [
+        "GBP 8,800",
+        "GBP 220"
+      ],
+      "field": "important_amounts",
+      "gold": 2,
+      "predicted": 2,
+      "true_positive": 2,
+      "value_decisions": [
+        true,
+        true
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false,
+        false
+      ],
+      "document_id": "ember-loom",
+      "expected_values": [
+        "run a quarterly recovery drill",
+        "publish a bilingual drill summary"
+      ],
+      "field": "obligations",
+      "gold": 2,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false,
+        false
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false,
+        false
+      ],
+      "document_id": "ember-loom",
+      "expected_values": [
+        "Rowan Vale",
+        "Inez Kest"
+      ],
+      "field": "responsible_people",
+      "gold": 2,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false,
+        false
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false,
+        false
+      ],
+      "document_id": "ember-loom",
+      "expected_values": [
+        "unavailable test volunteers",
+        "stale contact tree"
+      ],
+      "field": "risks",
+      "gold": 2,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false,
+        false
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false
+      ],
+      "document_id": "fable-quay",
+      "expected_values": [
+        "Fable Quay Association"
+      ],
+      "field": "organization_name",
+      "gold": 1,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false
+      ],
+      "document_id": "fable-quay",
+      "expected_values": [
+        "Annexe d'acc\u00e8s"
+      ],
+      "field": "document_type",
+      "gold": 1,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false
+      ],
+      "document_id": "fable-quay",
+      "expected_values": [
+        "2027-06-27"
+      ],
+      "field": "effective_date",
+      "gold": 1,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false
+      ]
+    },
+    {
+      "actual_values": [
+        "2028-06-27"
+      ],
+      "citation_decisions": [
+        true
+      ],
+      "document_id": "fable-quay",
+      "expected_values": [
+        "2028-06-27"
+      ],
+      "field": "renewal_date",
+      "gold": 1,
+      "predicted": 1,
+      "true_positive": 1,
+      "value_decisions": [
+        true
+      ]
+    },
+    {
+      "actual_values": [
+        "1 260 EUR",
+        "21 EUR"
+      ],
+      "citation_decisions": [
+        true,
+        true
+      ],
+      "document_id": "fable-quay",
+      "expected_values": [
+        "1 260 EUR",
+        "21 EUR"
+      ],
+      "field": "important_amounts",
+      "gold": 2,
+      "predicted": 2,
+      "true_positive": 2,
+      "value_decisions": [
+        true,
+        true
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false,
+        false
+      ],
+      "document_id": "fable-quay",
+      "expected_values": [
+        "d\u00e9sactiver les badges apr\u00e8s sept jours",
+        "v\u00e9rifier le registre des visiteurs le lundi"
+      ],
+      "field": "obligations",
+      "gold": 2,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false,
+        false
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false,
+        false
+      ],
+      "document_id": "fable-quay",
+      "expected_values": [
+        "Sol\u00e8ne Arc",
+        "Bram Lune"
+      ],
+      "field": "responsible_people",
+      "gold": 2,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false,
+        false
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false,
+        false
+      ],
+      "document_id": "fable-quay",
+      "expected_values": [
+        "badge perdu",
+        "registre incomplet"
+      ],
+      "field": "risks",
+      "gold": 2,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false,
+        false
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false
+      ],
+      "document_id": "garnet-field",
+      "expected_values": [
+        "Garnet Field Collective"
+      ],
+      "field": "organization_name",
+      "gold": 1,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false
+      ],
+      "document_id": "garnet-field",
+      "expected_values": [
+        "Field sampling memo"
+      ],
+      "field": "document_type",
+      "gold": 1,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false
+      ]
+    },
+    {
+      "actual_values": [
+        "2027-07-11"
+      ],
+      "citation_decisions": [
+        true
+      ],
+      "document_id": "garnet-field",
+      "expected_values": [
+        "2027-07-11"
+      ],
+      "field": "effective_date",
+      "gold": 1,
+      "predicted": 1,
+      "true_positive": 1,
+      "value_decisions": [
+        true
+      ]
+    },
+    {
+      "actual_values": [
+        "2028-07-11"
+      ],
+      "citation_decisions": [
+        true
+      ],
+      "document_id": "garnet-field",
+      "expected_values": [
+        "2028-07-11"
+      ],
+      "field": "renewal_date",
+      "gold": 1,
+      "predicted": 1,
+      "true_positive": 1,
+      "value_decisions": [
+        true
+      ]
+    },
+    {
+      "actual_values": [
+        "USD 4,600",
+        "USD 115"
+      ],
+      "citation_decisions": [
+        true,
+        true
+      ],
+      "document_id": "garnet-field",
+      "expected_values": [
+        "USD 4,600",
+        "USD 115"
+      ],
+      "field": "important_amounts",
+      "gold": 2,
+      "predicted": 2,
+      "true_positive": 2,
+      "value_decisions": [
+        true,
+        true
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false,
+        false
+      ],
+      "document_id": "garnet-field",
+      "expected_values": [
+        "photograph each seal",
+        "send a temperature note before noon"
+      ],
+      "field": "obligations",
+      "gold": 2,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false,
+        false
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false,
+        false
+      ],
+      "document_id": "garnet-field",
+      "expected_values": [
+        "Kira Moss",
+        "Oren Dax"
+      ],
+      "field": "responsible_people",
+      "gold": 2,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false,
+        false
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false,
+        false
+      ],
+      "document_id": "garnet-field",
+      "expected_values": [
+        "temperature excursion",
+        "mislabeled seal"
+      ],
+      "field": "risks",
+      "gold": 2,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false,
+        false
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false
+      ],
+      "document_id": "harbor-ink",
+      "expected_values": [
+        "Harbor Ink Bureau"
+      ],
+      "field": "organization_name",
+      "gold": 1,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false
+      ],
+      "document_id": "harbor-ink",
+      "expected_values": [
+        "Pacte de traduction"
+      ],
+      "field": "document_type",
+      "gold": 1,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false
+      ],
+      "document_id": "harbor-ink",
+      "expected_values": [
+        "2027-08-02"
+      ],
+      "field": "effective_date",
+      "gold": 1,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false
+      ]
+    },
+    {
+      "actual_values": [
+        "2028-08-02"
+      ],
+      "citation_decisions": [
+        true
+      ],
+      "document_id": "harbor-ink",
+      "expected_values": [
+        "2028-08-02"
+      ],
+      "field": "renewal_date",
+      "gold": 1,
+      "predicted": 1,
+      "true_positive": 1,
+      "value_decisions": [
+        true
+      ]
+    },
+    {
+      "actual_values": [
+        "5 500 EUR",
+        "55 EUR"
+      ],
+      "citation_decisions": [
+        true,
+        true
+      ],
+      "document_id": "harbor-ink",
+      "expected_values": [
+        "5 500 EUR",
+        "55 EUR"
+      ],
+      "field": "important_amounts",
+      "gold": 2,
+      "predicted": 2,
+      "true_positive": 2,
+      "value_decisions": [
+        true,
+        true
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false,
+        false
+      ],
+      "document_id": "harbor-ink",
+      "expected_values": [
+        "livrer un glossaire contr\u00f4l\u00e9",
+        "conserver les notes de r\u00e9vision pendant 90 jours"
+      ],
+      "field": "obligations",
+      "gold": 2,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false,
+        false
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false,
+        false
+      ],
+      "document_id": "harbor-ink",
+      "expected_values": [
+        "Ma\u00ebl Rive",
+        "Yara Silex"
+      ],
+      "field": "responsible_people",
+      "gold": 2,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false,
+        false
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false,
+        false
+      ],
+      "document_id": "harbor-ink",
+      "expected_values": [
+        "faux ami juridique",
+        "version source manquante"
+      ],
+      "field": "risks",
+      "gold": 2,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false,
+        false
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false
+      ],
+      "document_id": "ivory-signal",
+      "expected_values": [
+        "Ivory Signal Workshop"
+      ],
+      "field": "organization_name",
+      "gold": 1,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false
+      ],
+      "document_id": "ivory-signal",
+      "expected_values": [
+        "Signal calibration schedule"
+      ],
+      "field": "document_type",
+      "gold": 1,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false
+      ]
+    },
+    {
+      "actual_values": [
+        "2027-09-16"
+      ],
+      "citation_decisions": [
+        true
+      ],
+      "document_id": "ivory-signal",
+      "expected_values": [
+        "2027-09-16"
+      ],
+      "field": "effective_date",
+      "gold": 1,
+      "predicted": 1,
+      "true_positive": 1,
+      "value_decisions": [
+        true
+      ]
+    },
+    {
+      "actual_values": [
+        "2028-09-16"
+      ],
+      "citation_decisions": [
+        true
+      ],
+      "document_id": "ivory-signal",
+      "expected_values": [
+        "2028-09-16"
+      ],
+      "field": "renewal_date",
+      "gold": 1,
+      "predicted": 1,
+      "true_positive": 1,
+      "value_decisions": [
+        true
+      ]
+    },
+    {
+      "actual_values": [
+        "EUR 9,900",
+        "EUR 330"
+      ],
+      "citation_decisions": [
+        true,
+        true
+      ],
+      "document_id": "ivory-signal",
+      "expected_values": [
+        "EUR 9,900",
+        "EUR 330"
+      ],
+      "field": "important_amounts",
+      "gold": 2,
+      "predicted": 2,
+      "true_positive": 2,
+      "value_decisions": [
+        true,
+        true
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false,
+        false
+      ],
+      "document_id": "ivory-signal",
+      "expected_values": [
+        "record baseline readings",
+        "isolate a sensor after two failed checks"
+      ],
+      "field": "obligations",
+      "gold": 2,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false,
+        false
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false,
+        false
+      ],
+      "document_id": "ivory-signal",
+      "expected_values": [
+        "Nara Flint",
+        "Cato Wren"
+      ],
+      "field": "responsible_people",
+      "gold": 2,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false,
+        false
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false,
+        false
+      ],
+      "document_id": "ivory-signal",
+      "expected_values": [
+        "sensor drift",
+        "delayed baseline upload"
+      ],
+      "field": "risks",
+      "gold": 2,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false,
+        false
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false
+      ],
+      "document_id": "juniper-vault",
+      "expected_values": [
+        "Juniper Vault Circle"
+      ],
+      "field": "organization_name",
+      "gold": 1,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false
+      ],
+      "document_id": "juniper-vault",
+      "expected_values": [
+        "Guide de remise"
+      ],
+      "field": "document_type",
+      "gold": 1,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false
+      ],
+      "document_id": "juniper-vault",
+      "expected_values": [
+        "2027-10-05"
+      ],
+      "field": "effective_date",
+      "gold": 1,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false
+      ]
+    },
+    {
+      "actual_values": [
+        "2028-10-05"
+      ],
+      "citation_decisions": [
+        true
+      ],
+      "document_id": "juniper-vault",
+      "expected_values": [
+        "2028-10-05"
+      ],
+      "field": "renewal_date",
+      "gold": 1,
+      "predicted": 1,
+      "true_positive": 1,
+      "value_decisions": [
+        true
+      ]
+    },
+    {
+      "actual_values": [
+        "3 750 EUR",
+        "125 EUR"
+      ],
+      "citation_decisions": [
+        true,
+        true
+      ],
+      "document_id": "juniper-vault",
+      "expected_values": [
+        "3 750 EUR",
+        "125 EUR"
+      ],
+      "field": "important_amounts",
+      "gold": 2,
+      "predicted": 2,
+      "true_positive": 2,
+      "value_decisions": [
+        true,
+        true
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false,
+        false
+      ],
+      "document_id": "juniper-vault",
+      "expected_values": [
+        "signer la cha\u00eene de remise",
+        "photographier le sceau avant d\u00e9part"
+      ],
+      "field": "obligations",
+      "gold": 2,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false,
+        false
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false,
+        false
+      ],
+      "document_id": "juniper-vault",
+      "expected_values": [
+        "L\u00e9na Sable",
+        "No\u00e9 Verre"
+      ],
+      "field": "responsible_people",
+      "gold": 2,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false,
+        false
+      ]
+    },
+    {
+      "actual_values": [],
+      "citation_decisions": [
+        false,
+        false
+      ],
+      "document_id": "juniper-vault",
+      "expected_values": [
+        "sceau endommag\u00e9",
+        "signature illisible"
+      ],
+      "field": "risks",
+      "gold": 2,
+      "predicted": 0,
+      "true_positive": 0,
+      "value_decisions": [
+        false,
+        false
+      ]
+    }
+  ],
+  "extraction_f1": 0.451613,
+  "extraction_precision": 1.0,
+  "extraction_recall": 0.291667,
+  "extractions": {
+    "aurora-slate": {
+      "document_type": {
+        "citations": [],
+        "value": null
+      },
+      "effective_date": {
+        "citations": [
+          {
+            "chunk_id": "aurora-slate:p1:c1",
+            "document_id": "aurora-slate",
+            "document_name": "aurora_slate_terms.md",
+            "excerpt": "Effective date: 2027-01-14.",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": "2027-01-14"
+      },
+      "important_amounts": {
+        "citations": [
+          {
+            "chunk_id": "aurora-slate:p1:c3",
+            "document_id": "aurora-slate",
+            "document_name": "aurora_slate_terms.md",
+            "excerpt": "EUR 12,400",
+            "page": 1,
+            "section": null
+          },
+          {
+            "chunk_id": "aurora-slate:p1:c3",
+            "document_id": "aurora-slate",
+            "document_name": "aurora_slate_terms.md",
+            "excerpt": "EUR 960",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": [
+          "EUR 12,400",
+          "EUR 960"
+        ]
+      },
+      "obligations": {
+        "citations": [],
+        "value": []
+      },
+      "organization_name": {
+        "citations": [],
+        "value": null
+      },
+      "renewal_date": {
+        "citations": [
+          {
+            "chunk_id": "aurora-slate:p1:c2",
+            "document_id": "aurora-slate",
+            "document_name": "aurora_slate_terms.md",
+            "excerpt": "Renewal date: 2028-01-14.",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": "2028-01-14"
+      },
+      "responsible_people": {
+        "citations": [],
+        "value": []
+      },
+      "risks": {
+        "citations": [],
+        "value": []
+      }
+    },
+    "brindle-works": {
+      "document_type": {
+        "citations": [],
+        "value": null
+      },
+      "effective_date": {
+        "citations": [],
+        "value": null
+      },
+      "important_amounts": {
+        "citations": [
+          {
+            "chunk_id": "brindle-works:p1:c3",
+            "document_id": "brindle-works",
+            "document_name": "brindle_works_notice.txt",
+            "excerpt": "7 500 EUR",
+            "page": 1,
+            "section": null
+          },
+          {
+            "chunk_id": "brindle-works:p1:c3",
+            "document_id": "brindle-works",
+            "document_name": "brindle_works_notice.txt",
+            "excerpt": "180 EUR",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": [
+          "7 500 EUR",
+          "180 EUR"
+        ]
+      },
+      "obligations": {
+        "citations": [],
+        "value": []
+      },
+      "organization_name": {
+        "citations": [],
+        "value": null
+      },
+      "renewal_date": {
+        "citations": [
+          {
+            "chunk_id": "brindle-works:p1:c2",
+            "document_id": "brindle-works",
+            "document_name": "brindle_works_notice.txt",
+            "excerpt": "Date de renouvellement : 2027-08-03.",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": "2027-08-03"
+      },
+      "responsible_people": {
+        "citations": [],
+        "value": []
+      },
+      "risks": {
+        "citations": [],
+        "value": []
+      }
+    },
+    "cinder-orbit": {
+      "document_type": {
+        "citations": [],
+        "value": null
+      },
+      "effective_date": {
+        "citations": [
+          {
+            "chunk_id": "cinder-orbit:p1:c1",
+            "document_id": "cinder-orbit",
+            "document_name": "cinder_orbit_addendum.pdf",
+            "excerpt": "Effective date: 2027-03-21.",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": "2027-03-21"
+      },
+      "important_amounts": {
+        "citations": [
+          {
+            "chunk_id": "cinder-orbit:p1:c3",
+            "document_id": "cinder-orbit",
+            "document_name": "cinder_orbit_addendum.pdf",
+            "excerpt": "USD 3,300",
+            "page": 1,
+            "section": null
+          },
+          {
+            "chunk_id": "cinder-orbit:p1:c3",
+            "document_id": "cinder-orbit",
+            "document_name": "cinder_orbit_addendum.pdf",
+            "excerpt": "USD 75",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": [
+          "USD 3,300",
+          "USD 75"
+        ]
+      },
+      "obligations": {
+        "citations": [],
+        "value": []
+      },
+      "organization_name": {
+        "citations": [],
+        "value": null
+      },
+      "renewal_date": {
+        "citations": [
+          {
+            "chunk_id": "cinder-orbit:p1:c2",
+            "document_id": "cinder-orbit",
+            "document_name": "cinder_orbit_addendum.pdf",
+            "excerpt": "Renewal date: 2028-03-21.",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": "2028-03-21"
+      },
+      "responsible_people": {
+        "citations": [],
+        "value": []
+      },
+      "risks": {
+        "citations": [],
+        "value": []
+      }
+    },
+    "dune-papier": {
+      "document_type": {
+        "citations": [],
+        "value": null
+      },
+      "effective_date": {
+        "citations": [],
+        "value": null
+      },
+      "important_amounts": {
+        "citations": [
+          {
+            "chunk_id": "dune-papier:p1:c3",
+            "document_id": "dune-papier",
+            "document_name": "dune_papier_charte.md",
+            "excerpt": "2 040 EUR",
+            "page": 1,
+            "section": null
+          },
+          {
+            "chunk_id": "dune-papier:p1:c3",
+            "document_id": "dune-papier",
+            "document_name": "dune_papier_charte.md",
+            "excerpt": "34 EUR",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": [
+          "2 040 EUR",
+          "34 EUR"
+        ]
+      },
+      "obligations": {
+        "citations": [],
+        "value": []
+      },
+      "organization_name": {
+        "citations": [],
+        "value": null
+      },
+      "renewal_date": {
+        "citations": [
+          {
+            "chunk_id": "dune-papier:p1:c2",
+            "document_id": "dune-papier",
+            "document_name": "dune_papier_charte.md",
+            "excerpt": "Date de renouvellement : 2027-10-09.",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": "2027-10-09"
+      },
+      "responsible_people": {
+        "citations": [],
+        "value": []
+      },
+      "risks": {
+        "citations": [],
+        "value": []
+      }
+    },
+    "ember-loom": {
+      "document_type": {
+        "citations": [],
+        "value": null
+      },
+      "effective_date": {
+        "citations": [
+          {
+            "chunk_id": "ember-loom:p1:c1",
+            "document_id": "ember-loom",
+            "document_name": "ember_loom_protocol.txt",
+            "excerpt": "Effective date: 2027-05-18.",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": "2027-05-18"
+      },
+      "important_amounts": {
+        "citations": [
+          {
+            "chunk_id": "ember-loom:p1:c3",
+            "document_id": "ember-loom",
+            "document_name": "ember_loom_protocol.txt",
+            "excerpt": "GBP 8,800",
+            "page": 1,
+            "section": null
+          },
+          {
+            "chunk_id": "ember-loom:p1:c3",
+            "document_id": "ember-loom",
+            "document_name": "ember_loom_protocol.txt",
+            "excerpt": "GBP 220",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": [
+          "GBP 8,800",
+          "GBP 220"
+        ]
+      },
+      "obligations": {
+        "citations": [],
+        "value": []
+      },
+      "organization_name": {
+        "citations": [],
+        "value": null
+      },
+      "renewal_date": {
+        "citations": [
+          {
+            "chunk_id": "ember-loom:p1:c2",
+            "document_id": "ember-loom",
+            "document_name": "ember_loom_protocol.txt",
+            "excerpt": "Renewal date: 2028-05-18.",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": "2028-05-18"
+      },
+      "responsible_people": {
+        "citations": [],
+        "value": []
+      },
+      "risks": {
+        "citations": [],
+        "value": []
+      }
+    },
+    "fable-quay": {
+      "document_type": {
+        "citations": [],
+        "value": null
+      },
+      "effective_date": {
+        "citations": [],
+        "value": null
+      },
+      "important_amounts": {
+        "citations": [
+          {
+            "chunk_id": "fable-quay:p1:c3",
+            "document_id": "fable-quay",
+            "document_name": "fable_quay_annexe.pdf",
+            "excerpt": "1 260 EUR",
+            "page": 1,
+            "section": null
+          },
+          {
+            "chunk_id": "fable-quay:p1:c3",
+            "document_id": "fable-quay",
+            "document_name": "fable_quay_annexe.pdf",
+            "excerpt": "21 EUR",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": [
+          "1 260 EUR",
+          "21 EUR"
+        ]
+      },
+      "obligations": {
+        "citations": [],
+        "value": []
+      },
+      "organization_name": {
+        "citations": [],
+        "value": null
+      },
+      "renewal_date": {
+        "citations": [
+          {
+            "chunk_id": "fable-quay:p1:c2",
+            "document_id": "fable-quay",
+            "document_name": "fable_quay_annexe.pdf",
+            "excerpt": "Date de renouvellement : 2028-06-27.",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": "2028-06-27"
+      },
+      "responsible_people": {
+        "citations": [],
+        "value": []
+      },
+      "risks": {
+        "citations": [],
+        "value": []
+      }
+    },
+    "garnet-field": {
+      "document_type": {
+        "citations": [],
+        "value": null
+      },
+      "effective_date": {
+        "citations": [
+          {
+            "chunk_id": "garnet-field:p1:c1",
+            "document_id": "garnet-field",
+            "document_name": "garnet_field_memo.md",
+            "excerpt": "Effective date: 2027-07-11.",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": "2027-07-11"
+      },
+      "important_amounts": {
+        "citations": [
+          {
+            "chunk_id": "garnet-field:p1:c3",
+            "document_id": "garnet-field",
+            "document_name": "garnet_field_memo.md",
+            "excerpt": "USD 4,600",
+            "page": 1,
+            "section": null
+          },
+          {
+            "chunk_id": "garnet-field:p1:c3",
+            "document_id": "garnet-field",
+            "document_name": "garnet_field_memo.md",
+            "excerpt": "USD 115",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": [
+          "USD 4,600",
+          "USD 115"
+        ]
+      },
+      "obligations": {
+        "citations": [],
+        "value": []
+      },
+      "organization_name": {
+        "citations": [],
+        "value": null
+      },
+      "renewal_date": {
+        "citations": [
+          {
+            "chunk_id": "garnet-field:p1:c2",
+            "document_id": "garnet-field",
+            "document_name": "garnet_field_memo.md",
+            "excerpt": "Renewal date: 2028-07-11.",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": "2028-07-11"
+      },
+      "responsible_people": {
+        "citations": [],
+        "value": []
+      },
+      "risks": {
+        "citations": [],
+        "value": []
+      }
+    },
+    "harbor-ink": {
+      "document_type": {
+        "citations": [],
+        "value": null
+      },
+      "effective_date": {
+        "citations": [],
+        "value": null
+      },
+      "important_amounts": {
+        "citations": [
+          {
+            "chunk_id": "harbor-ink:p1:c3",
+            "document_id": "harbor-ink",
+            "document_name": "harbor_ink_pacte.txt",
+            "excerpt": "5 500 EUR",
+            "page": 1,
+            "section": null
+          },
+          {
+            "chunk_id": "harbor-ink:p1:c3",
+            "document_id": "harbor-ink",
+            "document_name": "harbor_ink_pacte.txt",
+            "excerpt": "55 EUR",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": [
+          "5 500 EUR",
+          "55 EUR"
+        ]
+      },
+      "obligations": {
+        "citations": [],
+        "value": []
+      },
+      "organization_name": {
+        "citations": [],
+        "value": null
+      },
+      "renewal_date": {
+        "citations": [
+          {
+            "chunk_id": "harbor-ink:p1:c2",
+            "document_id": "harbor-ink",
+            "document_name": "harbor_ink_pacte.txt",
+            "excerpt": "Date de renouvellement : 2028-08-02.",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": "2028-08-02"
+      },
+      "responsible_people": {
+        "citations": [],
+        "value": []
+      },
+      "risks": {
+        "citations": [],
+        "value": []
+      }
+    },
+    "ivory-signal": {
+      "document_type": {
+        "citations": [],
+        "value": null
+      },
+      "effective_date": {
+        "citations": [
+          {
+            "chunk_id": "ivory-signal:p1:c1",
+            "document_id": "ivory-signal",
+            "document_name": "ivory_signal_schedule.pdf",
+            "excerpt": "Effective date: 2027-09-16.",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": "2027-09-16"
+      },
+      "important_amounts": {
+        "citations": [
+          {
+            "chunk_id": "ivory-signal:p1:c3",
+            "document_id": "ivory-signal",
+            "document_name": "ivory_signal_schedule.pdf",
+            "excerpt": "EUR 9,900",
+            "page": 1,
+            "section": null
+          },
+          {
+            "chunk_id": "ivory-signal:p1:c3",
+            "document_id": "ivory-signal",
+            "document_name": "ivory_signal_schedule.pdf",
+            "excerpt": "EUR 330",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": [
+          "EUR 9,900",
+          "EUR 330"
+        ]
+      },
+      "obligations": {
+        "citations": [],
+        "value": []
+      },
+      "organization_name": {
+        "citations": [],
+        "value": null
+      },
+      "renewal_date": {
+        "citations": [
+          {
+            "chunk_id": "ivory-signal:p1:c2",
+            "document_id": "ivory-signal",
+            "document_name": "ivory_signal_schedule.pdf",
+            "excerpt": "Renewal date: 2028-09-16.",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": "2028-09-16"
+      },
+      "responsible_people": {
+        "citations": [],
+        "value": []
+      },
+      "risks": {
+        "citations": [],
+        "value": []
+      }
+    },
+    "juniper-vault": {
+      "document_type": {
+        "citations": [],
+        "value": null
+      },
+      "effective_date": {
+        "citations": [],
+        "value": null
+      },
+      "important_amounts": {
+        "citations": [
+          {
+            "chunk_id": "juniper-vault:p1:c3",
+            "document_id": "juniper-vault",
+            "document_name": "juniper_vault_guide.md",
+            "excerpt": "3 750 EUR",
+            "page": 1,
+            "section": null
+          },
+          {
+            "chunk_id": "juniper-vault:p1:c3",
+            "document_id": "juniper-vault",
+            "document_name": "juniper_vault_guide.md",
+            "excerpt": "125 EUR",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": [
+          "3 750 EUR",
+          "125 EUR"
+        ]
+      },
+      "obligations": {
+        "citations": [],
+        "value": []
+      },
+      "organization_name": {
+        "citations": [],
+        "value": null
+      },
+      "renewal_date": {
+        "citations": [
+          {
+            "chunk_id": "juniper-vault:p1:c2",
+            "document_id": "juniper-vault",
+            "document_name": "juniper_vault_guide.md",
+            "excerpt": "Date de renouvellement : 2028-10-05.",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": "2028-10-05"
+      },
+      "responsible_people": {
+        "citations": [],
+        "value": []
+      },
+      "risks": {
+        "citations": [],
+        "value": []
+      }
+    }
+  },
+  "holdout_structure": {
+    "adversarial_or_ambiguous_cases": 5,
+    "answerable_cases": 25,
+    "total_cases": 40,
+    "unanswerable_cases": 10
+  },
+  "indexing_ms": 2035.357,
+  "latency_median_ms": 38.802,
+  "latency_p95_ms": 55.001,
+  "manifest_sha256": "85e7dcaa1f683a32206d37313b8e8aa0bda42393df59c62c16b25edf3daae555",
+  "metric_counts": {
+    "abstention_correct": 12,
+    "abstention_total": 15,
+    "answerable_correct": 2,
+    "answerable_total": 25,
+    "citation_correct": 2,
+    "citation_returned": 5,
+    "errors": 0,
+    "extraction_gold": 120,
+    "extraction_predicted": 35,
+    "extraction_true_positive": 35,
+    "retrieval_hits_at_5": 25
+  },
+  "mode": "extractive-local-onnx",
+  "parameters_version": "semantic-local-v2.0-frozen-v6",
+  "peak_rss_bytes": 698339328,
+  "provenance": {
+    "attestation_sha256": "a0191648aa59047b02f05936e415f97268804805d05422c20f71c90321a840e1",
+    "config_sha256": "83dc9ef8cae532df8e8adb07b2e648326352decb45393dab0e17458fde37e032",
+    "corpus_sha256": "50ec02cf013b60599fe1a5d387cbec30a0826df2fa76cf33919012161f300f96",
+    "dataset_commit": "a133bbb690590aa1d2cfd56c248da9b7a6c83691",
+    "dependency_sha256": {
+      "pyproject.toml": "6ac4a0a7c4fad75c3777a31d3338b2e98bef6397254d2fa1ed0cfbc033e99576",
+      "uv.lock": "e44f77ab0ef5738ac0af82771560d701639cb4a499fcfbe042ce3ef586ab9f26"
+    },
+    "engine_commit": "113333901f4a287d67f5ba84808964d2aabd805c",
+    "engine_fingerprint": "a8371922b582caccc2f4560544e3b1a8261570c0a0dbafffd55c8d1c86289206",
+    "freeze_commit": "0d9301227c387edb03815756662c231ad9acd038",
+    "freeze_sha256": "387a768cbefde9588848136b28b2645b725824c58065d27a5f74e92f0e9f2a39",
+    "lock_path": "artifacts/evaluations/holdout_v6/holdout-v6.lock",
+    "lock_sha256": "5e04acde39118af851bb14356516af195d541cc785790d100d2ed7487c450f93",
+    "manifest_sha256": "85e7dcaa1f683a32206d37313b8e8aa0bda42393df59c62c16b25edf3daae555",
+    "model_manifest_sha256": "d930bf9c2c9f866ff606a50cba0a8ca498f3f51f6ef74b1881602e5af2e302cc"
+  },
+  "reranker_model_id": null,
+  "retrieval_method": "hybrid",
+  "retrieval_mrr_at_5": 0.9,
+  "retrieval_recall_at_5": 1.0,
+  "runtime": {
+    "cpu": "12th Gen Intel(R) Core(TM) i5-12600KF",
+    "external_api_cost_usd": 0.0,
+    "fastembed_version": "0.8.0",
+    "logical_cpu_count": 16,
+    "memory_total_bytes": 16768438272,
+    "model_manifest_sha256": "d930bf9c2c9f866ff606a50cba0a8ca498f3f51f6ef74b1881602e5af2e302cc",
+    "onnxruntime_version": "1.29.0",
+    "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+    "python": "3.12.13",
+    "reference_device": "CPUExecutionProvider"
+  },
+  "schema_version": "holdout-v4-raw-result-v2",
+  "seed": 20260829,
+  "split": "holdout",
+  "targets": {
+    "abstention_accuracy": 0.85,
+    "citation_case_accuracy": 0.9,
+    "citation_precision": 0.9,
+    "extraction_f1": 0.9
+  },
+  "total_wall_time_ms": 3651.221,
+  "verdict": "FAIL"
+}

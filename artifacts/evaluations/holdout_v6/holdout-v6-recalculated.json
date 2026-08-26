@@ -1,0 +1,25 @@
+{
+  "abstention_accuracy": 0.8,
+  "citation_case_accuracy": 0.08,
+  "citation_precision": 0.4,
+  "created_at": "2026-08-26T22:54:50.312041+00:00",
+  "error_rate": 0.0,
+  "extraction_f1": 0.451613,
+  "extraction_precision": 1.0,
+  "extraction_recall": 0.291667,
+  "metric_counts": {
+    "abstention_correct": 12,
+    "abstention_total": 15,
+    "answerable_correct": 2,
+    "answerable_total": 25,
+    "citation_correct": 2,
+    "citation_returned": 5,
+    "errors": 0,
+    "extraction_gold": 120,
+    "extraction_predicted": 35,
+    "extraction_true_positive": 35
+  },
+  "raw_artifact_sha256": "033ac62953fe8e447443f69cb185080a17e72989f2f00b706686a6efefd05d03",
+  "schema_version": "evaluation-recalculation-v2",
+  "verdict": "FAIL"
+}
