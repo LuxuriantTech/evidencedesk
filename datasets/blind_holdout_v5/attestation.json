@@ -1,0 +1,28 @@
+{
+  "dataset_version": "holdout-v5-2026.08.27",
+  "parameters_version": "semantic-local-v2.0-frozen-v5",
+  "mode": "extractive-local-onnx",
+  "seed": 20260828,
+  "engine_commit": "648c7f9e555265bcb3b47799cdf72c8572c3b12d",
+  "engine_fingerprint": "7b07504dffe79f2a64d346163c101a6f8434ec70e2ebce9a41b969fb02b4425f",
+  "config_sha256": "ce5f8895191eabd064cc29d6e1184bd3eed0507576e5ccc661127c5a7ed6d23a",
+  "model_manifest_sha256": "d930bf9c2c9f866ff606a50cba0a8ca498f3f51f6ef74b1881602e5af2e302cc",
+  "dependency_sha256": {
+    "pyproject.toml": "6ac4a0a7c4fad75c3777a31d3338b2e98bef6397254d2fa1ed0cfbc033e99576",
+    "uv.lock": "e44f77ab0ef5738ac0af82771560d701639cb4a499fcfbe042ce3ef586ab9f26"
+  },
+  "freeze_commit": "bb8211301111943974795d7f0ef2c16cf42bc24e",
+  "freeze_sha256": "acabdb2923e7c50ed635048a6ef4b2f0973d9065c66c4accd1b30d8b38ccd182",
+  "author_role": "independent-holdout-author",
+  "generated_after_engine_freeze": true,
+  "synthetic_only": true,
+  "development_overlap_check": {
+    "method": "independent synthetic authoring; exact normalized document-id and case-id intersection check against the frozen development manifest",
+    "matching_documents": 0,
+    "matching_case_ids": 0
+  },
+  "sha256": {
+    "corpus_manifest.json": "18687af201804215f302d479a07d554bb48e832d987471cdb21a993212982b2e",
+    "evaluation_cases.json": "2248d691c7ef2d857e24b3e15c941844b8e8ff8a6de622bd7e20bb12d80da871"
+  }
+}
