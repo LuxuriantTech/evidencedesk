@@ -35,6 +35,21 @@ def test_development_evaluation_never_opens_holdout_cases() -> None:
     assert result["metric_counts"]["citation_returned"] >= 0
     assert isinstance(result["cases"][0]["answer"], str)
     assert isinstance(result["cases"][0]["citations"], list)
+    answerable = next(case for case in result["cases"] if case["kind"] == "answerable")
+    assert isinstance(answerable["expected_citation_matches"], list)
+    assert isinstance(answerable["retrieval_matches_at_5"], list)
+    derived_rank = next(
+        (
+            index
+            for index, matched in enumerate(answerable["retrieval_matches_at_5"], start=1)
+            if matched
+        ),
+        None,
+    )
+    assert answerable["retrieval_rank"] == derived_rank
+    assert result["citation_recall"] >= 0
+    assert result["metric_counts"]["citation_expected"] >= 1
+    assert result["metric_counts"]["citation_expected_matched"] >= 0
 
 
 def test_holdout_claim_is_single_use_and_requires_an_explicit_gate(tmp_path: Path) -> None:

@@ -1,0 +1,98 @@
+{
+  "created_at": "2026-08-27",
+  "dataset_version": "development-v3-2026.08.27",
+  "experiment_budget": {
+    "maximum_configurations_per_strategy": 2,
+    "maximum_response_strategies": 3,
+    "stability_repetitions": 3
+  },
+  "final_selection_rule": {
+    "first": "reject any configuration with schema errors, technical errors, or non-deterministic decisions",
+    "second": "maximize the minimum of answerable accuracy, abstention accuracy, citation precision, citation recall, and extraction F1 on the grouped selection partition",
+    "third": "break ties by lower p95 latency, then lower peak RSS, then simpler strategy"
+  },
+  "partitions": {
+    "calibration": "four template and formulation families; thresholds may be calibrated here",
+    "selection": "four disjoint template and formulation families; no retuning after results are opened"
+  },
+  "retrieval": {
+    "embedding_model": "paraphrase-multilingual-minilm-l12-v2-onnx-q@faf4aa4225822f3bc6376869cb1164e8e3feedd0",
+    "method": "hybrid",
+    "status": "fixed baseline"
+  },
+  "strategies": [
+    {
+      "configurations": [
+        {
+          "contradiction_margin": 0.08,
+          "id": "deterministic-v3-a",
+          "partial_support_threshold": 0.38,
+          "support_threshold": 0.48
+        },
+        {
+          "contradiction_margin": 0.12,
+          "id": "deterministic-v3-b",
+          "partial_support_threshold": 0.42,
+          "support_threshold": 0.56
+        }
+      ],
+      "id": "deterministic-evidence-v3",
+      "license": "MIT (project code)",
+      "model": null
+    },
+    {
+      "configurations": [
+        {
+          "contradiction_threshold": 0.55,
+          "entailment_threshold": 0.62,
+          "id": "multilingual-nli-v3-a"
+        },
+        {
+          "contradiction_threshold": 0.50,
+          "entailment_threshold": 0.72,
+          "id": "multilingual-nli-v3-b"
+        }
+      ],
+      "id": "multilingual-nli-v3",
+      "license": "MIT",
+      "model": {
+        "id": "MoritzLaurer/mDeBERTa-v3-base-mnli-xnli",
+        "onnx_file": "onnx/model_quantized.onnx",
+        "onnx_sha256": "27c39e884c14b03cf46cfc5485971b6db70ff330220d93dfe729c63fde43af0e",
+        "onnx_size_bytes": 338679133,
+        "parameter_count_approx": 300000000,
+        "revision": "8adb042d524ecd5c26d3e3ba0e3fbcf7e2d0864c",
+        "source": "https://huggingface.co/MoritzLaurer/mDeBERTa-v3-base-mnli-xnli"
+      }
+    },
+    {
+      "configurations": [
+        {
+          "context_passages": 3,
+          "id": "qwen-json-v3-a",
+          "max_output_tokens": 160,
+          "seed": 2026082703,
+          "temperature": 0.0
+        },
+        {
+          "context_passages": 5,
+          "id": "qwen-json-v3-b",
+          "max_output_tokens": 192,
+          "seed": 2026082703,
+          "temperature": 0.0
+        }
+      ],
+      "id": "qwen-constrained-json-v3",
+      "license": "Apache-2.0",
+      "model": {
+        "file": "qwen2.5-0.5b-instruct-q4_k_m.gguf",
+        "file_sha256": "74a4da8c9fdbcd15bd1f6d01d621410d31c6fc00986f5eb687824e7b93d7a9db",
+        "file_size_bytes": 491400032,
+        "id": "Qwen/Qwen2.5-0.5B-Instruct-GGUF",
+        "parameter_count": 490000000,
+        "revision": "9217f5db79a29953eb74d5343926648285ec7e67",
+        "source": "https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF"
+      }
+    }
+  ]
+}

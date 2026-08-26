@@ -324,8 +324,11 @@ def test_recalculation_uses_only_raw_case_and_extraction_decisions() -> None:
     assert recalculated["metric_counts"] == {
         "citation_correct": 2,
         "citation_returned": 3,
+        "citation_expected": 0,
+        "citation_expected_matched": 0,
         "answerable_correct": 1,
         "answerable_total": 2,
+        "retrieval_hits_at_5": 0,
         "abstention_correct": 2,
         "abstention_total": 2,
         "extraction_true_positive": 2,

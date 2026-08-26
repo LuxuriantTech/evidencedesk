@@ -69,6 +69,7 @@ ignore = ["S101"]
 "apps/api/tests/**/*.py" = ["S105", "S106"]
 "apps/worker/tests/**/*.py" = ["S105", "S106"]
 "scripts/generate_blind_holdout*.py" = ["E501"]
+"scripts/generate_development_v3.py" = ["E501"]
 
 [tool.mypy]
 python_version = "3.12"

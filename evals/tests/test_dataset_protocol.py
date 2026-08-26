@@ -58,3 +58,49 @@ def test_validator_rejects_a_document_without_runner_required_filename(
 
     with pytest.raises(ValueError, match="document filename"):
         validate_manifest(manifest_path, corpus_path=corpus_path)
+
+
+def test_validator_reports_untraceable_gold_before_evaluation(tmp_path: Path) -> None:
+    corpus_path = tmp_path / "corpus.json"
+    manifest_path = tmp_path / "evaluation.json"
+    corpus_path.write_text(
+        json.dumps(
+            {
+                "dataset_version": "development-v3",
+                "synthetic_only": True,
+                "documents": [
+                    {"id": "doc-1", "filename": "doc-1.md", "pages": ["Known evidence."]}
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    manifest_path.write_text(
+        json.dumps(
+            {
+                "dataset_version": "development-v3",
+                "parameters_version": "answer-v3",
+                "mode": "extractive-local-onnx",
+                "seed": 7,
+                "metrics": {"citation_precision": 0.9},
+                "cases": [
+                    {
+                        "id": "case-1",
+                        "split": "holdout",
+                        "kind": "answerable",
+                        "question": "What is known?",
+                        "expected_answer": "Known evidence",
+                        "expected_citations": [
+                            {"document_id": "doc-1", "page": 1, "excerpt": "Not present"}
+                        ],
+                    }
+                ],
+                "extraction_targets": [],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    report = validate_manifest(manifest_path, corpus_path=corpus_path)
+
+    assert report.citations_are_exact is False

@@ -1,0 +1,77 @@
+{
+  "contains_real_personal_data": false,
+  "dataset_version": "development-v3-2026.08.27",
+  "features": {
+    "ambiguous_evidence": true,
+    "contradictions": true,
+    "cross_passage_evidence": true,
+    "implicit_facts": true,
+    "in_document_prompt_injection": true,
+    "multiple_entities": true,
+    "synonyms": true,
+    "varied_dates_and_amounts": true
+  },
+  "generation_method": "deterministic-handwritten-template-families",
+  "groups": [
+    {
+      "document_id": "dev3-harbor-dispatch",
+      "formulation_family": "operational-prose-with-log",
+      "language": "en",
+      "partition": "calibration",
+      "template_family": "dispatch-readiness-note"
+    },
+    {
+      "document_id": "dev3-atelier-minutes",
+      "formulation_family": "french-indirect-minutes",
+      "language": "fr",
+      "partition": "calibration",
+      "template_family": "steering-committee-minutes"
+    },
+    {
+      "document_id": "dev3-snowcap-chronicle",
+      "formulation_family": "timeline-with-retrospective",
+      "language": "en",
+      "partition": "calibration",
+      "template_family": "incident-chronicle"
+    },
+    {
+      "document_id": "dev3-oriole-catalogue",
+      "formulation_family": "catalogue-bullets-and-footnotes",
+      "language": "en",
+      "partition": "calibration",
+      "template_family": "service-catalogue"
+    },
+    {
+      "document_id": "dev3-kestrel-playbook",
+      "formulation_family": "cross-page-responsibility-chain",
+      "language": "en",
+      "partition": "selection",
+      "template_family": "continuity-playbook"
+    },
+    {
+      "document_id": "dev3-tilleul-letter",
+      "formulation_family": "french-formal-letter",
+      "language": "fr",
+      "partition": "selection",
+      "template_family": "insurance-operations-letter"
+    },
+    {
+      "document_id": "dev3-fenwick-plan",
+      "formulation_family": "ownership-matrix-with-revisions",
+      "language": "en",
+      "partition": "selection",
+      "template_family": "corrective-action-plan"
+    },
+    {
+      "document_id": "dev3-lumen-handover",
+      "formulation_family": "french-handover-narrative",
+      "language": "fr",
+      "partition": "selection",
+      "template_family": "facilities-handover-file"
+    }
+  ],
+  "partition_rule": "grouped-by-template-and-formulation-family",
+  "seed": 2026082703,
+  "source_policy": "No prior holdout content is an input to this generator.",
+  "synthetic_names_notice": "All organizations and people are fictional."
+}

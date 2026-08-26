@@ -401,6 +401,8 @@ def evaluate_manifest(
     errors = 0
     citation_correct = 0
     citation_returned = 0
+    citation_expected = 0
+    citation_expected_matched = 0
     answerable_correct = 0
     answerable_total = sum(case.get("kind") == "answerable" for case in cases)
     abstention_correct = 0
@@ -427,24 +429,36 @@ def evaluate_manifest(
             citation_matches = [
                 _citation_matches(citation, expected_citations) for citation in answer.citations
             ]
+            expected_citation_matches = [
+                any(_citation_matches(citation, [expected]) for citation in answer.citations)
+                for expected in expected_citations
+            ]
             if kind == "answerable":
                 citation_correct += sum(citation_matches)
                 citation_returned += len(citation_matches)
+                citation_expected += len(expected_citation_matches)
+                citation_expected_matched += sum(expected_citation_matches)
                 expected_locations = {
                     (str(item.get("document_id")), int(item.get("page", 0)))
                     for item in expected_citations
                 }
+                retrieval_matches_at_5 = [
+                    (item.chunk.document_id, item.chunk.page) in expected_locations
+                    for item in ranked[:5]
+                ]
                 retrieved_rank = next(
                     (
                         index
-                        for index, item in enumerate(ranked[:5], start=1)
-                        if (item.chunk.document_id, item.chunk.page) in expected_locations
+                        for index, matched in enumerate(retrieval_matches_at_5, start=1)
+                        if matched
                     ),
                     None,
                 )
                 if retrieved_rank is not None:
                     retrieval_hits += 1
                     retrieval_reciprocal_rank += 1.0 / retrieved_rank
+            else:
+                retrieval_matches_at_5 = []
             expected_answer = case.get("expected_answer")
             answer_match = expected_answer is not None and _answer_matches(
                 answer.answer, expected_answer
@@ -469,6 +483,8 @@ def evaluate_manifest(
                     "answer_match": answer_match,
                     "citations": [asdict(citation) for citation in answer.citations],
                     "citation_matches": citation_matches,
+                    "expected_citation_matches": expected_citation_matches,
+                    "retrieval_matches_at_5": retrieval_matches_at_5,
                     "retrieval_rank": retrieved_rank if kind == "answerable" else None,
                     "retrieved": [
                         {
@@ -521,10 +537,11 @@ def evaluate_manifest(
         else 0.0
     )
     citation_precision = _safe_ratio(citation_correct, citation_returned)
+    citation_recall = _safe_ratio(citation_expected_matched, citation_expected)
     citation_case_accuracy = _safe_ratio(answerable_correct, answerable_total)
     abstention_accuracy = _safe_ratio(abstention_correct, abstention_total)
     result: dict[str, Any] = {
-        "schema_version": "evaluation-result-v1",
+        "schema_version": "evaluation-result-v3",
         "created_at": datetime.now(UTC).isoformat(),
         "dataset_version": manifest["dataset_version"],
         "parameters_version": manifest["parameters_version"],
@@ -536,6 +553,7 @@ def evaluate_manifest(
         "reranker_model_id": reranker.model_id if reranker is not None else None,
         "case_count": len(cases),
         "citation_precision": round(citation_precision, 6),
+        "citation_recall": round(citation_recall, 6),
         "citation_case_accuracy": round(citation_case_accuracy, 6),
         "retrieval_recall_at_5": round(_safe_ratio(retrieval_hits, answerable_total), 6),
         "retrieval_mrr_at_5": round(_safe_ratio(retrieval_reciprocal_rank, answerable_total), 6),
@@ -554,6 +572,8 @@ def evaluate_manifest(
         "metric_counts": {
             "citation_correct": citation_correct,
             "citation_returned": citation_returned,
+            "citation_expected": citation_expected,
+            "citation_expected_matched": citation_expected_matched,
             "answerable_correct": answerable_correct,
             "answerable_total": answerable_total,
             "retrieval_hits_at_5": retrieval_hits,
@@ -596,6 +616,7 @@ ENGINE_FINGERPRINT_PATHS = (
     "uv.lock",
     "evals/runner.py",
     "evals/holdout_v4.py",
+    "evals/holdout.py",
     "evals/validate_dataset.py",
     "evals/benchmark.py",
     "evals/recalculate.py",
@@ -644,22 +665,11 @@ def main() -> None:
     parser.add_argument("--output-dir", type=Path, default=Path("artifacts/evaluations"))
     args = parser.parse_args()
 
-    manifest = _load(args.manifest)
     if args.split == "holdout":
-        lock = Path("artifacts/evaluations/locks") / (
-            f"holdout-{manifest['dataset_version']}-{manifest['parameters_version']}.lock"
+        raise EvaluationError(
+            "holdout execution requires the attested holdout runner: python -m evals.holdout"
         )
-        claim_holdout_once(
-            lock,
-            allow_holdout=args.allow_holdout,
-            evidence={
-                "dataset_version": str(manifest["dataset_version"]),
-                "parameters_version": str(manifest["parameters_version"]),
-                "manifest_sha256": _sha256_file(args.manifest),
-                "corpus_sha256": _sha256_file(args.corpus),
-                "engine_fingerprint": _engine_fingerprint(),
-            },
-        )
+
     result = evaluate_manifest(args.manifest, args.corpus, split=args.split)
     args.output_dir.mkdir(parents=True, exist_ok=True)
     output = args.output_dir / (
