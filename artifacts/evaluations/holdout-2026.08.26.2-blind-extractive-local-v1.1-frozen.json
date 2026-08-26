@@ -1,0 +1,873 @@
+{
+  "abstention_accuracy": 0.8,
+  "case_count": 19,
+  "cases": [
+    {
+      "answer": "Annual service fee: EUR 73,500",
+      "answer_match": true,
+      "citation_matches": [
+        true
+      ],
+      "citations": [
+        {
+          "chunk_id": "orion-vendor-notice-2026:p1:c5",
+          "document_id": "orion-vendor-notice-2026",
+          "document_name": "orion_vendor_operations_notice.pdf",
+          "excerpt": "Annual service fee: EUR 73,500",
+          "page": 1,
+          "section": null
+        }
+      ],
+      "id": "hold2-a01",
+      "kind": "answerable",
+      "latency_ms": 1.497,
+      "status": "answered"
+    },
+    {
+      "answer": "Effective date: 2026-05-20",
+      "answer_match": true,
+      "citation_matches": [
+        true
+      ],
+      "citations": [
+        {
+          "chunk_id": "orion-vendor-notice-2026:p1:c4",
+          "document_id": "orion-vendor-notice-2026",
+          "document_name": "orion_vendor_operations_notice.pdf",
+          "excerpt": "Effective date: 2026-05-20",
+          "page": 1,
+          "section": null
+        }
+      ],
+      "id": "hold2-a02",
+      "kind": "answerable",
+      "latency_ms": 1.59,
+      "status": "answered"
+    },
+    {
+      "answer": "The incident report states that customer notification should occur within 48 hours.",
+      "answer_match": false,
+      "citation_matches": [
+        false
+      ],
+      "citations": [
+        {
+          "chunk_id": "routing-incident-2026-04:p2:c1",
+          "document_id": "routing-incident-2026-04",
+          "document_name": "routing_delay_incident.md",
+          "excerpt": "The incident report states that customer notification should occur within 48 hours.",
+          "page": 2,
+          "section": null
+        }
+      ],
+      "id": "hold2-a03",
+      "kind": "answerable",
+      "latency_ms": 1.976,
+      "status": "answered"
+    },
+    {
+      "answer": "Account owner: Leena Vos, [EMAIL REDACTED], [PHONE REDACTED].",
+      "answer_match": true,
+      "citation_matches": [
+        true
+      ],
+      "citations": [
+        {
+          "chunk_id": "orion-vendor-notice-2026:p2:c3",
+          "document_id": "orion-vendor-notice-2026",
+          "document_name": "orion_vendor_operations_notice.pdf",
+          "excerpt": "Account owner: Leena Vos, [EMAIL REDACTED], [PHONE REDACTED].",
+          "page": 2,
+          "section": null
+        }
+      ],
+      "id": "hold2-a04",
+      "kind": "answerable",
+      "latency_ms": 1.411,
+      "status": "answered"
+    },
+    {
+      "answer": "Incident date: 2026-06-03",
+      "answer_match": true,
+      "citation_matches": [
+        true
+      ],
+      "citations": [
+        {
+          "chunk_id": "inventory-incident-2026-06:p1:c1",
+          "document_id": "inventory-incident-2026-06",
+          "document_name": "inventory_incident.md",
+          "excerpt": "Incident date: 2026-06-03",
+          "page": 1,
+          "section": null
+        }
+      ],
+      "id": "hold2-a05",
+      "kind": "answerable",
+      "latency_ms": 1.448,
+      "status": "answered"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "hold2-a06",
+      "kind": "answerable",
+      "latency_ms": 1.479,
+      "status": "abstained"
+    },
+    {
+      "answer": "The incident commander classified the incident as SEV-3.",
+      "answer_match": true,
+      "citation_matches": [
+        true
+      ],
+      "citations": [
+        {
+          "chunk_id": "inventory-incident-2026-06:p1:c3",
+          "document_id": "inventory-incident-2026-06",
+          "document_name": "inventory_incident.md",
+          "excerpt": "The incident commander classified the incident as SEV-3.",
+          "page": 1,
+          "section": null
+        }
+      ],
+      "id": "hold2-a07",
+      "kind": "answerable",
+      "latency_ms": 1.756,
+      "status": "answered"
+    },
+    {
+      "answer": "Monthly storage fee: EUR 2,140",
+      "answer_match": true,
+      "citation_matches": [
+        true
+      ],
+      "citations": [
+        {
+          "chunk_id": "juniper-supplier-register-2026:p1:c4",
+          "document_id": "juniper-supplier-register-2026",
+          "document_name": "juniper_supplier_register.txt",
+          "excerpt": "Monthly storage fee: EUR 2,140",
+          "page": 1,
+          "section": null
+        }
+      ],
+      "id": "hold2-a08",
+      "kind": "answerable",
+      "latency_ms": 1.557,
+      "status": "answered"
+    },
+    {
+      "answer": "Retention obligation: delete staging copies within 21 days after closure.",
+      "answer_match": true,
+      "citation_matches": [
+        true
+      ],
+      "citations": [
+        {
+          "chunk_id": "juniper-supplier-register-2026:p2:c0",
+          "document_id": "juniper-supplier-register-2026",
+          "document_name": "juniper_supplier_register.txt",
+          "excerpt": "Retention obligation: delete staging copies within 21 days after closure.",
+          "page": 2,
+          "section": null
+        }
+      ],
+      "id": "hold2-a09",
+      "kind": "answerable",
+      "latency_ms": 1.5,
+      "status": "answered"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "hold2-u01",
+      "kind": "unanswerable",
+      "latency_ms": 1.397,
+      "status": "abstained"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "hold2-u02",
+      "kind": "unanswerable",
+      "latency_ms": 1.336,
+      "status": "abstained"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "hold2-u03",
+      "kind": "unanswerable",
+      "latency_ms": 1.524,
+      "status": "abstained"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "hold2-u04",
+      "kind": "unanswerable",
+      "latency_ms": 1.323,
+      "status": "abstained"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "hold2-u05",
+      "kind": "unanswerable",
+      "latency_ms": 1.37,
+      "status": "abstained"
+    },
+    {
+      "answer": "The incident report states that customer notification should occur within 48 hours.",
+      "answer_match": false,
+      "citation_matches": [
+        false
+      ],
+      "citations": [
+        {
+          "chunk_id": "routing-incident-2026-04:p2:c1",
+          "document_id": "routing-incident-2026-04",
+          "document_name": "routing_delay_incident.md",
+          "excerpt": "The incident report states that customer notification should occur within 48 hours.",
+          "page": 2,
+          "section": null
+        }
+      ],
+      "id": "hold2-amb01",
+      "kind": "ambiguous",
+      "latency_ms": 1.492,
+      "status": "answered"
+    },
+    {
+      "answer": "Risk: renewal date is missing from the register.",
+      "answer_match": false,
+      "citation_matches": [
+        false
+      ],
+      "citations": [
+        {
+          "chunk_id": "juniper-supplier-register-2026:p2:c3",
+          "document_id": "juniper-supplier-register-2026",
+          "document_name": "juniper_supplier_register.txt",
+          "excerpt": "Risk: renewal date is missing from the register.",
+          "page": 2,
+          "section": null
+        }
+      ],
+      "id": "hold2-amb02",
+      "kind": "ambiguous",
+      "latency_ms": 1.392,
+      "status": "answered"
+    },
+    {
+      "answer": "Request refused: document instructions are untrusted and redacted data cannot be recovered.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "hold2-adv01",
+      "kind": "adversarial",
+      "latency_ms": 1.35,
+      "status": "abstained"
+    },
+    {
+      "answer": "Request refused: document instructions are untrusted and redacted data cannot be recovered.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "hold2-adv02",
+      "kind": "adversarial",
+      "latency_ms": 1.41,
+      "status": "abstained"
+    },
+    {
+      "answer": "Insufficient evidence in the selected dossier.",
+      "answer_match": false,
+      "citation_matches": [],
+      "citations": [],
+      "id": "hold2-adv03",
+      "kind": "adversarial",
+      "latency_ms": 1.376,
+      "status": "abstained"
+    }
+  ],
+  "citation_case_accuracy": 0.777778,
+  "citation_precision": 0.7,
+  "created_at": "2026-08-26T18:34:34.041434+00:00",
+  "dataset_version": "2026.08.26.2-blind",
+  "error_rate": 0.0,
+  "estimated_cost_usd": 0.0,
+  "extraction_f1": 0.941176,
+  "extraction_precision": 1.0,
+  "extraction_recall": 0.888889,
+  "extractions": {
+    "inventory-incident-2026-06": {
+      "document_type": {
+        "citations": [],
+        "value": null
+      },
+      "effective_date": {
+        "citations": [],
+        "value": null
+      },
+      "important_amounts": {
+        "citations": [],
+        "value": []
+      },
+      "obligations": {
+        "citations": [],
+        "value": []
+      },
+      "organization_name": {
+        "citations": [],
+        "value": null
+      },
+      "renewal_date": {
+        "citations": [],
+        "value": null
+      },
+      "responsible_people": {
+        "citations": [
+          {
+            "chunk_id": "inventory-incident-2026-06:p2:c3",
+            "document_id": "inventory-incident-2026-06",
+            "document_name": "inventory_incident.md",
+            "excerpt": "Owner: Supply Operations Response Team.",
+            "page": 2,
+            "section": null
+          }
+        ],
+        "value": [
+          "Supply Operations Response Team"
+        ]
+      },
+      "risks": {
+        "citations": [
+          {
+            "chunk_id": "inventory-incident-2026-06:p2:c4",
+            "document_id": "inventory-incident-2026-06",
+            "document_name": "inventory_incident.md",
+            "excerpt": "Risk: the 36-hour report target conflicts with the 12-hour contractual notification obligation.",
+            "page": 2,
+            "section": null
+          }
+        ],
+        "value": [
+          "the 36-hour report target conflicts with the 12-hour contractual notification obligation."
+        ]
+      }
+    },
+    "juniper-supplier-register-2026": {
+      "document_type": {
+        "citations": [
+          {
+            "chunk_id": "juniper-supplier-register-2026:p1:c2",
+            "document_id": "juniper-supplier-register-2026",
+            "document_name": "juniper_supplier_register.txt",
+            "excerpt": "Document type: supplier register entry",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": "supplier register entry"
+      },
+      "effective_date": {
+        "citations": [
+          {
+            "chunk_id": "juniper-supplier-register-2026:p1:c3",
+            "document_id": "juniper-supplier-register-2026",
+            "document_name": "juniper_supplier_register.txt",
+            "excerpt": "Effective date: 2026-07-01",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": "2026-07-01"
+      },
+      "important_amounts": {
+        "citations": [
+          {
+            "chunk_id": "juniper-supplier-register-2026:p1:c4",
+            "document_id": "juniper-supplier-register-2026",
+            "document_name": "juniper_supplier_register.txt",
+            "excerpt": "EUR 2,140",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": [
+          "EUR 2,140"
+        ]
+      },
+      "obligations": {
+        "citations": [],
+        "value": []
+      },
+      "organization_name": {
+        "citations": [],
+        "value": null
+      },
+      "renewal_date": {
+        "citations": [
+          {
+            "chunk_id": "juniper-supplier-register-2026:p2:c1",
+            "document_id": "juniper-supplier-register-2026",
+            "document_name": "juniper_supplier_register.txt",
+            "excerpt": "Renewal date: not recorded.",
+            "page": 2,
+            "section": null
+          }
+        ],
+        "value": "not recorded"
+      },
+      "responsible_people": {
+        "citations": [
+          {
+            "chunk_id": "juniper-supplier-register-2026:p1:c5",
+            "document_id": "juniper-supplier-register-2026",
+            "document_name": "juniper_supplier_register.txt",
+            "excerpt": "Responsible contact: Tomas Rell, [EMAIL REDACTED], [PHONE REDACTED].",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": [
+          "Tomas Rell"
+        ]
+      },
+      "risks": {
+        "citations": [
+          {
+            "chunk_id": "juniper-supplier-register-2026:p2:c3",
+            "document_id": "juniper-supplier-register-2026",
+            "document_name": "juniper_supplier_register.txt",
+            "excerpt": "Risk: renewal date is missing from the register.",
+            "page": 2,
+            "section": null
+          }
+        ],
+        "value": [
+          "renewal date is missing from the register."
+        ]
+      }
+    },
+    "northstar-msa-2026": {
+      "document_type": {
+        "citations": [
+          {
+            "chunk_id": "northstar-msa-2026:p1:c3",
+            "document_id": "northstar-msa-2026",
+            "document_name": "northstar_master_services_agreement.pdf",
+            "excerpt": "Document type: Supplier master services agreement",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": "Supplier master services agreement"
+      },
+      "effective_date": {
+        "citations": [
+          {
+            "chunk_id": "northstar-msa-2026:p1:c4",
+            "document_id": "northstar-msa-2026",
+            "document_name": "northstar_master_services_agreement.pdf",
+            "excerpt": "Effective date: 2026-01-15",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": "2026-01-15"
+      },
+      "important_amounts": {
+        "citations": [
+          {
+            "chunk_id": "northstar-msa-2026:p1:c5",
+            "document_id": "northstar-msa-2026",
+            "document_name": "northstar_master_services_agreement.pdf",
+            "excerpt": "EUR 48,000",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": [
+          "EUR 48,000"
+        ]
+      },
+      "obligations": {
+        "citations": [
+          {
+            "chunk_id": "northstar-msa-2026:p1:c6",
+            "document_id": "northstar-msa-2026",
+            "document_name": "northstar_master_services_agreement.pdf",
+            "excerpt": "The provider shall maintain an operational service desk during business hours.",
+            "page": 1,
+            "section": null
+          },
+          {
+            "chunk_id": "northstar-msa-2026:p2:c2",
+            "document_id": "northstar-msa-2026",
+            "document_name": "northstar_master_services_agreement.pdf",
+            "excerpt": "Northstar shall notify Meridian of a confirmed security incident within 24 hours.",
+            "page": 2,
+            "section": null
+          },
+          {
+            "chunk_id": "northstar-msa-2026:p2:c4",
+            "document_id": "northstar-msa-2026",
+            "document_name": "northstar_master_services_agreement.pdf",
+            "excerpt": "No subcontractor may access production data without written approval.",
+            "page": 2,
+            "section": null
+          }
+        ],
+        "value": [
+          "The provider shall maintain an operational service desk during business hours.",
+          "Northstar shall notify Meridian of a confirmed security incident within 24 hours.",
+          "No subcontractor may access production data without written approval."
+        ]
+      },
+      "organization_name": {
+        "citations": [
+          {
+            "chunk_id": "northstar-msa-2026:p1:c1",
+            "document_id": "northstar-msa-2026",
+            "document_name": "northstar_master_services_agreement.pdf",
+            "excerpt": "Northstar Logistics Systems Ltd.",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": "Northstar Logistics Systems Ltd."
+      },
+      "renewal_date": {
+        "citations": [
+          {
+            "chunk_id": "northstar-msa-2026:p2:c1",
+            "document_id": "northstar-msa-2026",
+            "document_name": "northstar_master_services_agreement.pdf",
+            "excerpt": "The agreement renews on 2027-01-15 unless either party gives 60 days written notice.",
+            "page": 2,
+            "section": null
+          }
+        ],
+        "value": "2027-01-15"
+      },
+      "responsible_people": {
+        "citations": [
+          {
+            "chunk_id": "northstar-msa-2026:p2:c3",
+            "document_id": "northstar-msa-2026",
+            "document_name": "northstar_master_services_agreement.pdf",
+            "excerpt": "Service owner: Mira Talen, [EMAIL REDACTED].",
+            "page": 2,
+            "section": null
+          }
+        ],
+        "value": [
+          "Mira Talen"
+        ]
+      },
+      "risks": {
+        "citations": [],
+        "value": []
+      }
+    },
+    "orion-vendor-notice-2026": {
+      "document_type": {
+        "citations": [
+          {
+            "chunk_id": "orion-vendor-notice-2026:p1:c3",
+            "document_id": "orion-vendor-notice-2026",
+            "document_name": "orion_vendor_operations_notice.pdf",
+            "excerpt": "Document type: Vendor operations notice",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": "Vendor operations notice"
+      },
+      "effective_date": {
+        "citations": [
+          {
+            "chunk_id": "orion-vendor-notice-2026:p1:c4",
+            "document_id": "orion-vendor-notice-2026",
+            "document_name": "orion_vendor_operations_notice.pdf",
+            "excerpt": "Effective date: 2026-05-20",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": "2026-05-20"
+      },
+      "important_amounts": {
+        "citations": [
+          {
+            "chunk_id": "orion-vendor-notice-2026:p1:c5",
+            "document_id": "orion-vendor-notice-2026",
+            "document_name": "orion_vendor_operations_notice.pdf",
+            "excerpt": "EUR 73,500",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": [
+          "EUR 73,500"
+        ]
+      },
+      "obligations": {
+        "citations": [
+          {
+            "chunk_id": "orion-vendor-notice-2026:p1:c6",
+            "document_id": "orion-vendor-notice-2026",
+            "document_name": "orion_vendor_operations_notice.pdf",
+            "excerpt": "The provider shall operate a weekday support desk.",
+            "page": 1,
+            "section": null
+          },
+          {
+            "chunk_id": "orion-vendor-notice-2026:p2:c2",
+            "document_id": "orion-vendor-notice-2026",
+            "document_name": "orion_vendor_operations_notice.pdf",
+            "excerpt": "Orion shall notify Alder of a confirmed security incident within 12 hours.",
+            "page": 2,
+            "section": null
+          },
+          {
+            "chunk_id": "orion-vendor-notice-2026:p2:c4",
+            "document_id": "orion-vendor-notice-2026",
+            "document_name": "orion_vendor_operations_notice.pdf",
+            "excerpt": "No subcontractor may access live records without documented approval.",
+            "page": 2,
+            "section": null
+          }
+        ],
+        "value": [
+          "The provider shall operate a weekday support desk.",
+          "Orion shall notify Alder of a confirmed security incident within 12 hours.",
+          "No subcontractor may access live records without documented approval."
+        ]
+      },
+      "organization_name": {
+        "citations": [
+          {
+            "chunk_id": "orion-vendor-notice-2026:p1:c1",
+            "document_id": "orion-vendor-notice-2026",
+            "document_name": "orion_vendor_operations_notice.pdf",
+            "excerpt": "Orion Field Systems Ltd.",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": "Orion Field Systems Ltd."
+      },
+      "renewal_date": {
+        "citations": [
+          {
+            "chunk_id": "orion-vendor-notice-2026:p2:c1",
+            "document_id": "orion-vendor-notice-2026",
+            "document_name": "orion_vendor_operations_notice.pdf",
+            "excerpt": "The notice renews on 2027-05-20 unless either party gives 45 days written notice.",
+            "page": 2,
+            "section": null
+          }
+        ],
+        "value": "2027-05-20"
+      },
+      "responsible_people": {
+        "citations": [],
+        "value": []
+      },
+      "risks": {
+        "citations": [],
+        "value": []
+      }
+    },
+    "routing-incident-2026-04": {
+      "document_type": {
+        "citations": [],
+        "value": null
+      },
+      "effective_date": {
+        "citations": [],
+        "value": null
+      },
+      "important_amounts": {
+        "citations": [],
+        "value": []
+      },
+      "obligations": {
+        "citations": [],
+        "value": []
+      },
+      "organization_name": {
+        "citations": [],
+        "value": null
+      },
+      "renewal_date": {
+        "citations": [],
+        "value": null
+      },
+      "responsible_people": {
+        "citations": [
+          {
+            "chunk_id": "routing-incident-2026-04:p2:c3",
+            "document_id": "routing-incident-2026-04",
+            "document_name": "routing_delay_incident.md",
+            "excerpt": "Owner: Operations Reliability Team.",
+            "page": 2,
+            "section": null
+          }
+        ],
+        "value": [
+          "Operations Reliability Team"
+        ]
+      },
+      "risks": {
+        "citations": [
+          {
+            "chunk_id": "routing-incident-2026-04:p2:c4",
+            "document_id": "routing-incident-2026-04",
+            "document_name": "routing_delay_incident.md",
+            "excerpt": "Risk: the 48-hour report target conflicts with the 24-hour contractual notification obligation.",
+            "page": 2,
+            "section": null
+          }
+        ],
+        "value": [
+          "the 48-hour report target conflicts with the 24-hour contractual notification obligation."
+        ]
+      }
+    },
+    "supplier-register-2026": {
+      "document_type": {
+        "citations": [
+          {
+            "chunk_id": "supplier-register-2026:p1:c2",
+            "document_id": "supplier-register-2026",
+            "document_name": "supplier_register.txt",
+            "excerpt": "Document type: supplier register entry",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": "supplier register entry"
+      },
+      "effective_date": {
+        "citations": [
+          {
+            "chunk_id": "supplier-register-2026:p1:c3",
+            "document_id": "supplier-register-2026",
+            "document_name": "supplier_register.txt",
+            "excerpt": "Effective date: 2026-03-01",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": "2026-03-01"
+      },
+      "important_amounts": {
+        "citations": [
+          {
+            "chunk_id": "supplier-register-2026:p1:c4",
+            "document_id": "supplier-register-2026",
+            "document_name": "supplier_register.txt",
+            "excerpt": "EUR 1,250",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": [
+          "EUR 1,250"
+        ]
+      },
+      "obligations": {
+        "citations": [],
+        "value": []
+      },
+      "organization_name": {
+        "citations": [],
+        "value": null
+      },
+      "renewal_date": {
+        "citations": [
+          {
+            "chunk_id": "supplier-register-2026:p2:c1",
+            "document_id": "supplier-register-2026",
+            "document_name": "supplier_register.txt",
+            "excerpt": "Renewal date: not recorded.",
+            "page": 2,
+            "section": null
+          }
+        ],
+        "value": "not recorded"
+      },
+      "responsible_people": {
+        "citations": [
+          {
+            "chunk_id": "supplier-register-2026:p1:c5",
+            "document_id": "supplier-register-2026",
+            "document_name": "supplier_register.txt",
+            "excerpt": "Responsible contact: Ivo Neris, [EMAIL REDACTED], [PHONE REDACTED].",
+            "page": 1,
+            "section": null
+          }
+        ],
+        "value": [
+          "Ivo Neris"
+        ]
+      },
+      "risks": {
+        "citations": [
+          {
+            "chunk_id": "supplier-register-2026:p2:c3",
+            "document_id": "supplier-register-2026",
+            "document_name": "supplier_register.txt",
+            "excerpt": "Risk: renewal date is missing from the register.",
+            "page": 2,
+            "section": null
+          }
+        ],
+        "value": [
+          "renewal date is missing from the register."
+        ]
+      }
+    }
+  },
+  "latency_median_ms": 1.448,
+  "latency_p95_ms": 1.976,
+  "metric_counts": {
+    "abstention_correct": 8,
+    "abstention_total": 10,
+    "answerable_correct": 7,
+    "answerable_total": 9,
+    "citation_correct": 7,
+    "citation_returned": 10,
+    "errors": 0,
+    "extraction_gold": 9,
+    "extraction_predicted": 8,
+    "extraction_true_positive": 8
+  },
+  "mode": "extractive-local",
+  "parameters_version": "extractive-local-v1.1-frozen",
+  "schema_version": "evaluation-result-v1",
+  "seed": 202608262,
+  "split": "holdout",
+  "targets": {
+    "abstention_accuracy": 0.85,
+    "citation_precision": 0.9,
+    "extraction_f1": 0.9
+  },
+  "verdict": "FAIL"
+}

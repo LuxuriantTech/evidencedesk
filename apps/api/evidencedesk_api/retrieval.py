@@ -1,5 +1,6 @@
 import re
 import unicodedata
+from collections import Counter
 from dataclasses import dataclass
 
 from evidencedesk_api.providers import EmbeddingProvider
@@ -58,6 +59,7 @@ _CANONICAL: dict[str, str] = {
     "hours": "deadline",
     "hour": "deadline",
     "delai": "deadline",
+    "duree": "duration",
     "maintient": "maintain",
     "flux": "feed",
     "mensuel": "monthly",
@@ -132,6 +134,19 @@ _FIELD_TOKENS = {
 }
 
 
+_GENERIC_QUERY_TOKENS = _FIELD_TOKENS | {
+    "agreement",
+    "apply",
+    "date",
+    "document",
+    "incident",
+    "register",
+    "report",
+    "supplier",
+    "vendor",
+}
+
+
 def _stem(token: str) -> str:
     for suffix in ("ments", "ment", "ing", "ed", "es", "s"):
         if len(token) > len(suffix) + 3 and token.endswith(suffix):
@@ -178,6 +193,7 @@ class RankedChunk:
     score: float
     lexical_score: float
     dense_score: float
+    entity_score: float
 
 
 @dataclass(frozen=True, slots=True)
@@ -221,6 +237,14 @@ def hybrid_rank(
                 if chunk.document_id == document_id
             )
         )
+    document_frequency = Counter(
+        token for token in query_tokens for tokens in document_tokens.values() if token in tokens
+    )
+    distinctive_tokens = {
+        token
+        for token, frequency in document_frequency.items()
+        if frequency == 1 and token not in _GENERIC_QUERY_TOKENS and len(token) >= 4
+    }
     ranked: list[RankedChunk] = []
     for chunk in chunks:
         chunk_tokens = lexical_tokens(chunk.text)
@@ -229,9 +253,17 @@ def hybrid_rank(
             1, len(query_tokens)
         )
         requested_fields = query_tokens & _FIELD_TOKENS
+        entity_coverage = float(bool(distinctive_tokens & document_tokens[chunk.document_id]))
         if requested_fields:
             field_coverage = len(requested_fields & chunk_tokens) / len(requested_fields)
-            if requested_scope is not None:
+            if distinctive_tokens:
+                lexical = (
+                    0.40 * field_coverage
+                    + 0.15 * local_coverage
+                    + 0.10 * document_coverage
+                    + 0.35 * entity_coverage
+                )
+            elif requested_scope is not None:
                 filename_tokens = lexical_tokens(chunk.document_name)
                 scope_coverage = float(requested_scope in filename_tokens)
                 lexical = (
@@ -243,7 +275,11 @@ def hybrid_rank(
             else:
                 lexical = 0.65 * field_coverage + 0.25 * local_coverage + 0.10 * document_coverage
         else:
-            lexical = 0.8 * local_coverage + 0.2 * document_coverage
+            lexical = (
+                0.55 * local_coverage + 0.10 * document_coverage + 0.35 * entity_coverage
+                if distinctive_tokens
+                else 0.8 * local_coverage + 0.2 * document_coverage
+            )
         dense = max(-1.0, min(1.0, _cosine(query_vector, chunk.embedding)))
         score = 0.25 * max(0.0, dense) + 0.75 * lexical
         ranked.append(
@@ -252,6 +288,7 @@ def hybrid_rank(
                 score=score,
                 lexical_score=lexical,
                 dense_score=dense,
+                entity_score=entity_coverage,
             )
         )
     return sorted(ranked, key=lambda item: (-item.score, item.chunk.id))[:limit]
@@ -270,6 +307,12 @@ def _citation(chunk: EvidenceChunk, excerpt: str | None = None) -> Citation:
 
 _DATE_PATTERN = re.compile(
     r"\b(?:\d{4}-\d{2}-\d{2}|\d{1,2}\s+(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{4})\b",
+    re.IGNORECASE,
+)
+
+_DEADLINE_PATTERN = re.compile(r"\b\d+\s+(?:hours?|days?)\b", re.IGNORECASE)
+_MISSING_DATE_PATTERN = re.compile(
+    r"\b(?:not recorded|missing|unknown|not available|non renseign[eé]e?)\b",
     re.IGNORECASE,
 )
 
@@ -313,7 +356,47 @@ class ExtractiveAnswerProvider:
                 citations=(),
             )
 
-        date_query = bool({"date", "renew", "renewal"} & lexical_tokens(question))
+        relevant_ranked = (
+            [item for item in ranked if item.entity_score > 0]
+            if ranked[0].entity_score > 0
+            else ranked
+        )
+        deadline_query = "deadline" in question_tokens and "notification" in question_tokens
+        if deadline_query:
+            deadline_evidence: list[tuple[str, RankedChunk]] = []
+            for candidate in relevant_ranked:
+                candidate_tokens = lexical_tokens(candidate.chunk.text)
+                if "notification" not in candidate_tokens or candidate.lexical_score < 0.3:
+                    continue
+                match = _DEADLINE_PATTERN.search(candidate.chunk.text)
+                if match and all(
+                    match.group(0).casefold() != item[0] for item in deadline_evidence
+                ):
+                    deadline_evidence.append((match.group(0).casefold(), candidate))
+            if len(deadline_evidence) >= 2:
+                return AnswerResult(
+                    status="ambiguous",
+                    answer="Conflicting notification deadlines were found; review both sources.",
+                    confidence=min(item[1].score for item in deadline_evidence[:2]),
+                    citations=tuple(_citation(item[1].chunk) for item in deadline_evidence[:2]),
+                )
+
+        date_query = bool({"date", "renew", "renewal"} & question_tokens)
+        renewal_query = bool({"renew", "renewal"} & question_tokens)
+        if renewal_query:
+            missing_date_evidence = [
+                item
+                for item in relevant_ranked
+                if _MISSING_DATE_PATTERN.search(item.chunk.text)
+                and bool({"renew", "renewal"} & lexical_tokens(item.chunk.text))
+            ]
+            if missing_date_evidence:
+                return AnswerResult(
+                    status="abstained",
+                    answer="No reliable renewal date is recorded in the selected evidence.",
+                    confidence=missing_date_evidence[0].score,
+                    citations=tuple(_citation(item.chunk) for item in missing_date_evidence[:2]),
+                )
         if date_query and len(ranked) > 1:
             first_dates = set(_DATE_PATTERN.findall(ranked[0].chunk.text))
             second_dates = set(_DATE_PATTERN.findall(ranked[1].chunk.text))

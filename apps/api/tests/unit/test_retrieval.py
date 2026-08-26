@@ -8,11 +8,12 @@ def _chunk(
     *,
     page: int = 1,
     document: str = "Northwind Supplier Agreement.pdf",
+    document_id: str = "doc-1",
 ) -> EvidenceChunk:
     provider = DeterministicEmbeddingProvider(dimension=384)
     return EvidenceChunk(
         id=identifier,
-        document_id="doc-1",
+        document_id=document_id,
         document_name=document,
         page=page,
         section="Renewal",
@@ -184,3 +185,111 @@ def test_requested_field_outweighs_an_entity_name_in_another_passage() -> None:
     ranked = hybrid_rank("Quel est le renouvellement Northstar ?", chunks, provider=provider)
 
     assert ranked[0].chunk.id == "renewal"
+
+
+def test_french_duree_synonym_retrieves_the_measured_incident_duration() -> None:
+    provider = DeterministicEmbeddingProvider(dimension=384)
+    chunks = [
+        _chunk(
+            "duration",
+            "Alder's inventory feed was delayed for 27 minutes.",
+            document="inventory_incident.md",
+        ),
+        _chunk(
+            "severity",
+            "The incident commander classified the incident as SEV-3.",
+            document="inventory_incident.md",
+        ),
+    ]
+    question = "Quelle durée a été enregistrée pour l'incident ?"
+
+    ranked = hybrid_rank(question, chunks, provider=provider)
+
+    assert ranked[0].chunk.id == "duration"
+    assert ExtractiveAnswerProvider().answer(question, ranked).status == "answered"
+
+
+def test_unique_organization_name_outweighs_a_generic_document_type_scope() -> None:
+    provider = DeterministicEmbeddingProvider(dimension=384)
+    chunks = [
+        _chunk(
+            "old-report",
+            "The incident report requires customer notification within 48 hours.",
+            document="routing_incident.md",
+            document_id="old-report",
+        ),
+        _chunk(
+            "orion-contract",
+            "Orion shall notify Alder of a confirmed security incident within 12 hours.",
+            document="orion_vendor_notice.pdf",
+            document_id="orion-contract",
+        ),
+    ]
+    question = "Quel délai de notification d'incident Orion impose-t-il ?"
+
+    ranked = hybrid_rank(question, chunks, provider=provider)
+
+    assert ranked[0].chunk.id == "orion-contract"
+
+
+def test_conflicting_notification_deadlines_are_reported_as_ambiguous() -> None:
+    provider = DeterministicEmbeddingProvider(dimension=384)
+    chunks = [
+        _chunk(
+            "contract",
+            "The vendor must notify incidents within 12 hours.",
+            document="vendor_notice.pdf",
+            document_id="contract",
+        ),
+        _chunk(
+            "report",
+            "The incident report says customer notification should occur within 36 hours.",
+            document="incident_report.md",
+            document_id="report",
+        ),
+    ]
+    question = "Quel délai de notification faut-il appliquer ?"
+    ranked = hybrid_rank(question, chunks, provider=provider)
+
+    answer = ExtractiveAnswerProvider().answer(question, ranked)
+
+    assert answer.status == "ambiguous"
+    assert len(answer.citations) == 2
+
+
+def test_missing_renewal_date_causes_an_evidence_backed_abstention() -> None:
+    provider = DeterministicEmbeddingProvider(dimension=384)
+    chunks = [
+        _chunk(
+            "missing",
+            "Renewal date: not recorded.",
+            document="supplier_register.txt",
+        ),
+        _chunk(
+            "risk",
+            "Risk: renewal date is missing from the register.",
+            document="supplier_register.txt",
+        ),
+    ]
+    question = "Quelle date de renouvellement faut-il retenir ?"
+    ranked = hybrid_rank(question, chunks, provider=provider)
+
+    answer = ExtractiveAnswerProvider().answer(question, ranked)
+
+    assert answer.status == "abstained"
+    assert answer.citations
+
+
+def test_missing_renewal_does_not_block_a_supported_effective_date() -> None:
+    provider = DeterministicEmbeddingProvider(dimension=384)
+    chunks = [
+        _chunk("effective", "Effective date: 2026-01-15"),
+        _chunk("missing", "Renewal date: not recorded."),
+    ]
+    question = "Quelle est la date d'effet du contrat ?"
+    ranked = hybrid_rank(question, chunks, provider=provider)
+
+    answer = ExtractiveAnswerProvider().answer(question, ranked)
+
+    assert answer.status == "answered"
+    assert answer.citations[0].chunk_id == "effective"

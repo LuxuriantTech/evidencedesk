@@ -1,0 +1,24 @@
+{
+  "dataset_version": "2026.08.26.2-blind",
+  "generation_seed": 202608262,
+  "synthetic_only": true,
+  "engine_executed": false,
+  "prohibited_actions": [
+    "evals.runner",
+    "retrieval",
+    "extraction",
+    "performance evaluation"
+  ],
+  "sha256": {
+    "datasets/blind_holdout_v2/corpus_manifest.json": "f9c4ac2d6defe83977256b1e3ac1d54a389da0029bd6860702d35a86e4dffed5",
+    "datasets/blind_holdout_v2/evaluation_cases.json": "23159f87178e6ad2c7cdf2366973fdf7abd04c0c67fbcbe0aed91f988951c738",
+    "datasets/blind_holdout_v2/generated/northstar_master_services_agreement.pdf": "e7f1d97a46220bfc7e84c3ec9c5fa3d1b6e08097d283160ad30a227ec5041936",
+    "datasets/blind_holdout_v2/generated/orion_vendor_operations_notice.pdf": "b08af64765f7a4cb4500f048c08737fb21469569e10be401068093aac2da1feb",
+    "datasets/blind_holdout_v2/sources/inventory_incident.md": "5371b5c557da95b6f2bb9998f7a93c14b3a26f702dc1a2769fbf22576f3102e7",
+    "datasets/blind_holdout_v2/sources/juniper_supplier_register.txt": "3aaee469d61b8d9f68c9678d25f95c314dea4c49ba07ec01febb90a3f52dfd96",
+    "datasets/blind_holdout_v2/sources/northstar_master_services_agreement_source.json": "a54e1c4ebd62c8231457ca67f11e1406a056a910a88b43141d0429a6c8ff09cd",
+    "datasets/blind_holdout_v2/sources/orion_vendor_operations_notice_source.json": "a3dbb57f0e6363a5e1e0395c35b69832272e356d86e4da38123ff002e0bf36a7",
+    "datasets/blind_holdout_v2/sources/routing_delay_incident.md": "5deb2e2b4dd5f2a3e0dee6bfe13cdbb2a701923bd85a2cfdb73756f3c814c3bb",
+    "datasets/blind_holdout_v2/sources/supplier_register.txt": "ad975e636864af4ca36f4e9a7ac1b70d046316e981c814aafc9440b88fa9ec6f"
+  }
+}

@@ -19,3 +19,12 @@ def test_versioned_manifest_enforces_the_sealed_evaluation_protocol() -> None:
     assert report.document_ids_are_known is True
     assert report.citations_are_exact is True
     assert report.extraction_expectations_are_traceable is True
+
+
+def test_validator_accepts_an_explicit_corpus_for_a_new_blind_holdout() -> None:
+    report = validate_manifest(
+        ROOT / "datasets" / "evaluation_cases.json",
+        corpus_path=ROOT / "datasets" / "corpus_manifest.json",
+    )
+
+    assert report.total_cases == 40

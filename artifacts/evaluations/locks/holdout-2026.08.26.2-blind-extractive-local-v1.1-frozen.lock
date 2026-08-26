@@ -1,0 +1,9 @@
+{
+  "corpus_sha256": "f9c4ac2d6defe83977256b1e3ac1d54a389da0029bd6860702d35a86e4dffed5",
+  "dataset_version": "2026.08.26.2-blind",
+  "engine_commit": "079118f15d52",
+  "legacy_lock_path": "artifacts/evaluations/holdout-2026.08.26.2-blind-extractive-local-v1.1-frozen.lock",
+  "manifest_sha256": "23159f87178e6ad2c7cdf2366973fdf7abd04c0c67fbcbe0aed91f988951c738",
+  "opened_at": "2026-08-26T18:34:34.008785+00:00",
+  "parameters_version": "extractive-local-v1.1-frozen"
+}

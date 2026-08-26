@@ -7,6 +7,7 @@ validation is not an evaluation and does not call this module.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import math
 import re
@@ -80,6 +81,23 @@ def _build_chunks(
     return chunks, by_document
 
 
+def _scoped_chunks(case: dict[str, Any], all_chunks: list[EvidenceChunk]) -> list[EvidenceChunk]:
+    document_ids = case.get("document_ids")
+    if document_ids is None:
+        return all_chunks
+    if (
+        not isinstance(document_ids, list)
+        or not document_ids
+        or not all(isinstance(item, str) for item in document_ids)
+    ):
+        raise EvaluationError(f"case {case.get('id')} has an invalid document scope")
+    allowed = set(document_ids)
+    scoped = [chunk for chunk in all_chunks if chunk.document_id in allowed]
+    if not scoped:
+        raise EvaluationError(f"case {case.get('id')} document scope is empty")
+    return scoped
+
+
 def _citation_matches(
     returned: CitationLike,
     expected: list[dict[str, Any]],
@@ -130,12 +148,21 @@ def _extraction_counts(
             gold += len(expected_values)
             predicted += len(actual_values)
             citation_gold = expected_citations.get(field_name, [])
-            citation_ok = not expected_values or any(
-                _citation_matches(citation, citation_gold, default_document_id=document_id)
-                for citation in actual_field.citations
-            )
             unmatched = list(actual_values)
-            for expected_item in expected_values:
+            for expected_index, expected_item in enumerate(expected_values):
+                expected_value_citations = (
+                    [citation_gold[expected_index]]
+                    if len(citation_gold) == len(expected_values)
+                    else citation_gold
+                )
+                citation_ok = any(
+                    _citation_matches(
+                        citation,
+                        expected_value_citations,
+                        default_document_id=document_id,
+                    )
+                    for citation in actual_field.citations
+                )
                 match = next(
                     (
                         candidate
@@ -186,7 +213,9 @@ def evaluate_manifest(manifest_path: Path, corpus_path: Path, *, split: str) -> 
     for case in cases:
         started = time.perf_counter()
         try:
-            ranked = hybrid_rank(str(case["question"]), all_chunks, provider=provider)
+            ranked = hybrid_rank(
+                str(case["question"]), _scoped_chunks(case, all_chunks), provider=provider
+            )
             answer = answer_provider.answer(str(case["question"]), ranked)
             elapsed_ms = (time.perf_counter() - started) * 1_000
             latencies.append(elapsed_ms)
@@ -274,6 +303,9 @@ def evaluate_manifest(manifest_path: Path, corpus_path: Path, *, split: str) -> 
         "latency_p95_ms": round(_p95(latencies), 3),
         "error_rate": round(_safe_ratio(errors, len(cases)), 6),
         "estimated_cost_usd": 0.0,
+        "manifest_sha256": _sha256_file(manifest_path),
+        "corpus_sha256": _sha256_file(corpus_path),
+        "engine_fingerprint": _engine_fingerprint(),
         "metric_counts": {
             "citation_correct": citation_correct,
             "citation_returned": citation_returned,
@@ -305,16 +337,43 @@ def evaluate_manifest(manifest_path: Path, corpus_path: Path, *, split: str) -> 
     return result
 
 
-def claim_holdout_once(lock_path: Path, *, allow_holdout: bool) -> None:
+def _sha256_file(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _engine_fingerprint() -> str:
+    root = Path(__file__).resolve().parents[1]
+    sources = (
+        root / "evals" / "runner.py",
+        root / "apps" / "api" / "evidencedesk_api" / "retrieval.py",
+        root / "apps" / "api" / "evidencedesk_api" / "extraction.py",
+        root / "apps" / "api" / "evidencedesk_api" / "providers.py",
+        root / "apps" / "api" / "evidencedesk_api" / "processing.py",
+    )
+    digest = hashlib.sha256()
+    for source in sources:
+        digest.update(source.relative_to(root).as_posix().encode("utf-8"))
+        digest.update(b"\0")
+        digest.update(source.read_bytes())
+        digest.update(b"\0")
+    return digest.hexdigest()
+
+
+def claim_holdout_once(
+    lock_path: Path,
+    *,
+    allow_holdout: bool,
+    evidence: dict[str, str] | None = None,
+) -> None:
     if not allow_holdout:
         raise EvaluationError("holdout execution must be explicitly authorized")
-    if lock_path.exists():
-        raise EvaluationError("holdout was already opened for this parameter version")
     lock_path.parent.mkdir(parents=True, exist_ok=True)
-    lock_path.write_text(
-        json.dumps({"opened_at": datetime.now(UTC).isoformat()}, indent=2) + "\n",
-        encoding="utf-8",
-    )
+    payload = {"opened_at": datetime.now(UTC).isoformat(), **(evidence or {})}
+    try:
+        with lock_path.open("x", encoding="utf-8") as handle:
+            handle.write(json.dumps(payload, indent=2, sort_keys=True) + "\n")
+    except FileExistsError as exc:
+        raise EvaluationError("holdout was already opened for this parameter version") from exc
 
 
 def main() -> None:
@@ -328,10 +387,20 @@ def main() -> None:
 
     manifest = _load(args.manifest)
     if args.split == "holdout":
-        lock = args.output_dir / (
+        lock = Path("artifacts/evaluations/locks") / (
             f"holdout-{manifest['dataset_version']}-{manifest['parameters_version']}.lock"
         )
-        claim_holdout_once(lock, allow_holdout=args.allow_holdout)
+        claim_holdout_once(
+            lock,
+            allow_holdout=args.allow_holdout,
+            evidence={
+                "dataset_version": str(manifest["dataset_version"]),
+                "parameters_version": str(manifest["parameters_version"]),
+                "manifest_sha256": _sha256_file(args.manifest),
+                "corpus_sha256": _sha256_file(args.corpus),
+                "engine_fingerprint": _engine_fingerprint(),
+            },
+        )
     result = evaluate_manifest(args.manifest, args.corpus, split=args.split)
     args.output_dir.mkdir(parents=True, exist_ok=True)
     output = args.output_dir / (
