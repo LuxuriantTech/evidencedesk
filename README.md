@@ -6,10 +6,10 @@ uniquement avec le document, la page et le passage utilisés. Quand la preuve ma
 contredit, il doit s'abstenir.
 
 Le projet est une démonstration technique locale, pas un service utilisé par des clients. Le
-holdout v6 a échoué aux objectifs déclarés. Un moteur v3 a ensuite été développé uniquement sur un
-nouveau jeu groupé et figé localement ; il n'est pas présenté comme validé avant son holdout v7
-indépendant. Les résultats négatifs et préflights avortés sont conservés au lieu d'être masqués. Les
-commits, hashes et locks sont des preuves locales cohérentes, pas un scellement externe.
+holdout v7 indépendant a produit un seul lock/raw enregistré après gel et a échoué aux objectifs : le
+statut empirique reste `HONEST_NEGATIVE`. Les résultats négatifs et préflights avortés sont conservés
+au lieu d'être masqués. Les commits, hashes et locks sont des preuves locales cohérentes, pas un
+scellement externe.
 
 ![Réponse avec sa source](docs/screenshots/02-sourced-answer-desktop.png)
 
@@ -47,8 +47,8 @@ Le mode par défaut utilise réellement
 `Qdrant/paraphrase-multilingual-MiniLM-L12-v2-onnx-Q` (révision figée, Apache-2.0,
 environ 118 M paramètres, vecteurs 384 dimensions) sur CPU avec FastEmbed/ONNX Runtime. Le moteur
 `grounded-local-v3` reste déterministe et extractif : EvidenceDesk n'est pas présenté comme un LLM
-complet. Le holdout v6 montre aussi qu'une bonne récupération top-5 ne suffit pas à garantir une
-bonne réponse ou extraction.
+complet. Le holdout v7 confirme qu'une bonne récupération top-5 ne suffit pas à garantir une bonne
+réponse ou extraction.
 
 ## Architecture
 
@@ -136,6 +136,17 @@ uv run mypy apps/api/evidencedesk_api apps/worker/evidencedesk_worker
 uv run python scripts/check_supply_chain_refs.py
 uv run pytest --cov --cov-report=term-missing --cov-report=json:artifacts/coverage.json
 uv run pip-audit --strict --ignore-vuln PYSEC-2026-2447
+trivy image --scanners vuln --severity CRITICAL,HIGH --ignore-unfixed evidencedesk-api:local
+trivy image --scanners vuln --severity CRITICAL,HIGH --ignore-unfixed evidencedesk-web
+```
+
+Les tests d'intégration utilisent la base PostgreSQL locale comme base de test et en réinitialisent
+les tables. Avant le parcours Playwright réel, reconstruire donc uniquement les volumes
+EvidenceDesk synthétiques :
+
+```bash
+docker compose down --volumes
+docker compose up --build --wait --wait-timeout 600
 ```
 
 Frontend :
@@ -177,10 +188,12 @@ recalculées sur ce jeu uniquement avant le gel :
 | Hybride + reranking | 100 % | 100 % | 100 % | 96,67 % | 0,6917 | 59,398 ms |
 
 La méthode hybride sans reranking a été figée : le reranking n'ajoutait aucune réponse correcte et
-faisait reculer la récupération. Le holdout v6 indépendant, ouvert une seule fois ensuite, contient
-40 questions et 120 valeurs d'extraction. Il échoue aux trois objectifs : citations 2/5 (40 %),
-cas répondables correctement cités 2/25 (8 %), abstention 12/15 (80 %) et F1 extraction 45,16 %.
-Son Recall@5 est pourtant de 25/25, ce qui localise l'échec après la récupération des candidats.
+faisait reculer la récupération. Les holdouts v4 à v6 sont des incidents ou résultats historiques.
+Le holdout v7, créé indépendamment après gel, contient 40 cas (25 répondables, 10 sans réponse,
+3 ambigus et 2 adversariaux) et 83 valeurs d'extraction. Le seul raw enregistré échoue aux objectifs :
+précision de citation 12/15 (80 %), cas répondables corrects 9/25 (36 %), abstention 12/15 (80 %)
+et F1 d'extraction 45,67 %. Son Recall@5 est pourtant 25/25 (100 %) et son MRR@5 0,94, ce qui
+localise l'échec après la récupération des candidats.
 
 Pour traiter ce diagnostic sans utiliser les anciens gold, le développement v3 ajoute huit
 documents et 48 cas synthétiques séparés par familles entre calibration et sélection. Le plan a
@@ -192,12 +205,12 @@ techniques et de schéma `0`. Le verdict développement reste **FAIL**, car l'ab
 sous l'objectif `0,85`; aucun réglage n'a suivi l'ouverture de cette partition.
 
 Les tentatives v4 et v5 se sont arrêtées avant toute inférence, respectivement sur une attestation
-incomplète et un champ corpus requis absent. Leurs locks et rapports d'échec sont conservés ; aucun
-résultat de qualité n'existe et aucune relance n'a été faite. Le v6 est le holdout de remplacement
-indépendant valide. Les résultats bruts et leur recalcul indépendant sont dans
-[`artifacts/evaluations/`](artifacts/evaluations/) ; définitions, hashes, gel et commandes sont dans
-[`docs/evaluation.md`](docs/evaluation.md). L'évaluateur reste en mémoire et ne mesure pas le réseau,
-l'ingestion, PostgreSQL ou le worker.
+incomplète et un champ corpus requis absent. Leurs locks et rapports d'échec sont conservés. Le
+holdout v7 est le seul holdout de ce cycle v3 exécuté après préflight, gel moteur et commit dataset.
+Son raw, son recalcul séparé et son lock sont dans
+[`artifacts/evaluations/holdout_v7/`](artifacts/evaluations/holdout_v7/) ; définitions, hashes, gel
+et commandes sont dans [`docs/evaluation.md`](docs/evaluation.md). L'évaluateur reste en mémoire et
+ne mesure pas le réseau, l'ingestion, PostgreSQL ou le worker.
 
 ## Modes IA
 
@@ -250,9 +263,9 @@ La politique de conservation, le modèle de menace et les limites sont détaill�
 Statut : prototype local fonctionnel, avec résultat empirique `HONEST_NEGATIVE`.
 
 - les objectifs holdout ne sont pas atteints ;
-- le moteur v3 n'est pas une preuve de généralisation tant que le holdout v7 n'a pas été exécuté ;
-- sur v6, la récupération trouve la preuve dans le top 5, mais la sélection finale, l'abstention et
-  l'extraction généralisent mal ;
+- le holdout v7 a réfuté la généralisation recherchée : sur son corpus indépendant, la récupération
+  trouve la preuve dans le top 5, mais la sélection finale, l'abstention et l'extraction restent
+  insuffisantes ;
 - v4 et v5 n'ont produit aucune métrique à cause de défauts de préflight conservés comme preuves ;
 - les PDF image/OCR, tableaux complexes et documents chiffrés ne sont pas pris en charge ;
 - la limite mémoire du sous-processus PDF est POSIX uniquement et la suppression

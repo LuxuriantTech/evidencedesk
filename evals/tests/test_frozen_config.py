@@ -17,13 +17,25 @@ from evals.freeze import (
     DEFAULT_FREEZE_PATH,
     _assert_paths_tracked_and_clean,
     _development_target_gate,
+    _engine_fingerprint_at_commit,
     _validate_comparison_raw,
+    _validate_historical_v3_freeze_record,
     _validate_strategy_comparison,
     _validate_v3_freeze_config,
 )
 from evals.runner import _engine_fingerprint
 
 ROOT = Path(__file__).resolve().parents[2]
+
+
+def _validate_against_declared_engine(path: Path) -> dict[str, object]:
+    loaded = json.loads(path.read_text(encoding="utf-8"))
+    fingerprint = loaded.get("engine_fingerprint_at_selection")
+    assert isinstance(fingerprint, str)
+    return _validate_v3_freeze_config(
+        path,
+        expected_engine_fingerprint=fingerprint,
+    )
 
 
 def test_v3_freeze_defaults_are_generic_and_schema_validation_is_fail_closed(
@@ -35,13 +47,13 @@ def test_v3_freeze_defaults_are_generic_and_schema_validation_is_fail_closed(
     path = tmp_path / "config.json"
     path.write_text(json.dumps(config), encoding="utf-8")
 
-    assert _validate_v3_freeze_config(path)["parameters_version"] == config[
+    assert _validate_against_declared_engine(path)["parameters_version"] == config[
         "parameters_version"
     ]
     config.pop("answer_engine")
     path.write_text(json.dumps(config), encoding="utf-8")
     with pytest.raises(ValueError, match="unsupported or missing top-level fields"):
-        _validate_v3_freeze_config(path)
+        _validate_against_declared_engine(path)
 
 
 @pytest.mark.parametrize(
@@ -64,7 +76,7 @@ def test_v3_freeze_rejects_weakened_holdout_protocol(
     path.write_text(json.dumps(config), encoding="utf-8")
 
     with pytest.raises(ValueError, match="holdout protocol"):
-        _validate_v3_freeze_config(path)
+        _validate_against_declared_engine(path)
 
 
 @pytest.mark.parametrize(
@@ -86,7 +98,7 @@ def test_v3_freeze_rejects_falsified_config_identity(
     path.write_text(json.dumps(config), encoding="utf-8")
 
     with pytest.raises(ValueError):
-        _validate_v3_freeze_config(path)
+        _validate_against_declared_engine(path)
 
 
 def test_v3_freeze_rejects_falsified_metric_definition(tmp_path: Path) -> None:
@@ -96,7 +108,7 @@ def test_v3_freeze_rejects_falsified_metric_definition(tmp_path: Path) -> None:
     path.write_text(json.dumps(config), encoding="utf-8")
 
     with pytest.raises(ValueError, match="evaluation protocol"):
-        _validate_v3_freeze_config(path)
+        _validate_against_declared_engine(path)
 
 
 def test_v3_freeze_rejects_a_development_hash_that_does_not_match(
@@ -107,7 +119,7 @@ def test_v3_freeze_rejects_a_development_hash_that_does_not_match(
     path = tmp_path / "invalid-config.json"
     path.write_text(json.dumps(config), encoding="utf-8")
     with pytest.raises(ValueError, match="development artifact hash mismatch"):
-        _validate_v3_freeze_config(path)
+        _validate_against_declared_engine(path)
 
 
 def test_freeze_provenance_requires_every_input_tracked_and_clean(tmp_path: Path) -> None:
@@ -277,9 +289,11 @@ def test_v6_recovery_config_binds_the_recomputed_development_artifacts() -> None
 
 def test_v7_answer_v3_config_binds_frozen_development_and_runtime() -> None:
     config_path = ROOT / "evals/configs/answer-v3-frozen-v7.json"
+    freeze_path = ROOT / "evals/configs/answer-v3-freeze-v7.json"
     config = json.loads(config_path.read_text(encoding="utf-8"))
+    freeze = json.loads(freeze_path.read_text(encoding="utf-8"))
 
-    assert _validate_v3_freeze_config(config_path) == config
+    assert _validate_historical_v3_freeze_record(config_path, freeze_path) == config
     assert config["parameters_version"] == "grounded-local-v3.0-frozen-v7"
     assert config["mode"] == "grounded-local-v3"
     assert config["retrieval_method"] == "hybrid"
@@ -297,7 +311,12 @@ def test_v7_answer_v3_config_binds_frozen_development_and_runtime() -> None:
         "contradiction_margin": 0.08,
     }
     assert config["extraction_engine"] == {"strategy_id": "supplier-extraction-v3"}
-    assert config["engine_fingerprint_at_selection"] == _engine_fingerprint()
+    assert config["engine_fingerprint_at_selection"] == _engine_fingerprint_at_commit(
+        freeze["engine_commit"]
+    )
+    assert config["engine_fingerprint_at_selection"] != _engine_fingerprint()
+    with pytest.raises(ValueError, match="current engine sources"):
+        _validate_v3_freeze_config(config_path)
     assert config["embedding"]["fastembed_version"] == importlib.metadata.version(
         "fastembed"
     )
@@ -340,3 +359,51 @@ def test_v7_answer_v3_config_binds_frozen_development_and_runtime() -> None:
     assert protocol["generation_after_engine_freeze"] is True
     assert protocol["independent_author_required"] is True
     assert protocol["gold_may_not_change_after_commit"] is True
+
+
+@pytest.mark.parametrize(
+    ("field", "value", "message"),
+    [
+        ("config_sha256", "0" * 64, "config hash"),
+        ("engine_fingerprint", "0" * 64, "Git objects"),
+        ("engine_commit", "not-a-commit", "full Git SHA"),
+    ],
+)
+def test_historical_v7_freeze_rejects_tampered_provenance(
+    tmp_path: Path,
+    field: str,
+    value: str,
+    message: str,
+) -> None:
+    config_path = ROOT / "evals/configs/answer-v3-frozen-v7.json"
+    freeze = json.loads(
+        (ROOT / "evals/configs/answer-v3-freeze-v7.json").read_text(encoding="utf-8")
+    )
+    freeze[field] = value
+    freeze_path = tmp_path / "tampered-freeze.json"
+    freeze_path.write_text(json.dumps(freeze), encoding="utf-8")
+
+    with pytest.raises(ValueError, match=message):
+        _validate_historical_v3_freeze_record(config_path, freeze_path)
+
+
+def test_historical_v7_freeze_rejects_tampered_model_or_dependency_hashes(
+    tmp_path: Path,
+) -> None:
+    config_path = ROOT / "evals/configs/answer-v3-frozen-v7.json"
+    source = json.loads(
+        (ROOT / "evals/configs/answer-v3-freeze-v7.json").read_text(encoding="utf-8")
+    )
+    freeze_path = tmp_path / "tampered-freeze.json"
+
+    tampered_model = json.loads(json.dumps(source))
+    tampered_model["model_manifest_sha256"] = "0" * 64
+    freeze_path.write_text(json.dumps(tampered_model), encoding="utf-8")
+    with pytest.raises(ValueError, match="model manifest hash"):
+        _validate_historical_v3_freeze_record(config_path, freeze_path)
+
+    tampered_dependency = json.loads(json.dumps(source))
+    tampered_dependency["dependency_sha256"]["uv.lock"] = "0" * 64
+    freeze_path.write_text(json.dumps(tampered_dependency), encoding="utf-8")
+    with pytest.raises(ValueError, match="dependency hashes"):
+        _validate_historical_v3_freeze_record(config_path, freeze_path)

@@ -515,7 +515,7 @@ def _p95(values: list[float]) -> float:
     return ordered[max(0, math.ceil(0.95 * len(ordered)) - 1)]
 
 
-def evaluate_manifest(
+def _evaluate_manifest(
     manifest_path: Path,
     corpus_path: Path,
     *,
@@ -760,6 +760,61 @@ def evaluate_manifest(
     }
     result["verdict"] = "PASS" if _meets_acceptance_targets(result) else "FAIL"
     return result
+
+
+def evaluate_manifest(
+    manifest_path: Path,
+    corpus_path: Path,
+    *,
+    split: str,
+    provider: EmbeddingProvider | None = None,
+    method: RetrievalMethod = RetrievalMethod.HYBRID,
+    reranker: Reranker | None = None,
+    runtime_metadata: dict[str, Any] | None = None,
+    answer_provider: AnswerProviderLike | None = None,
+    extraction_provider: Callable[[list[EvidenceChunk]], SupplierExtraction] | None = None,
+) -> dict[str, Any]:
+    """Evaluate development data; holdouts require the attested runner."""
+
+    if split == "holdout":
+        raise EvaluationError(
+            "holdout execution requires the attested holdout runner: python -m evals.holdout"
+        )
+    return _evaluate_manifest(
+        manifest_path,
+        corpus_path,
+        split=split,
+        provider=provider,
+        method=method,
+        reranker=reranker,
+        runtime_metadata=runtime_metadata,
+        answer_provider=answer_provider,
+        extraction_provider=extraction_provider,
+    )
+
+
+def _evaluate_attested_holdout_manifest(
+    manifest_path: Path,
+    corpus_path: Path,
+    *,
+    provider: EmbeddingProvider,
+    method: RetrievalMethod,
+    runtime_metadata: dict[str, Any],
+    answer_provider: AnswerProviderLike,
+    extraction_provider: Callable[[list[EvidenceChunk]], SupplierExtraction],
+) -> dict[str, Any]:
+    """Internal continuation used only after the attested runner's preflight and lock."""
+
+    return _evaluate_manifest(
+        manifest_path,
+        corpus_path,
+        split="holdout",
+        provider=provider,
+        method=method,
+        runtime_metadata=runtime_metadata,
+        answer_provider=answer_provider,
+        extraction_provider=extraction_provider,
+    )
 
 
 def _sha256_file(path: Path) -> str:

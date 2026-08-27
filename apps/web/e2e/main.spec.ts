@@ -128,8 +128,12 @@ test("real stack completes the sourced synthetic dossier workflow", async ({ pag
   await expect(page.getByRole("heading", { name: "Journal d’audit" })).toBeVisible();
   await expect(page.getByRole("cell", { name: "dossier.ask" }).first()).toBeVisible();
   await expect(page.getByRole("heading", { name: "Évaluation reproductible" })).toBeVisible();
-  await expect(page.getByText("PASS").first()).toBeVisible();
-  await expect(page.getByText("semantic-dev-v2-preregistered").first()).toBeVisible();
+  const v7Run = page
+    .locator("article.evaluation-card")
+    .filter({ hasText: "grounded-local-v3.0-frozen-v7" });
+  await expect(v7Run.getByText("FAIL")).toBeVisible();
+  await expect(v7Run.getByText("80,0 %").first()).toBeVisible();
+  await expect(v7Run.getByText("45,7 %").first()).toBeVisible();
 
   const desktopA11y = await new AxeBuilder({ page }).analyze();
   expect(

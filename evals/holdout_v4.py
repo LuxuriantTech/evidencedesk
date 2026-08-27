@@ -7,25 +7,17 @@ import hashlib
 import importlib.metadata
 import json
 import re
-import resource
 import shutil
 import subprocess
-import time
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from evidencedesk_api.providers import LocalSemanticEmbeddingProvider
-from evidencedesk_api.retrieval import RetrievalMethod
-
-from evals.benchmark import _git_head, _hardware
 from evals.runner import (
     ENGINE_FINGERPRINT_PATHS,
     EvaluationError,
-    _engine_fingerprint,
-    evaluate_manifest,
 )
-from evals.validate_dataset import ValidationReport, validate_manifest
+from evals.validate_dataset import ValidationReport
 
 DEPENDENCY_PATHS = ("pyproject.toml", "uv.lock")
 
@@ -346,105 +338,10 @@ def run_holdout_once(
     output_path: Path,
     allow_holdout: bool,
 ) -> dict[str, Any]:
-    claim_one_shot(
-        lock_path,
-        output_path,
-        allow_holdout=allow_holdout,
-        evidence={"gate": "holdout-v4"},
+    raise EvaluationError(
+        "legacy holdout runner is disabled before all input and lock access; "
+        "historical v4-v6 artifacts are immutable and new protocols must use evals.holdout"
     )
-    evidence = {
-        "dataset_commit": _git_head(),
-        "engine_fingerprint": _engine_fingerprint(),
-        "manifest_sha256": _sha256(manifest_path),
-        "corpus_sha256": _sha256(corpus_path),
-        "attestation_sha256": _sha256(attestation_path),
-        "config_sha256": _sha256(config_path),
-        "model_manifest_sha256": _sha256(model_manifest_path),
-        "freeze_sha256": _sha256(freeze_path),
-        "dependency_sha256": {
-            relative: _sha256(Path(__file__).resolve().parents[1] / relative)
-            for relative in DEPENDENCY_PATHS
-        },
-    }
-
-    config = _load(config_path)
-    attestation = _load(attestation_path)
-    freeze = _load(freeze_path)
-    manifest = _load(manifest_path)
-    freeze_commit = attestation.get("freeze_commit")
-    if not isinstance(freeze_commit, str):
-        raise EvaluationError("freeze commit is missing from the holdout attestation")
-    verify_committed_holdout_inputs(
-        (
-            manifest_path,
-            corpus_path,
-            attestation_path,
-            freeze_path,
-            config_path,
-            model_manifest_path,
-        ),
-        new_holdout_paths=(manifest_path, corpus_path, attestation_path),
-        dataset_commit=str(evidence["dataset_commit"]),
-        freeze_commit=freeze_commit,
-        freeze_path=freeze_path,
-        expected_freeze_sha256=str(evidence["freeze_sha256"]),
-    )
-    verify_freeze_attestation(attestation, freeze, evidence)
-    _verify_engine_commit(
-        str(freeze["engine_commit"]),
-        freeze_commit=freeze_commit,
-        config_path=config_path,
-        model_manifest_path=model_manifest_path,
-    )
-
-    report = validate_manifest(manifest_path, corpus_path=corpus_path)
-    verify_holdout_protocol(config, manifest, attestation, report)
-    dependency_versions = _verify_runtime_dependencies(config)
-
-    provider = LocalSemanticEmbeddingProvider(
-        manifest_path=model_manifest_path,
-        model_path=model_path,
-    )
-    method = RetrievalMethod(str(config["retrieval_method"]))
-    hardware = _hardware()
-    started = time.perf_counter()
-    result = evaluate_manifest(
-        manifest_path,
-        corpus_path,
-        split="holdout",
-        provider=provider,
-        method=method,
-        runtime_metadata={
-            **hardware,
-            **dependency_versions,
-            "model_manifest_sha256": evidence["model_manifest_sha256"],
-            "external_api_cost_usd": 0.0,
-        },
-    )
-    result["schema_version"] = "holdout-v4-raw-result-v2"
-    result["provenance"] = {
-        **evidence,
-        "engine_commit": str(freeze["engine_commit"]),
-        "freeze_commit": freeze_commit,
-        "freeze_sha256": _sha256(freeze_path),
-        "lock_path": str(lock_path),
-        "lock_sha256": _sha256(lock_path),
-    }
-    result["holdout_structure"] = {
-        "total_cases": report.total_cases,
-        "answerable_cases": report.answerable_cases,
-        "unanswerable_cases": report.unanswerable_cases,
-        "adversarial_or_ambiguous_cases": report.adversarial_or_ambiguous_cases,
-    }
-    result["total_wall_time_ms"] = round((time.perf_counter() - started) * 1_000, 3)
-    result["peak_rss_bytes"] = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss * 1024
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    try:
-        with output_path.open("x", encoding="utf-8") as handle:
-            handle.write(json.dumps(result, indent=2, sort_keys=True) + "\n")
-    except FileExistsError as exc:
-        raise EvaluationError("holdout output already exists") from exc
-    return result
 
 
 def main() -> None:

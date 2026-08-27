@@ -90,6 +90,23 @@ configuration, puis construit les fournisseurs v3 avant de pouvoir créer le loc
 inférence ne consomme donc plus l'exécution aveugle. Les erreurs de v4 et v5 restent immuables comme
 incidents historiques.
 
+### Garde supplémentaire ajouté après v7
+
+Une revue indépendante postérieure à v7 a trouvé un autre chemin ordinaire : l'API Python publique
+`evaluate_manifest` acceptait encore `split="holdout"` sans passer par le préflight attesté, même si
+la CLI le refusait déjà. Ce chemin n'est pas celui enregistré dans le raw v7, mais l'absence de garde
+était un défaut réel. Il est maintenant refusé avant toute lecture de dataset ; le runner attesté
+appelle une continuation interne dédiée après préflight et création du lock. Les runners historiques
+v4 à v6 refusent désormais toute invocation avant lecture ou écriture. Ces gardes ferment les points
+d'entrée supportés et préviennent un contournement accidentel, pas un opérateur local capable
+d'importer des fonctions privées ou de modifier le code.
+
+Ce correctif post-v7 change l'empreinte du moteur courant sans réécrire le moteur figé, la
+configuration, le lock ou le raw v7. La validation historique recalcule désormais l'empreinte depuis
+les objets Git du commit moteur `84971d8c01ac0e0eac840205527acad0a92561e7`; le contrôle pré-exécution
+continue, lui, d'exiger que les sources courantes correspondent exactement à une nouvelle
+configuration figée.
+
 Le raw actuel porte un schéma générique `evidencedesk-holdout-raw-v4`. Le recalculateur accepte une
 liste fermée de schémas historiques, rejette un schéma inconnu et recalcule Recall@5/MRR@5 à partir
 des documents/pages récupérés et des locations gold, sans faire confiance à un booléen pré-calculé.
@@ -121,23 +138,83 @@ champ `filename` absent. Après correction structurelle du validateur, un nouvea
 relu par deux agents indépendants du développement. Il a été soumis à un préflight complet sans
 inférence avant la création du lock, puis exécuté une fois.
 
-## Résultat holdout v6
+## Résultat holdout v7 — seul raw enregistré
 
-Le raw v6 est `FAIL` : précision citation `0,4` (2/5), exactitude citation par cas `0,08` (2/25), abstention `0,8` (12/15), extraction P/R/F1 `1 / 0,291667 / 0,451613`, Recall@5 `1`, MRR@5 `0,9`, erreurs `0`, coût externe `0 USD`. Il s'abstient sur 20 des 25 cas répondables et traite strictement 0 des 3 cas ambigus comme ambigus. L'extraction est mesurée par champs : 35 vrais positifs sur 120 valeurs gold, 35 prédictions.
+Le protocole v7 a été gelé au commit `e9af96e3ea2a92d567bd9e9d771fae33b7e5b684`, puis le dataset
+indépendant a été committé dans `152e7ee2248cc00f8692c907a0b0f7830727e2ba`. Après préflight réussi,
+le lock `03b455f0485d04afce46cf5798ce537786169a34d9b51787a372e121e01ac909` a été créé le
+2026-08-27T18:49:52.648828+00:00. Il lie le moteur `84971d8c01ac0e0eac840205527acad0a92561e7` au
+dataset versionné `blind-holdout-v7-2026.08.27`. Le graphe Git local contient un seul lock et un
+seul raw v7 ; aucun v8 ne sera créé dans ce cycle. Ce constat ne peut pas exclure un éventuel run
+local supprimé avant commit, car le verrou n'est ni WORM ni attesté par un tiers.
 
-Temps runner local : indexation `2035,357 ms`, médiane `38,802 ms`, p95 `55,001 ms`, total `3651,221 ms`; pic RSS `698339328` octets. Ce ne sont pas des SLO de service. Les objectifs gelés ne sont pas atteints ; aucune optimisation ne doit être dérivée du corpus v6 ouvert.
+Le raw est `FAIL` : précision/rappel de citation `0,8 / 0,48` (12 citations correctes sur 15
+retournées pour les 25 cas répondables, 12 preuves gold retrouvées sur 25), exactitude répondable
+`0,36` (9/25), abstention `0,8` (12/15), extraction P/R/F1
+`0,659091 / 0,349398 / 0,456693` (29 vrais positifs, 44 prédictions, 83 valeurs gold), Recall@5 `1`
+(25/25), MRR@5 `0,94`, erreurs et erreurs de schéma `0`, coût externe `0 USD`. Les objectifs gelés
+de 90 % pour citations/cas répondables/F1 et 85 % pour l'abstention ne sont pas atteints. Vingt
+citations sont émises tous types de cas confondus ; les compteurs officiels de précision/rappel de
+citation ne portent que sur les 25 cas répondables. Le taux d'erreur nul ne mesure que les
+exceptions techniques : il coexiste avec 19/40 décisions sémantiquement incorrectes.
 
-Le diagnostic du raw explique le `FAIL` : la preuve gold est présente dans le top 5 pour 25/25
-questions répondables, mais le moteur s'abstient sur 20 d'entre elles. Parmi les cinq réponses
-retournées, deux sont entièrement correctes, deux ont la bonne valeur avec une mauvaise citation et
-une a une valeur et une citation incorrectes. Les 10 cas sans réponse et les 2 cas adversariaux sont
-correctement refusés, mais aucun des 3 cas ambigus n'obtient le statut strict attendu. Côté
-extraction, les vrais positifs par champ sont : type `0/10`, date d'effet `5/10`, montants `20/20`,
-obligations `0/20`, organisation `0/10`, renouvellement `10/10`, responsables `0/20` et risques
-`0/20`. La faiblesse principale est donc la généralisation de la sélection/réponse et des patrons
-d'extraction, pas la récupération top-5.
+Temps runner local : indexation `3778,661 ms`, médiane `756,641 ms`, p95 `1150,454 ms`, total
+`36288,053 ms`; pic RSS `700862464` octets. Ce ne sont pas des SLO de service. Le runtime enregistré
+est CPU (`12th Gen Intel(R) Core(TM) i5-12600KF`, 16 CPU logiques, `16768458752` octets RAM), Python
+`3.12.13`, WSL2, ONNX Runtime `CPUExecutionProvider`.
 
-Recalcul vérifiable sans appeler le moteur ni rouvrir le corpus :
+Le recalcul séparé à partir du raw, sans inférence ni réouverture du corpus, reproduit ces agrégats,
+le Recall@5/MRR@5 et la cohérence interne des temps/RSS. Il réutilise les décisions de valeur et de
+citation enregistrées dans le raw : ce n'est pas une nouvelle évaluation sémantique. Les SHA-256
+sont : raw
+`55a79af0d38ea1d7742763406e29dc96416f7c3cb158aa9a90bbbbd16650c1c1`, recalcul
+`fd9e2864cd6b2aa4701cc1e2b979d49cd02e4fea76fbe8727271a45c9585fee3`, corpus
+`32f0d0bda0abdc94cf2477dd640f82a7b37b7b2062bdc512d5480d5ac267d574`, cas
+`2ab6c710a2eed039ae8749f151eb5894f875dd1411b69fcec9b106571580b1a1` et attestation
+`b60b2a74e69ca52a67117d610d15a5d7b95c5d131b478a5fa74fbe00d8ed9021`.
+
+Recalcul vérifiable sans appeler le moteur :
+
+```bash
+PYTHONPATH=apps/api:apps/worker:. uv run python -m evals.recalculate \
+  --input artifacts/evaluations/holdout_v7/raw.json \
+  --output /tmp/holdout-v7-recalculated.json
+sha256sum artifacts/evaluations/holdout_v7/raw.json \
+  artifacts/evaluations/holdout_v7/recalculated.json \
+  artifacts/evaluations/holdout_v7/grounded-local-v3.0-frozen-v7.lock.json
+```
+
+Le diagnostic est post-récupération : 11 questions répondables ont été refusées alors que leur
+preuve est dans le top-5 ; `v7-a04` choisit une mauvaise personne, `v7-a12` transforme une date de
+renouvellement en ambiguïté, `v7-a21` et `v7-a23` ne sont que partiellement soutenues. Deux des trois
+questions ambiguës reçoivent encore une réponse certaine. Le cas adversarial `v7-x02` restitue une
+instruction injectée : c'est un échec de résistance aux injections. Le cas `v7-a16` a une citation
+correcte et contient le montant attendu, mais le normaliseur retient d'abord l'horodatage `06:23` ;
+cette limite du scoreur est documentée après ouverture et ne corrige pas le verdict (même une unité
+supplémentaire resterait très sous le seuil).
+
+L'extraction confirme le défaut de généralisation : type et organisation `0/10`, date d'effet `1/10`,
+montants `7/11`, obligations `6/10`, renouvellement `5/9`, responsables `4/11`, risques `6/12`
+(numérateur = vrais positifs). Les formulations de date, les rôles/personnes, les valeurs courtes de
+risque et les contradictions restent mal couverts. Voir l'analyse détaillée dans
+[`docs/holdout-v7-analysis.md`](holdout-v7-analysis.md).
+
+## Résultat holdout v6 — historique immuable
+
+Le raw v6 est `FAIL` : précision citation `0,4` (2/5), exactitude citation par cas `0,08` (2/25),
+abstention `0,8` (12/15), extraction P/R/F1 `1 / 0,291667 / 0,451613`, Recall@5 `1`, MRR@5 `0,9`,
+erreurs `0`, coût externe `0 USD`. Il s'abstient sur 20 des 25 cas répondables et traite strictement
+0 des 3 cas ambigus comme ambigus. L'extraction compte 35 vrais positifs sur 120 valeurs gold et
+35 prédictions.
+
+Temps runner local : indexation `2035,357 ms`, médiane `38,802 ms`, p95 `55,001 ms`, total
+`3651,221 ms`; pic RSS `698339328` octets. Le diagnostic historique localise déjà l'échec après la
+récupération : preuve gold top-5 pour 25/25, mais décision de répondre, citation et patrons
+d'extraction insuffisants. Les vrais positifs par champ sont type `0/10`, date d'effet `5/10`,
+montants `20/20`, obligations `0/20`, organisation `0/10`, renouvellement `10/10`, responsables
+`0/20` et risques `0/20`. Ce holdout ouvert ne doit servir à aucun réglage.
+
+Recalcul historique, sans moteur :
 
 ```bash
 PYTHONPATH=apps/api:apps/worker:. uv run python -m evals.recalculate \
@@ -147,12 +224,8 @@ sha256sum artifacts/evaluations/holdout_v6/holdout-v6-raw.json \
   artifacts/evaluations/holdout_v6/holdout-v6-recalculated.json
 ```
 
-La copie synthétique `artifacts/evaluations/holdout-v6-summary.json` ne sert qu'à alimenter la page
-de démonstration. Elle référence le SHA-256 du raw ; le raw et son recalcul restent les sources de
-vérité métriques.
-
-Le raw v6 conserve son ancien label `holdout-v4-raw-result-v2` parce qu'il est immuable. Le nouveau
-runner n'émet plus cette étiquette historique ; cette correction ne réécrit aucun artefact ouvert.
+Le raw v6 conserve volontairement le label historique `holdout-v4-raw-result-v2`; le nouveau runner
+n'émet plus cette étiquette. Cette correction ne réécrit aucun artefact ouvert.
 
 ## Modèle et limites
 

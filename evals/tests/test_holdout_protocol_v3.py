@@ -1,9 +1,22 @@
+import inspect
 import json
 from pathlib import Path
 
 import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
+
+
+def test_runner_python_api_cannot_bypass_attested_holdout_preflight(tmp_path: Path) -> None:
+    from evals.runner import EvaluationError, evaluate_manifest
+
+    assert "_holdout_capability" not in inspect.signature(evaluate_manifest).parameters
+    with pytest.raises(EvaluationError, match="attested holdout runner"):
+        evaluate_manifest(
+            tmp_path / "manifest.json",
+            tmp_path / "corpus.json",
+            split="holdout",
+        )
 
 
 def test_frozen_answer_runtime_accepts_only_the_declared_v3_engines() -> None:
@@ -73,7 +86,7 @@ def test_preflight_failure_does_not_consume_blind_execution(
     monkeypatch.setattr(holdout, "preflight_holdout", fail_preflight)
     monkeypatch.setattr(
         holdout,
-        "evaluate_manifest",
+        "_evaluate_attested_holdout_manifest",
         lambda *_args, **_kwargs: pytest.fail("inference started before preflight passed"),
     )
 
@@ -202,7 +215,7 @@ def test_real_preflight_error_classes_never_consume_lock_or_start_inference(
     )
     monkeypatch.setattr(
         holdout,
-        "evaluate_manifest",
+        "_evaluate_attested_holdout_manifest",
         lambda *_args, **_kwargs: pytest.fail("inference started before preflight passed"),
     )
 
@@ -294,7 +307,7 @@ def test_successful_preflight_is_completed_before_lock_and_inference(
 
     monkeypatch.setattr(holdout, "preflight_holdout", preflight)
     monkeypatch.setattr(holdout, "claim_one_shot", claim)
-    monkeypatch.setattr(holdout, "evaluate_manifest", evaluate)
+    monkeypatch.setattr(holdout, "_evaluate_attested_holdout_manifest", evaluate)
     monkeypatch.setattr(holdout, "_sha256", lambda _path: "d" * 64)
 
     result = holdout.run_holdout_once(

@@ -28,7 +28,12 @@ from evals.holdout_v4 import (
     verify_committed_holdout_inputs,
     verify_freeze_attestation,
 )
-from evals.runner import AnswerProviderLike, EvaluationError, _engine_fingerprint, evaluate_manifest
+from evals.runner import (
+    AnswerProviderLike,
+    EvaluationError,
+    _engine_fingerprint,
+    _evaluate_attested_holdout_manifest,
+)
 from evals.validate_dataset import ValidationReport, validate_manifest
 
 RAW_SCHEMA_VERSION = "evidencedesk-holdout-raw-v4"
@@ -297,10 +302,9 @@ def run_holdout_once(
     )
 
     started = time.perf_counter()
-    result: dict[str, Any] = evaluate_manifest(
+    result: dict[str, Any] = _evaluate_attested_holdout_manifest(
         manifest_path,
         corpus_path,
-        split="holdout",
         provider=prepared.provider,
         method=prepared.method,
         runtime_metadata=prepared.runtime_metadata,

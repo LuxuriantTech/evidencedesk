@@ -6,8 +6,8 @@ J'ai construit localement une application full-stack de revue documentaire pour 
 fournisseur entièrement synthétique. React appelle une API FastAPI avec RBAC ; les imports passent
 par Redis/ARQ, puis PostgreSQL/pgvector conserve passages, extractions et audits. Le moteur actif
 utilise un embedding ONNX local et une recherche hybride, sans clé ni appel externe ; la réponse
-reste extractive, sourcée ou abstentionniste. Son holdout v6 a échoué : c'est un prototype technique
-et non une preuve de qualité RAG généralisable.
+reste extractive, sourcée ou abstentionniste. Son holdout v7 indépendant a échoué : c'est un
+prototype technique et non une preuve de qualité RAG généralisable.
 
 ## Architecture et choix défendables
 
@@ -38,25 +38,27 @@ et non une preuve de qualité RAG généralisable.
 
 ## Résultat réellement mesuré
 
-Le holdout v6 est l'artefact de qualité à citer, pas la démo ni le développement : 40 cas,
-`extractive-local-onnx` avec récupération `hybrid`, sur CPU (`12th Gen Intel Core i5-12600KF`,
-16 CPU logiques, environ 16,8 GB de RAM, ONNX Runtime `CPUExecutionProvider`). Verdict : **FAIL**.
+Le holdout v7 est l'artefact de qualité à citer, pas la démo ni le développement : 40 cas,
+`deterministic-evidence-v3` avec récupération `hybrid`, sur CPU (`12th Gen Intel Core i5-12600KF`,
+16 CPU logiques, 16 768 458 752 octets de RAM, ONNX Runtime `CPUExecutionProvider`). Verdict :
+**FAIL**.
 
-- précision de citation : 40 % (2 citations correctes sur 5 retournées) ;
-- cas répondables corrects : 8 % (2/25) ;
+- précision/rappel de citation : 80 % / 48 % (12 correctes sur 15 retournées ; 12/25 preuves gold) ;
+- cas répondables corrects : 36 % (9/25) ;
 - abstention correcte : 80 % (12/15) ;
-- F1 d'extraction : 45,16 % ; Recall@5 : 100 % (25/25) ;
+- F1 d'extraction : 45,67 % ; Recall@5 : 100 % (25/25) ;
 - taux d'erreur : 0 % ; coût API externe : 0 USD.
 
 Ces chiffres montrent que retrouver une preuve dans les cinq premiers candidats ne suffit pas à
-produire une réponse/citation/extraction correcte. Les v4 et v5 se sont arrêtés au préflight,
-sans métrique de qualité, et ne sont pas rejoués. Les résultats de développement servent au réglage,
-pas à établir une qualité générale.
+produire une réponse/citation/extraction correcte. Onze cas répondables ont été refusés et un cas
+adversarial a suivi une instruction injectée. Les v4 et v5 se sont arrêtés au préflight, sans
+métrique de qualité, et ne sont pas rejoués. Les résultats de développement servent au réglage, pas
+à établir une qualité générale.
 
 ## Limites à dire spontanément
 
 - prototype local ; aucun client, usage production, SLA, URL publique ou CI GitHub exécutée ;
-- holdout v6 en échec : aucun objectif de qualité ne doit être présenté comme atteint ;
+- holdout v7 en échec : aucun objectif de qualité ne doit être présenté comme atteint ;
 - les locks et hashes locaux améliorent la traçabilité mais ne prouvent pas un scellement externe ni
   l'absence de consultation ;
 - OCR, PDF image, tableaux complexes, chiffrement applicatif, charge concurrente et validation
@@ -69,20 +71,20 @@ pas à établir une qualité générale.
 ### Pourquoi pgvector et un embedding ONNX local ?
 
 Pour exercer une chaîne dense réellement locale, vérifiée par manifest et hash, sans clé runtime.
-La récupération hybride conserve aussi le lexical. Le holdout v6 échoue toutefois : l'intégration
+La récupération hybride conserve aussi le lexical. Le holdout v7 échoue toutefois : l'intégration
 technique est démontrée, pas l'efficacité finale du système.
 
 ### Pourquoi garder un résultat FAIL ?
 
-Parce qu'une démo choisie ne mesure pas la généralisation. Le FAIL v6, les compteurs bruts et les
+Parce qu'une démo choisie ne mesure pas la généralisation. Le FAIL v7, les compteurs bruts et les
 artefacts permettent d'expliquer précisément la limite : Recall@5 parfait, mais réponse, citation
 et extraction insuffisantes.
 
 ### Quel serait le prochain travail ?
 
-Analyser les erreurs sur le développement, modifier puis geler un nouveau moteur, et créer un
-nouveau holdout indépendant. Les v4, v5 et v6 déjà ouverts ne doivent pas devenir des jeux de
-réglage.
+Créer un nouveau développement séparé, améliorer la résistance aux injections, la décision et le
+schéma d'extraction, puis geler un moteur avant un nouveau holdout indépendant. Le v7 déjà ouvert
+ne doit pas devenir un jeu de réglage.
 
 ### L'évaluation couvre-t-elle tout le produit ?
 
@@ -94,7 +96,7 @@ preuves complémentaires, aucune ne valide à elle seule la qualité de producti
 - Built a local document-review prototype with FastAPI, React/TypeScript, PostgreSQL/pgvector and
   Redis/ARQ, including server-side RBAC, page-level evidence, PII redaction and correlated audit logs.
 - Implemented a local, CPU-only ONNX embedding pipeline and hybrid retrieval with pinned model
-  identity, file hashes and a 40-case evaluation artifact; reported the v6 holdout FAIL rather than
+  identity, file hashes and a 40-case evaluation artifact; reported the v7 holdout FAIL rather than
   presenting development or demo results as general quality.
 - Verified a real browser-to-worker workflow with Playwright, covering asynchronous ingestion,
   sourced answers, abstention, extraction, audit and controlled deletion.
@@ -106,7 +108,7 @@ preuves complémentaires, aucune ne valide à elle seule la qualité de producti
   corrélé.
 - Mise en place d'un pipeline d'embedding ONNX local sur CPU et de recherche hybride, avec identité
   modèle figée, hashes de fichiers et artefact d'évaluation de 40 cas ; conservation du FAIL holdout
-  v6 sans présenter la démo ou le développement comme preuve de qualité générale.
+  v7 sans présenter la démo ou le développement comme preuve de qualité générale.
 - Vérification d'un parcours réel navigateur–worker avec Playwright : ingestion asynchrone, réponse
   sourcée, abstention, extraction, audit et suppression contrôlée.
 

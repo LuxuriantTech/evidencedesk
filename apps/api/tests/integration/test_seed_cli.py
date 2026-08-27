@@ -129,6 +129,87 @@ def test_seed_loader_keeps_latest_artifact_for_the_same_run_identity(tmp_path: P
     assert loaded[0][1]["latency_p95_ms"] == 50.054
 
 
+def test_v7_summary_is_seedable_and_preserves_the_raw_artifact_digest() -> None:
+    artifacts_dir = Path("artifacts/evaluations")
+    raw_path = artifacts_dir / "holdout_v7/raw.json"
+    recalculated_path = artifacts_dir / "holdout_v7/recalculated.json"
+    raw = json.loads(raw_path.read_text(encoding="utf-8"))
+    recalculated = json.loads(recalculated_path.read_text(encoding="utf-8"))
+
+    loaded = _load_evaluation_artifacts(artifacts_dir)
+    summaries = [
+        result
+        for path, result in loaded
+        if path.name == "holdout-v7-summary.json"
+    ]
+
+    assert len(summaries) == 1
+    summary = summaries[0]
+    assert summary["dataset_version"] == "blind-holdout-v7-2026.08.27"
+    assert summary["parameters_version"] == "grounded-local-v3.0-frozen-v7"
+    assert summary["verdict"] == "FAIL"
+    assert summary["source_raw_path"] == str(raw_path)
+    assert summary["source_raw_sha256"] == hashlib.sha256(raw_path.read_bytes()).hexdigest()
+    assert summary["source_recalculated_path"] == str(recalculated_path)
+    assert summary["source_recalculated_sha256"] == hashlib.sha256(
+        recalculated_path.read_bytes()
+    ).hexdigest()
+    assert recalculated["raw_artifact_sha256"] == summary["source_raw_sha256"]
+
+    raw_fields = {
+        "created_at",
+        "dataset_version",
+        "parameters_version",
+        "seed",
+        "split",
+        "mode",
+        "retrieval_method",
+        "case_count",
+        "citation_precision",
+        "citation_recall",
+        "citation_case_accuracy",
+        "abstention_accuracy",
+        "extraction_precision",
+        "extraction_recall",
+        "extraction_f1",
+        "retrieval_recall_at_5",
+        "retrieval_mrr_at_5",
+        "latency_median_ms",
+        "latency_p95_ms",
+        "indexing_ms",
+        "total_wall_time_ms",
+        "peak_rss_bytes",
+        "error_rate",
+        "schema_error_rate",
+        "estimated_cost_usd",
+        "verdict",
+    }
+    assert {field: summary[field] for field in raw_fields} == {
+        field: raw[field] for field in raw_fields
+    }
+    recalculated_metrics = {
+        "citation_precision",
+        "citation_recall",
+        "citation_case_accuracy",
+        "abstention_accuracy",
+        "extraction_precision",
+        "extraction_recall",
+        "extraction_f1",
+        "retrieval_recall_at_5",
+        "retrieval_mrr_at_5",
+        "latency_median_ms",
+        "latency_p95_ms",
+        "error_rate",
+        "schema_error_rate",
+        "verdict",
+    }
+    assert {field: summary[field] for field in recalculated_metrics} == {
+        field: recalculated[field] for field in recalculated_metrics
+    }
+    assert summary["metric_counts"] == raw["metric_counts"]
+    assert summary["recalculated_metric_counts"] == recalculated["metric_counts"]
+
+
 def build_engine_from_url():
     settings = Settings(
         database_url=DATABASE_URL,

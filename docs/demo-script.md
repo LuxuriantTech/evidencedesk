@@ -39,14 +39,15 @@ Playwright vérifie la réponse HTTP `202 queued`, puis attend le statut termina
 2. Montrer organisation, date, montant, obligations et boutons de preuve.
 3. Sélectionner `supplier_register.txt` et montrer `[EMAIL REDACTED]` et `[PHONE REDACTED]`.
 
-## 2:30–3:00 — Audit et résultat v6
+## 2:30–3:00 — Audit et résultat v7
 
 1. Montrer `document.upload`, `document.process`, `dossier.ask` et les UUID de corrélation.
-2. Montrer le résultat holdout v6 : **FAIL**. Il porte sur 40 cas et rapporte notamment 40 % de
-   précision de citation, 8 % de cas répondables corrects, 80 % d'abstention correcte, F1
-   d'extraction 45,16 %, Recall@5 100 %, zéro erreur et 0 USD de coût externe.
-3. Dire explicitement : le moteur local et le parcours fonctionnent, mais cette évaluation ne valide
-   pas la qualité RAG. Les préflights v4 et v5 n'ont produit aucune métrique et ne sont pas rejoués.
+2. Montrer le résultat holdout v7 : **FAIL**. Le seul raw enregistré sur 40 cas rapporte 80 % de
+   précision de citation, 36 % de cas répondables corrects, 80 % d'abstention correcte, F1
+   d'extraction 45,67 %, Recall@5 100 %, zéro erreur et 0 USD de coût externe.
+3. Dire explicitement : le moteur local et le parcours fonctionnent, mais ce holdout indépendant ne
+   valide pas la qualité RAG. Aucune seconde exécution ni v8 n'est créé dans ce cycle. Les préflights
+   v4 et v5 n'ont produit aucune métrique et ne sont pas rejoués.
 
 Après la démo, l'administrateur peut supprimer le document importé ; le fichier, les chunks et
 l'extraction sont retirés, tandis qu'un audit minimal demeure.

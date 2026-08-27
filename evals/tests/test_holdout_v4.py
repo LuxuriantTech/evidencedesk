@@ -39,17 +39,16 @@ def test_one_shot_claim_requires_gate_and_refuses_existing_output_or_lock(tmp_pa
         claim_one_shot(lock, output, allow_holdout=True, evidence={"dataset": "v4"})
 
 
-def test_second_holdout_attempt_refuses_before_hashing_any_input(
+def test_legacy_holdout_runner_is_disabled_before_lock_or_input_access(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     lock = tmp_path / "v4.lock"
-    lock.write_text("claimed", encoding="utf-8")
     monkeypatch.setattr(
         "evals.holdout_v4._sha256",
-        lambda _path: pytest.fail("holdout input was read before the one-shot refusal"),
+        lambda _path: pytest.fail("legacy runner read an input before refusing"),
     )
 
-    with pytest.raises(EvaluationError, match="already opened"):
+    with pytest.raises(EvaluationError, match="legacy holdout runner is disabled"):
         run_holdout_once(
             manifest_path=tmp_path / "missing-evaluation.json",
             corpus_path=tmp_path / "missing-corpus.json",
@@ -62,6 +61,7 @@ def test_second_holdout_attempt_refuses_before_hashing_any_input(
             output_path=tmp_path / "result.json",
             allow_holdout=True,
         )
+    assert not lock.exists()
 
 
 def test_freeze_attestation_is_bound_to_engine_config_model_and_author() -> None:

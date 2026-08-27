@@ -6,6 +6,7 @@ import argparse
 import hashlib
 import json
 import math
+import re
 import shutil
 import subprocess
 from datetime import UTC, datetime
@@ -497,7 +498,11 @@ def _validate_development_evidence(loaded: dict[str, Any], root: Path) -> list[s
     return list(dict.fromkeys(evidence_paths))
 
 
-def _validate_v3_config_data(loaded: dict[str, Any]) -> dict[str, Any]:
+def _validate_v3_config_data(
+    loaded: dict[str, Any],
+    *,
+    expected_engine_fingerprint: str | None = None,
+) -> dict[str, Any]:
     if frozenset(loaded) != _V3_CONFIG_KEYS:
         raise ValueError("frozen v3 configuration has unsupported or missing top-level fields")
     try:
@@ -552,7 +557,8 @@ def _validate_v3_config_data(loaded: dict[str, Any]) -> dict[str, Any]:
         raise ValueError("frozen v3 embedding configuration differs from its manifest/runtime")
 
     validate_frozen_holdout_protocol(loaded.get("holdout_protocol"))
-    if loaded.get("engine_fingerprint_at_selection") != _engine_fingerprint():
+    expected_fingerprint = expected_engine_fingerprint or _engine_fingerprint()
+    if loaded.get("engine_fingerprint_at_selection") != expected_fingerprint:
         raise ValueError("frozen v3 engine fingerprint differs from current engine sources")
     if loaded.get("evaluation") != FROZEN_EVALUATION_PROTOCOL:
         raise ValueError("frozen v3 evaluation protocol differs from the registered definitions")
@@ -562,14 +568,103 @@ def _validate_v3_config_data(loaded: dict[str, Any]) -> dict[str, Any]:
     return loaded
 
 
-def _validate_v3_freeze_config(config_path: Path) -> dict[str, Any]:
+def _validate_v3_freeze_config(
+    config_path: Path,
+    *,
+    expected_engine_fingerprint: str | None = None,
+) -> dict[str, Any]:
     try:
         loaded = json.loads(config_path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
         raise ValueError("frozen v3 configuration is not valid JSON") from exc
     if not isinstance(loaded, dict):
         raise ValueError("frozen v3 configuration must be an object")
-    return _validate_v3_config_data(loaded)
+    return _validate_v3_config_data(
+        loaded,
+        expected_engine_fingerprint=expected_engine_fingerprint,
+    )
+
+
+def _engine_fingerprint_at_commit(commit: str, *, root: Path | None = None) -> str:
+    """Recompute the frozen engine fingerprint from immutable Git objects."""
+
+    if re.fullmatch(r"[0-9a-f]{40}", commit) is None:
+        raise ValueError("historical engine commit is not a full Git SHA")
+    repository = (root or Path(__file__).resolve().parents[1]).resolve()
+    git = shutil.which("git")
+    if git is None:
+        raise ValueError("git executable is required to verify a historical engine")
+    digest = hashlib.sha256()
+    for relative in ENGINE_FINGERPRINT_PATHS:
+        digest.update(relative.encode("utf-8"))
+        digest.update(b"\0")
+        digest.update(_historical_file_bytes(commit, relative, repository, git))
+        digest.update(b"\0")
+    return digest.hexdigest()
+
+
+def _historical_file_bytes(
+    commit: str,
+    relative: str,
+    repository: Path,
+    git: str,
+) -> bytes:
+    source = subprocess.run(  # noqa: S603 - full SHA and fixed paths are validated
+        [git, "show", f"{commit}:{relative}"],
+        cwd=repository,
+        check=False,
+        capture_output=True,
+    )
+    if source.returncode != 0:
+        raise ValueError(f"historical engine source is missing: {relative}")
+    return source.stdout
+
+
+def _validate_historical_v3_freeze_record(
+    config_path: Path,
+    freeze_path: Path,
+) -> dict[str, Any]:
+    """Validate a consumed freeze without pretending HEAD still equals its engine."""
+
+    try:
+        freeze = json.loads(freeze_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise ValueError("historical v3 freeze record is not valid JSON") from exc
+    if not isinstance(freeze, dict):
+        raise ValueError("historical v3 freeze record must be an object")
+    if freeze.get("schema_version") != "evidencedesk-engine-freeze-v3":
+        raise ValueError("historical v3 freeze schema is invalid")
+    if freeze.get("engine_paths") != list(ENGINE_FINGERPRINT_PATHS):
+        raise ValueError("historical v3 engine path list differs from the evaluator")
+    if freeze.get("config_sha256") != _sha256(config_path):
+        raise ValueError("historical v3 config hash differs from the freeze record")
+    engine_commit = freeze.get("engine_commit")
+    if not isinstance(engine_commit, str):
+        raise ValueError("historical v3 engine commit is missing")
+    root = Path(__file__).resolve().parents[1]
+    historical_fingerprint = _engine_fingerprint_at_commit(engine_commit, root=root)
+    if freeze.get("engine_fingerprint") != historical_fingerprint:
+        raise ValueError("historical v3 engine fingerprint differs from Git objects")
+    git = shutil.which("git")
+    if git is None:
+        raise ValueError("git executable is required to verify a historical engine")
+    model_manifest_sha256 = hashlib.sha256(
+        _historical_file_bytes(engine_commit, EMBEDDING_MANIFEST_PATH, root, git)
+    ).hexdigest()
+    if freeze.get("model_manifest_sha256") != model_manifest_sha256:
+        raise ValueError("historical v3 model manifest hash differs from Git objects")
+    dependency_sha256 = {
+        relative: hashlib.sha256(
+            _historical_file_bytes(engine_commit, relative, root, git)
+        ).hexdigest()
+        for relative in DEPENDENCY_PATHS
+    }
+    if freeze.get("dependency_sha256") != dependency_sha256:
+        raise ValueError("historical v3 dependency hashes differ from Git objects")
+    return _validate_v3_freeze_config(
+        config_path,
+        expected_engine_fingerprint=historical_fingerprint,
+    )
 
 
 def _assert_paths_tracked_and_clean(root: Path, relative_paths: list[str]) -> None:

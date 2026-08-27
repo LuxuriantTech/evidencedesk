@@ -10,7 +10,7 @@
 Local evidence-grounded document-review prototype for synthetic supplier operations. It combines a
 React/TypeScript interface, FastAPI, PostgreSQL/pgvector and Redis/ARQ, with asynchronous ingestion,
 page-level evidence, explicit abstention, PII redaction and correlated audit logs. The active local
-retrieval is hybrid and uses a CPU ONNX embedding with no external API key. Its 40-case v6 holdout
+retrieval is hybrid and uses a CPU ONNX embedding with no external API key. Its 40-case v7 holdout
 is an honest FAIL, so this project demonstrates engineering and evaluation discipline—not validated
 general RAG quality.
 
@@ -27,7 +27,7 @@ Prototype local de revue documentaire sourcée pour des dossiers fournisseurs sy
 L'application associe React/TypeScript, FastAPI, PostgreSQL/pgvector et Redis/ARQ ; elle couvre
 l'ingestion asynchrone, les preuves par page, l'abstention explicite, le masquage PII et l'audit
 corrélé. La recherche active est hybride avec embedding ONNX sur CPU, sans clé API externe. Le
-holdout v6 de 40 cas est un FAIL assumé : le projet montre une réalisation technique et une
+holdout v7 de 40 cas est un FAIL assumé : le projet montre une réalisation technique et une
 discipline d'évaluation, pas une qualité RAG générale validée.
 
 - Dépôt : `<A_AJOUTER_APRES_GO_EXPLICITE_DE_PUBLICATION>`
@@ -47,6 +47,6 @@ discipline d'évaluation, pas une qualité RAG générale validée.
 
 - produit : `/home/ardian/dev/evidencedesk` ;
 - architecture : `docs/architecture.md` ;
-- résultats : `docs/evaluation.md` et `artifacts/evaluations/holdout_v6/` ;
+- résultats : `docs/evaluation.md` et `artifacts/evaluations/holdout_v7/` ;
 - démonstration : `docs/demo-script.md` ;
 - captures : `docs/screenshots/`.

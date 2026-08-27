@@ -31,7 +31,14 @@ Le worker remplace dans les chunks les e-mails, numéros de téléphone et ident
 
 Les logs structurés portent le chemin de route, statut, durée et identifiant de corrélation. Les événements d’audit n’enregistrent que des métadonnées sûres (par exemple taille, type, nombre de citations), pas le texte ni la question. Toute nouvelle journalisation doit respecter cette règle.
 
-Le contenu importé est non fiable. Le pipeline ne lui donne aucune capacité d’exécuter des instructions, d’appeler des outils ou de modifier le système. Le mode extractif ne suit pas d’instructions de document : il cite des passages. Si un fournisseur LLM est ajouté, la séparation stricte entre instructions système et documents, la validation des sorties, les limites d’outils et des tests d’injection deviennent obligatoires.
+Le contenu importé est non fiable. Le pipeline ne lui donne aucune capacité d'exécuter des
+instructions, d'appeler des outils ou de modifier le système. Cela ne suffit pas à garantir la
+résistance du texte de réponse : le cas adversarial `v7-x02` montre que le moteur extractif peut
+sélectionner et restituer une instruction injectée comme contenu. La démonstration doit donc rester
+limitée aux documents synthétiques et le moteur ne doit pas être présenté comme résistant aux prompt
+injections. Si un fournisseur LLM est ajouté, la séparation stricte entre instructions système et
+documents, la validation des sorties, les limites d'outils et de nouveaux tests d'injection deviennent
+obligatoires.
 
 ## Secrets et réseau
 
@@ -44,6 +51,14 @@ Les actions GitHub et les images externes exécutables sont épinglées à un co
 ## Vérifications intégrées
 
 La CI exécute Ruff, mypy, pytest avec couverture, le contrôle des références immuables, `pip-audit`, lint/typecheck/tests/build Playwright, `npm audit`, un test de stack Docker et Gitleaks. Ces contrôles réduisent le risque ; ils ne constituent pas une certification ni une revue de sécurité exhaustive.
+
+Le contrôle local final ajoute Trivy sur les images construites. Le runtime API est multi-stage : le
+binaire `uv` utilisé pour installer les dépendances reste dans le builder et n'est pas copié dans
+l'image. Les couches finales Debian et Alpine appliquent les mises à jour de sécurité disponibles au
+moment du build. Le 27 août 2026, le rescan local des images `evidencedesk-api:local` et
+`evidencedesk-web` rapporte `0` vulnérabilité critique et `0` élevée. Ce résultat dépend de la base
+Trivy et des index de paquets du jour ; l'upgrade au build améliore la fraîcheur de sécurité mais rend
+la couche système moins reproductible qu'un snapshot de dépôt immuable.
 
 ### Advisory accepté sur un candidat expérimental
 

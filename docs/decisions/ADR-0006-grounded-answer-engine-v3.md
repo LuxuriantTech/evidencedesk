@@ -62,6 +62,28 @@ La configuration est néanmoins le choix final imposé par la règle maximin ; a
 effectué après ouverture de la partition de sélection. Seul le holdout v7 indépendant et exécuté
 une fois peut établir ou réfuter la généralisation.
 
+## Résultat du holdout v7
+
+Le holdout indépendant `blind-holdout-v7-2026.08.27` a été créé après le gel. Le graphe local
+contient un seul lock/raw v7. Le lock est
+`03b455f0485d04afce46cf5798ce537786169a34d9b51787a372e121e01ac909`, le raw
+`55a79af0d38ea1d7742763406e29dc96416f7c3cb158aa9a90bbbbd16650c1c1` et le recalcul séparé
+`fd9e2864cd6b2aa4701cc1e2b979d49cd02e4fea76fbe8727271a45c9585fee3`. Le raw et le recalcul
+concordent : précision/rappel de citation `0,8 / 0,48`, exactitude répondable `0,36`, abstention
+`0,8`, extraction P/R/F1 `0,659091 / 0,349398 / 0,456693`, Recall@5 `1`, MRR@5 `0,94`, taux
+d'erreur et de schéma `0`. Le lock local ne permet pas d'exclure un run antérieur supprimé et le
+recalcul agrège les décisions enregistrées ; il ne refait pas leur jugement sémantique.
+
+Le résultat réfute la généralisation : 11 des 25 cas répondables ont été refusés malgré une preuve
+dans le top-5, deux réponses sont partielles, et la logique n'identifie correctement qu'un des trois
+cas ambigus. Le cas adversarial `v7-x02` a même été répondu en reprenant une instruction injectée,
+ce qui interdit toute affirmation de résistance suffisante aux injections. L'extraction ne produit
+aucun type ni nom d'organisation, et sa couverture reste faible sur dates, responsables et risques.
+Le scoreur classe aussi `v7-a16` faux malgré une citation correcte et le montant présent dans la
+réponse, car son normaliseur de montant prend l'horodatage `06:23` pour premier nombre : c'est une
+limite de l'évaluateur documentée, non corrigée après ouverture. Même compté favorablement, ce cas
+ne permettrait pas d'atteindre le seuil de 90 %.
+
 ## Conséquences
 
 - Le mode par défaut devient `grounded-local-v3`, toujours sans clé et sans LLM génératif requis.
@@ -75,3 +97,5 @@ une fois peut établir ou réfuter la généralisation.
   incomplet et la comparaison alors invalidée restent archivés ; un test de régression a précédé
   la comparaison et la reproduction finales sous la nouvelle empreinte.
 - Un échec du holdout v7 arrête l'expérimentation : aucun v8 ne doit être créé dans ce cycle.
+- Le statut de qualité est `HONEST_NEGATIVE` ; aucune publication ne doit présenter le moteur comme
+  validé pour une utilisation documentaire fiable ou résistante aux injections.
