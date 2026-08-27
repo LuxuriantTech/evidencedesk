@@ -1,0 +1,52 @@
+{
+  "abstention_accuracy": 0.8,
+  "citation_case_accuracy": 0.36,
+  "citation_precision": 0.8,
+  "citation_recall": 0.48,
+  "created_at": "2026-08-27T18:50:51.804162+00:00",
+  "error_rate": 0.0,
+  "extraction_f1": 0.456693,
+  "extraction_precision": 0.659091,
+  "extraction_recall": 0.349398,
+  "latency_median_ms": 756.641,
+  "latency_p95_ms": 1150.454,
+  "metric_counts": {
+    "abstention_correct": 12,
+    "abstention_total": 15,
+    "answerable_correct": 9,
+    "answerable_total": 25,
+    "citation_correct": 12,
+    "citation_expected": 25,
+    "citation_expected_matched": 12,
+    "citation_returned": 15,
+    "errors": 0,
+    "extraction_gold": 83,
+    "extraction_predicted": 44,
+    "extraction_true_positive": 29,
+    "retrieval_completed_cases": 25,
+    "retrieval_evidence_verified_cases": 25,
+    "retrieval_hits_at_5": 25,
+    "schema_errors": 0
+  },
+  "raw_artifact_sha256": "55a79af0d38ea1d7742763406e29dc96416f7c3cb158aa9a90bbbbd16650c1c1",
+  "retrieval_integrity": {
+    "answerable_cases": 25,
+    "completed_cases": 25,
+    "evidence_recalculable": true,
+    "evidence_verified_cases": 25,
+    "fully_verified": true,
+    "strict_schema": true
+  },
+  "retrieval_mrr_at_5": 0.94,
+  "retrieval_recall_at_5": 1.0,
+  "schema_error_rate": 0.0,
+  "schema_version": "evidencedesk-evaluation-recalculation-v4",
+  "timing_integrity": {
+    "indexing_ms_valid": true,
+    "peak_rss_bytes_valid": true,
+    "recorded_latency_median_matches": true,
+    "recorded_latency_p95_matches": true,
+    "total_wall_time_ms_valid": true
+  },
+  "verdict": "FAIL"
+}

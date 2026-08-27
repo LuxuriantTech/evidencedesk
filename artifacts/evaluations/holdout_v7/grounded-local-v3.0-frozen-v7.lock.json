@@ -1,0 +1,7 @@
+{
+  "dataset_commit": "152e7ee2248cc00f8692c907a0b0f7830727e2ba",
+  "dataset_version": "blind-holdout-v7-2026.08.27",
+  "engine_commit": "84971d8c01ac0e0eac840205527acad0a92561e7",
+  "gate": "evidencedesk-attested-holdout-v3",
+  "opened_at": "2026-08-27T18:49:52.648828+00:00"
+}
