@@ -1,0 +1,35 @@
+{
+  "author_id": "/root/independent_holdout_v7_reauthor",
+  "author_role": "independent-holdout-author",
+  "config_sha256": "a3987fdb7bb2db037a4089044438a79d150db4b6bcc5ab136b868cd6c54c7a38",
+  "dependency_sha256": {
+    "pyproject.toml": "7ac3bf50fd235b473ce44f4f6ea83d6f78f3299e7c3f5db95605f668634cce97",
+    "uv.lock": "857336771ae3414c1e77f51b1dbc8f7e9e8f7e0094fc935e0f1536dad6c524fe"
+  },
+  "development_overlap_check": {
+    "matching_case_ids": 0,
+    "matching_documents": 0,
+    "method": "Compared final IDs, filenames, template_family and formulation_family against supplied exclusions only."
+  },
+  "engine_commit": "84971d8c01ac0e0eac840205527acad0a92561e7",
+  "engine_fingerprint": "fbff611f7bfa9dfdc81af6ca43925278b02400beead54ea3dd8cb0964cfed775",
+  "forbidden_sources_not_read": [
+    "apps/**",
+    "evals/*.py",
+    "datasets/development_v3/**",
+    "older holdouts and golds v2-v6",
+    "artifacts/**",
+    "Git history"
+  ],
+  "freeze_commit": "e9af96e3ea2a92d567bd9e9d771fae33b7e5b684",
+  "freeze_sha256": "eac82431e631ebea73ddba4e0b7269db7c9b66363924ce93e3dd9d6db67d92bb",
+  "generated_after_engine_freeze": true,
+  "model_manifest_sha256": "d930bf9c2c9f866ff606a50cba0a8ca498f3f51f6ef74b1881602e5af2e302cc",
+  "parameters_version": "grounded-local-v3.0-frozen-v7",
+  "seed": 2026082707,
+  "sha256": {
+    "corpus_manifest.json": "32f0d0bda0abdc94cf2477dd640f82a7b37b7b2062bdc512d5480d5ac267d574",
+    "evaluation_cases.json": "2ab6c710a2eed039ae8749f151eb5894f875dd1411b69fcec9b106571580b1a1"
+  },
+  "synthetic_only": true
+}

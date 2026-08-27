@@ -1,0 +1,173 @@
+{
+  "author_entities": [
+    {
+      "document_id": "bhv7-d01",
+      "organizations": [
+        "Northlight Components Ltd.",
+        "Aster Vale University"
+      ],
+      "people": [
+        "Mara Venn",
+        "Luc Ardent"
+      ]
+    },
+    {
+      "document_id": "bhv7-d02",
+      "organizations": [
+        "Harbor Signal Works",
+        "Blue Meridian Clinic"
+      ],
+      "people": [
+        "Nadia Quill",
+        "Owen Rusk"
+      ]
+    },
+    {
+      "document_id": "bhv7-d03",
+      "organizations": [
+        "Juniper Analytics Co.",
+        "Lumen Forge Instruments"
+      ],
+      "people": [
+        "Ivo Serein",
+        "Tess Mora"
+      ]
+    },
+    {
+      "document_id": "bhv7-d04",
+      "organizations": [
+        "Ebon Orchard Biolab",
+        "Cinder Route Couriers"
+      ],
+      "people": [
+        "Sacha Lior",
+        "Amel Rho"
+      ]
+    },
+    {
+      "document_id": "bhv7-d05",
+      "organizations": [
+        "Port des Aulnes",
+        "Atelier Sillage"
+      ],
+      "people": [
+        "Capitaine Nilo",
+        "Lise Borel"
+      ]
+    },
+    {
+      "document_id": "bhv7-d06",
+      "organizations": [
+        "Solstice Archive Trust",
+        "Verdant Basin Institute"
+      ],
+      "people": [
+        "Eira Moss",
+        "Paul Dene"
+      ]
+    },
+    {
+      "document_id": "bhv7-d07",
+      "organizations": [
+        "Prairie Nova Foundation",
+        "Riverglass Studio"
+      ],
+      "people": [
+        "Yara Senn",
+        "Benoit Clair"
+      ]
+    },
+    {
+      "document_id": "bhv7-d08",
+      "organizations": [
+        "Quartz Meadow Grid",
+        "Helio North Services"
+      ],
+      "people": [
+        "Rin Aalto",
+        "Jo Hale"
+      ]
+    },
+    {
+      "document_id": "bhv7-d09",
+      "organizations": [
+        "Compagnie Saphir",
+        "Entrepôt Mistral"
+      ],
+      "people": [
+        "Mina Ors",
+        "Rami Voss"
+      ]
+    },
+    {
+      "document_id": "bhv7-d10",
+      "organizations": [
+        "Alder Loom Cooperative",
+        "Brume Civic Hall"
+      ],
+      "people": [
+        "Faye Orin",
+        "Denis Vale"
+      ]
+    }
+  ],
+  "author_id": "/root/independent_holdout_v7_reauthor",
+  "controls": [
+    "autonomous validate",
+    "exact evidence excerpts",
+    "forbidden family exclusion",
+    "multi-entity check"
+  ],
+  "counts": {
+    "adversarial": 2,
+    "ambiguous": 3,
+    "answerable": 25,
+    "cases": 40,
+    "documents": 10,
+    "unanswerable": 10
+  },
+  "dataset_version": "blind-holdout-v7-2026.08.27",
+  "draft_history": [
+    {
+      "corpus_sha256": "5a99e9bf847e9641473d9c95c50e2620abb4da2be5a3c8bbe3650355bcf145af",
+      "draft": "draft1",
+      "evaluation_sha256": "d63fe5cf89caa2d1725f29b1d3ce1bf7cabc96503aadd62c3a761509e62d173b",
+      "rejection": "diversity/adversarial cases before inference"
+    },
+    {
+      "corpus_sha256": "8cb4bd6fc9379a031cb46c0aba6ae2f1f13b8a1a444a77d809cec8594aaa1ba4",
+      "draft": "draft2",
+      "evaluation_sha256": "f25e0791040401feeb77241f1e79f3d20916997d0f32e204abd2421a02402b16",
+      "rejection": "schema/gold/diversity before inference"
+    },
+    {
+      "corpus_sha256": "c2e09b8095d0a74c104f87ef3c164ae70a993b70487950cb78641bee757aee2d",
+      "draft": "draft3",
+      "evaluation_sha256": "ee90a8fa8dc5c62865255a01ac4b3564660e81045fa4f96598612f5e84b6e4b3",
+      "rejection": "before commit/preflight/inference: non-canonical pages, missing extraction_targets, and non-conforming attestation"
+    },
+    {
+      "corpus_sha256": "ec2a947c18826b39d10e97e29a498a77a3f2f1f1ea90d65aa4bb415fc93ba56d",
+      "draft": "draft4",
+      "evaluation_sha256": "289cbfae8499042e03950e3486a81532446c724cabf673b095b235f22e75406b",
+      "rejection": "before commit/preflight/inference: compatible ambiguities and overly regular structure"
+    }
+  ],
+  "families": [
+    "bilingual-questionnaire-ledger",
+    "work-order-dialogue",
+    "quotation-table",
+    "numbered-chain-of-custody",
+    "radio-journal",
+    "clause-memo",
+    "jury-comments",
+    "sensor-bulletin",
+    "incident-telegram",
+    "annotated-register"
+  ],
+  "inference_runs_before_acceptance": 0,
+  "lock_consumed": false,
+  "method": "manual synthetic document and case authorship from the frozen protocol; no engine inference",
+  "parameters_version": "grounded-local-v3.0-frozen-v7",
+  "seed": 2026082707
+}
