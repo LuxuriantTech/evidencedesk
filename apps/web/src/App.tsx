@@ -523,13 +523,38 @@ export function App() {
                       <strong>
                         {answer.status === "answered"
                           ? "Réponse sourcée"
+                          : answer.status === "partially_supported"
+                            ? "Preuve partielle"
                           : answer.status === "ambiguous"
-                            ? "Preuves contradictoires"
+                            ? "Preuves ambiguës ou contradictoires"
                             : "Abstention explicite"}
                       </strong>
                       <span>Confiance {Math.round(answer.confidence * 100)} %</span>
                     </div>
-                    <p>{answer.answer}</p>
+                    <p className="answer-text">{answer.answer}</p>
+                    {answer.ambiguity_reason ? (
+                      <p className="answer-reason">Motif : {answer.ambiguity_reason}</p>
+                    ) : null}
+                    {answer.supporting_excerpt ? (
+                      <p className="answer-excerpt">
+                        Extrait utilisé : {answer.supporting_excerpt}
+                      </p>
+                    ) : null}
+                    {answer.supporting_document && answer.supporting_page ? (
+                      <p className="answer-source-location">
+                        Document source : {answer.supporting_document} · page {answer.supporting_page}
+                      </p>
+                    ) : null}
+                    {Object.keys(answer.extracted_fields).length ? (
+                      <dl className="answer-fields" aria-label="Champs extraits">
+                        {Object.entries(answer.extracted_fields).map(([field, value]) => (
+                          <div key={field}>
+                            <dt>{field}</dt>
+                            <dd>{Array.isArray(value) ? value.join(", ") : value}</dd>
+                          </div>
+                        ))}
+                      </dl>
+                    ) : null}
                     <div className="citation-row">
                       {answer.citations.map((citation) => (
                         <CitationButton

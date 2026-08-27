@@ -23,3 +23,8 @@ artifacts/coverage-*.json
 artifacts/evaluations/development-v2-semantic-v2-frozen.json
 artifacts/evaluations/development-v2-semantic-v2-recalculated.json
 artifacts/evaluations/development_v2_comparison/iteration-0[1-6]*.json
+artifacts/evaluations/development_v3/*
+!artifacts/evaluations/development_v3/strategy_v3/
+!artifacts/evaluations/development_v3/strategy_v3/**
+!artifacts/evaluations/development_v3/frozen-runtime-v4-locked-final/
+!artifacts/evaluations/development_v3/frozen-runtime-v4-locked-final/**

@@ -6,6 +6,7 @@ import pytest
 from arq import Retry
 from evidencedesk_api.config import Settings
 from evidencedesk_api.db import build_engine, build_session_factory
+from evidencedesk_api.extraction import extract_supplier_fields
 from evidencedesk_api.models import (
     Chunk,
     Document,
@@ -174,6 +175,34 @@ def test_worker_processes_redacts_and_is_idempotent(
     logs = capsys.readouterr().out
     assert "document_processing_completed" in logs
     assert "synthetic.person@example.test" not in logs
+
+
+@pytest.mark.integration
+def test_worker_routes_grounded_v3_mode_to_v3_extraction(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import evidencedesk_worker.jobs as jobs
+
+    async def scenario() -> None:
+        context, document_id, task_id = await _prepare(tmp_path)
+        context.settings.answer_mode = "grounded-local-v3"
+        calls: list[object] = []
+
+        def v3(chunks: list[object], *, embeddings: object) -> object:
+            calls.append(embeddings)
+            return extract_supplier_fields(chunks)  # type: ignore[arg-type]
+
+        monkeypatch.setattr(jobs, "extract_supplier_fields_v3", v3)
+        try:
+            result = await process_document(
+                {"worker": context}, str(document_id), str(task_id), str(uuid4())
+            )
+            assert result["status"] == "completed"
+            assert calls == [context.embeddings]
+        finally:
+            await context.engine.dispose()
+
+    asyncio.run(scenario())
 
 
 @pytest.mark.integration

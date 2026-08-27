@@ -32,11 +32,29 @@ export interface Citation {
   section: string | null;
   excerpt: string;
 }
+export interface PassageCandidateAssessment {
+  answerable: boolean;
+  answer: string | null;
+  confidence: number;
+  supporting_document: string | null;
+  supporting_page: number | null;
+  supporting_excerpt: string | null;
+  ambiguity_reason: string | null;
+  extracted_fields: Record<string, string | string[]>;
+  supporting_chunk_id: string;
+}
 export interface Answer {
-  status: "answered" | "abstained" | "ambiguous";
+  status: "answered" | "partially_supported" | "abstained" | "ambiguous";
+  answerable: boolean;
   answer: string;
   confidence: number;
   mode: string;
+  supporting_document: string | null;
+  supporting_page: number | null;
+  supporting_excerpt: string | null;
+  ambiguity_reason: string | null;
+  extracted_fields: Record<string, string | string[]>;
+  candidate_assessments: PassageCandidateAssessment[];
   citations: Citation[];
   correlation_id: string;
 }

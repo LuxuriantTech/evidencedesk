@@ -8,9 +8,11 @@ from __future__ import annotations
 
 import argparse
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
 from pathlib import Path
 from typing import Any
+
+from evidencedesk_api.extraction import SupplierExtraction
 
 
 @dataclass(frozen=True)
@@ -25,6 +27,18 @@ class ValidationReport:
     citations_are_exact: bool
     extraction_expectations_are_traceable: bool
     synthetic_only: bool
+
+
+_SCALAR_EXTRACTION_FIELDS = frozenset(
+    {"organization_name", "document_type", "effective_date", "renewal_date"}
+)
+_LIST_EXTRACTION_FIELDS = frozenset(
+    {"important_amounts", "obligations", "responsible_people", "risks"}
+)
+_EXTRACTION_FIELDS = _SCALAR_EXTRACTION_FIELDS | _LIST_EXTRACTION_FIELDS
+_SUPPLIER_EXTRACTION_FIELDS = frozenset(field.name for field in fields(SupplierExtraction))
+if _EXTRACTION_FIELDS != _SUPPLIER_EXTRACTION_FIELDS:
+    raise RuntimeError("evaluation extraction schema differs from SupplierExtraction")
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -68,7 +82,11 @@ def validate_manifest(
         raise ValueError("cases must be a list")
     if manifest.get("dataset_version") != corpus.get("dataset_version"):
         raise ValueError("evaluation and corpus versions must match")
-    if manifest.get("mode") not in {"extractive-local", "extractive-local-onnx"}:
+    if manifest.get("mode") not in {
+        "extractive-local",
+        "extractive-local-onnx",
+        "grounded-local-v3",
+    }:
         raise ValueError("the sealed dataset must use an approved local extractive mode")
     if not isinstance(manifest.get("seed"), int):
         raise ValueError("manifest seed is required")
@@ -80,10 +98,15 @@ def validate_manifest(
     traceable_extractions = True
     answerable = unanswerable = adversarial = 0
     for case in cases:
+        if not isinstance(case, dict):
+            raise ValueError("each evaluation case must be an object")
         case_id = case.get("id")
-        if not isinstance(case_id, str) or case_id in ids:
-            raise ValueError("case ids must be unique strings")
+        if not isinstance(case_id, str) or not case_id.strip() or case_id in ids:
+            raise ValueError("case ids must be unique non-empty strings")
         ids.add(case_id)
+        question = case.get("question")
+        if not isinstance(question, str) or not question.strip():
+            raise ValueError(f"question for {case_id} must be a non-empty string")
         split = case.get("split")
         if split not in splits:
             raise ValueError(f"invalid split for {case_id}")
@@ -97,7 +120,16 @@ def validate_manifest(
             adversarial += 1
         else:
             raise ValueError(f"invalid kind for {case_id}")
+        expected_answer = case.get("expected_answer")
+        if kind == "answerable" and (
+            not isinstance(expected_answer, str) or not expected_answer.strip()
+        ):
+            raise ValueError(f"expected answer for {case_id} must be a non-empty string")
+        if kind != "answerable" and expected_answer is not None:
+            raise ValueError(f"non-answerable case {case_id} cannot have an expected answer")
         citations = case.get("expected_citations", [])
+        if not isinstance(citations, list):
+            raise ValueError(f"expected citations for {case_id} must be a list")
         document_scope = case.get("document_ids")
         if document_scope is not None and (
             not isinstance(document_scope, list)
@@ -110,12 +142,21 @@ def validate_manifest(
         if kind == "unanswerable" and citations:
             raise ValueError(f"unanswerable case {case_id} cannot have citations")
         for citation in citations:
-            document = documents.get(citation.get("document_id"))
+            if not isinstance(citation, dict):
+                raise ValueError(f"each expected citation for {case_id} must be an object")
+            citation_document_id = citation.get("document_id")
+            if not isinstance(citation_document_id, str):
+                raise ValueError(f"each expected citation for {case_id} needs a document id")
+            document = documents.get(citation_document_id)
             if document is None:
                 known = False
                 continue
             page = citation.get("page")
-            if not isinstance(page, int) or page < 1 or page > len(document["pages"]):
+            if isinstance(page, bool) or not isinstance(page, int):
+                raise ValueError(
+                    f"citation page for {case_id} must be a positive integer"
+                )
+            if page < 1 or page > len(document["pages"]):
                 exact = False
                 continue
             excerpt = citation.get("excerpt")
@@ -127,10 +168,18 @@ def validate_manifest(
         raise ValueError("parameters_version is required")
     if not isinstance(manifest.get("metrics"), dict):
         raise ValueError("metric definitions are required")
-    for target in manifest.get("extraction_targets", []):
+    extraction_targets = manifest.get("extraction_targets", [])
+    if not isinstance(extraction_targets, list):
+        raise ValueError("extraction targets must be a list")
+    for target in extraction_targets:
+        if not isinstance(target, dict):
+            raise ValueError("each extraction target must be an object")
         if target.get("split") not in splits:
             raise ValueError("each extraction target needs a valid split")
-        document = documents.get(target.get("document_id"))
+        target_document_id = target.get("document_id")
+        if not isinstance(target_document_id, str):
+            raise ValueError("each extraction target needs a document id")
+        document = documents.get(target_document_id)
         fields = target.get("fields")
         field_citations = target.get("field_citations")
         if (
@@ -140,19 +189,58 @@ def validate_manifest(
         ):
             traceable_extractions = False
             continue
+        unsupported_fields = set(fields) - _EXTRACTION_FIELDS
+        if unsupported_fields:
+            raise ValueError(
+                f"unsupported extraction field: {sorted(unsupported_fields)[0]}"
+            )
+        unsupported_citation_fields = set(field_citations) - set(fields)
+        if unsupported_citation_fields:
+            raise ValueError(
+                "field citations reference an unsupported extraction field: "
+                f"{sorted(unsupported_citation_fields)[0]}"
+            )
         for field, value in fields.items():
-            if value in (None, []):
-                continue
+            if field in _SCALAR_EXTRACTION_FIELDS:
+                if value is not None and (
+                    not isinstance(value, str) or not value.strip()
+                ):
+                    raise ValueError(
+                        f"scalar extraction field {field} must be null or a non-empty string"
+                    )
+                expected_value_count = 0 if value is None else 1
+            else:
+                if not isinstance(value, list) or not all(
+                    isinstance(item, str) and item.strip() for item in value
+                ):
+                    raise ValueError(
+                        f"list extraction field {field} must contain non-empty strings"
+                    )
+                expected_value_count = len(value)
             citations = field_citations.get(field, [])
-            if not citations:
-                traceable_extractions = False
+            if not isinstance(citations, list):
+                raise ValueError(f"field citations for {field} must be a list")
+            if len(citations) != expected_value_count:
+                raise ValueError(
+                    f"field {field} needs one citation per expected value"
+                )
+            if expected_value_count == 0:
                 continue
             for citation in citations:
+                if not isinstance(citation, dict):
+                    raise ValueError(f"each field citation for {field} must be an object")
+                citation_document_id = citation.get("document_id", target_document_id)
+                if citation_document_id != target_document_id:
+                    traceable_extractions = False
+                    continue
                 page = citation.get("page")
                 excerpt = citation.get("excerpt")
+                if isinstance(page, bool) or not isinstance(page, int):
+                    raise ValueError(
+                        f"field citation page for {field} must be a positive integer"
+                    )
                 if (
-                    not isinstance(page, int)
-                    or page < 1
+                    page < 1
                     or page > len(document["pages"])
                     or not isinstance(excerpt, str)
                     or excerpt not in document["pages"][page - 1]

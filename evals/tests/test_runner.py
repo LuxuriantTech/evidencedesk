@@ -4,18 +4,36 @@ from pathlib import Path
 
 import pytest
 from evidencedesk_api.extraction import EvidenceValue, SupplierExtraction
-from evidencedesk_api.retrieval import Citation, EvidenceChunk
+from evidencedesk_api.retrieval import AnswerResult, Citation, EvidenceChunk
 
 from evals.runner import (
     EvaluationError,
     _citation_matches,
     _extraction_counts,
+    _meets_acceptance_targets,
     _scoped_chunks,
+    _value_matches,
     claim_holdout_once,
     evaluate_manifest,
 )
 
 ROOT = Path(__file__).resolve().parents[2]
+
+
+def test_acceptance_targets_require_citation_recall_and_zero_schema_errors() -> None:
+    passing = {
+        "citation_precision": 0.9,
+        "citation_recall": 0.9,
+        "citation_case_accuracy": 0.9,
+        "abstention_accuracy": 0.85,
+        "extraction_f1": 0.9,
+        "error_rate": 0.0,
+        "schema_error_rate": 0.0,
+    }
+
+    assert _meets_acceptance_targets(passing) is True
+    assert _meets_acceptance_targets({**passing, "citation_recall": 0.89}) is False
+    assert _meets_acceptance_targets({**passing, "schema_error_rate": 0.01}) is False
 
 
 def test_development_evaluation_never_opens_holdout_cases() -> None:
@@ -38,6 +56,8 @@ def test_development_evaluation_never_opens_holdout_cases() -> None:
     answerable = next(case for case in result["cases"] if case["kind"] == "answerable")
     assert isinstance(answerable["expected_citation_matches"], list)
     assert isinstance(answerable["retrieval_matches_at_5"], list)
+    assert isinstance(answerable["expected_retrieval_locations_at_5"], list)
+    assert answerable["expected_retrieval_locations_at_5"]
     derived_rank = next(
         (
             index
@@ -135,3 +155,110 @@ def test_each_extracted_value_requires_its_own_expected_citation() -> None:
     )
 
     assert (true_positive, predicted, gold) == (1, 2, 2)
+
+
+def test_text_extraction_metric_accepts_a_grounded_phrase_inside_a_full_clause() -> None:
+    assert _value_matches(
+        "The guild preserves an offline index after every archive change.",
+        "preserves an offline index after every archive change",
+        value_type="text",
+    )
+    assert not _value_matches("preserves records", "preserves an offline index", value_type="text")
+
+
+def test_evaluation_accepts_injected_v3_engines_and_records_explicit_decision_fields() -> None:
+    class FixedAnswerProvider:
+        mode = "test-grounded-v3"
+
+        def answer(self, question: str, ranked: list[object]) -> AnswerResult:
+            del question, ranked
+            return AnswerResult(
+                status="abstained",
+                answer="No support.",
+                confidence=0.0,
+                citations=(),
+            )
+
+    extraction_calls: list[str] = []
+
+    def extraction_provider(chunks: list[EvidenceChunk]) -> SupplierExtraction:
+        extraction_calls.append(chunks[0].document_id)
+        return SupplierExtraction(
+            organization_name=EvidenceValue(None),
+            document_type=EvidenceValue(None),
+            effective_date=EvidenceValue(None),
+            renewal_date=EvidenceValue(None),
+            important_amounts=EvidenceValue(()),
+            obligations=EvidenceValue(()),
+            responsible_people=EvidenceValue(()),
+            risks=EvidenceValue(()),
+        )
+
+    result = evaluate_manifest(
+        ROOT / "datasets/development_v3/evaluation_calibration.json",
+        ROOT / "datasets/development_v3/corpus_manifest.json",
+        split="development",
+        answer_provider=FixedAnswerProvider(),
+        extraction_provider=extraction_provider,
+    )
+
+    assert result["mode"] == "test-grounded-v3"
+    assert result["schema_error_rate"] == 0.0
+    assert result["metric_counts"]["schema_errors"] == 0
+    assert extraction_calls
+    assert {
+        "answerable",
+        "supporting_document",
+        "supporting_page",
+        "supporting_excerpt",
+        "ambiguity_reason",
+        "extracted_fields",
+        "candidate_assessments",
+    } <= result["cases"][0].keys()
+
+
+def test_retrieval_evidence_is_preserved_when_answer_inference_fails() -> None:
+    class FailingAnswerProvider:
+        mode = "test-schema-failure-v3"
+
+        def answer(self, question: str, ranked: list[object]) -> AnswerResult:
+            del question, ranked
+            raise ValueError("synthetic inference failure")
+
+    result = evaluate_manifest(
+        ROOT / "datasets/development_v3/evaluation_calibration.json",
+        ROOT / "datasets/development_v3/corpus_manifest.json",
+        split="development",
+        answer_provider=FailingAnswerProvider(),
+    )
+
+    assert result["error_rate"] == 1.0
+    assert result["retrieval_recall_at_5"] == 1.0
+    answerable = next(case for case in result["cases"] if case["kind"] == "answerable")
+    assert answerable["retrieval_rank"] is not None
+    assert answerable["retrieval_matches_at_5"]
+
+
+def test_retrieval_failure_remains_independently_recalculable(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from evals.recalculate import recalculate_metrics
+
+    monkeypatch.setattr(
+        "evals.runner.rank_chunks",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(RuntimeError("retrieval failed")),
+    )
+    result = evaluate_manifest(
+        ROOT / "datasets/development_v3/evaluation_calibration.json",
+        ROOT / "datasets/development_v3/corpus_manifest.json",
+        split="development",
+    )
+
+    answerable = next(case for case in result["cases"] if case["kind"] == "answerable")
+    assert answerable["retrieval_completed"] is False
+    assert answerable["expected_retrieval_locations_at_5"]
+    assert answerable["retrieved"] == []
+    recalculated = recalculate_metrics(result)
+    assert recalculated["retrieval_integrity"]["evidence_recalculable"] is True
+    assert recalculated["retrieval_integrity"]["fully_verified"] is False
+    assert recalculated["retrieval_integrity"]["completed_cases"] == 0

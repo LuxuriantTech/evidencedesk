@@ -75,6 +75,18 @@ class CitationView(BaseModel):
     excerpt: str
 
 
+class PassageCandidateAssessmentView(BaseModel):
+    answerable: bool
+    answer: str | None
+    confidence: float
+    supporting_document: str | None
+    supporting_page: int | None
+    supporting_excerpt: str | None
+    ambiguity_reason: str | None
+    extracted_fields: dict[str, Any]
+    supporting_chunk_id: str
+
+
 class AskResponse(BaseModel):
     status: str
     answer: str
@@ -82,6 +94,13 @@ class AskResponse(BaseModel):
     mode: str
     citations: list[CitationView]
     correlation_id: UUID
+    answerable: bool
+    supporting_document: str | None
+    supporting_page: int | None
+    supporting_excerpt: str | None
+    ambiguity_reason: str | None
+    extracted_fields: dict[str, Any]
+    candidate_assessments: list[PassageCandidateAssessmentView]
 
 
 class ContentChunkView(BaseModel):

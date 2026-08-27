@@ -1,5 +1,6 @@
 from functools import lru_cache
 from pathlib import Path
+from typing import Literal
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -28,7 +29,9 @@ class Settings(BaseSettings):
         ge=64 * 1024 * 1024,
         le=4 * 1024 * 1024 * 1024,
     )
-    answer_mode: str = "extractive-local-onnx"
+    answer_mode: Literal[
+        "extractive-local-hash", "extractive-local-onnx", "grounded-local-v3"
+    ] = "grounded-local-v3"
     embedding_model_path: Path = Path("models/paraphrase-multilingual-minilm-l12-v2")
     embedding_manifest_path: Path = Path(
         "infra/models/paraphrase-multilingual-minilm-l12-v2.json"

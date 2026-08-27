@@ -1,6 +1,8 @@
 # Évaluation d'EvidenceDesk
 
-Les évaluations locales mesurent recherche, réponse extractive, abstention et extraction sur corpus synthétiques versionnés. Elles ne mesurent ni un LLM, ni des données réelles, ni une charge API/SQL à grande échelle.
+Les évaluations locales mesurent recherche, réponse sourcée, abstention et extraction sur corpus
+synthétiques versionnés. Elles ne mesurent ni des données réelles, ni une charge API/SQL à grande
+échelle.
 
 ## Définitions figées des métriques
 
@@ -39,6 +41,60 @@ au moins 0,85, F1 d'extraction au moins 0,90 et taux d'erreur nul. Les anciens h
 La règle de sélection retient **hybride**. Le reranker est rejeté : aucune réponse répondable correcte supplémentaire et `reranker_retained: false`.
 
 Le benchmark classe tous les chunks en mémoire. Le parcours API utilise SQL avec 20 candidats denses + 20 lexicaux ; son équivalence et sa performance à grande échelle ne sont pas prouvées ici.
+
+## Développement v3 — réponse et extraction
+
+Le développement v3 est nouveau et n'utilise pas les gold des holdouts v2 à v6. Il contient huit
+documents synthétiques, 48 cas et deux partitions de 24 cas séparées par familles de modèle et de
+formulation : 16 répondables et 8 non répondables par partition. Les 48 cas comprennent 32
+répondables, 8 sans réponse, 4 ambigus et 4 adversariaux. Les règles de génération et les groupes
+sont dans `datasets/development_v3/generation_manifest.json` ; le corpus, les cas et ce manifest ont
+respectivement pour SHA-256 `d61e15…fe08`, `3caa19…4139` et `b67bcc…f595`.
+
+Le plan `answer-v3-experiment-plan.json` a borné l'expérience à trois stratégies, deux
+configurations chacune et trois répétitions déterministes. Qwen a été rejeté après calibration pour
+erreurs de schéma/techniques ; sa partition de sélection n'a donc pas été ouverte par le harness.
+
+| Configuration | Répondable sélection | Abstention sélection | Citation P/R | Extraction F1 | Erreur/schéma | p95 sélection |
+|---|---:|---:|---:|---:|---:|---:|
+| déterministe A | 0,9375 | 0,75 | 1 / 1 | 0,931818 | 0 / 0 | 677,929 ms |
+| déterministe B | 0,9375 | 0,75 | 1 / 1 | 0,931818 | 0 / 0 | 728,256 ms |
+| NLI A | 0 | 0,625 | 1 / 1 | 0,931818 | 0 / 0 | 830,019 ms |
+| NLI B | 0 | 0,625 | 1 / 1 | 0,931818 | 0 / 0 | 833,753 ms |
+| Qwen A | non ouvert | non ouvert | calibration 0 / 0 | calibration 1 | calibration 0,791667 / 0,791667 | 10 859,263 ms calibration |
+| Qwen B | non ouvert | non ouvert | calibration 1 / 0,5 | calibration 1 | calibration 0,75 / 0,75 | 14 586,243 ms calibration |
+
+La règle maximin préenregistrée retient `deterministic-v3-a`. Une reproduction finale avec le
+runtime et le schéma v4 donne les mêmes décisions sur trois exécutions. Sur la sélection : Recall@5
+`1`, MRR@5 `0,96875`, répondable `0,9375`, abstention `0,75`, citation P/R `1/1`, extraction
+P/R/F1 `0,953488/0,911111/0,931818`, erreur et schéma `0`. Sur la reproduction finale,
+la médiane agrégée est `836,865 ms`, le p95 `1 026,154 ms` et le pic RSS
+`904 192 000` octets.
+
+Le verdict de développement reste **FAIL**, car `0,75 < 0,85` pour l'abstention. Aucune règle n'a
+été modifiée après ouverture de la partition de sélection. Le résumé source est
+`artifacts/evaluations/development_v3/frozen-runtime-v4-locked-final/summary.json` (SHA-256
+`555975…9caf`) ; le détail de décision est dans l'ADR-0006.
+
+Deux suites antérieures sont conservées comme incidents de protocole et ne servent pas au gel :
+`strategy_v3-before-final-protocol-binding/` précède les validations fail-closed finales ;
+`strategy_v3-before-relative-path-fix/` a été invalidée lorsqu'un chemin relatif a révélé un défaut
+du finalizer. L'essai final incomplet correspondant est conservé dans
+`frozen-runtime-v4-locked-final-relative-path-failure/`. Après ajout du test de régression, les six
+configurations ont été rejouées sous l'empreinte courante avant la reproduction finale.
+
+## Correctifs du protocole avant v7
+
+Le préflight générique valide maintenant schéma, attestation, nom de fichier, dataset, gold et
+configuration, puis construit les fournisseurs v3 avant de pouvoir créer le lock. Un échec avant
+inférence ne consomme donc plus l'exécution aveugle. Les erreurs de v4 et v5 restent immuables comme
+incidents historiques.
+
+Le raw actuel porte un schéma générique `evidencedesk-holdout-raw-v4`. Le recalculateur accepte une
+liste fermée de schémas historiques, rejette un schéma inconnu et recalcule Recall@5/MRR@5 à partir
+des documents/pages récupérés et des locations gold, sans faire confiance à un booléen pré-calculé.
+Il vérifie aussi la correspondance des latences par cas, la validité de l'indexation et, lorsque ces
+champs existent au niveau racine, le temps total et le pic RSS.
 
 ## Holdouts et intégrité
 
@@ -95,10 +151,8 @@ La copie synthétique `artifacts/evaluations/holdout-v6-summary.json` ne sert qu
 de démonstration. Elle référence le SHA-256 du raw ; le raw et son recalcul restent les sources de
 vérité métriques.
 
-Dette de nommage : le runner partagé est toujours dans `evals/holdout_v4.py` et force
-`schema_version: holdout-v4-raw-result-v2`. Le raw v6 porte donc ce label historique malgré son
-`dataset_version` v6. Les provenance, hashes et métriques restent ceux de v6 ; une future version du
-runner devra adopter un nom de schéma générique sans modifier cet artefact ouvert.
+Le raw v6 conserve son ancien label `holdout-v4-raw-result-v2` parce qu'il est immuable. Le nouveau
+runner n'émet plus cette étiquette historique ; cette correction ne réécrit aucun artefact ouvert.
 
 ## Modèle et limites
 

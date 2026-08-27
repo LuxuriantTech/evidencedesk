@@ -7,7 +7,7 @@ from uuid import UUID, uuid4
 import structlog
 from arq import Retry
 from evidencedesk_api.config import Settings
-from evidencedesk_api.extraction import extract_supplier_fields
+from evidencedesk_api.extraction import extract_supplier_fields, extract_supplier_fields_v3
 from evidencedesk_api.models import (
     AuditEvent,
     Chunk,
@@ -293,7 +293,11 @@ async def process_document(
                     embedding_model_id=worker.embeddings.model_id,
                 )
             )
-        extraction = extract_supplier_fields(evidence_chunks)
+        extraction = (
+            extract_supplier_fields_v3(evidence_chunks, embeddings=worker.embeddings)
+            if worker.settings.answer_mode == "grounded-local-v3"
+            else extract_supplier_fields(evidence_chunks)
+        )
     except DocumentParseError as exc:
         TASKS.labels("failed").inc()
         logger.warning(

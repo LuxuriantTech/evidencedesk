@@ -468,7 +468,8 @@ main {
 }
 
 .answer.abstained,
-.answer.ambiguous {
+.answer.ambiguous,
+.answer.partially_supported {
   background: #fff4df;
   border-left-color: #9d6718;
 }

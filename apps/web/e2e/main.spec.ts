@@ -1,7 +1,7 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type APIRequestContext } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
-test.afterEach(async ({ request }) => {
+async function deleteTemporaryDocuments(request: APIRequestContext): Promise<void> {
   if (process.env.E2E_REAL_API !== "1") return;
   const password = process.env.E2E_DEMO_ADMIN_PASSWORD ?? "";
   const login = await request.post("/api/v1/auth/token", {
@@ -19,14 +19,26 @@ test.afterEach(async ({ request }) => {
     headers: { Authorization: `Bearer ${token}` },
   });
   if (!documents.ok()) return;
+  const temporaryFilenames = new Set([
+    "demo-supplier-note.md",
+    "e2e-synthetic-supplier.txt",
+  ]);
   const temporary = ((await documents.json()) as Array<{ id: string; filename: string }>).filter(
-    (item) => item.filename === "e2e-synthetic-supplier.txt",
+    (item) => temporaryFilenames.has(item.filename),
   );
   for (const document of temporary) {
     await request.delete(`/api/v1/documents/${document.id}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
   }
+}
+
+test.beforeEach(async ({ request }) => {
+  await deleteTemporaryDocuments(request);
+});
+
+test.afterEach(async ({ request }) => {
+  await deleteTemporaryDocuments(request);
 });
 
 test("loads an API-backed sourced dossier", async ({ page }) => {
@@ -39,6 +51,9 @@ test("loads an API-backed sourced dossier", async ({ page }) => {
       "/api/v1/dossiers/d1/documents": [{ id: "doc1", filename: "accord.pdf", media_type: "application/pdf", status: "completed", task_id: null, error_code: null }],
       "/api/v1/dossiers/d1/extraction": [],
       "/api/v1/documents/doc1/content": [{ id: "c1", page: 2, section: "Durée", ordinal: 1, text: "Renouvellement le 30 septembre 2027." }],
+      "/api/v1/audit-events": [],
+      "/api/v1/evaluations": [],
+      "/api/v1/status": { mode: "extractive-local", public_demo_mode: true, documents: { completed: 1 }, failed_tasks: 0 },
     };
     await route.fulfill({ contentType: "application/json", body: JSON.stringify(data[path] ?? { status: "abstained", answer: "Aucune preuve.", confidence: 0, mode: "extractive-local", citations: [], correlation_id: "q1" }) });
   });
@@ -83,7 +98,7 @@ test("real stack completes the sourced synthetic dossier workflow", async ({ pag
   await page.getByRole("button", { name: "Rechercher des preuves" }).click();
   const sourcedAnswer = page.locator("article.answer");
   await expect(sourcedAnswer.getByText("Réponse sourcée")).toBeVisible();
-  await expect(sourcedAnswer.getByText(/EUR 48,000/)).toBeVisible();
+  await expect(sourcedAnswer.locator(".answer-text")).toHaveText("EUR 48,000");
   const sourceButton = sourcedAnswer.getByRole("button", {
     name: /Voir la source northstar_master_services_agreement\.pdf, page 1/,
   });

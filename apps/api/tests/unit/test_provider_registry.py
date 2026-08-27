@@ -39,6 +39,22 @@ def test_onnx_bundle_uses_an_injected_semantic_factory() -> None:
     assert calls == [True]
 
 
+def test_grounded_v3_bundle_uses_semantic_embedding_and_frozen_decision_config() -> None:
+    embedding = FakeSemanticEmbeddingProvider()
+
+    providers = build_provider_bundle(
+        "grounded-local-v3",
+        embedding_factory=lambda: embedding,
+    )
+
+    assert providers.embedding is embedding
+    assert providers.answer.mode == "deterministic-evidence-v3"
+    assert providers.answer.config.support_threshold == 0.48
+    assert providers.answer.config.partial_support_threshold == 0.38
+    assert providers.answer.config.contradiction_margin == 0.08
+    assert providers.estimated_cost_usd == 0.0
+
+
 def test_unknown_provider_mode_fails_closed() -> None:
     with pytest.raises(UnsupportedProviderMode, match="unsupported answer mode"):
         build_provider_bundle("openai-compatible")

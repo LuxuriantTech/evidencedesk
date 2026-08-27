@@ -102,6 +102,7 @@ _CANONICAL: dict[str, str] = {
     "paiement": "payment",
     "tribunal": "court",
     "retablissement": "restoration",
+    "recovery": "restoration",
     "budget": "budget",
     "bitcoin": "bitcoin",
 }

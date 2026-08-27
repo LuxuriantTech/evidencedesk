@@ -1,0 +1,89 @@
+{
+  "parameters_version": "grounded-local-v3.0-frozen-v7",
+  "frozen_at": "2026-08-27",
+  "development_dataset_version": "development-v3-2026.08.27",
+  "development_manifest_sha256": "3caa19c70680483c08c0872087a21b1a0a3adcf731119f9eb1da8f93a9004139",
+  "development_corpus_sha256": "d61e15f7fb7c378ccfc52b5d4b1951831dfee91babd2eb77a5c68bbdb581fe08",
+  "development_generation_manifest_sha256": "b67bccf7f6eb69d13d1b320b3823e6433e8258330267dbc649f83d43a9c5f595",
+  "experiment_plan_sha256": "6536e31dd26c3eaa6f9e80fe2256b8dd2b7e200b73fda609498f62d3c066c3f6",
+  "development_comparison_sha256": "95a2bdfc1723d45bee41dd9ab106a221c0435bad2ab2c4dc13dd01b6e9c0828e",
+  "selected_evaluation_artifact_sha256": "d23e7c3a15e7eb2f2a229c2e43f3aa906c999d2f4d6d3103424773c9f6741fc9",
+  "development_recalculation_sha256": "24ecba18e97ffc808aab0ba3c7e88391e59680fcb213de304363e9a0a832ebd1",
+  "development_runtime_summary_sha256": "55597593c0f5018a4bb3539c7022430b7984f3bd01ff1ecbed5cc417bf039caf",
+  "engine_fingerprint_at_selection": "fbff611f7bfa9dfdc81af6ca43925278b02400beead54ea3dd8cb0964cfed775",
+  "mode": "grounded-local-v3",
+  "retrieval_method": "hybrid",
+  "answer_candidate_limit": 20,
+  "retrieval_metric_cutoff": 5,
+  "rank_fusion": {
+    "algorithm": "reciprocal-rank-fusion",
+    "rrf_k": 60,
+    "named_entity_document_boost": 0.01
+  },
+  "embedding": {
+    "model_id": "paraphrase-multilingual-minilm-l12-v2-onnx-q@faf4aa4225822f3bc6376869cb1164e8e3feedd0",
+    "model_manifest_sha256": "d930bf9c2c9f866ff606a50cba0a8ca498f3f51f6ef74b1881602e5af2e302cc",
+    "license": "Apache-2.0",
+    "parameter_count_approx": 118000000,
+    "download_bytes": 266906689,
+    "fastembed_version": "0.8.0",
+    "onnxruntime_version": "1.29.0",
+    "dimension": 384,
+    "pooling": "mean",
+    "provider": "CPUExecutionProvider",
+    "normalize_l2": true,
+    "batch_size": 32
+  },
+  "answer_engine": {
+    "strategy_id": "deterministic-evidence-v3",
+    "configuration_id": "deterministic-v3-a",
+    "support_threshold": 0.48,
+    "partial_support_threshold": 0.38,
+    "contradiction_margin": 0.08
+  },
+  "extraction_engine": {
+    "strategy_id": "supplier-extraction-v3"
+  },
+  "evaluation": {
+    "citation_match": "exact document and page; returned normalized excerpt must be an informative subspan of expected evidence with at least two alphanumeric tokens",
+    "answer_value_match": "typed date and money normalization or one-way expected-value containment",
+    "extraction_match": "typed exact equivalence plus a strict citation per value",
+    "status_match": "ambiguous must be ambiguous; unanswerable and adversarial must be abstained",
+    "retrieval_match": "gold document and page must occur in the first five raw retrieved candidates",
+    "targets": {
+      "citation_precision": 0.9,
+      "citation_recall": 0.9,
+      "citation_case_accuracy": 0.9,
+      "abstention_accuracy": 0.85,
+      "extraction_f1": 0.9,
+      "error_rate": 0.0,
+      "schema_error_rate": 0.0
+    }
+  },
+  "holdout_protocol": {
+    "protocol_label": "holdout-v7-independent-answer-v3",
+    "seed": 2026082707,
+    "total_cases": 40,
+    "minimum_answerable": 25,
+    "minimum_unanswerable": 10,
+    "minimum_ambiguous_or_adversarial": 5,
+    "families_absent_from_development_v3_required": true,
+    "generation_after_engine_freeze": true,
+    "independent_author_required": true,
+    "independent_author_may_not_inspect_engine_or_prior_gold": true,
+    "preflight_must_pass_before_lock": true,
+    "preflight_checks": [
+      "schema",
+      "attestation",
+      "filename",
+      "dataset",
+      "gold",
+      "configuration"
+    ],
+    "execution_limit": 1,
+    "gold_may_not_change_after_commit": true,
+    "recalculation_from_raw_artifact_only": true,
+    "metrics_frozen_before_generation": true,
+    "models_thresholds_prompts_and_seeds_frozen_before_generation": true
+  }
+}

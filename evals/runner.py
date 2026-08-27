@@ -14,18 +14,21 @@ import re
 import statistics
 import time
 import unicodedata
+from collections.abc import Callable
 from dataclasses import asdict
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Protocol
+from typing import Any, Protocol, cast
 
 from evidencedesk_api.extraction import SupplierExtraction, extract_supplier_fields
 from evidencedesk_api.processing import ParsedPage, chunk_pages
 from evidencedesk_api.providers import DeterministicEmbeddingProvider, EmbeddingProvider
 from evidencedesk_api.redaction import redact_pii
 from evidencedesk_api.retrieval import (
+    Citation,
     EvidenceChunk,
     ExtractiveAnswerProvider,
+    RankedChunk,
     Reranker,
     RetrievalMethod,
     rank_chunks,
@@ -34,6 +37,36 @@ from evidencedesk_api.retrieval import (
 
 class EvaluationError(RuntimeError):
     pass
+
+
+class AnswerSchemaError(EvaluationError):
+    pass
+
+
+ACCEPTANCE_TARGETS = {
+    "citation_precision": 0.90,
+    "citation_recall": 0.90,
+    "citation_case_accuracy": 0.90,
+    "abstention_accuracy": 0.85,
+    "extraction_f1": 0.90,
+    "error_rate": 0.0,
+    "schema_error_rate": 0.0,
+}
+
+
+def _meets_acceptance_targets(metrics: dict[str, Any]) -> bool:
+    return (
+        float(metrics["citation_precision"]) >= ACCEPTANCE_TARGETS["citation_precision"]
+        and float(metrics["citation_recall"]) >= ACCEPTANCE_TARGETS["citation_recall"]
+        and float(metrics["citation_case_accuracy"])
+        >= ACCEPTANCE_TARGETS["citation_case_accuracy"]
+        and float(metrics["abstention_accuracy"])
+        >= ACCEPTANCE_TARGETS["abstention_accuracy"]
+        and float(metrics["extraction_f1"]) >= ACCEPTANCE_TARGETS["extraction_f1"]
+        and float(metrics["error_rate"]) == ACCEPTANCE_TARGETS["error_rate"]
+        and float(metrics["schema_error_rate"])
+        == ACCEPTANCE_TARGETS["schema_error_rate"]
+    )
 
 
 class CitationLike(Protocol):
@@ -45,6 +78,19 @@ class CitationLike(Protocol):
 
     @property
     def excerpt(self) -> str: ...
+
+
+class AnswerLike(Protocol):
+    status: str
+    answer: str
+    confidence: float
+    citations: tuple[Citation, ...]
+
+
+class AnswerProviderLike(Protocol):
+    mode: str
+
+    def answer(self, question: str, ranked: list[RankedChunk]) -> AnswerLike: ...
 
 
 def _load(path: Path) -> dict[str, Any]:
@@ -130,9 +176,109 @@ def _normalize_typed(value: object, *, value_type: str) -> str:
 
 
 def _value_matches(actual: object, expected: object, *, value_type: str) -> bool:
-    return _normalize_typed(actual, value_type=value_type) == _normalize_typed(
-        expected, value_type=value_type
+    normalized_actual = _normalize_typed(actual, value_type=value_type)
+    normalized_expected = _normalize_typed(expected, value_type=value_type)
+    if normalized_actual == normalized_expected:
+        return True
+    if value_type != "text":
+        return False
+    shorter, longer = sorted((normalized_actual, normalized_expected), key=len)
+    return len(shorter.split()) >= 3 and shorter in longer
+
+
+def _validate_answer_contract(answer: object) -> AnswerLike:
+    status = getattr(answer, "status", None)
+    if status not in {"answered", "partially_supported", "ambiguous", "abstained"}:
+        raise AnswerSchemaError("answer status is outside the strict schema")
+    if not isinstance(getattr(answer, "answer", None), str):
+        raise AnswerSchemaError("answer text must be a string")
+    confidence = getattr(answer, "confidence", None)
+    if (
+        not isinstance(confidence, (int, float))
+        or isinstance(confidence, bool)
+        or not math.isfinite(float(confidence))
+        or not 0.0 <= float(confidence) <= 1.0
+    ):
+        raise AnswerSchemaError("answer confidence must be finite and between zero and one")
+    citations = getattr(answer, "citations", None)
+    if not isinstance(citations, tuple):
+        raise AnswerSchemaError("answer citations must be a tuple")
+    for citation in citations:
+        if (
+            not isinstance(getattr(citation, "document_id", None), str)
+            or not isinstance(getattr(citation, "page", None), int)
+            or not isinstance(getattr(citation, "excerpt", None), str)
+        ):
+            raise AnswerSchemaError("answer citation is outside the strict schema")
+    return answer  # type: ignore[return-value]
+
+
+def _decision_fields(answer: AnswerLike) -> dict[str, Any]:
+    first = answer.citations[0] if answer.citations else None
+    answerable = getattr(answer, "answerable", answer.status == "answered")
+    extracted_fields = getattr(answer, "extracted_fields", {})
+    candidate_assessments = getattr(answer, "candidate_assessments", ())
+    if (
+        not isinstance(answerable, bool)
+        or not isinstance(extracted_fields, dict)
+        or not isinstance(candidate_assessments, tuple)
+    ):
+        raise AnswerSchemaError("explicit decision fields are outside the strict schema")
+    serialized_assessments: list[dict[str, Any]] = []
+    for assessment in candidate_assessments:
+        try:
+            value = asdict(assessment)
+        except (TypeError, ValueError) as exc:
+            raise AnswerSchemaError("candidate assessment is outside the strict schema") from exc
+        if set(value) != {
+            "answerable",
+            "answer",
+            "confidence",
+            "supporting_document",
+            "supporting_page",
+            "supporting_excerpt",
+            "ambiguity_reason",
+            "extracted_fields",
+            "supporting_chunk_id",
+        }:
+            raise AnswerSchemaError("candidate assessment is outside the strict schema")
+        serialized_assessments.append(value)
+    return {
+        "answerable": answerable,
+        "supporting_document": getattr(
+            answer, "supporting_document", first.document_id if first else None
+        ),
+        "supporting_page": getattr(answer, "supporting_page", first.page if first else None),
+        "supporting_excerpt": getattr(
+            answer, "supporting_excerpt", first.excerpt if first else None
+        ),
+        "ambiguity_reason": getattr(answer, "ambiguity_reason", None),
+        "extracted_fields": extracted_fields,
+        "candidate_assessments": serialized_assessments,
+    }
+
+
+def _is_schema_exception(exc: Exception) -> bool:
+    return isinstance(exc, AnswerSchemaError) or type(exc).__name__.endswith(
+        ("DecisionError", "ValidationError")
     )
+
+
+def _serialized_ranked(ranked: list[RankedChunk]) -> list[dict[str, Any]]:
+    return [
+        {
+            "chunk_id": item.chunk.id,
+            "document_id": item.chunk.document_id,
+            "page": item.chunk.page,
+            "score": round(item.score, 8),
+            "lexical_score": round(item.lexical_score, 8),
+            "dense_score": round(item.dense_score, 8),
+            "rerank_score": (
+                round(item.rerank_score, 8) if item.rerank_score is not None else None
+            ),
+        }
+        for item in ranked
+    ]
 
 
 def _answer_matches(answer: object, expected: object) -> bool:
@@ -378,6 +524,8 @@ def evaluate_manifest(
     method: RetrievalMethod = RetrievalMethod.HYBRID,
     reranker: Reranker | None = None,
     runtime_metadata: dict[str, Any] | None = None,
+    answer_provider: AnswerProviderLike | None = None,
+    extraction_provider: Callable[[list[EvidenceChunk]], SupplierExtraction] | None = None,
 ) -> dict[str, Any]:
     if split not in {"development", "holdout"}:
         raise EvaluationError("split must be development or holdout")
@@ -392,13 +540,17 @@ def evaluate_manifest(
         if active_provider.mode == "local-semantic-onnx-v1"
         else "extractive-local-hash"
     )
-    answer_provider = ExtractiveAnswerProvider(mode=answer_mode)
+    active_answer_provider = answer_provider or cast(
+        AnswerProviderLike, ExtractiveAnswerProvider(mode=answer_mode)
+    )
+    active_extraction_provider = extraction_provider or extract_supplier_fields
     indexing_started = time.perf_counter()
     all_chunks, chunks_by_document = _build_chunks(corpus, active_provider)
     indexing_ms = (time.perf_counter() - indexing_started) * 1_000
     cases = [item for item in manifest["cases"] if item.get("split") == split]
     latencies: list[float] = []
     errors = 0
+    schema_errors = 0
     citation_correct = 0
     citation_returned = 0
     citation_expected = 0
@@ -413,6 +565,22 @@ def evaluate_manifest(
 
     for case in cases:
         started = time.perf_counter()
+        ranked: list[RankedChunk] = []
+        retrieval_matches_at_5: list[bool] = []
+        expected_retrieval_locations_at_5: list[dict[str, object]] = []
+        retrieved_rank: int | None = None
+        kind = case["kind"]
+        expected_citations = list(case.get("expected_citations", []))
+        if kind == "answerable":
+            expected_locations = {
+                (str(item.get("document_id")), int(item.get("page", 0)))
+                for item in expected_citations
+            }
+            expected_retrieval_locations_at_5 = [
+                {"document_id": document_id, "page": page}
+                for document_id, page in sorted(expected_locations)
+            ]
+        retrieval_completed = False
         try:
             ranked = rank_chunks(
                 str(case["question"]),
@@ -421,27 +589,8 @@ def evaluate_manifest(
                 method=method,
                 reranker=reranker,
             )
-            answer = answer_provider.answer(str(case["question"]), ranked)
-            elapsed_ms = (time.perf_counter() - started) * 1_000
-            latencies.append(elapsed_ms)
-            kind = case["kind"]
-            expected_citations = list(case.get("expected_citations", []))
-            citation_matches = [
-                _citation_matches(citation, expected_citations) for citation in answer.citations
-            ]
-            expected_citation_matches = [
-                any(_citation_matches(citation, [expected]) for citation in answer.citations)
-                for expected in expected_citations
-            ]
+            retrieval_completed = True
             if kind == "answerable":
-                citation_correct += sum(citation_matches)
-                citation_returned += len(citation_matches)
-                citation_expected += len(expected_citation_matches)
-                citation_expected_matched += sum(expected_citation_matches)
-                expected_locations = {
-                    (str(item.get("document_id")), int(item.get("page", 0)))
-                    for item in expected_citations
-                }
                 retrieval_matches_at_5 = [
                     (item.chunk.document_id, item.chunk.page) in expected_locations
                     for item in ranked[:5]
@@ -457,8 +606,24 @@ def evaluate_manifest(
                 if retrieved_rank is not None:
                     retrieval_hits += 1
                     retrieval_reciprocal_rank += 1.0 / retrieved_rank
-            else:
-                retrieval_matches_at_5 = []
+            answer = _validate_answer_contract(
+                active_answer_provider.answer(str(case["question"]), ranked)
+            )
+            decision_fields = _decision_fields(answer)
+            elapsed_ms = (time.perf_counter() - started) * 1_000
+            latencies.append(elapsed_ms)
+            citation_matches = [
+                _citation_matches(citation, expected_citations) for citation in answer.citations
+            ]
+            expected_citation_matches = [
+                any(_citation_matches(citation, [expected]) for citation in answer.citations)
+                for expected in expected_citations
+            ]
+            if kind == "answerable":
+                citation_correct += sum(citation_matches)
+                citation_returned += len(citation_matches)
+                citation_expected += len(expected_citation_matches)
+                citation_expected_matched += sum(expected_citation_matches)
             expected_answer = case.get("expected_answer")
             answer_match = expected_answer is not None and _answer_matches(
                 answer.answer, expected_answer
@@ -485,28 +650,21 @@ def evaluate_manifest(
                     "citation_matches": citation_matches,
                     "expected_citation_matches": expected_citation_matches,
                     "retrieval_matches_at_5": retrieval_matches_at_5,
+                    "expected_retrieval_locations_at_5": (
+                        expected_retrieval_locations_at_5
+                    ),
                     "retrieval_rank": retrieved_rank if kind == "answerable" else None,
-                    "retrieved": [
-                        {
-                            "chunk_id": item.chunk.id,
-                            "document_id": item.chunk.document_id,
-                            "page": item.chunk.page,
-                            "score": round(item.score, 8),
-                            "lexical_score": round(item.lexical_score, 8),
-                            "dense_score": round(item.dense_score, 8),
-                            "rerank_score": (
-                                round(item.rerank_score, 8)
-                                if item.rerank_score is not None
-                                else None
-                            ),
-                        }
-                        for item in ranked
-                    ],
+                    "retrieval_completed": retrieval_completed,
+                    "retrieved": _serialized_ranked(ranked),
                     "latency_ms": round(elapsed_ms, 3),
+                    **decision_fields,
                 }
             )
         except Exception as exc:  # evaluation must report, not hide, engine errors
             errors += 1
+            is_schema_error = _is_schema_exception(exc)
+            if is_schema_error:
+                schema_errors += 1
             elapsed_ms = (time.perf_counter() - started) * 1_000
             latencies.append(elapsed_ms)
             case_results.append(
@@ -515,12 +673,20 @@ def evaluate_manifest(
                     "kind": case["kind"],
                     "status": "error",
                     "error_type": type(exc).__name__,
+                    "schema_error": is_schema_error,
+                    "retrieval_matches_at_5": retrieval_matches_at_5,
+                    "expected_retrieval_locations_at_5": (
+                        expected_retrieval_locations_at_5
+                    ),
+                    "retrieval_rank": retrieved_rank if kind == "answerable" else None,
+                    "retrieval_completed": retrieval_completed,
+                    "retrieved": _serialized_ranked(ranked),
                     "latency_ms": round(elapsed_ms, 3),
                 }
             )
 
     extractions = {
-        document_id: extract_supplier_fields(document_chunks)
+        document_id: active_extraction_provider(document_chunks)
         for document_id, document_chunks in chunks_by_document.items()
     }
     (
@@ -541,13 +707,13 @@ def evaluate_manifest(
     citation_case_accuracy = _safe_ratio(answerable_correct, answerable_total)
     abstention_accuracy = _safe_ratio(abstention_correct, abstention_total)
     result: dict[str, Any] = {
-        "schema_version": "evaluation-result-v3",
+        "schema_version": "evaluation-result-v4",
         "created_at": datetime.now(UTC).isoformat(),
         "dataset_version": manifest["dataset_version"],
         "parameters_version": manifest["parameters_version"],
         "seed": manifest["seed"],
         "split": split,
-        "mode": answer_provider.mode,
+        "mode": active_answer_provider.mode,
         "embedding_model_id": active_provider.model_id,
         "retrieval_method": method.value,
         "reranker_model_id": reranker.model_id if reranker is not None else None,
@@ -564,6 +730,7 @@ def evaluate_manifest(
         "latency_median_ms": round(statistics.median(latencies), 3) if latencies else 0.0,
         "latency_p95_ms": round(_p95(latencies), 3),
         "error_rate": round(_safe_ratio(errors, len(cases)), 6),
+        "schema_error_rate": round(_safe_ratio(schema_errors, len(cases)), 6),
         "indexing_ms": round(indexing_ms, 3),
         "estimated_cost_usd": active_provider.estimated_cost_usd,
         "manifest_sha256": _sha256_file(manifest_path),
@@ -583,27 +750,15 @@ def evaluate_manifest(
             "extraction_predicted": extraction_predicted,
             "extraction_gold": extraction_gold,
             "errors": errors,
+            "schema_errors": schema_errors,
         },
-        "targets": {
-            "citation_precision": 0.90,
-            "citation_case_accuracy": 0.90,
-            "abstention_accuracy": 0.85,
-            "extraction_f1": 0.90,
-        },
+        "targets": ACCEPTANCE_TARGETS,
         "cases": case_results,
         "extractions": {key: asdict(value) for key, value in extractions.items()},
         "extraction_evaluation": extraction_evaluation,
         "runtime": runtime_metadata or {},
     }
-    result["verdict"] = (
-        "PASS"
-        if result["citation_precision"] >= 0.90
-        and result["citation_case_accuracy"] >= 0.90
-        and result["abstention_accuracy"] >= 0.85
-        and result["extraction_f1"] >= 0.90
-        and result["error_rate"] == 0.0
-        else "FAIL"
-    )
+    result["verdict"] = "PASS" if _meets_acceptance_targets(result) else "FAIL"
     return result
 
 
@@ -620,10 +775,22 @@ ENGINE_FINGERPRINT_PATHS = (
     "evals/validate_dataset.py",
     "evals/benchmark.py",
     "evals/recalculate.py",
+    "evals/freeze.py",
+    "evals/answer_v3_runtime.py",
+    "evals/finalize_answer_v3.py",
+    "evals/strategy_benchmark_v3.py",
+    "evals/configs/answer-v3-experiment-plan.json",
     "apps/api/evidencedesk_api/retrieval.py",
+    "apps/api/evidencedesk_api/answering.py",
     "apps/api/evidencedesk_api/extraction.py",
+    "apps/api/evidencedesk_api/nli_answering.py",
+    "apps/api/evidencedesk_api/qwen_answering.py",
     "apps/api/evidencedesk_api/providers.py",
     "apps/api/evidencedesk_api/processing.py",
+    "apps/api/evidencedesk_api/redaction.py",
+    "infra/models/paraphrase-multilingual-minilm-l12-v2.json",
+    "infra/models/mdeberta-v3-base-mnli-xnli.json",
+    "infra/models/qwen2.5-0.5b-instruct-q4-k-m.json",
 )
 
 

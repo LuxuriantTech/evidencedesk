@@ -11,6 +11,21 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from evals.runner import _meets_acceptance_targets
+
+_STRICT_RETRIEVAL_SCHEMAS = {
+    "evaluation-result-v4",
+    "evidencedesk-holdout-raw-v4",
+}
+_LEGACY_RETRIEVAL_SCHEMAS = {
+    None,
+    "evaluation-result-v1",
+    "evaluation-result-v2",
+    "evaluation-result-v3",
+    "holdout-v4-raw-result-v2",
+    "evidencedesk-holdout-raw-v3",
+}
+
 
 def _ratio(numerator: int | float, denominator: int | float) -> float:
     return numerator / denominator if denominator else 0.0
@@ -36,12 +51,21 @@ def _assert_recorded_metric(raw: dict[str, Any], key: str, recalculated: float) 
     if key not in raw:
         return False
     recorded = _non_negative_finite(raw[key], label=key.replace("_", " "))
-    if abs(recorded - recalculated) > 0.000001:
+    # Metrics are persisted at millisecond precision; tolerate one final-unit
+    # rounding difference while still rejecting any material timing drift.
+    if abs(recorded - recalculated) > 0.001001:
         raise ValueError(f"recorded {key.replace('_', ' ')} differs from raw decisions")
     return True
 
 
 def recalculate_metrics(raw: dict[str, Any]) -> dict[str, Any]:
+    schema_version = raw.get("schema_version")
+    if schema_version in _STRICT_RETRIEVAL_SCHEMAS:
+        strict_retrieval_evidence = True
+    elif schema_version in _LEGACY_RETRIEVAL_SCHEMAS:
+        strict_retrieval_evidence = False
+    else:
+        raise ValueError(f"unsupported raw artifact schema: {schema_version!r}")
     cases = raw.get("cases", [])
     extraction = raw.get("extraction_evaluation", [])
     citation_correct = citation_returned = 0
@@ -49,14 +73,21 @@ def recalculate_metrics(raw: dict[str, Any]) -> dict[str, Any]:
     answerable_correct = answerable_total = 0
     abstention_correct = abstention_total = 0
     errors = 0
+    schema_errors = 0
     retrieval_hits = 0
     retrieval_reciprocal_rank = 0.0
+    retrieval_evidence_verified_cases = 0
+    retrieval_completed_cases = 0
     latencies: list[float] = []
     for case in cases:
         kind = case["kind"]
         status = case["status"]
         if status == "error":
             errors += 1
+            schema_flag = case.get("schema_error", False)
+            if not isinstance(schema_flag, bool):
+                raise ValueError("schema error flag must be boolean")
+            schema_errors += int(schema_flag)
         if "latency_ms" in case:
             latencies.append(_non_negative_finite(case["latency_ms"], label="case latency"))
         if kind == "answerable":
@@ -74,6 +105,51 @@ def recalculate_metrics(raw: dict[str, Any]) -> dict[str, Any]:
                 citation_expected_matched += sum(expected_decisions_raw)
             retrieval_matches = case.get("retrieval_matches_at_5")
             rank = case.get("retrieval_rank")
+            retrieved = case.get("retrieved", [])
+            if not isinstance(retrieved, list):
+                raise ValueError("retrieved passages must be a list")
+            retrieval_completed = case.get("retrieval_completed")
+            if strict_retrieval_evidence and not isinstance(retrieval_completed, bool):
+                raise ValueError("strict raw artifact is missing retrieval completion state")
+            if retrieval_completed is True:
+                retrieval_completed_cases += 1
+            elif retrieval_completed is False and retrieved:
+                raise ValueError("retrieval cannot be incomplete with recorded passages")
+            expected_locations = case.get("expected_retrieval_locations_at_5")
+            if strict_retrieval_evidence and expected_locations is None:
+                raise ValueError("strict raw artifact is missing expected retrieval evidence")
+            if expected_locations is not None:
+                if not isinstance(expected_locations, list) or not expected_locations:
+                    raise ValueError("expected retrieval locations must be a non-empty list")
+                expected_pairs: set[tuple[str, int]] = set()
+                for location in expected_locations:
+                    if (
+                        not isinstance(location, dict)
+                        or not isinstance(location.get("document_id"), str)
+                        or not isinstance(location.get("page"), int)
+                        or isinstance(location.get("page"), bool)
+                        or int(location["page"]) < 1
+                    ):
+                        raise ValueError("expected retrieval location is invalid")
+                    expected_pairs.add((str(location["document_id"]), int(location["page"])))
+                derived_matches: list[bool] = []
+                for item in retrieved[:5]:
+                    if (
+                        not isinstance(item, dict)
+                        or not isinstance(item.get("document_id"), str)
+                        or not isinstance(item.get("page"), int)
+                        or isinstance(item.get("page"), bool)
+                    ):
+                        raise ValueError("retrieved passage location is invalid")
+                    derived_matches.append(
+                        (str(item["document_id"]), int(item["page"])) in expected_pairs
+                    )
+                if retrieval_matches != derived_matches:
+                    raise ValueError(
+                        "retrieval matches differ from retrieved passages and expected evidence"
+                    )
+                retrieval_matches = derived_matches
+                retrieval_evidence_verified_cases += 1
             if retrieval_matches is not None:
                 if not isinstance(retrieval_matches, list) or len(retrieval_matches) > 5 or not all(
                     isinstance(value, bool) for value in retrieval_matches
@@ -90,8 +166,7 @@ def recalculate_metrics(raw: dict[str, Any]) -> dict[str, Any]:
             ):
                 raise ValueError("retrieval rank must be null or an integer from 1 to 5")
             if rank is not None:
-                retrieved = case.get("retrieved", [])
-                if not isinstance(retrieved, list) or rank > len(retrieved):
+                if rank > len(retrieved):
                     raise ValueError("retrieval rank exceeds the recorded retrieved passages")
                 retrieval_hits += 1
                 retrieval_reciprocal_rank += 1.0 / rank
@@ -121,12 +196,15 @@ def recalculate_metrics(raw: dict[str, Any]) -> dict[str, Any]:
         "answerable_correct": answerable_correct,
         "answerable_total": answerable_total,
         "retrieval_hits_at_5": retrieval_hits,
+        "retrieval_evidence_verified_cases": retrieval_evidence_verified_cases,
+        "retrieval_completed_cases": retrieval_completed_cases,
         "abstention_correct": abstention_correct,
         "abstention_total": abstention_total,
         "extraction_true_positive": extraction_tp,
         "extraction_predicted": extraction_predicted,
         "extraction_gold": extraction_gold,
         "errors": errors,
+        "schema_errors": schema_errors,
     }
     citation_precision = round(_ratio(citation_correct, citation_returned), 6)
     citation_recall = round(_ratio(citation_expected_matched, citation_expected), 6)
@@ -138,12 +216,14 @@ def recalculate_metrics(raw: dict[str, Any]) -> dict[str, Any]:
     rounded_extraction_recall = round(extraction_recall, 6)
     rounded_extraction_f1 = round(extraction_f1, 6)
     error_rate = round(_ratio(errors, len(cases)), 6)
+    schema_error_rate = round(_ratio(schema_errors, len(cases)), 6)
     latency_median = round(statistics.median(latencies), 3) if latencies else 0.0
     latency_p95 = round(_p95(latencies), 3)
     median_matches = _assert_recorded_metric(raw, "latency_median_ms", latency_median)
     p95_matches = _assert_recorded_metric(raw, "latency_p95_ms", latency_p95)
     _assert_recorded_metric(raw, "retrieval_recall_at_5", retrieval_recall)
     _assert_recorded_metric(raw, "retrieval_mrr_at_5", retrieval_mrr)
+    _assert_recorded_metric(raw, "schema_error_rate", schema_error_rate)
     if citation_expected:
         _assert_recorded_metric(raw, "citation_recall", citation_recall)
 
@@ -162,15 +242,16 @@ def recalculate_metrics(raw: dict[str, Any]) -> dict[str, Any]:
         if isinstance(peak_rss, bool) or not isinstance(peak_rss, int) or peak_rss <= 0:
             raise ValueError("peak RSS must be a positive integer")
         rss_valid = True
-    verdict = (
-        "PASS"
-        if citation_precision >= 0.90
-        and citation_case_accuracy >= 0.90
-        and abstention_accuracy >= 0.85
-        and rounded_extraction_f1 >= 0.90
-        and error_rate == 0.0
-        else "FAIL"
-    )
+    verdict_metrics = {
+        "citation_precision": citation_precision,
+        "citation_recall": citation_recall,
+        "citation_case_accuracy": citation_case_accuracy,
+        "abstention_accuracy": abstention_accuracy,
+        "extraction_f1": rounded_extraction_f1,
+        "error_rate": error_rate,
+        "schema_error_rate": schema_error_rate,
+    }
+    verdict = "PASS" if _meets_acceptance_targets(verdict_metrics) else "FAIL"
     metrics: dict[str, Any] = {
         "metric_counts": counts,
         "citation_precision": citation_precision,
@@ -183,6 +264,7 @@ def recalculate_metrics(raw: dict[str, Any]) -> dict[str, Any]:
         "extraction_recall": rounded_extraction_recall,
         "extraction_f1": rounded_extraction_f1,
         "error_rate": error_rate,
+        "schema_error_rate": schema_error_rate,
         "latency_median_ms": latency_median,
         "latency_p95_ms": latency_p95,
         "timing_integrity": {
@@ -191,6 +273,17 @@ def recalculate_metrics(raw: dict[str, Any]) -> dict[str, Any]:
             "indexing_ms_valid": indexing_valid,
             "total_wall_time_ms_valid": total_valid,
             "peak_rss_bytes_valid": rss_valid,
+        },
+        "retrieval_integrity": {
+            "evidence_verified_cases": retrieval_evidence_verified_cases,
+            "answerable_cases": answerable_total,
+            "evidence_recalculable": retrieval_evidence_verified_cases == answerable_total,
+            "completed_cases": retrieval_completed_cases,
+            "fully_verified": (
+                retrieval_evidence_verified_cases == answerable_total
+                and retrieval_completed_cases == answerable_total
+            ),
+            "strict_schema": strict_retrieval_evidence,
         },
         "verdict": verdict,
     }
@@ -210,7 +303,7 @@ def main() -> None:
         raise FileExistsError(f"recalculation output already exists: {args.output}")
     raw = json.loads(args.input.read_text(encoding="utf-8"))
     result = {
-        "schema_version": "evidencedesk-evaluation-recalculation-v3",
+        "schema_version": "evidencedesk-evaluation-recalculation-v4",
         "created_at": datetime.now(UTC).isoformat(),
         "raw_artifact_sha256": _sha256(args.input),
         **recalculate_metrics(raw),

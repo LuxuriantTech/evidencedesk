@@ -250,4 +250,57 @@ describe("EvidenceDesk REST flow", () => {
     expect(screen.getByText("90,0 %")).toBeInTheDocument();
     fetchMock.mockRestore();
   });
+
+  it("renders a partially supported answer with its explicit source and reason", async () => {
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation(async (input) => {
+      const path = String(input);
+      if (path === "/api/v1/auth/token") {
+        return json({
+          access_token: "t",
+          token_type: "bearer",
+          expires_in: 1800,
+          user: { id: "u", username: "demo.analyst", role: "analyst" },
+        });
+      }
+      if (path === "/api/v1/dossiers") {
+        return json([{ id: "d1", name: "Dossier Atlas", description: "Synthétique", is_synthetic: true }]);
+      }
+      if (path === "/api/v1/dossiers/d1/documents") {
+        return json([{ id: "doc1", filename: "accord.pdf", media_type: "application/pdf", status: "completed", task_id: null, error_code: null }]);
+      }
+      if (path === "/api/v1/dossiers/d1/extraction") return json([]);
+      if (path === "/api/v1/documents/doc1/content") return json([]);
+      if (path === "/api/v1/dossiers/d1/ask") {
+        return json({
+          status: "partially_supported",
+          answerable: false,
+          answer: "La preuve ne précise pas la valeur demandée.",
+          confidence: 0.61,
+          mode: "deterministic-v3-a",
+          supporting_document: "doc1",
+          supporting_page: 2,
+          supporting_excerpt: "Le suivi confirme l'événement, sans date définitive.",
+          ambiguity_reason: "L'événement est établi, mais la date demandée est absente.",
+          extracted_fields: {},
+          citations: [{ chunk_id: "c2", document_id: "doc1", document_name: "accord.pdf", page: 2, section: null, excerpt: "Le suivi confirme l'événement, sans date définitive." }],
+          correlation_id: "correlation-v3",
+        });
+      }
+      throw new Error(`Unexpected request: ${path}`);
+    });
+    const user = userEvent.setup();
+    render(<App />);
+    await user.type(screen.getByLabelText("Identifiant"), "demo.analyst");
+    await user.type(screen.getByLabelText("Mot de passe"), "x");
+    await user.click(screen.getByRole("button", { name: "Se connecter" }));
+    await screen.findByRole("heading", { name: "Dossier Atlas" });
+    await user.type(screen.getByLabelText("Question sur ce dossier"), "Quelle date est confirmée ?");
+    await user.click(screen.getByRole("button", { name: "Rechercher des preuves" }));
+
+    expect(await screen.findByText("Preuve partielle")).toBeInTheDocument();
+    expect(screen.getByText(/L'événement est établi, mais la date demandée est absente\./)).toBeInTheDocument();
+    expect(screen.getByText("Extrait utilisé : Le suivi confirme l'événement, sans date définitive.")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /source accord.pdf, page 2/i })).toBeInTheDocument();
+    fetchMock.mockRestore();
+  });
 });

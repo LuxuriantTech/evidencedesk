@@ -31,11 +31,26 @@ Une contrainte d’unicité partielle `(dossier_id, content_sha256)` empêche un
 
 Après la limite d’import, trois budgets bornent l’expansion : 200 pages, 1 000 000 de caractères extraits et 5 000 chunks par défaut. Un dépassement est terminal avec un code stable, sans reprise inutile. Pour PDF, `pypdf` tourne dans un sous-processus `spawn` avec délai mural ; sous POSIX, `RLIMIT_AS` et `RLIMIT_CPU` ajoutent des plafonds d’espace d’adressage et de CPU. La limite mémoire dure n’est pas disponible sous Windows natif.
 
-Les chunks conservent page, section, ordinal et texte masqué. La recherche combine candidats vectoriels et lexicaux, puis un classement hybride. Une réponse contient les passages retenus, le document et la page. En cas de preuve insuffisante ou contradictoire, le fournisseur extractif renvoie une abstention explicite.
+Les chunks conservent page, section, ordinal et texte masqué. La recherche combine candidats
+vectoriels et lexicaux, puis un classement hybride. Une réponse contient les passages retenus, le
+document, la page et l'extrait justificatif. Le moteur v3 classe séparément preuve supportée,
+support partiel, contradiction et absence de preuve. Sa validation finale refuse une réponse dont
+le chunk, le document, la page ou l'extrait ne peuvent pas être reliés aux candidats récupérés.
 
 ## Modes de réponse
 
-Le mode livré est `extractive-local-onnx`. Son vecteur est l'embedding ONNX local `paraphrase-multilingual-minilm-l12-v2-onnx-q@faf4aa4225822f3bc6376869cb1164e8e3feedd0`, de dimension 384, calculé par fastembed/onnxruntime sur CPU. `embedding_model_id` définit l'espace vectoriel : les embeddings feature-hashing historiques ne sont pas compatibles. La recherche lexicale PostgreSQL est conservée comme voie legacy et fusionnée avec le dense dans le classement hybride retenu. Le mode n'est pas un LLM complet et ne nécessite pas de clé.
+Le mode livré est `grounded-local-v3`. Son vecteur est l'embedding ONNX local
+`paraphrase-multilingual-minilm-l12-v2-onnx-q@faf4aa4225822f3bc6376869cb1164e8e3feedd0`,
+de dimension 384, calculé par fastembed/onnxruntime sur CPU. `embedding_model_id` définit l'espace
+vectoriel : les embeddings feature-hashing historiques ne sont pas compatibles. La recherche
+lexicale PostgreSQL est fusionnée avec le dense par reciprocal-rank fusion. Le moteur de réponse
+retenu est déterministe et sourcé ; il ne doit pas être présenté comme un LLM complet et ne
+nécessite aucune clé.
+
+Deux autres stratégies locales ont été évaluées de façon bornée : un modèle NLI multilingue ONNX
+et Qwen 2.5 0.5B quantifié avec sortie JSON contrainte. Elles ne sont pas utilisées par le runtime
+retenu. L'identité, la licence, la taille et les empreintes des trois modèles locaux sont fixées dans
+`infra/models/`; les résultats comparatifs et la décision sont dans l'ADR-0006.
 
 `ProviderBundle` regroupe les protocoles `EmbeddingProvider` et `AnswerProvider`. Le registre refuse
 tout mode inconnu ; un fournisseur local ou compatible OpenAI peut être ajouté à ces deux frontières

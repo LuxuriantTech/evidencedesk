@@ -1,8 +1,13 @@
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Protocol
+from typing import Protocol, cast
 
+from evidencedesk_api.answering import (
+    DecisionConfig,
+    DeterministicGroundedAnswerProvider,
+    GroundedAnswer,
+)
 from evidencedesk_api.providers import (
     DeterministicEmbeddingProvider,
     EmbeddingProvider,
@@ -14,12 +19,14 @@ from evidencedesk_api.retrieval import (
     RankedChunk,
 )
 
+AnswerValue = AnswerResult | GroundedAnswer
+
 
 class AnswerProvider(Protocol):
     mode: str
     estimated_cost_usd: float
 
-    def answer(self, question: str, ranked: list[RankedChunk]) -> AnswerResult: ...
+    def answer(self, question: str, ranked: list[RankedChunk]) -> AnswerValue: ...
 
 
 @dataclass(frozen=True, slots=True)
@@ -45,7 +52,7 @@ def build_provider_bundle(
 ) -> ProviderBundle:
     if mode == "extractive-local-hash":
         embedding: EmbeddingProvider = DeterministicEmbeddingProvider(dimension=384)
-    elif mode == "extractive-local-onnx":
+    elif mode in {"extractive-local-onnx", "grounded-local-v3"}:
         embedding = (
             embedding_factory()
             if embedding_factory is not None
@@ -56,7 +63,19 @@ def build_provider_bundle(
         )
     else:
         raise UnsupportedProviderMode(f"unsupported answer mode: {mode}")
-    return ProviderBundle(
-        embedding=embedding,
-        answer=ExtractiveAnswerProvider(mode=mode),
-    )
+    if mode == "grounded-local-v3":
+        return ProviderBundle(
+            embedding=embedding,
+            answer=cast(
+                AnswerProvider,
+                DeterministicGroundedAnswerProvider(
+                    embeddings=embedding,
+                    config=DecisionConfig(
+                        support_threshold=0.48,
+                        partial_support_threshold=0.38,
+                        contradiction_margin=0.08,
+                    ),
+                ),
+            ),
+        )
+    return ProviderBundle(embedding=embedding, answer=ExtractiveAnswerProvider(mode=mode))

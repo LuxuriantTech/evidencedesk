@@ -2,6 +2,7 @@ import re
 from dataclasses import dataclass
 from typing import Any
 
+from evidencedesk_api.providers import EmbeddingProvider
 from evidencedesk_api.retrieval import Citation, EvidenceChunk
 
 
@@ -268,6 +269,246 @@ def extract_supplier_fields(chunks: list[EvidenceChunk]) -> SupplierExtraction:
         ),
         renewal_date=EvidenceValue(renewal_date, selected_renewal_citations),
         important_amounts=EvidenceValue(tuple(amount_values), tuple(amount_citations)),
+        obligations=EvidenceValue(tuple(obligations), tuple(obligation_citations)),
+        responsible_people=EvidenceValue(tuple(people), tuple(people_citations)),
+        risks=EvidenceValue(tuple(risks), tuple(risk_citations)),
+    )
+
+
+_DATE_V3 = re.compile(
+    rf"\b(?:\d{{4}}[-.]\d{{2}}[-.]\d{{2}}|\d{{1,2}}/\d{{1,2}}/\d{{4}}|"
+    rf"(?:\d{{1,2}}(?:er)?|premier)\s+(?:{_MONTHS})\s+\d{{4}}|"
+    rf"(?:{_MONTHS})\s+\d{{1,2}},?\s+\d{{4}})\b",
+    re.IGNORECASE,
+)
+_AMOUNT_V3 = re.compile(
+    r"(?:\b(?:EUR|USD|GBP)\s*[$€£]?\s*\d[\d ,.]*\d(?:[.,]\d+)?k?\b|"
+    r"[$€£]\s*\d[\d ,.]*\d(?:[.,]\d+)?k?(?:\s*(?:EUR|USD|GBP))?\b|"
+    r"\b\d[\d ,.]*\d(?:[.,]\d+)?k?\s*(?:EUR|USD|GBP|€|£|\$)\b|"
+    r"\b(?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|"
+    r"thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|"
+    r"thirty|forty|fifty|sixty|seventy|eighty|ninety)(?:[- ](?:one|two|three|"
+    r"four|five|six|seven|eight|nine))?\s+thousand\s+(?:pounds?|euros?|dollars?)\b)",
+    re.IGNORECASE,
+)
+_PERSON_V3 = re.compile(
+    r"\b([A-ZÀ-ÖØ-Þ][A-Za-zÀ-ÖØ-öø-ÿ'\u2019-]+"
+    r"(?:\s+[A-ZÀ-ÖØ-Þ][A-Za-zÀ-ÖØ-öø-ÿ'\u2019-]+){1,2})\b"
+)
+_ROLE_VERBS_V3 = re.compile(
+    r"\b(?:coordinates?|owns?|leads?|led|maintains?|maintained|handles?|approves?|investigates?|"
+    r"validates?|arbitre|anime|coordonne|pilote|suit|valide|tient|autorise|"
+    r"responsable|stewards?)\b",
+    re.IGNORECASE,
+)
+_OBLIGATION_VERBS_V3 = re.compile(
+    r"\b(?:keep|keeps|preserve|preserves|archive|archives|distribute|distributes|"
+    r"circulate|circulates|send|sends|reopen|reopens|photograph|photographs|"
+    r"transmit|transmits|conserve|conservent|informe|informent|adresse|adressent)\b",
+    re.IGNORECASE,
+)
+_RISK_V3 = re.compile(
+    r"\b(?:risk|risque|single|lone|unique|absence|dependenc|dépend|could|might|may|"
+    r"peut|pourrait|delay|retard|disable|isolate|interrompre|affect)\w*\b",
+    re.IGNORECASE,
+)
+_UNTRUSTED_V3 = re.compile(
+    r"\b(?:system message|instruction insérée|instruction inseree|ordre pour|"
+    r"message destiné au robot|message destine au robot|untrusted sample|texte d'essai)\b",
+    re.IGNORECASE,
+)
+
+
+def _document_type_v3(
+    entries: list[tuple[EvidenceChunk, str]],
+) -> tuple[str | None, tuple[Citation, ...]]:
+    kind_words = re.compile(
+        r"\b(?:agreement|contract|note|file|plan|chronicle|catalogue|playbook|letter|"
+        r"schedule|report|accord|contrat|dossier|lettre|compte rendu)\b",
+        re.IGNORECASE,
+    )
+    for chunk, line in entries:
+        if chunk.page != 1 or line != line.upper() or not kind_words.search(line):
+            continue
+        candidates = [part.strip() for part in re.split(r"\s+[—/]\s+", line)]
+        typed = [part for part in candidates if kind_words.search(part)]
+        if typed:
+            value = min(typed, key=lambda item: len(item.split()))
+            return value, (_citation(chunk, line),)
+    return _first_label_value(
+        entries,
+        ("Document type", "Document kind", "Category", "Catégorie", "Nature du document"),
+    )
+
+
+def _organization_v3(
+    entries: list[tuple[EvidenceChunk, str]],
+) -> tuple[str | None, tuple[Citation, ...]]:
+    labelled = _first_label_value(
+        entries,
+        (
+            "Organization",
+            "Organisation",
+            "Supplier",
+            "Fournisseur",
+            "Vendor legal entity",
+            "Account holder",
+            "Plan owner organization",
+            "Operational beneficiary",
+        ),
+    )
+    if labelled[0] is not None:
+        return labelled
+    patterns = (
+        r"(?:operator named for .+?|custodian covered .+?|beneficiary operationnel)"
+        r"\s+(?:is|est)\s+([^.;]+)",
+        r"\b(?:dossier concerne|issued by)\s+([^.;]+?)(?=\s+(?:et non|for)\b|[.;])",
+        r"\bconfirme que\s+([^,.;]+?)\s+(?:porte|gère|gere)\b",
+        r"\b(?:account holder|plan owner organization)\s*(?:—|:)\s*([^.;]+)",
+    )
+    for chunk, line in entries:
+        for pattern in patterns:
+            match = re.search(pattern, line, re.IGNORECASE)
+            if match:
+                return match.group(1).strip(), (_citation(chunk, line),)
+        legal_entity = _LEGAL_ENTITY.search(line)
+        if chunk.page == 1 and legal_entity:
+            return legal_entity.group(0).strip(), (_citation(chunk, line),)
+    return None, ()
+
+
+def _context_date_v3(
+    entries: list[tuple[EvidenceChunk, str]], pattern: re.Pattern[str], *, last: bool = False
+) -> tuple[str | None, tuple[Citation, ...]]:
+    for chunk, line in entries:
+        if pattern.search(line):
+            matches = list(_DATE_V3.finditer(line))
+            if matches:
+                return matches[-1 if last else 0].group(0), (_citation(chunk, line),)
+    return None, ()
+
+
+def _labelled_or_context_date_v3(
+    entries: list[tuple[EvidenceChunk, str]],
+    *,
+    labels: tuple[str, ...],
+    context_pattern: re.Pattern[str],
+    last: bool = False,
+) -> tuple[str | None, tuple[Citation, ...]]:
+    labelled_value, labelled_citations = _first_label_value(entries, labels)
+    if labelled_value is not None:
+        matches = list(_DATE_V3.finditer(labelled_value))
+        if matches:
+            return matches[-1 if last else 0].group(0), labelled_citations
+    return _context_date_v3(entries, context_pattern, last=last)
+
+
+def _obligation_clauses_v3(line: str) -> list[str]:
+    candidate = re.sub(
+        r"^(?:during|after|before|at|à)\b[^,]*,\s*",
+        "",
+        line,
+        flags=re.IGNORECASE,
+    )
+    candidate = re.sub(r"^.+?\bqui\s+", "", candidate, flags=re.IGNORECASE)
+    parts = [part.strip() for part in re.split(r"\s+(?:and|et)\s+", candidate)]
+    return [part for part in parts if _OBLIGATION_VERBS_V3.search(part)]
+
+
+def extract_supplier_fields_v3(
+    chunks: list[EvidenceChunk], *, embeddings: EmbeddingProvider
+) -> SupplierExtraction:
+    """Extract source-linked fields from relational prose and explicit field labels.
+
+    Embeddings are part of the stable provider contract; this deterministic strategy
+    uses auditable lexical relations and leaves semantic inference to the bounded
+    NLI/JSON candidates.
+    """
+
+    del embeddings
+    entries = [
+        item
+        for item in _line_entries(chunks)
+        if not _UNTRUSTED_V3.search(item[1])
+    ]
+    organization, organization_citations = _organization_v3(entries)
+    document_type, document_type_citations = _document_type_v3(entries)
+    effective, effective_citations = _labelled_or_context_date_v3(
+        entries,
+        labels=(
+            "Effective date",
+            "Effective from",
+            "Commencement",
+            "Date d'application",
+            "Prise d'effet",
+            "Entrée en vigueur",
+        ),
+        context_pattern=re.compile(
+            r"\b(?:begin|begins|start|starts|takes? effect|went live|activation|applicable|"
+            r"custody passes|prendre effet|prendra effet|devient applicable|ouvre la période|"
+            r"ouvre la periode|changent? de garde)\b",
+            re.IGNORECASE,
+        ),
+    )
+    renewal, renewal_citations = _labelled_or_context_date_v3(
+        entries,
+        labels=("Renewal date", "Renouvellement", "Prochaine échéance de renouvellement"),
+        context_pattern=re.compile(
+            r"\b(?:next .+ review|annual review|reviewed again|anniversary|annual reset|"
+            r"renew\w*|revue annuelle|examen annuel|prochain état|prochain etat)\b",
+            re.IGNORECASE,
+        ),
+        last=True,
+    )
+
+    amounts: list[str] = []
+    amount_citations: list[Citation] = []
+    people: list[str] = []
+    people_citations: list[Citation] = []
+    obligations: list[str] = []
+    obligation_citations: list[Citation] = []
+    risks: list[str] = []
+    risk_citations: list[Citation] = []
+    person_aliases = (
+        "Responsible manager",
+        "Responsible contact",
+        "Service owner",
+        "Owner",
+        "Accountable lead",
+        "Contact opérationnel",
+        "Responsable",
+        "Responsable du compte",
+    )
+    for chunk, line in entries:
+        citation = _citation(chunk, line)
+        for match in _AMOUNT_V3.finditer(line):
+            _append_unique(amounts, amount_citations, match.group(0).strip(), citation)
+        labelled_person = _label_match(line, person_aliases)
+        if labelled_person is not None:
+            person = labelled_person.split(",", maxsplit=1)[0].strip().removesuffix(".")
+            _append_unique(people, people_citations, person, citation)
+        elif _ROLE_VERBS_V3.search(line):
+            for match in _PERSON_V3.finditer(line):
+                tail = line[match.end() :]
+                if _ROLE_VERBS_V3.search(tail[:40]) or re.search(
+                    r"\b(?:stewards?|responsables?)\b", line[: match.start()], re.IGNORECASE
+                ):
+                    _append_unique(people, people_citations, match.group(1), citation)
+        modal_obligation = _OBLIGATION.search(line)
+        lexical_obligation = _OBLIGATION_VERBS_V3.search(line)
+        if modal_obligation or (lexical_obligation and not _RISK_V3.search(line)):
+            clauses = [line] if modal_obligation else _obligation_clauses_v3(line)
+            for clause in clauses:
+                _append_unique(obligations, obligation_citations, clause, citation)
+        if _RISK_V3.search(line) and not modal_obligation and not lexical_obligation:
+            _append_unique(risks, risk_citations, line, citation)
+
+    return SupplierExtraction(
+        organization_name=EvidenceValue(organization, organization_citations),
+        document_type=EvidenceValue(document_type, document_type_citations),
+        effective_date=EvidenceValue(effective, effective_citations),
+        renewal_date=EvidenceValue(renewal, renewal_citations),
+        important_amounts=EvidenceValue(tuple(amounts), tuple(amount_citations)),
         obligations=EvidenceValue(tuple(obligations), tuple(obligation_citations)),
         responsible_people=EvidenceValue(tuple(people), tuple(people_citations)),
         risks=EvidenceValue(tuple(risks), tuple(risk_citations)),

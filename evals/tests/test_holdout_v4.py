@@ -329,12 +329,15 @@ def test_recalculation_uses_only_raw_case_and_extraction_decisions() -> None:
         "answerable_correct": 1,
         "answerable_total": 2,
         "retrieval_hits_at_5": 0,
+        "retrieval_evidence_verified_cases": 0,
+        "retrieval_completed_cases": 0,
         "abstention_correct": 2,
         "abstention_total": 2,
         "extraction_true_positive": 2,
         "extraction_predicted": 3,
         "extraction_gold": 3,
         "errors": 0,
+        "schema_errors": 0,
     }
     assert recalculated["citation_precision"] == pytest.approx(2 / 3)
     assert recalculated["citation_case_accuracy"] == 0.5

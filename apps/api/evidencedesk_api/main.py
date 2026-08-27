@@ -1,5 +1,6 @@
 from collections.abc import AsyncIterator, Callable
 from contextlib import asynccontextmanager
+from dataclasses import asdict
 from datetime import UTC, datetime, timedelta
 from time import perf_counter
 from typing import Annotated
@@ -27,6 +28,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.middleware.base import RequestResponseEndpoint
 
 from evals.runner import evaluate_manifest
+from evidencedesk_api.answering import GroundedAnswer
 from evidencedesk_api.auth import Action, UserPrincipal, role_allows
 from evidencedesk_api.config import Settings, get_settings
 from evidencedesk_api.db import build_engine, build_session_factory, get_session
@@ -52,7 +54,7 @@ from evidencedesk_api.observability import (
 from evidencedesk_api.provider_registry import ProviderBundle, build_provider_bundle
 from evidencedesk_api.queueing import TaskQueue, build_task_queue
 from evidencedesk_api.request_limits import RequestBodyLimitMiddleware
-from evidencedesk_api.retrieval import EvidenceChunk, RetrievalMethod, hybrid_rank
+from evidencedesk_api.retrieval import AnswerResult, EvidenceChunk, RetrievalMethod, hybrid_rank
 from evidencedesk_api.schemas import (
     AskRequest,
     AskResponse,
@@ -72,6 +74,29 @@ from evidencedesk_api.storage import LocalDocumentStorage, build_storage_key
 from evidencedesk_api.uploads import UploadRejected, load_public_demo_hashes, validate_upload
 
 bearer = HTTPBearer(auto_error=False)
+
+
+def _answer_response_fields(result: AnswerResult | GroundedAnswer) -> dict[str, object]:
+    if isinstance(result, GroundedAnswer):
+        return {
+            "answerable": result.answerable,
+            "supporting_document": result.supporting_document,
+            "supporting_page": result.supporting_page,
+            "supporting_excerpt": result.supporting_excerpt,
+            "ambiguity_reason": result.ambiguity_reason,
+            "extracted_fields": result.extracted_fields,
+            "candidate_assessments": [asdict(item) for item in result.candidate_assessments],
+        }
+    citation = result.citations[0] if result.citations else None
+    return {
+        "answerable": result.status == "answered",
+        "supporting_document": citation.document_id if citation is not None else None,
+        "supporting_page": citation.page if citation is not None else None,
+        "supporting_excerpt": citation.excerpt if citation is not None else None,
+        "ambiguity_reason": None,
+        "extracted_fields": {},
+        "candidate_assessments": [],
+    }
 
 
 def _correlation_id(request: Request) -> UUID:
@@ -596,6 +621,7 @@ def create_app(*, settings: Settings | None = None, task_queue: TaskQueue | None
             mode=providers.answer.mode,
             citations=[CitationView.model_validate(item) for item in result.citations],
             correlation_id=correlation_id,
+            **_answer_response_fields(result),
         )
 
     @app.get(

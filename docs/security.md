@@ -44,3 +44,19 @@ Les actions GitHub et les images externes exécutables sont épinglées à un co
 ## Vérifications intégrées
 
 La CI exécute Ruff, mypy, pytest avec couverture, le contrôle des références immuables, `pip-audit`, lint/typecheck/tests/build Playwright, `npm audit`, un test de stack Docker et Gitleaks. Ces contrôles réduisent le risque ; ils ne constituent pas une certification ni une revue de sécurité exhaustive.
+
+### Advisory accepté sur un candidat expérimental
+
+L'audit du 27 août 2026 signale `PYSEC-2026-2447` / `GHSA-w8v5-vhqr-4h9v` dans
+`diskcache==5.6.3`, dépendance transitive de `llama-cpp-python==0.3.35`. L'advisory GitHub est de
+sévérité modérée (CVSS 5,2), n'annonce aucune version corrigée et exige qu'un attaquant local puisse
+écrire dans le répertoire de cache avant qu'une application lise la valeur pickle :
+https://github.com/advisories/GHSA-w8v5-vhqr-4h9v.
+
+EvidenceDesk n'instancie jamais `LlamaDiskCache`, n'appelle pas `set_cache` et n'utilise Qwen que
+comme candidat de développement rejeté ; le mode retenu `grounded-local-v3`, l'API, le worker et la
+démo n'exécutent pas `llama-cpp-python`. Le risque résiduel est donc limité à une réexécution locale
+explicite de l'expérience Qwen par une personne ayant déjà accès au poste. L'exception est nommée
+dans la commande CI au lieu de masquer toutes les vulnérabilités. Elle doit être supprimée dès
+qu'une version corrigée de `diskcache` ou une dépendance `llama-cpp-python` sans ce paquet est
+disponible. Aucun advisory critique ou élevé n'est ignoré.

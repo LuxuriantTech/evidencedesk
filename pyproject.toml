@@ -28,6 +28,7 @@ dependencies = [
 [dependency-groups]
 dev = [
   "httpx2>=2.12,<3",
+  "llama-cpp-python==0.3.35",
   "mypy>=1.17,<2",
   "pip-audit>=2.9,<3",
   "psycopg[binary]>=3.2,<4",
@@ -80,3 +81,11 @@ plugins = ["pydantic.mypy"]
 
 [tool.uv]
 package = false
+
+[[tool.uv.index]]
+name = "llama-cpp-cpu"
+url = "https://abetlen.github.io/llama-cpp-python/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+llama-cpp-python = { index = "llama-cpp-cpu" }

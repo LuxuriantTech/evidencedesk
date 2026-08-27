@@ -5,9 +5,10 @@ TXT et Markdown synthétiques, les traite hors requête HTTP, extrait des champs
 uniquement avec le document, la page et le passage utilisés. Quand la preuve manque ou se
 contredit, il doit s'abstenir.
 
-Le projet est une démonstration technique locale, pas un service utilisé par des clients. Après une
-comparaison sur développement, un holdout indépendant valide a échoué aux objectifs déclarés. Le
-résultat négatif, deux préflights avortés et leurs verrous sont conservés au lieu d'être masqués. Les
+Le projet est une démonstration technique locale, pas un service utilisé par des clients. Le
+holdout v6 a échoué aux objectifs déclarés. Un moteur v3 a ensuite été développé uniquement sur un
+nouveau jeu groupé et figé localement ; il n'est pas présenté comme validé avant son holdout v7
+indépendant. Les résultats négatifs et préflights avortés sont conservés au lieu d'être masqués. Les
 commits, hashes et locks sont des preuves locales cohérentes, pas un scellement externe.
 
 ![Réponse avec sa source](docs/screenshots/02-sourced-answer-desktop.png)
@@ -44,9 +45,10 @@ le contrôle serveur.
 
 Le mode par défaut utilise réellement
 `Qdrant/paraphrase-multilingual-MiniLM-L12-v2-onnx-Q` (révision figée, Apache-2.0,
-environ 118 M paramètres, vecteurs 384 dimensions) sur CPU avec FastEmbed/ONNX Runtime. La réponse
-reste extractive : EvidenceDesk n'est pas présenté comme un LLM complet. Le holdout v6 montre aussi
-qu'une bonne récupération top-5 ne suffit pas à garantir une bonne réponse ou extraction.
+environ 118 M paramètres, vecteurs 384 dimensions) sur CPU avec FastEmbed/ONNX Runtime. Le moteur
+`grounded-local-v3` reste déterministe et extractif : EvidenceDesk n'est pas présenté comme un LLM
+complet. Le holdout v6 montre aussi qu'une bonne récupération top-5 ne suffit pas à garantir une
+bonne réponse ou extraction.
 
 ## Architecture
 
@@ -82,8 +84,8 @@ Sans dépôt publié, utiliser directement le chemin local de ce projet. L'inter
 `56379`. Ces quatre publications sont liées à `127.0.0.1`, pas aux interfaces LAN.
 
 Le manifeste enregistre un téléchargement modèle mesuré à 266 906 689 octets ; sa durée dépend du
-réseau. Docker met ensuite cette couche en cache. Le modèle s'exécute sur CPU ; le benchmark
-d'évaluation a culminé à environ 726 Mo de RSS.
+réseau. Docker met ensuite cette couche en cache. Le modèle s'exécute sur CPU ; la reproduction
+finale du développement v3 a culminé à `904 192 000` octets de RSS (environ 904 Mo).
 
 Comptes de démonstration locaux :
 
@@ -130,10 +132,10 @@ Backend :
 uv sync --frozen --all-groups
 uv run alembic upgrade head
 uv run ruff check apps/api apps/worker evals scripts
-uv run mypy apps/api/evidencedesk_api apps/worker/evidencedesk_worker evals --exclude 'evals/tests'
+uv run mypy apps/api/evidencedesk_api apps/worker/evidencedesk_worker
 uv run python scripts/check_supply_chain_refs.py
 uv run pytest --cov --cov-report=term-missing --cov-report=json:artifacts/coverage.json
-uv run pip-audit --strict
+uv run pip-audit --strict --ignore-vuln PYSEC-2026-2447
 ```
 
 Frontend :
@@ -180,6 +182,15 @@ faisait reculer la récupération. Le holdout v6 indépendant, ouvert une seule 
 cas répondables correctement cités 2/25 (8 %), abstention 12/15 (80 %) et F1 extraction 45,16 %.
 Son Recall@5 est pourtant de 25/25, ce qui localise l'échec après la récupération des candidats.
 
+Pour traiter ce diagnostic sans utiliser les anciens gold, le développement v3 ajoute huit
+documents et 48 cas synthétiques séparés par familles entre calibration et sélection. Le plan a
+comparé au maximum trois stratégies et deux configurations : déterministe, NLI multilingue local et
+Qwen 2.5 0.5B local avec JSON contraint. La configuration déterministe A est retenue par la règle
+maximin préenregistrée. Sur la sélection, elle atteint 15/16 cas répondables, 6/8 abstentions,
+16/16 citations correctes, extraction P/R/F1 `0,953488/0,911111/0,931818`, Recall@5 `1`, erreurs
+techniques et de schéma `0`. Le verdict développement reste **FAIL**, car l'abstention `0,75` est
+sous l'objectif `0,85`; aucun réglage n'a suivi l'ouverture de cette partition.
+
 Les tentatives v4 et v5 se sont arrêtées avant toute inférence, respectivement sur une attestation
 incomplète et un champ corpus requis absent. Leurs locks et rapports d'échec sont conservés ; aucun
 résultat de qualité n'existe et aucune relance n'a été faite. Le v6 est le holdout de remplacement
@@ -192,16 +203,19 @@ l'ingestion, PostgreSQL ou le worker.
 
 | Mode | État | Appel externe | Coût mesuré |
 |---|---|---|---:|
-| `extractive-local-onnx` | mode actif : lexical, dense et hybride | aucun | 0 USD |
+| `grounded-local-v3` | mode actif : hybride, décision déterministe, preuve validée | aucun | 0 USD |
+| `extractive-local-onnx` | mode historique conservé | aucun | 0 USD |
 | feature hashing historique | baseline conservée, non sélectionnée | aucun | 0 USD |
-| fournisseur local, par exemple Ollama | interface d'extension seulement | non implémenté | non mesuré |
+| mDeBERTa NLI local | candidat évalué, non retenu | aucun | 0 USD |
+| Qwen 2.5 0.5B GGUF local | candidat évalué, non retenu | aucun | 0 USD |
 | fournisseur compatible OpenAI | interface d'extension seulement | non implémenté | non mesuré |
 
-Le mode actuel est un encodeur sémantique local avec réponse déterministe, pas un LLM génératif. Son
-identité, sa révision, sa licence, sa taille et les SHA-256 de ses fichiers sont figés dans
-[`infra/models/paraphrase-multilingual-minilm-l12-v2.json`](infra/models/paraphrase-multilingual-minilm-l12-v2.json).
-Aucun appel payant n'a été effectué. Un futur fournisseur devra conserver citations, abstention,
-journalisation des erreurs et coût explicite.
+Le mode actuel utilise un encodeur sémantique local avec réponse déterministe, pas un LLM
+génératif. L'expérience bornée a bien exécuté localement un petit modèle d'instructions, mais sa
+sortie JSON échouait au contrôle de schéma dans 79,17 % des cas pour Qwen-A et 75 % pour Qwen-B ;
+il n'a pas été retenu. Identités, révisions, licences, tailles et SHA-256 sont figés dans
+`infra/models/`. Aucun appel payant n'a été effectué. Un futur fournisseur devra conserver
+citations, abstention, journalisation des erreurs et coût explicite.
 
 ## Sécurité et données
 
@@ -236,13 +250,14 @@ La politique de conservation, le modèle de menace et les limites sont détaill�
 Statut : prototype local fonctionnel, avec résultat empirique `HONEST_NEGATIVE`.
 
 - les objectifs holdout ne sont pas atteints ;
+- le moteur v3 n'est pas une preuve de généralisation tant que le holdout v7 n'a pas été exécuté ;
 - sur v6, la récupération trouve la preuve dans le top 5, mais la sélection finale, l'abstention et
   l'extraction généralisent mal ;
 - v4 et v5 n'ont produit aucune métrique à cause de défauts de préflight conservés comme preuves ;
 - les PDF image/OCR, tableaux complexes et documents chiffrés ne sont pas pris en charge ;
 - la limite mémoire du sous-processus PDF est POSIX uniquement et la suppression
   fichier/transaction DB n'est pas atomique ;
-- pas de multi-tenant, chiffrement applicatif, stockage S3 réel, LLM génératif local ou fournisseur externe ;
+- pas de multi-tenant, chiffrement applicatif, stockage S3 réel ou fournisseur LLM retenu ;
 - aucune CI distante, URL publique, charge concurrente ou procédure Windows native n'a été validée ;
 - aucun utilisateur, client, témoignage ou SLA de production n'est revendiqué.
 

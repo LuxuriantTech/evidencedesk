@@ -12,10 +12,13 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from evidencedesk_api.extraction import SupplierExtraction
 from evidencedesk_api.providers import EmbeddingProvider, LocalSemanticEmbeddingProvider
-from evidencedesk_api.retrieval import RetrievalMethod
+from evidencedesk_api.retrieval import EvidenceChunk, RetrievalMethod
 
+from evals.answer_v3_runtime import build_frozen_answer_runtime
 from evals.benchmark import _git_head, _hardware
+from evals.freeze import _validate_v3_config_data, validate_frozen_holdout_protocol
 from evals.holdout_v4 import (
     DEPENDENCY_PATHS,
     _load,
@@ -25,10 +28,10 @@ from evals.holdout_v4 import (
     verify_committed_holdout_inputs,
     verify_freeze_attestation,
 )
-from evals.runner import EvaluationError, _engine_fingerprint, evaluate_manifest
+from evals.runner import AnswerProviderLike, EvaluationError, _engine_fingerprint, evaluate_manifest
 from evals.validate_dataset import ValidationReport, validate_manifest
 
-RAW_SCHEMA_VERSION = "evidencedesk-holdout-raw-v3"
+RAW_SCHEMA_VERSION = "evidencedesk-holdout-raw-v4"
 LOCK_GATE = "evidencedesk-attested-holdout-v3"
 
 
@@ -43,6 +46,8 @@ class HoldoutPreflight:
     provider: EmbeddingProvider
     method: RetrievalMethod
     runtime_metadata: dict[str, Any]
+    answer_provider: AnswerProviderLike
+    extraction_provider: Callable[[list[EvidenceChunk]], SupplierExtraction]
 
 
 def _sha256(path: Path) -> str:
@@ -66,8 +71,10 @@ def _assert_one_shot_available(
 def _preflight_stage(label: str, operation: Callable[[], Any]) -> Any:
     try:
         return operation()
-    except EvaluationError:
-        raise
+    except EvaluationError as exc:
+        if str(exc).startswith("preflight "):
+            raise
+        raise EvaluationError(f"preflight {label} failed: {exc}") from exc
     except (FileNotFoundError, KeyError, TypeError, ValueError, json.JSONDecodeError) as exc:
         raise EvaluationError(f"preflight {label} failed: {exc}") from exc
 
@@ -78,9 +85,11 @@ def verify_holdout_protocol(
     attestation: dict[str, Any],
     report: ValidationReport,
 ) -> None:
-    protocol = config.get("holdout_protocol")
-    if not isinstance(protocol, dict):
-        raise EvaluationError("frozen holdout protocol is missing")
+    try:
+        _validate_v3_config_data(config)
+        protocol = validate_frozen_holdout_protocol(config.get("holdout_protocol"))
+    except ValueError as exc:
+        raise EvaluationError(f"frozen holdout protocol is invalid: {exc}") from exc
     parameters_version = config.get("parameters_version")
     if not isinstance(parameters_version, str) or not parameters_version:
         raise EvaluationError("frozen parameters version is missing")
@@ -89,6 +98,10 @@ def verify_holdout_protocol(
         raise EvaluationError("frozen holdout protocol has invalid seed")
     if manifest.get("parameters_version") != parameters_version:
         raise EvaluationError("holdout parameters do not match the frozen configuration")
+    if manifest.get("mode") != config.get("mode"):
+        raise EvaluationError("holdout mode does not match the frozen configuration")
+    if manifest.get("metrics") != config.get("evaluation"):
+        raise EvaluationError("holdout metric definitions do not match the frozen configuration")
     if attestation.get("parameters_version") != parameters_version:
         raise EvaluationError("holdout attestation parameters do not match the freeze")
     if manifest.get("seed") != seed or attestation.get("seed") != seed:
@@ -156,7 +169,10 @@ def preflight_holdout(
             },
         },
     )
-    config = _preflight_stage("configuration schema", lambda: _load(config_path))
+    config = _preflight_stage(
+        "configuration schema",
+        lambda: _validate_v3_config_data(_load(config_path)),
+    )
     attestation = _preflight_stage("attestation schema", lambda: _load(attestation_path))
     freeze = _preflight_stage("freeze schema", lambda: _load(freeze_path))
     manifest = _preflight_stage("dataset schema", lambda: _load(manifest_path))
@@ -221,6 +237,10 @@ def preflight_holdout(
         "retrieval configuration",
         lambda: RetrievalMethod(str(config["retrieval_method"])),
     )
+    answer_runtime = _preflight_stage(
+        "frozen answer runtime verification",
+        lambda: build_frozen_answer_runtime(config, provider),
+    )
     return HoldoutPreflight(
         config=config,
         manifest=manifest,
@@ -230,6 +250,8 @@ def preflight_holdout(
         report=report,
         provider=provider,
         method=method,
+        answer_provider=answer_runtime.answer_provider,
+        extraction_provider=answer_runtime.extraction_provider,
         runtime_metadata={
             **_hardware(),
             **dependency_versions,
@@ -275,13 +297,15 @@ def run_holdout_once(
     )
 
     started = time.perf_counter()
-    result = evaluate_manifest(
+    result: dict[str, Any] = evaluate_manifest(
         manifest_path,
         corpus_path,
         split="holdout",
         provider=prepared.provider,
         method=prepared.method,
         runtime_metadata=prepared.runtime_metadata,
+        answer_provider=prepared.answer_provider,
+        extraction_provider=prepared.extraction_provider,
     )
     result["schema_version"] = RAW_SCHEMA_VERSION
     result["provenance"] = {
