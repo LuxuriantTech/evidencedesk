@@ -7,6 +7,7 @@ from enum import StrEnum
 from typing import Protocol
 
 from evidencedesk_api.providers import EmbeddingProvider
+from evidencedesk_api.trust_boundaries import untrusted_document_fragment_indexes
 
 DEFAULT_RETRIEVAL_LIMIT = 20
 RRF_K = 60
@@ -645,8 +646,12 @@ class IntentEvidenceReranker:
             passage_tokens = lexical_tokens(passage)
             coverage = len(question_tokens & passage_tokens) / max(1, len(question_tokens))
             direct = 0.0
+            segments = _segments(passage)
+            blocked_segments = untrusted_document_fragment_indexes(segments)
             if intent is not None and any(
-                _is_intent_evidence(intent, segment) for segment in _segments(passage)
+                _is_intent_evidence(intent, segment)
+                for index, segment in enumerate(segments)
+                if index not in blocked_segments
             ):
                 direct = 1.0
             scores.append(direct + 0.25 * coverage)
@@ -690,7 +695,11 @@ class ExtractiveAnswerProvider:
 
         evidence: list[tuple[str, str, RankedChunk]] = []
         for item in relevant_ranked:
-            for segment in _segments(item.chunk.text):
+            segments = _segments(item.chunk.text)
+            blocked_segments = untrusted_document_fragment_indexes(segments)
+            for index, segment in enumerate(segments):
+                if index in blocked_segments:
+                    continue
                 if _is_intent_evidence(intent, segment):
                     evidence.append((_evidence_key(intent, segment), segment, item))
                     break

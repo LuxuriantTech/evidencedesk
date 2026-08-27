@@ -1,4 +1,5 @@
 from collections import Counter
+from pathlib import Path
 
 from evals.validate_dataset import validate_manifest
 from scripts.generate_development_v3 import build_dataset
@@ -61,7 +62,7 @@ def test_development_v3_is_grouped_diverse_and_deterministic() -> None:
     }
 
 
-def test_generated_development_v3_manifests_pass_structural_validation(tmp_path) -> None:
+def test_generated_development_v3_manifests_pass_structural_validation(tmp_path: Path) -> None:
     corpus, combined, calibration, selection, _generation = build_dataset()
     corpus_path = tmp_path / "corpus.json"
     corpus_path.write_text(__import__("json").dumps(corpus), encoding="utf-8")

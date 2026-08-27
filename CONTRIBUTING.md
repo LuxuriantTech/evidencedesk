@@ -9,7 +9,7 @@ Python 3.12 avec `uv`, Node.js 24 et Docker Compose sont utilisés par les contr
 ```bash
 uv sync --all-groups
 uv run ruff check apps/api apps/worker evals scripts
-uv run mypy apps/api/evidencedesk_api apps/worker/evidencedesk_worker
+uv run mypy
 uv run pytest
 cd apps/web && npm ci && npm run lint && npm run typecheck && npm run test && npm run build
 ```

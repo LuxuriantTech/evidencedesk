@@ -1,12 +1,14 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 from pathlib import Path
 
 import pytest
 from evidencedesk_api.extraction import EvidenceValue, SupplierExtraction
-from evidencedesk_api.retrieval import AnswerResult, Citation, EvidenceChunk
+from evidencedesk_api.retrieval import Citation, EvidenceChunk, RankedChunk
 
 from evals.runner import (
+    AnswerLike,
     EvaluationError,
     _citation_matches,
     _extraction_counts,
@@ -18,6 +20,14 @@ from evals.runner import (
 )
 
 ROOT = Path(__file__).resolve().parents[2]
+
+
+@dataclass
+class MutableAnswer:
+    status: str
+    answer: str
+    confidence: float
+    citations: tuple[Citation, ...]
 
 
 def test_acceptance_targets_require_citation_recall_and_zero_schema_errors() -> None:
@@ -170,9 +180,9 @@ def test_evaluation_accepts_injected_v3_engines_and_records_explicit_decision_fi
     class FixedAnswerProvider:
         mode = "test-grounded-v3"
 
-        def answer(self, question: str, ranked: list[object]) -> AnswerResult:
+        def answer(self, question: str, ranked: list[RankedChunk]) -> AnswerLike:
             del question, ranked
-            return AnswerResult(
+            return MutableAnswer(
                 status="abstained",
                 answer="No support.",
                 confidence=0.0,
@@ -221,7 +231,7 @@ def test_retrieval_evidence_is_preserved_when_answer_inference_fails() -> None:
     class FailingAnswerProvider:
         mode = "test-schema-failure-v3"
 
-        def answer(self, question: str, ranked: list[object]) -> AnswerResult:
+        def answer(self, question: str, ranked: list[RankedChunk]) -> AnswerLike:
             del question, ranked
             raise ValueError("synthetic inference failure")
 

@@ -14,6 +14,13 @@ from typing import Literal
 
 from evidencedesk_api.providers import EmbeddingProvider
 from evidencedesk_api.retrieval import Citation, RankedChunk, lexical_tokens
+from evidencedesk_api.trust_boundaries import (
+    TrustSeparatedInput,
+    UntrustedDocumentContent,
+    admit_evidence_excerpt,
+    is_untrusted_document_instruction,
+    untrusted_document_fragment_indexes,
+)
 
 AnswerStatus = Literal["answered", "partially_supported", "ambiguous", "abstained"]
 
@@ -127,24 +134,6 @@ _QUESTION_NOISE = {
 
 def _fold(text: str) -> str:
     return unicodedata.normalize("NFKD", text.casefold()).encode("ascii", "ignore").decode()
-
-
-def _unsafe_document_segment(segment: str) -> bool:
-    folded = _fold(segment)
-    declares_instruction = bool(
-        re.search(
-            r"\b(?:system message|instruction inser|ordre pour|message destine au robot|"
-            r"untrusted sample|texte d'essai|sample text)\b",
-            folded,
-        )
-    )
-    manipulates = bool(
-        re.search(
-            r"\b(?:ignore|ignorez|disregard|invent|revele|reveal|contourne|recupere|override)\b",
-            folded,
-        )
-    )
-    return declares_instruction and manipulates
 
 
 def _unsafe_question(question: str) -> bool:
@@ -390,6 +379,23 @@ def validate_grounded_answer(answer: GroundedAnswer, ranked: list[RankedChunk]) 
     by_id = {item.chunk.id: item.chunk for item in ranked}
     if any(identifier not in by_id for identifier in answer.supporting_chunk_ids):
         raise GroundingValidationError("supporting chunk does not exist")
+    unsafe_channels = [answer.answer]
+    if answer.supporting_excerpt is not None:
+        unsafe_channels.append(answer.supporting_excerpt)
+    unsafe_channels.extend(citation.excerpt for citation in answer.citations)
+    for value in answer.extracted_fields.values():
+        unsafe_channels.extend((value,) if isinstance(value, str) else value)
+    for assessment in answer.candidate_assessments:
+        if assessment.answer is not None:
+            unsafe_channels.append(assessment.answer)
+        if assessment.supporting_excerpt is not None:
+            unsafe_channels.append(assessment.supporting_excerpt)
+        for value in assessment.extracted_fields.values():
+            unsafe_channels.extend((value,) if isinstance(value, str) else value)
+    if any(is_untrusted_document_instruction(value) for value in unsafe_channels):
+        raise GroundingValidationError(
+            "untrusted document instruction cannot cross evidence boundary"
+        )
     if answer.supporting_excerpt is None:
         if answer.supporting_document is not None or answer.supporting_page is not None:
             raise GroundingValidationError("support location requires an excerpt")
@@ -419,6 +425,15 @@ def validate_grounded_answer(answer: GroundedAnswer, ranked: list[RankedChunk]) 
         raise GroundingValidationError("supporting page does not exist")
     if not any(answer.supporting_excerpt in chunk.text for chunk in matching):
         raise GroundingValidationError("supporting excerpt is not present on the cited page")
+    if any(
+        answer.supporting_excerpt in fragment
+        for chunk in matching
+        for index, fragment in enumerate(_segments(chunk.text))
+        if index in untrusted_document_fragment_indexes(_segments(chunk.text))
+    ):
+        raise GroundingValidationError(
+            "untrusted document instruction cannot cross evidence boundary"
+        )
     if answer.status == "answered" and _fold(answer.answer) not in _fold(
         answer.supporting_excerpt
     ):
@@ -556,26 +571,55 @@ class DeterministicGroundedAnswerProvider:
                 candidate_assessments=assessments,
             )
         kind = _question_kind(question)
+        trust_input = TrustSeparatedInput.build(
+            user_question=question,
+            documents=tuple(
+                UntrustedDocumentContent(
+                    document_id=item.chunk.document_id,
+                    page=item.chunk.page,
+                    chunk_id=item.chunk.id,
+                    text=item.chunk.text,
+                )
+                for item in ranked
+            ),
+        )
         candidates: list[tuple[float, str, str | None, RankedChunk]] = []
         partials: list[tuple[float, str, RankedChunk]] = []
         evaluated: dict[str, list[tuple[float, str, str | None, bool]]] = {}
+        documents_by_chunk = {
+            document.chunk_id: document for document in trust_input.untrusted_document_content
+        }
         for item in ranked:
-            for segment in _segments(item.chunk.text):
-                if _unsafe_document_segment(segment):
+            parent_content = documents_by_chunk[item.chunk.id]
+            segments = _segments(item.chunk.text)
+            blocked_segments = untrusted_document_fragment_indexes(segments)
+            for segment_index, segment in enumerate(segments):
+                if segment_index in blocked_segments:
                     continue
-                score = _support_score(question, segment, kind, self.embeddings)
-                value = _value_for(kind, segment, question)
-                relation = _relation_supported(question, segment, kind)
+                admitted = admit_evidence_excerpt(
+                    UntrustedDocumentContent(
+                        document_id=parent_content.document_id,
+                        page=parent_content.page,
+                        chunk_id=item.chunk.id,
+                        text=segment,
+                    )
+                )
+                if admitted is None:
+                    continue
+                evidence_text = admitted.text
+                score = _support_score(question, evidence_text, kind, self.embeddings)
+                value = _value_for(kind, evidence_text, question)
+                relation = _relation_supported(question, evidence_text, kind)
                 evaluated.setdefault(item.chunk.id, []).append(
-                    (score, segment, value, relation)
+                    (score, evidence_text, value, relation)
                 )
                 if value is not None and relation:
-                    candidates.append((score, segment, value, item))
+                    candidates.append((score, evidence_text, value, item))
                 elif (
                     score >= self.config.partial_support_threshold
-                    and _has_explicit_relation(question, segment)
+                    and _has_explicit_relation(question, evidence_text)
                 ):
-                    partials.append((score, segment, item))
+                    partials.append((score, evidence_text, item))
         assessments = self._candidate_assessments(kind, ranked, evaluated)
         candidates.sort(key=lambda value: (-value[0], -value[3].score, value[3].chunk.id))
         supported = [item for item in candidates if item[0] >= self.config.support_threshold]

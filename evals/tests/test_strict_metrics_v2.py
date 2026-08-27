@@ -61,6 +61,20 @@ def test_typed_money_normalization_preserves_currency_and_numeric_value() -> Non
     assert not _value_matches("EUR 48,000", "EUR 4,800", value_type="money")
 
 
+def test_money_normalization_uses_currency_bound_amount_instead_of_timestamp() -> None:
+    answer = "08:17 — Signed ceiling: 42 700 EUR."
+
+    assert _normalize_typed(answer, value_type="money") == "EUR:42700"
+    assert _answer_matches(answer, "42 700 EUR")
+
+
+def test_money_matching_checks_all_explicit_currency_amounts() -> None:
+    answer = "Base charge: EUR 1,200; insured maximum: GBP 2,750."
+
+    assert _answer_matches(answer, "GBP 2,750")
+    assert not _answer_matches(answer, "USD 2,750")
+
+
 def test_text_value_matching_is_not_bidirectional_substring_matching() -> None:
     assert _value_matches(
         "The supplier shall retain records for 45 days.",

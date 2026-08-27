@@ -15,14 +15,21 @@ x-app-environment: &app-environment
   MAX_DOCUMENT_PAGES: "200"
   MAX_EXTRACTED_CHARS: "1000000"
   MAX_DOCUMENT_CHUNKS: "5000"
+  RATE_LIMIT_ENABLED: "true"
+  RATE_LIMIT_WINDOW_SECONDS: "60"
+  AUTH_REQUESTS_PER_WINDOW: "20"
+  ASK_REQUESTS_PER_WINDOW: "60"
+  UPLOAD_REQUESTS_PER_WINDOW: "20"
   PDF_PARSE_TIMEOUT_SECONDS: "10"
   PDF_PARSE_MEMORY_BYTES: "536870912"
   ANSWER_MODE: grounded-local-v3
   EMBEDDING_MODEL_PATH: /opt/evidencedesk/models/paraphrase-multilingual-minilm-l12-v2
   EMBEDDING_MANIFEST_PATH: /app/infra/models/paraphrase-multilingual-minilm-l12-v2.json
   DEMO_ADMIN_PASSWORD: EvidenceDemo-Admin-2026!
+  DEMO_ADMIN_ENABLED: "true"
   DEMO_ANALYST_PASSWORD: EvidenceDemo-Analyst-2026!
   DEMO_READER_PASSWORD: EvidenceDemo-Reader-2026!
+  DEMO_READER_ENABLED: "true"
 
 services:
   postgres:

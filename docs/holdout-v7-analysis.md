@@ -80,3 +80,10 @@ Le moteur, les seuils et le protocole sont gelés pour ce cycle. Aucun ajustemen
 seconde exécution et aucun v8 ne sont autorisés ici. Le statut est `HONEST_NEGATIVE`. Une future
 itération devra repartir d'un développement séparé, améliorer d'abord la résistance aux injections,
 la décision d'answerability et le schéma d'extraction, puis utiliser un nouveau holdout indépendant.
+
+## Note de release postérieure à l'évaluation
+
+La release candidate corrige le normaliseur de montants et ajoute une frontière de confiance
+partagée contre les instructions documentaires, avec tests adversariaux. Ces correctifs n'ont pas
+été utilisés pour recalculer, rescorrer ou réexécuter v7. Le présent document et tous les chiffres
+ci-dessus restent l'analyse immuable du moteur gelé évalué une seule fois.

@@ -1,4 +1,5 @@
 import asyncio
+from collections.abc import Sequence
 from pathlib import Path
 from uuid import UUID, uuid4
 
@@ -50,20 +51,34 @@ class AlwaysUnavailableStorage(LocalDocumentStorage):
 
 class AlwaysFailsEmbedding:
     mode = "synthetic-failure"
+    model_id = "synthetic-failure@tests"
     dimension = 384
     estimated_cost_usd = 0.0
 
     def embed(self, _text: str) -> list[float]:
         raise RuntimeError("synthetic provider failure with no document data")
 
+    def embed_many(self, texts: Sequence[str]) -> list[list[float]]:
+        return [self.embed(text) for text in texts]
+
+    def embed_batch(self, texts: Sequence[str]) -> list[list[float]]:
+        return self.embed_many(texts)
+
 
 class InvalidDimensionEmbedding:
     mode = "synthetic-invalid-dimension"
+    model_id = "synthetic-invalid-dimension@tests"
     dimension = 384
     estimated_cost_usd = 0.0
 
     def embed(self, _text: str) -> list[float]:
         return [1.0]
+
+    def embed_many(self, texts: Sequence[str]) -> list[list[float]]:
+        return [self.embed(text) for text in texts]
+
+    def embed_batch(self, texts: Sequence[str]) -> list[list[float]]:
+        return self.embed_many(texts)
 
 
 async def _prepare(

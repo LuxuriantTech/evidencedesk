@@ -1,11 +1,17 @@
 # EvidenceDesk
 
-EvidenceDesk est un assistant local de revue de dossiers fournisseurs. Il importe des PDF texte,
+> **Research prototype using synthetic data only. Not validated for production, legal, medical,
+> financial or compliance decisions.**
+
+**An experimental, fully local document intelligence and RAG reliability platform with
+reproducible evaluation.**
+
+EvidenceDesk est une plateforme locale de revue de dossiers fournisseurs. Elle importe des PDF texte,
 TXT et Markdown synthétiques, les traite hors requête HTTP, extrait des champs traçables et répond
 uniquement avec le document, la page et le passage utilisés. Quand la preuve manque ou se
 contredit, il doit s'abstenir.
 
-Le projet est une démonstration technique locale, pas un service utilisé par des clients. Le
+Le projet est une release candidate technique locale, pas un service utilisé par des clients. Le
 holdout v7 indépendant a produit un seul lock/raw enregistré après gel et a échoué aux objectifs : le
 statut empirique reste `HONEST_NEGATIVE`. Les résultats négatifs et préflights avortés sont conservés
 au lieu d'être masqués. Les commits, hashes et locks sont des preuves locales cohérentes, pas un
@@ -15,10 +21,11 @@ scellement externe.
 
 ## Public visé et parcours
 
-Le scénario représente une équipe opérations qui vérifie un contrat fournisseur, un rapport
-d'incident et un registre. Un administrateur peut se connecter, observer une tâche Redis/ARQ,
+Le scénario local représente une équipe opérations qui vérifie un contrat fournisseur, un rapport
+d'incident et un registre. Un administrateur local peut se connecter, observer une tâche Redis/ARQ,
 poser une question, ouvrir la citation exacte, consulter l'extraction et le journal d'audit, puis
-voir les résultats d'évaluation réellement calculés.
+voir les résultats d'évaluation réellement calculés. L'overlay de démonstration publique n'active
+que `demo.analyst` : aucun compte administrateur ou lecteur n'y est disponible.
 
 - `admin` : lecture, import, questions, audit, état, évaluation et suppression ;
 - `analyst` : lecture, import et questions ;
@@ -36,10 +43,14 @@ le contrôle serveur.
 - stockage local derrière le protocole `DocumentStorage` ; un adaptateur objet/S3 peut le remplacer ;
 - validation extension, signature, MIME, taille, UTF-8 et clé de stockage générée côté serveur ;
 - limite du corps HTTP avant parsing multipart, y compris sans `Content-Length` ;
+- limitation de débit en mémoire sur authentification, question et import, avec quotas publics plus
+  stricts et nombre de clés borné ;
 - budgets worker sur pages, caractères extraits et chunks, avec échec terminal explicite ;
 - découpage par page/bloc, masquage e-mail/téléphone, extraction fournisseur avec citations par champ ;
 - embeddings ONNX locaux, recherche lexicale/dense/hybride, réponse extractive, audit PostgreSQL,
   logs JSON et métriques Prometheus ;
+- séparation explicite entre règles système, question utilisateur, document non fiable et preuve,
+  avec validation commune des réponses, citations et extractions ;
 - Docker Compose, tests pytest/Vitest/Playwright, axe-core et CI GitHub Actions préparée ;
 - corpus synthétique CC0, jeux d'évaluation versionnés, hashes, fingerprint moteur et locks holdout.
 
@@ -99,6 +110,21 @@ Ces valeurs sont publiques et réservées à la pile locale synthétique. Elles 
 réutilisées lors d'un déploiement. Copier [`.env.example`](.env.example) et remplacer tous les
 secrets avant toute exposition réseau.
 
+La configuration de démonstration publique sûre se prépare avec l'overlay dédié. Elle exige deux
+secrets runtime non versionnés, désactive les comptes administrateur/lecteur, bloque `/metrics`,
+conserve l'allowlist synthétique et réduit les quotas :
+
+```bash
+cp .env.public-demo.example .env.public-demo
+# Remplacer les deux placeholders dans .env.public-demo, puis :
+docker compose --env-file .env.public-demo \
+  -f compose.yaml -f compose.public-demo.yaml up --build --wait --wait-timeout 600
+```
+
+Les ports restent liés à `127.0.0.1`. Rendre cette pile accessible sur Internet exigerait encore un
+edge TLS, une limitation partagée multi-instance, une revue d'infrastructure et un GO distinct ; ce
+repo ne présente donc pas l'overlay comme un déploiement public prêt à l'emploi.
+
 Pour arrêter sans supprimer les volumes :
 
 ```bash
@@ -122,7 +148,8 @@ curl -fsS http://localhost:8080/health
 
 Avec Docker Desktop, activer l'intégration WSL pour la distribution Ubuntu puis lancer ces commandes
 dans le terminal WSL. Le lancement depuis un terminal Windows natif n'a pas été testé et n'est pas
-présenté comme validé.
+présenté comme validé. Détails et diagnostics :
+[`docs/windows-wsl2.md`](docs/windows-wsl2.md).
 
 ## Développement et tests
 
@@ -132,12 +159,14 @@ Backend :
 uv sync --frozen --all-groups
 uv run alembic upgrade head
 uv run ruff check apps/api apps/worker evals scripts
-uv run mypy apps/api/evidencedesk_api apps/worker/evidencedesk_worker
+uv run mypy
 uv run python scripts/check_supply_chain_refs.py
 uv run pytest --cov --cov-report=term-missing --cov-report=json:artifacts/coverage.json
-uv run pip-audit --strict --ignore-vuln PYSEC-2026-2447
-trivy image --scanners vuln --severity CRITICAL,HIGH --ignore-unfixed evidencedesk-api:local
-trivy image --scanners vuln --severity CRITICAL,HIGH --ignore-unfixed evidencedesk-web
+uv run pip-audit --strict
+trivy image --scanners vuln --severity CRITICAL,HIGH evidencedesk-api:local
+trivy image --scanners vuln --severity CRITICAL,HIGH evidencedesk-web
+trivy image --scanners vuln --severity CRITICAL,HIGH --ignore-unfixed --exit-code 1 \
+  evidencedesk-api:local
 ```
 
 Les tests d'intégration utilisent la base PostgreSQL locale comme base de test et en réinitialisent
@@ -174,11 +203,15 @@ npm run e2e -- --grep 'real stack'
 La CI préparée dans [`.github/workflows/ci.yml`](.github/workflows/ci.yml) refait les vérifications
 backend/frontend, les audits de dépendances, le scan de secrets et un vrai parcours
 web → API → Redis/worker → PostgreSQL. Elle n'a pas été exécutée sur GitHub faute de publication.
+Le Mypy configuré couvre API, worker, évaluateur, tests et scripts maintenus. Les générateurs
+historiques immuables `generate_blind_holdout_v2` à `v7` sont explicitement exclus pour éviter de
+modifier rétrospectivement les artefacts aveugles ; ils ne font pas partie du runtime de la release.
 
 ## Évaluation reproductible
 
-Le développement v2 comporte 50 questions et 65 valeurs d'extraction. Quatre méthodes ont été
-recalculées sur ce jeu uniquement avant le gel :
+Les chiffres de développement ci-dessous sont des résultats historiques de calibration. Ils ne
+constituent pas une validation de généralisation. Le développement v2 comporte 50 questions et 65
+valeurs d'extraction ; quatre méthodes ont été recalculées sur ce jeu uniquement avant le gel :
 
 | Méthode | Citations | Abstention | F1 extraction | Recall@5 | MRR@5 | p95 |
 |---|---:|---:|---:|---:|---:|---:|
@@ -194,6 +227,11 @@ Le holdout v7, créé indépendamment après gel, contient 40 cas (25 répondabl
 précision de citation 12/15 (80 %), cas répondables corrects 9/25 (36 %), abstention 12/15 (80 %)
 et F1 d'extraction 45,67 %. Son Recall@5 est pourtant 25/25 (100 %) et son MRR@5 0,94, ce qui
 localise l'échec après la récupération des candidats.
+
+Le cas `v7-x02` a aussi restitué une instruction documentaire. Après l'évaluation, une frontière de
+confiance partagée et des tests adversariaux mono/multilignes ont été ajoutés. Ce correctif de
+sécurité n'a entraîné ni réexécution de v7, ni nouvelle métrique : le résultat v7 reste immuable et
+négatif. Le normaliseur de montants a également été corrigé après le défaut `v7-a16`, sans rescoring.
 
 Pour traiter ce diagnostic sans utiliser les anciens gold, le développement v3 ajoute huit
 documents et 48 cas synthétiques séparés par familles entre calibration et sélection. Le plan a
@@ -216,7 +254,7 @@ ne mesure pas le réseau, l'ingestion, PostgreSQL ou le worker.
 
 | Mode | État | Appel externe | Coût mesuré |
 |---|---|---|---:|
-| `grounded-local-v3` | mode actif : hybride, décision déterministe, preuve validée | aucun | 0 USD |
+| `grounded-local-v3` | mode actif : hybride, décision déterministe, preuve contrôlée et traçable | aucun | 0 USD |
 | `extractive-local-onnx` | mode historique conservé | aucun | 0 USD |
 | feature hashing historique | baseline conservée, non sélectionnée | aucun | 0 USD |
 | mDeBERTa NLI local | candidat évalué, non retenu | aucun | 0 USD |
@@ -227,13 +265,18 @@ Le mode actuel utilise un encodeur sémantique local avec réponse déterministe
 génératif. L'expérience bornée a bien exécuté localement un petit modèle d'instructions, mais sa
 sortie JSON échouait au contrôle de schéma dans 79,17 % des cas pour Qwen-A et 75 % pour Qwen-B ;
 il n'a pas été retenu. Identités, révisions, licences, tailles et SHA-256 sont figés dans
-`infra/models/`. Aucun appel payant n'a été effectué. Un futur fournisseur devra conserver
+`infra/models/`. Le runtime Qwen et ses dépendances ne sont plus installés par défaut ; son manifest
+conserve l'expérience historique et une procédure de téléchargement vérifiée. Aucun appel payant
+n'a été effectué. Un futur fournisseur devra conserver
 citations, abstention, journalisation des erreurs et coût explicite.
 
 ## Sécurité et données
 
 - la démo refuse un import non attesté synthétique en `PUBLIC_DEMO_MODE=true` ;
 - en mode public, seuls les quatre hashes synthétiques versionnés de l'allowlist sont importables ;
+- l'overlay public n'active que le compte analyste et impose des secrets runtime hors frontend ;
+- l'API limite le débit des routes sensibles par adresse vue par le processus ; cette protection
+  mono-processus n'est pas un quota distribué ;
 - les mots de passe sont hachés en base et les jetons restent en mémoire dans l'interface ;
 - les documents ne sont jamais écrits dans les logs ; les erreurs exposent des codes assainis ;
 - les e-mails et téléphones reconnus sont masqués avant indexation ;
@@ -241,6 +284,9 @@ citations, abstention, journalisation des erreurs et coût explicite.
   audit minimal ;
 - le worker borne pages, texte extrait et nombre de chunks ; suppression et persistance utilisent
   le même ordre de verrouillage ;
+- les instructions trouvées dans un document restent des données non fiables ; les formes
+  adversariales couvertes sont bloquées sur les canaux réponse, citation, évaluation candidate et
+  extraction persistée testés ;
 - nginx limite les uploads à 11 Mio, pose CSP, `nosniff`, anti-frame et `no-referrer` ;
 - les ports Compose restent sur loopback et les actions/images externes sont épinglées à une
   révision immuable ;
@@ -248,7 +294,9 @@ citations, abstention, journalisation des erreurs et coût explicite.
   configuration de production.
 
 La politique de conservation, le modèle de menace et les limites sont détaillés dans
-[`docs/security.md`](docs/security.md) et [`SECURITY.md`](SECURITY.md).
+[`docs/security.md`](docs/security.md), [`docs/threat-model.md`](docs/threat-model.md) et
+[`SECURITY.md`](SECURITY.md). La revue locale Codex Security et ses deux findings faibles remédiés
+sont résumés dans [`docs/security-scan.md`](docs/security-scan.md).
 
 ## Démonstration et exemples
 
@@ -256,6 +304,7 @@ La politique de conservation, le modèle de menace et les limites sont détaill�
 - requêtes REST : [`docs/api-examples.md`](docs/api-examples.md) ;
 - fichier d'import synthétique : [`examples/demo-supplier-note.md`](examples/demo-supplier-note.md) ;
 - captures réelles : [`docs/screenshots/`](docs/screenshots/) ;
+- preuves de validation de la release : [`docs/release-validation.md`](docs/release-validation.md) ;
 - preuve carrière et questions d'entretien : [`docs/career-proof.md`](docs/career-proof.md).
 
 ## Statut et limites connues
@@ -266,6 +315,11 @@ Statut : prototype local fonctionnel, avec résultat empirique `HONEST_NEGATIVE`
 - le holdout v7 a réfuté la généralisation recherchée : sur son corpus indépendant, la récupération
   trouve la preuve dans le top 5, mais la sélection finale, l'abstention et l'extraction restent
   insuffisantes ;
+- l'injection découverte sur v7 a été corrigée après le gel avec des contrôles déterministes et des
+  tests adversariaux, sans prétendre couvrir toutes les formes de prompt injection ;
+- Trivy brut signale 13 CVE système uniques critiques/élevées sans version corrigée dans l'image API
+  Debian ; leur reachabilité actuelle est analysée dans `docs/security.md`, mais elles restent une
+  dette de base image avant toute exposition Internet ;
 - v4 et v5 n'ont produit aucune métrique à cause de défauts de préflight conservés comme preuves ;
 - les PDF image/OCR, tableaux complexes et documents chiffrés ne sont pas pris en charge ;
 - la limite mémoire du sous-processus PDF est POSIX uniquement et la suppression

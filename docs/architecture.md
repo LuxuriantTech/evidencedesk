@@ -37,6 +37,13 @@ document, la page et l'extrait justificatif. Le moteur v3 classe séparément pr
 support partiel, contradiction et absence de preuve. Sa validation finale refuse une réponse dont
 le chunk, le document, la page ou l'extrait ne peuvent pas être reliés aux candidats récupérés.
 
+`trust_boundaries.py` matérialise les couches règles système, question utilisateur, document non
+fiable et preuve admise. Le runtime conserve l'instruction documentaire dans la couche de données
+non fiable. Avant qu'un fragment traverse une réponse, citation, évaluation candidate ou extraction
+persistée, le contexte adjacent est restauré et le garde déterministe est rejoué. Ce contrôle
+post-v7 bloque les formes adversariales sur les canaux testés, sans prétendre résoudre
+universellement la prompt injection.
+
 ## Modes de réponse
 
 Le mode livré est `grounded-local-v3`. Son vecteur est l'embedding ONNX local
@@ -62,6 +69,18 @@ Les mots de passe sont vérifiés côté API et stockés sous forme de hash Argo
 
 Le middleware renvoie `X-Correlation-ID` et produit des logs JSON sans corps de document, mot de passe ou token. Prometheus est exposé sous `/metrics`; `/health` vérifie le processus et `/ready` vérifie PostgreSQL et Redis. `/api/v1/status` est réservé à l’administrateur.
 
+Un second middleware applique une fenêtre glissante aux routes d'authentification, question et
+import. Il utilise l'adresse client ASGI, ignore les en-têtes transférés non fiables, borne son état
+à 10 000 clés et renvoie `429` avec `Retry-After`. Il est volontairement mono-processus : un service
+horizontal exigerait Redis ou un edge partagé avec une politique d'adresse proxy explicitement
+configurée.
+
 ## Déploiement local
 
-`compose.yaml` compose PostgreSQL/pgvector, Redis, migration, seed synthétique, API, worker et web. Les ports publiés sont liés à l’interface loopback ; le volume `documents_data` est partagé seulement entre API et worker. Les images externes et les actions CI sont épinglées à des révisions immuables. Chaque service basé sur l’image locale API déclare le même build et `pull_policy: build`, afin qu’un lancement ciblé normal reconstruise avant exécution. `scripts/check_supply_chain_refs.py` contrôle ces invariants. Nginx limite les requêtes à 11 MiB, ajoute `nosniff`, `DENY` contre l’iframe, `no-referrer` et une CSP restrictive. Ces contrôles ne remplacent pas TLS, un reverse proxy de production, la rotation des secrets, une politique IAM S3 ou une vérification de provenance des images.
+`compose.yaml` compose PostgreSQL/pgvector, Redis, migration, seed synthétique, API, worker et web. Les ports publiés sont liés à l’interface loopback ; le volume `documents_data` est partagé seulement entre API et worker. Les images externes et les actions CI sont épinglées à des révisions immuables. Chaque service basé sur l’image locale API déclare le même build et `pull_policy: build`, afin qu’un lancement ciblé normal reconstruise avant exécution. `scripts/check_supply_chain_refs.py` contrôle ces invariants. Nginx limite les requêtes à 11 MiB, ajoute `nosniff`, `DENY` contre l’iframe, `no-referrer` et une CSP restrictive.
+
+`compose.public-demo.yaml` superpose un profil synthétique avec un seul compte analyste, secrets
+runtime obligatoires, quotas plus stricts et `/metrics` masqué. Les ports restent sur loopback : cet
+overlay prépare une démo sûre, pas une publication Internet. Ces contrôles ne remplacent pas TLS,
+un reverse proxy opéré, un quota distribué, la rotation des secrets, une politique IAM S3 ou une
+vérification de provenance des images.

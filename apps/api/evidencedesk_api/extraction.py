@@ -4,6 +4,10 @@ from typing import Any
 
 from evidencedesk_api.providers import EmbeddingProvider
 from evidencedesk_api.retrieval import Citation, EvidenceChunk
+from evidencedesk_api.trust_boundaries import (
+    is_untrusted_document_instruction,
+    untrusted_document_fragment_indexes,
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -78,12 +82,18 @@ _OBLIGATION = re.compile(
 
 
 def _line_entries(chunks: list[EvidenceChunk]) -> list[tuple[EvidenceChunk, str]]:
-    return [
-        (chunk, line.strip())
-        for chunk in chunks
-        for line in chunk.text.splitlines()
-        if line.strip() and not line.lstrip().startswith("#")
-    ]
+    entries: list[tuple[EvidenceChunk, str]] = []
+    for chunk in chunks:
+        lines = [
+            line.strip()
+            for line in chunk.text.splitlines()
+            if line.strip() and not line.lstrip().startswith("#")
+        ]
+        blocked_lines = untrusted_document_fragment_indexes(lines)
+        entries.extend(
+            (chunk, line) for index, line in enumerate(lines) if index not in blocked_lines
+        )
+    return entries
 
 
 def _label_match(line: str, aliases: tuple[str, ...]) -> str | None:
@@ -131,7 +141,11 @@ def _append_unique(
 
 
 def extract_supplier_fields(chunks: list[EvidenceChunk]) -> SupplierExtraction:
-    entries = _line_entries(chunks)
+    entries = [
+        item
+        for item in _line_entries(chunks)
+        if not is_untrusted_document_instruction(item[1])
+    ]
     organization, organization_citations = _first_label_value(
         entries,
         (
@@ -312,13 +326,6 @@ _RISK_V3 = re.compile(
     r"peut|pourrait|delay|retard|disable|isolate|interrompre|affect)\w*\b",
     re.IGNORECASE,
 )
-_UNTRUSTED_V3 = re.compile(
-    r"\b(?:system message|instruction insérée|instruction inseree|ordre pour|"
-    r"message destiné au robot|message destine au robot|untrusted sample|texte d'essai)\b",
-    re.IGNORECASE,
-)
-
-
 def _document_type_v3(
     entries: list[tuple[EvidenceChunk, str]],
 ) -> tuple[str | None, tuple[Citation, ...]]:
@@ -429,7 +436,7 @@ def extract_supplier_fields_v3(
     entries = [
         item
         for item in _line_entries(chunks)
-        if not _UNTRUSTED_V3.search(item[1])
+        if not is_untrusted_document_instruction(item[1])
     ]
     organization, organization_citations = _organization_v3(entries)
     document_type, document_type_citations = _document_type_v3(entries)

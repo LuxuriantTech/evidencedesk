@@ -28,7 +28,6 @@ dependencies = [
 [dependency-groups]
 dev = [
   "httpx2>=2.12,<3",
-  "llama-cpp-python==0.3.35",
   "mypy>=1.17,<2",
   "pip-audit>=2.9,<3",
   "psycopg[binary]>=3.2,<4",
@@ -37,6 +36,7 @@ dev = [
   "pytest-cov>=6.2,<7",
   "reportlab>=4.4,<5",
   "ruff>=0.12,<1",
+  "types-reportlab>=4.4,<5",
 ]
 
 [tool.pytest.ini_options]
@@ -75,17 +75,11 @@ ignore = ["S101"]
 [tool.mypy]
 python_version = "3.12"
 strict = true
-packages = ["evidencedesk_api", "evidencedesk_worker"]
+files = ["apps/api", "apps/worker", "evals", "scripts"]
+exclude = ["^scripts/generate_blind_holdout_v[2-7]\\.py$"]
+explicit_package_bases = true
 mypy_path = ["apps/api", "apps/worker"]
 plugins = ["pydantic.mypy"]
 
 [tool.uv]
 package = false
-
-[[tool.uv.index]]
-name = "llama-cpp-cpu"
-url = "https://abetlen.github.io/llama-cpp-python/whl/cpu"
-explicit = true
-
-[tool.uv.sources]
-llama-cpp-python = { index = "llama-cpp-cpu" }

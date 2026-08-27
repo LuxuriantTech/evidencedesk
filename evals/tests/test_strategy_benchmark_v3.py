@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -32,13 +33,13 @@ def test_benchmark_uses_exactly_the_six_preregistered_configurations() -> None:
 
 
 def test_decision_stability_digest_ignores_timing_but_not_decisions() -> None:
-    first = {
+    first: dict[str, Any] = {
         "cases": [{"id": "q1", "status": "answered", "answer": "A", "latency_ms": 2.0}],
         "extractions": {"doc": {"field": {"value": "A"}}},
         "latency_median_ms": 2.0,
         "runtime": {"peak_rss_bytes": 10},
     }
-    second = {
+    second: dict[str, Any] = {
         **first,
         "cases": [{"id": "q1", "status": "answered", "answer": "A", "latency_ms": 9.0}],
         "latency_median_ms": 9.0,
@@ -51,7 +52,7 @@ def test_decision_stability_digest_ignores_timing_but_not_decisions() -> None:
 
 
 def test_core_digest_ignores_candidate_instrumentation_only() -> None:
-    first = {
+    first: dict[str, Any] = {
         "cases": [
             {
                 "id": "q1",
@@ -63,7 +64,7 @@ def test_core_digest_ignores_candidate_instrumentation_only() -> None:
         "extractions": {},
         "metric_counts": {},
     }
-    second = {
+    second: dict[str, Any] = {
         **first,
         "cases": [
             {
@@ -78,7 +79,7 @@ def test_core_digest_ignores_candidate_instrumentation_only() -> None:
 
 
 def test_selection_tie_breaks_by_p95_then_rss_then_simplicity() -> None:
-    quality = {
+    quality: dict[str, float] = {
         "citation_case_accuracy": 0.9,
         "abstention_accuracy": 0.9,
         "citation_precision": 1.0,
@@ -88,7 +89,7 @@ def test_selection_tie_breaks_by_p95_then_rss_then_simplicity() -> None:
         "schema_error_rate": 0.0,
         "latency_p95_ms": 100.0,
     }
-    comparison = {
+    comparison: dict[str, Any] = {
         "higher-rss": {
             "strategy_id": "deterministic-evidence-v3",
             "selection": {

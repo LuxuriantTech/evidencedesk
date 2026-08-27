@@ -53,7 +53,7 @@ from evidencedesk_api.observability import (
 )
 from evidencedesk_api.provider_registry import ProviderBundle, build_provider_bundle
 from evidencedesk_api.queueing import TaskQueue, build_task_queue
-from evidencedesk_api.request_limits import RequestBodyLimitMiddleware
+from evidencedesk_api.request_limits import RateLimitMiddleware, RequestBodyLimitMiddleware
 from evidencedesk_api.retrieval import AnswerResult, EvidenceChunk, RetrievalMethod, hybrid_rank
 from evidencedesk_api.schemas import (
     AskRequest,
@@ -71,6 +71,7 @@ from evidencedesk_api.schemas import (
 )
 from evidencedesk_api.security import create_access_token, decode_access_token, verify_password
 from evidencedesk_api.storage import LocalDocumentStorage, build_storage_key
+from evidencedesk_api.trust_boundaries import sanitize_extraction_payload
 from evidencedesk_api.uploads import UploadRejected, load_public_demo_hashes, validate_upload
 
 bearer = HTTPBearer(auto_error=False)
@@ -208,6 +209,16 @@ def create_app(*, settings: Settings | None = None, task_queue: TaskQueue | None
         RequestBodyLimitMiddleware,
         max_bytes=active_settings.max_request_bytes,
     )
+    if active_settings.rate_limit_enabled:
+        app.add_middleware(
+            RateLimitMiddleware,
+            limits={
+                "auth": active_settings.auth_requests_per_window,
+                "ask": active_settings.ask_requests_per_window,
+                "upload": active_settings.upload_requests_per_window,
+            },
+            window_seconds=active_settings.rate_limit_window_seconds,
+        )
     app.mount("/metrics", metrics_app())
 
     @app.middleware("http")
@@ -663,7 +674,7 @@ def create_app(*, settings: Settings | None = None, task_queue: TaskQueue | None
                 document_id=document.id,
                 document_name=document.filename,
                 schema_version=extraction.schema_version,
-                payload=extraction.payload,
+                payload=sanitize_extraction_payload(extraction.payload),
             )
             for extraction, document in rows
         ]

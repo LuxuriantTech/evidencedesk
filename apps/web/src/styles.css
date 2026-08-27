@@ -157,6 +157,36 @@ textarea {
   font-size: 0.82rem;
 }
 
+.research-warning {
+  margin: 1rem 0;
+  border: 1px solid #b45309;
+  border-left-width: 4px;
+  border-radius: 6px;
+  background: #fffbeb;
+  color: #78350f;
+  padding: 0.75rem 0.85rem;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.research-warning-wide {
+  max-width: 1180px;
+  margin: 0 auto 1rem;
+}
+
+.negative-result-note {
+  margin: 0 0 1rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.run-context {
+  color: var(--muted);
+  font-size: 0.82rem;
+  margin: 0.25rem 0 0.75rem;
+}
+
 .error {
   color: #7e211b;
   background: #fff0ed;

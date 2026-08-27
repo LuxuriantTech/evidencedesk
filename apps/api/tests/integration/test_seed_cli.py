@@ -14,6 +14,7 @@ from evidencedesk_api.seed_cli import (
     _seed_evaluation_artifacts,
 )
 from sqlalchemy import func, select, text
+from sqlalchemy.ext.asyncio import AsyncEngine
 
 DATABASE_URL = (
     "postgresql+asyncpg://evidencedesk:evidencedesk-local-only@127.0.0.1:55432/evidencedesk"
@@ -75,7 +76,7 @@ def test_demo_seed_imports_measured_evaluation_artifacts_idempotently(tmp_path: 
     asyncio.run(scenario())
 
 
-def test_seed_loader_accepts_raw_v4_but_not_recalculation(tmp_path: Path) -> None:
+def test_seed_loader_accepts_only_public_summary_schema(tmp_path: Path) -> None:
     for name, schema in (
         ("development.json", "evaluation-result-v1"),
         ("holdout-v4-raw.json", "holdout-v4-raw-result-v2"),
@@ -88,10 +89,7 @@ def test_seed_loader_accepts_raw_v4_but_not_recalculation(tmp_path: Path) -> Non
 
     loaded = _load_evaluation_artifacts(tmp_path)
 
-    assert [path.name for path, _result in loaded] == [
-        "development.json",
-        "holdout-v4-raw.json",
-    ]
+    assert [path.name for path, _result in loaded] == ["development.json"]
 
 
 def test_seed_loader_keeps_latest_artifact_for_the_same_run_identity(tmp_path: Path) -> None:
@@ -210,7 +208,7 @@ def test_v7_summary_is_seedable_and_preserves_the_raw_artifact_digest() -> None:
     assert summary["recalculated_metric_counts"] == recalculated["metric_counts"]
 
 
-def build_engine_from_url():
+def build_engine_from_url() -> AsyncEngine:
     settings = Settings(
         database_url=DATABASE_URL,
         jwt_secret="seed-test-secret-at-least-32-characters",

@@ -9,6 +9,20 @@ const json = (value: unknown) =>
     headers: { "Content-Type": "application/json" },
   });
 describe("EvidenceDesk REST flow", () => {
+  it("shows the research warning and never prefills a browser password", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    expect(
+      screen.getByText(
+        "Research prototype using synthetic data only. Not validated for production, legal, medical, financial or compliance decisions.",
+      ),
+    ).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Préremplir l’identifiant analyste" }));
+    expect(screen.getByLabelText("Identifiant")).toHaveValue("demo.analyst");
+    expect(screen.getByLabelText("Mot de passe")).toHaveValue("");
+  });
+
   it("authenticates then renders API-provided dossier data", async () => {
     const fetchMock = vi
       .spyOn(globalThis, "fetch")

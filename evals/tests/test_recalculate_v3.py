@@ -1,12 +1,14 @@
 import math
 from collections.abc import Callable
+from typing import Any
 
 import pytest
 
 from evals.recalculate import recalculate_metrics
+from evals.schema_versions import ATTESTED_HOLDOUT_RAW_SCHEMA
 
 
-def _raw() -> dict[str, object]:
+def _raw() -> dict[str, Any]:
     return {
         "schema_version": "evaluation-result-v4",
         "citation_precision": 0.5,
@@ -99,10 +101,20 @@ def test_recalculation_derives_retrieval_citation_recall_and_timings_from_raw_ca
 
 def test_strict_raw_rejects_missing_retrieval_evidence() -> None:
     raw = _raw()
-    raw["cases"][0].pop("expected_retrieval_locations_at_5")  # type: ignore[index, union-attr]
+    raw["cases"][0].pop("expected_retrieval_locations_at_5")
 
     with pytest.raises(ValueError, match="missing expected retrieval evidence"):
         recalculate_metrics(raw)
+
+
+def test_current_generic_holdout_schema_is_strictly_recalculated() -> None:
+    raw = _raw()
+    raw["schema_version"] = ATTESTED_HOLDOUT_RAW_SCHEMA
+
+    result = recalculate_metrics(raw)
+
+    assert result["retrieval_integrity"]["strict_schema"] is True
+    assert result["retrieval_recall_at_5"] == 0.5
 
 
 def test_unknown_raw_schema_is_rejected_instead_of_treated_as_legacy() -> None:
@@ -115,7 +127,7 @@ def test_unknown_raw_schema_is_rejected_instead_of_treated_as_legacy() -> None:
 
 def test_recalculation_derives_schema_errors_from_raw_case_flags() -> None:
     raw = _raw()
-    raw["cases"][1].update(  # type: ignore[index, union-attr]
+    raw["cases"][1].update(
         status="error",
         schema_error=True,
     )
@@ -129,14 +141,14 @@ def test_recalculation_derives_schema_errors_from_raw_case_flags() -> None:
 
 def test_recalculated_verdict_fails_when_only_citation_recall_is_below_target() -> None:
     raw = _raw()
-    first = raw["cases"][0]  # type: ignore[index]
-    second = raw["cases"][1]  # type: ignore[index]
-    first.update(  # type: ignore[union-attr]
+    first = raw["cases"][0]
+    second = raw["cases"][1]
+    first.update(
         citation_matches=[True],
         expected_citation_matches=[True, False],
         answer_match=True,
     )
-    second.update(kind="unanswerable", status="abstained")  # type: ignore[union-attr]
+    second.update(kind="unanswerable", status="abstained")
     raw.update(
         citation_precision=1.0,
         citation_recall=0.5,

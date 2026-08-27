@@ -10,6 +10,14 @@ import pytest
 
 from evals import finalize_answer_v3
 
+ROOT = Path(__file__).resolve().parents[2]
+PLAN_PATH = ROOT / "evals/configs/answer-v3-experiment-plan.json"
+CORPUS_PATH = ROOT / "datasets/development_v3/corpus_manifest.json"
+PARTITION_MANIFESTS = {
+    "calibration": ROOT / "datasets/development_v3/evaluation_calibration.json",
+    "selection": ROOT / "datasets/development_v3/evaluation_selection.json",
+}
+
 
 def _comparison() -> dict[str, Any]:
     artifact_root = "artifacts/evaluations/development_v3/strategy_v3"
@@ -44,12 +52,12 @@ def _comparison() -> dict[str, Any]:
         "schema_version": "evidencedesk-strategy-comparison-v3",
         "engine_fingerprint": "engine-fingerprint",
         "experiment_plan_sha256": finalize_answer_v3._sha256(
-            finalize_answer_v3.PLAN_PATH
+            PLAN_PATH
         ),
-        "corpus_sha256": finalize_answer_v3._sha256(finalize_answer_v3.CORPUS_PATH),
+        "corpus_sha256": finalize_answer_v3._sha256(CORPUS_PATH),
         "partition_manifest_sha256": {
             partition: finalize_answer_v3._sha256(path)
-            for partition, path in finalize_answer_v3.PARTITION_MANIFESTS.items()
+            for partition, path in PARTITION_MANIFESTS.items()
         },
         "repetitions": 3,
         "comparison": {
@@ -164,6 +172,12 @@ def test_finalizer_runs_six_named_runs_and_writes_recalculations(
     assert (tmp_path / "runtime" / "calibration-r1.json").exists()
     assert (tmp_path / "runtime" / "calibration-r1-recalculated.json").exists()
     assert (tmp_path / "runtime" / "selection-r3.json").exists()
+    recalculated = json.loads(
+        (tmp_path / "runtime" / "calibration-r1-recalculated.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert recalculated["schema_version"] == "evidencedesk-recalculated-evaluation-v1"
     assert summary["engine_fingerprint"] == "engine-fingerprint"
 
 

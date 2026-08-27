@@ -32,6 +32,9 @@ const STATUS_LABELS: Record<string, string> = {
   deleted: "Supprimé",
 };
 
+const RESEARCH_WARNING =
+  "Research prototype using synthetic data only. Not validated for production, legal, medical, financial or compliance decisions.";
+
 interface EvidenceField {
   value: unknown;
   citations: Citation[];
@@ -51,6 +54,7 @@ function apiMessage(error: unknown): string {
     invalid_signature: "Le contenu du fichier ne correspond pas à son extension.",
     invalid_text: "Le fichier texte est invalide ou illisible en UTF-8.",
     queue_unavailable: "La file de traitement est momentanément indisponible.",
+    rate_limited: "Trop de requêtes. Attendez un instant avant de réessayer.",
     forbidden: "Votre rôle ne permet pas cette action.",
   };
   return messages[error.message] ?? "Le service est indisponible. Réessayez dans un instant.";
@@ -116,8 +120,8 @@ function Login({ onLogin }: { onLogin: (session: TokenResponse) => void }) {
   };
 
   const fillDemoAccount = () => {
-    setUsername("demo.admin");
-    setPassword(import.meta.env.VITE_DEMO_ADMIN_PASSWORD ?? "");
+    setUsername("demo.analyst");
+    setPassword("");
   };
 
   return (
@@ -128,6 +132,7 @@ function Login({ onLogin }: { onLogin: (session: TokenResponse) => void }) {
         <p className="lede">
           Vérifiez un dossier fournisseur synthétique sans confondre réponse et preuve.
         </p>
+        <p className="research-warning">{RESEARCH_WARNING}</p>
         <form onSubmit={submit}>
           <label>
             Identifiant
@@ -158,7 +163,7 @@ function Login({ onLogin }: { onLogin: (session: TokenResponse) => void }) {
           </button>
         </form>
         <button className="secondary" onClick={fillDemoAccount} type="button">
-          Préremplir le compte de démonstration
+          Préremplir l’identifiant analyste
         </button>
         <p className="notice">
           Les identifiants locaux sont documentés dans le README. Le jeton reste uniquement en
@@ -171,15 +176,21 @@ function Login({ onLogin }: { onLogin: (session: TokenResponse) => void }) {
 
 function EvaluationCard({ run }: { run: EvaluationRun }) {
   const metrics = run.metrics;
+  const isHoldout = run.split === "holdout";
   return (
     <article className="evaluation-card">
       <div className="panel-heading">
         <div>
-          <strong>{run.split === "holdout" ? "Holdout indépendant" : "Développement"}</strong>
+          <strong>{isHoldout ? "Holdout indépendant" : "Développement historique"}</strong>
           <p>{run.dataset_version}</p>
         </div>
         <span className={`verdict ${run.verdict.toLowerCase()}`}>{run.verdict}</span>
       </div>
+      <p className="run-context">
+        {isHoldout
+          ? "Évaluation aveugle : résultat de généralisation, conservé même en échec."
+          : "Calibration uniquement : ce résultat ne démontre pas la généralisation."}
+      </p>
       <dl className="metric-grid">
         <div>
           <dt>Précision citations</dt>
@@ -404,6 +415,7 @@ export function App() {
       </header>
 
       <main id="workspace">
+        <p className="research-warning research-warning-wide">{RESEARCH_WARNING}</p>
         {error && (
           <p role="alert" className="warning">
             {error}
@@ -692,6 +704,10 @@ export function App() {
               <h2>Évaluation reproductible</h2>
               <span>Résultats calculés</span>
             </div>
+            <p className="negative-result-note">
+              L’évaluation aveugle v7 reste négative : le rappel de récupération ne s’est pas
+              généralisé en réponses ni en extractions suffisamment fiables.
+            </p>
             {evaluations.length ? (
               evaluations.map((item) => <EvaluationCard run={item} key={item.id} />)
             ) : (

@@ -1,0 +1,41 @@
+name: Bug report
+description: Report a reproducible defect using synthetic data only
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not attach real documents, credentials, personal data or security vulnerabilities.
+        Use the private process in SECURITY.md for security issues.
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Observed behavior
+      description: What happened, using synthetic inputs only?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Minimal commands and synthetic fixture needed to reproduce the defect.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: input
+    id: revision
+    attributes:
+      label: Git revision
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS/WSL, Docker, Python and Node versions. Remove secrets and personal paths.

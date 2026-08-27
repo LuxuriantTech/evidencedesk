@@ -1,8 +1,15 @@
 import inspect
 import json
 from pathlib import Path
+from typing import Any, cast
 
 import pytest
+from evidencedesk_api.answering import DeterministicGroundedAnswerProvider
+from evidencedesk_api.providers import EmbeddingProvider
+from evidencedesk_api.retrieval import RetrievalMethod
+
+from evals.runner import AnswerProviderLike, _engine_fingerprint
+from evals.validate_dataset import ValidationReport
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -40,7 +47,8 @@ def test_frozen_answer_runtime_accepts_only_the_declared_v3_engines() -> None:
     )
 
     assert runtime.answer_provider.mode == "deterministic-evidence-v3"
-    assert runtime.answer_provider.config.support_threshold == 0.48
+    answer_provider = cast(DeterministicGroundedAnswerProvider, runtime.answer_provider)
+    assert answer_provider.config.support_threshold == 0.48
     config_b = {
         **config,
         "answer_engine": {
@@ -55,14 +63,18 @@ def test_frozen_answer_runtime_accepts_only_the_declared_v3_engines() -> None:
         config_b,
         DeterministicEmbeddingProvider(dimension=384),
     )
-    assert runtime_b.answer_provider.config.support_threshold == 0.56
+    answer_provider_b = cast(DeterministicGroundedAnswerProvider, runtime_b.answer_provider)
+    assert answer_provider_b.config.support_threshold == 0.56
     invalid = {**config, "answer_engine": {"strategy_id": "unregistered"}}
     with pytest.raises(AnswerRuntimeConfigError, match="unsupported"):
         build_frozen_answer_runtime(invalid, DeterministicEmbeddingProvider(dimension=384))
 
     changed_threshold = {
         **config,
-        "answer_engine": {**config["answer_engine"], "support_threshold": 0.47},
+        "answer_engine": {
+            **cast(dict[str, Any], config["answer_engine"]),
+            "support_threshold": 0.47,
+        },
     }
     with pytest.raises(AnswerRuntimeConfigError, match="thresholds"):
         build_frozen_answer_runtime(
@@ -118,7 +130,7 @@ def test_real_preflight_error_classes_never_consume_lock_or_start_inference(
     valid_config = json.loads(
         (ROOT / "evals/configs/answer-v3-frozen-v7.json").read_text(encoding="utf-8")
     )
-    valid_config["engine_fingerprint_at_selection"] = holdout._engine_fingerprint()
+    valid_config["engine_fingerprint_at_selection"] = _engine_fingerprint()
     valid_corpus = {
         "dataset_version": "preflight-test-v1",
         "synthetic_only": True,
@@ -266,7 +278,7 @@ def test_successful_preflight_is_completed_before_lock_and_inference(
         freeze={"engine_commit": "a" * 40},
         attestation={"freeze_commit": "b" * 40},
         evidence={"dataset_commit": "c" * 40},
-        report=holdout.ValidationReport(
+        report=ValidationReport(
             total_cases=1,
             answerable_cases=1,
             unanswerable_cases=0,
@@ -278,11 +290,12 @@ def test_successful_preflight_is_completed_before_lock_and_inference(
             extraction_expectations_are_traceable=True,
             synthetic_only=True,
         ),
-        provider=object(),
-        method=holdout.RetrievalMethod.HYBRID,
+        # The patched inference function below prevents these sentinels from being used.
+        provider=cast(EmbeddingProvider, object()),
+        method=RetrievalMethod.HYBRID,
         runtime_metadata={},
-        answer_provider="prepared-answer-provider",
-        extraction_provider="prepared-extraction-provider",
+        answer_provider=cast(AnswerProviderLike, "prepared-answer-provider"),
+        extraction_provider=cast(Any, "prepared-extraction-provider"),
     )
 
     def preflight(**_kwargs: object) -> object:
@@ -324,9 +337,9 @@ def test_successful_preflight_is_completed_before_lock_and_inference(
     )
 
     assert events == ["preflight", "claim", "inference"]
-    assert result["schema_version"] == "evidencedesk-holdout-raw-v4"
+    assert result["schema_version"] == "evidencedesk-attested-holdout-raw-v1"
     assert json.loads(output.read_text(encoding="utf-8"))["schema_version"] == (
-        "evidencedesk-holdout-raw-v4"
+        "evidencedesk-attested-holdout-raw-v1"
     )
 
 
@@ -376,7 +389,7 @@ def test_holdout_preflight_rejects_a_weakened_frozen_protocol(
     field: str,
     weakened: object,
 ) -> None:
-    from evals.holdout import ValidationReport, verify_holdout_protocol
+    from evals.holdout import verify_holdout_protocol
     from evals.runner import EvaluationError
 
     config = json.loads(
@@ -418,7 +431,7 @@ def test_holdout_protocol_binds_dataset_mode_to_frozen_mode(
     )
     monkeypatch.setattr(holdout, "_validate_v3_config_data", lambda value: value)
     protocol = config["holdout_protocol"]
-    report = holdout.ValidationReport(
+    report = ValidationReport(
         total_cases=protocol["total_cases"],
         answerable_cases=protocol["minimum_answerable"],
         unanswerable_cases=protocol["minimum_unanswerable"],

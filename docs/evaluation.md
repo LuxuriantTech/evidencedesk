@@ -107,11 +107,12 @@ les objets Git du commit moteur `84971d8c01ac0e0eac840205527acad0a92561e7`; le c
 continue, lui, d'exiger que les sources courantes correspondent exactement à une nouvelle
 configuration figée.
 
-Le raw actuel porte un schéma générique `evidencedesk-holdout-raw-v4`. Le recalculateur accepte une
-liste fermée de schémas historiques, rejette un schéma inconnu et recalcule Recall@5/MRR@5 à partir
-des documents/pages récupérés et des locations gold, sans faire confiance à un booléen pré-calculé.
-Il vérifie aussi la correspondance des latences par cas, la validité de l'indexation et, lorsque ces
-champs existent au niveau racine, le temps total et le pic RSS.
+Le runner courant émet le schéma générique `evidencedesk-attested-holdout-raw-v1` et le
+recalculateur `evidencedesk-recalculated-evaluation-v1`. Le recalculateur accepte aussi une liste
+fermée de schémas historiques immuables, rejette un schéma inconnu et recalcule Recall@5/MRR@5 à
+partir des documents/pages récupérés et des locations gold, sans faire confiance à un booléen
+pré-calculé. Il vérifie aussi la correspondance des latences par cas, la validité de l'indexation et,
+lorsque ces champs existent au niveau racine, le temps total et le pic RSS.
 
 ## Holdouts et intégrité
 
@@ -193,6 +194,18 @@ correcte et contient le montant attendu, mais le normaliseur retient d'abord l'h
 cette limite du scoreur est documentée après ouverture et ne corrige pas le verdict (même une unité
 supplémentaire resterait très sous le seuil).
 
+### Correctifs de release postérieurs à v7 — sans rescoring
+
+La release candidate corrige deux défauts logiciels révélés par v7 : le normaliseur de montants ne
+prend plus un horodatage sans devise pour un montant, et une frontière de confiance commune refuse
+les instructions documentaires dans réponses, citations, évaluations candidates et extractions.
+Les régressions couvrent français/anglais, divulgation, exfiltration, faux administrateur, faux
+résultat, contradiction, segmentation multi-ligne, ponctuation et homoglyphes courants.
+
+Ces changements sont postérieurs au lock/raw. Ils ne modifient ni le corpus, ni le raw, ni le
+recalcul, et v7 n'a pas été réexécuté. Ils ne constituent donc aucune amélioration mesurée de v7 et
+ne changent pas le verdict `FAIL`.
+
 L'extraction confirme le défaut de généralisation : type et organisation `0/10`, date d'effet `1/10`,
 montants `7/11`, obligations `6/10`, renouvellement `5/9`, responsables `4/11`, risques `6/12`
 (numérateur = vrais positifs). Les formulations de date, les rôles/personnes, les valeurs courtes de
@@ -229,4 +242,4 @@ n'émet plus cette étiquette. Cette correction ne réécrit aucun artefact ouve
 
 ## Modèle et limites
 
-Le modèle est `Qdrant/paraphrase-multilingual-MiniLM-L12-v2-onnx-Q` révision `faf4aa4225822f3bc6376869cb1164e8e3feedd0`, Apache-2.0, environ 118 M paramètres, 384 dimensions, maximum 512 tokens, pooling mean, CPU avec `fastembed==0.8.0` et `onnxruntime==1.29.0`. Téléchargement mesuré déclaré dans le manifest : `266906689` octets, dont `235052644` pour ONNX; pic développement : `725581824` octets (~725,6 MB). Les sept fichiers listés totalisent `266903238` octets, soit `3451` de moins que la mesure globale ; le manifest n'attribue pas cet écart. Le pooling mean est une convention fastembed, pas une validation indépendante d'optimalité. L'intégrité locale repose sur manifest et hashes, pas sur une signature de provenance.
+Le modèle est `Qdrant/paraphrase-multilingual-MiniLM-L12-v2-onnx-Q` révision `faf4aa4225822f3bc6376869cb1164e8e3feedd0`, Apache-2.0, environ 118 M paramètres, 384 dimensions, maximum 512 tokens, pooling mean, CPU avec `fastembed==0.8.0` et `onnxruntime==1.29.0`. Téléchargement mesuré déclaré dans le manifest : `266906689` octets, dont `235052644` pour ONNX; pic du run historique de développement v2 : `725581824` octets (~725,6 MB). La reproduction finale v3 a atteint `904192000` octets (~904,2 MB). Les sept fichiers listés totalisent `266903238` octets, soit `3451` de moins que la mesure globale ; le manifest n'attribue pas cet écart. Le pooling mean est une convention fastembed, pas une validation indépendante d'optimalité. L'intégrité locale repose sur manifest et hashes, pas sur une signature de provenance.

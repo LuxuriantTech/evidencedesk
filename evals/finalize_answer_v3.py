@@ -21,6 +21,7 @@ from evals.freeze import (
 )
 from evals.recalculate import recalculate_metrics
 from evals.runner import _engine_fingerprint
+from evals.schema_versions import RECALCULATED_EVALUATION_SCHEMA
 from evals.strategy_benchmark_v3 import (
     CORPUS_PATH,
     PARTITION_MANIFESTS,
@@ -127,7 +128,7 @@ def _runtime_aggregate(paths: list[Path]) -> dict[str, Any]:
 def _recalculate(raw_path: Path, output_path: Path) -> dict[str, Any]:
     raw = _load(raw_path)
     recalculated = {
-        "schema_version": "evidencedesk-evaluation-recalculation-v4",
+        "schema_version": RECALCULATED_EVALUATION_SCHEMA,
         "created_at": datetime.now(UTC).isoformat(),
         "raw_artifact_sha256": _sha256(raw_path),
         **recalculate_metrics(raw),

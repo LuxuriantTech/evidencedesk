@@ -133,6 +133,69 @@ _MONTH_NUMBERS = {
     "decembre": 12,
 }
 
+_CURRENCY_CODES = {
+    "EUR": "EUR",
+    "€": "EUR",
+    "USD": "USD",
+    "$": "USD",
+    "GBP": "GBP",
+    "£": "GBP",
+}
+_CURRENCY_PATTERN = r"(?:EUR|USD|GBP|€|\$|£)"
+_MONEY_NUMBER = (
+    r"(?:\d{1,3}(?:[\s\u00a0\u202f'.,]\d{3})+|\d+)"
+    r"(?:[.,]\d{1,2})?"
+)
+_MONEY_PAIR = re.compile(
+    rf"(?:(?P<prefix>{_CURRENCY_PATTERN})\s*(?P<prefix_number>{_MONEY_NUMBER})|"
+    rf"(?P<suffix_number>{_MONEY_NUMBER})\s*(?P<suffix>{_CURRENCY_PATTERN}))",
+    re.IGNORECASE,
+)
+
+
+def _canonical_money_number(raw: str) -> str:
+    compact = re.sub(r"[\s\u00a0\u202f']", "", raw)
+    separator_positions = [
+        index for index, character in enumerate(compact) if character in {",", "."}
+    ]
+    decimal_separator: str | None = None
+    if separator_positions:
+        last = separator_positions[-1]
+        trailing_digits = len(compact) - last - 1
+        if trailing_digits in {1, 2}:
+            decimal_separator = compact[last]
+    if decimal_separator is None:
+        digits = re.sub(r"\D", "", compact)
+        return str(int(digits)) if digits else ""
+    integer_raw, decimal_raw = compact.rsplit(decimal_separator, 1)
+    integer_digits = re.sub(r"\D", "", integer_raw)
+    decimal_digits = re.sub(r"\D", "", decimal_raw).rstrip("0")
+    integer_value = str(int(integer_digits)) if integer_digits else "0"
+    return f"{integer_value}.{decimal_digits}" if decimal_digits else integer_value
+
+
+def _normalized_money_values(value: object) -> tuple[str, ...]:
+    text = str(value).strip()
+    normalized: list[str] = []
+    for match in _MONEY_PAIR.finditer(text):
+        currency_token = match.group("prefix") or match.group("suffix")
+        number = match.group("prefix_number") or match.group("suffix_number")
+        if currency_token is None or number is None:
+            continue
+        currency = _CURRENCY_CODES[currency_token.upper()]
+        canonical_number = _canonical_money_number(number)
+        candidate = f"{currency}:{canonical_number}"
+        if canonical_number and candidate not in normalized:
+            normalized.append(candidate)
+    if normalized:
+        return tuple(normalized)
+
+    unbound_numbers = re.findall(_MONEY_NUMBER, text)
+    if len(unbound_numbers) != 1:
+        return ()
+    canonical_number = _canonical_money_number(unbound_numbers[0])
+    return (f":{canonical_number}",) if canonical_number else ()
+
 
 def _normalize_typed(value: object, *, value_type: str) -> str:
     text = str(value).strip()
@@ -158,24 +221,16 @@ def _normalize_typed(value: object, *, value_type: str) -> str:
             )
         return folded
     if value_type == "money":
-        currency = ""
-        upper = text.upper()
-        currency_symbols = {
-            "EUR": ("EUR", "€"),
-            "USD": ("USD", "$"),
-            "GBP": ("GBP", "£"),
-        }
-        for code, symbols in currency_symbols.items():
-            if any(symbol in upper for symbol in symbols):
-                currency = code
-                break
-        number_match = re.search(r"\d[\d ,.]*\d|\d", text)
-        digits = re.sub(r"\D", "", number_match.group(0)) if number_match else ""
-        return f"{currency}:{int(digits) if digits else ''}"
+        values = _normalized_money_values(text)
+        return values[0] if values else ":"
     return folded
 
 
 def _value_matches(actual: object, expected: object, *, value_type: str) -> bool:
+    if value_type == "money":
+        actual_values = set(_normalized_money_values(actual))
+        expected_values = set(_normalized_money_values(expected))
+        return bool(actual_values and expected_values and actual_values & expected_values)
     normalized_actual = _normalize_typed(actual, value_type=value_type)
     normalized_expected = _normalize_typed(expected, value_type=value_type)
     if normalized_actual == normalized_expected:
@@ -301,9 +356,7 @@ def _answer_matches(answer: object, expected: object) -> bool:
             )
         }
     if re.search(r"(?:EUR|USD|GBP|[$€£]).*\d|\d.*(?:EUR|USD|GBP|[$€£])", expected_text):
-        return _normalize_typed(expected_text, value_type="money") == _normalize_typed(
-            answer, value_type="money"
-        )
+        return _value_matches(answer, expected_text, value_type="money")
     return _normalize(expected) in _normalize(answer)
 
 

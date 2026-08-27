@@ -34,9 +34,10 @@ from evals.runner import (
     _engine_fingerprint,
     _evaluate_attested_holdout_manifest,
 )
+from evals.schema_versions import ATTESTED_HOLDOUT_RAW_SCHEMA
 from evals.validate_dataset import ValidationReport, validate_manifest
 
-RAW_SCHEMA_VERSION = "evidencedesk-holdout-raw-v4"
+RAW_SCHEMA_VERSION = ATTESTED_HOLDOUT_RAW_SCHEMA
 LOCK_GATE = "evidencedesk-attested-holdout-v3"
 
 

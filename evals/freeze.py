@@ -22,6 +22,7 @@ from evidencedesk_api.retrieval import (
 from evals.answer_v3_runtime import AnswerRuntimeConfigError, validate_frozen_answer_config
 from evals.recalculate import recalculate_metrics
 from evals.runner import ENGINE_FINGERPRINT_PATHS, _engine_fingerprint
+from evals.schema_versions import RECALCULATED_EVALUATION_SCHEMA
 from evals.strategy_benchmark_v3 import (
     CORPUS_PATH,
     PARTITION_MANIFESTS,
@@ -215,7 +216,11 @@ def _artifact_paths(
 def _validate_recalculation(raw_path: Path, recalculation_path: Path) -> None:
     raw = _load(raw_path)
     recalculation = _load(recalculation_path)
-    if recalculation.get("schema_version") != "evidencedesk-evaluation-recalculation-v4":
+    if recalculation.get("schema_version") not in {
+        RECALCULATED_EVALUATION_SCHEMA,
+        # Existing development-v3 and v7 artifacts are immutable.
+        "evidencedesk-evaluation-recalculation-v4",
+    }:
         raise ValueError("development recalculation schema is invalid")
     if recalculation.get("raw_artifact_sha256") != _sha256(raw_path):
         raise ValueError("development recalculation does not bind its raw artifact")

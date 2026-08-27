@@ -50,10 +50,10 @@ jobs:
       - run: uv sync --frozen --all-groups
       - run: uv run alembic upgrade head
       - run: uv run ruff check apps/api apps/worker evals scripts
-      - run: uv run mypy apps/api/evidencedesk_api apps/worker/evidencedesk_worker
+      - run: uv run mypy
       - run: uv run python scripts/check_supply_chain_refs.py
       - run: uv run pytest --cov --cov-report=term-missing
-      - run: uv run pip-audit --strict --ignore-vuln PYSEC-2026-2447
+      - run: uv run pip-audit --strict
 
   frontend:
     runs-on: ubuntu-24.04

@@ -1,8 +1,9 @@
 import asyncio
 import hashlib
 import json
-from collections.abc import AsyncIterator
+from collections.abc import Generator
 from pathlib import Path
+from typing import Any, cast
 from uuid import UUID
 
 import pytest
@@ -16,11 +17,13 @@ from evidencedesk_api.models import (
     Extraction,
     ProcessingTask,
     TaskStatus,
+    User,
 )
 from evidencedesk_api.provider_registry import ProviderBundle
 from evidencedesk_api.providers import DeterministicEmbeddingProvider
 from evidencedesk_api.queueing import TaskQueue
 from evidencedesk_api.retrieval import ExtractiveAnswerProvider
+from evidencedesk_api.security import verify_password
 from evidencedesk_api.seed import seed_demo_data
 from evidencedesk_api.storage import LocalDocumentStorage
 from evidencedesk_worker.jobs import WorkerContext, process_document
@@ -73,7 +76,7 @@ async def _reset_and_seed(settings: Settings) -> None:
 
 
 @pytest.fixture
-def api(tmp_path: Path) -> AsyncIterator[tuple[TestClient, RecordingQueue, Settings]]:
+def api(tmp_path: Path) -> Generator[tuple[TestClient, RecordingQueue, Settings], None, None]:
     settings = Settings(
         database_url=DATABASE_URL,
         redis_url="redis://127.0.0.1:56379/0",
@@ -99,6 +102,79 @@ def _token(client: TestClient, username: str, password: str) -> str:
 
 def _headers(token: str) -> dict[str, str]:
     return {"Authorization": f"Bearer {token}"}
+
+
+@pytest.mark.integration
+def test_reseeding_refreshes_configured_demo_password(tmp_path: Path) -> None:
+    initial = Settings(
+        database_url=DATABASE_URL,
+        redis_url="redis://127.0.0.1:56379/0",
+        storage_root=tmp_path,
+        jwt_secret="integration-secret-at-least-32-characters",
+        demo_admin_password="InitialDemo-Admin-2026!",
+        demo_analyst_password="InitialDemo-Analyst-2026!",
+        demo_reader_password="InitialDemo-Reader-2026!",
+    )
+    asyncio.run(_reset_and_seed(initial))
+    refreshed = initial.model_copy(
+        update={"demo_admin_password": "RefreshedDemo-Admin-2026!"}
+    )
+
+    async def scenario() -> str:
+        engine = build_engine(refreshed)
+        try:
+            await seed_demo_data(refreshed, engine=engine)
+            async with build_session_factory(engine)() as session:
+                admin = await session.scalar(
+                    select(User).where(User.username == "demo.admin")
+                )
+                assert admin is not None
+                return admin.password_hash
+        finally:
+            await engine.dispose()
+
+    password_hash = asyncio.run(scenario())
+    assert verify_password("RefreshedDemo-Admin-2026!", password_hash)
+    assert not verify_password("InitialDemo-Admin-2026!", password_hash)
+
+
+@pytest.mark.integration
+def test_public_demo_seed_deactivates_existing_admin_account(tmp_path: Path) -> None:
+    enabled = Settings(
+        database_url=DATABASE_URL,
+        redis_url="redis://127.0.0.1:56379/0",
+        storage_root=tmp_path,
+        jwt_secret="integration-secret-at-least-32-characters",
+        public_demo_mode=True,
+        demo_admin_enabled=True,
+        demo_admin_password="EvidenceDemo-Admin-2026!",
+        demo_analyst_password="EvidenceDemo-Analyst-2026!",
+        demo_reader_password="EvidenceDemo-Reader-2026!",
+    )
+    asyncio.run(_reset_and_seed(enabled))
+    public = enabled.model_copy(
+        update={"demo_admin_enabled": False, "demo_reader_enabled": False}
+    )
+
+    async def scenario() -> tuple[bool, bool, bool]:
+        engine = build_engine(public)
+        try:
+            await seed_demo_data(public, engine=engine)
+            async with build_session_factory(engine)() as session:
+                admin = await session.scalar(select(User).where(User.username == "demo.admin"))
+                analyst = await session.scalar(
+                    select(User).where(User.username == "demo.analyst")
+                )
+                reader = await session.scalar(select(User).where(User.username == "demo.reader"))
+                assert admin is not None and analyst is not None and reader is not None
+                return admin.is_active, analyst.is_active, reader.is_active
+        finally:
+            await engine.dispose()
+
+    admin_active, analyst_active, reader_active = asyncio.run(scenario())
+    assert admin_active is False
+    assert analyst_active is True
+    assert reader_active is False
 
 
 @pytest.mark.integration
@@ -479,7 +555,7 @@ def test_evaluation_endpoint_persists_only_calculated_results(
     probe = DeterministicEmbeddingProvider(dimension=384)
     probe.mode = "local-semantic-onnx-v1"
     probe.model_id = "semantic-probe@frozen"
-    client.app.state.providers = ProviderBundle(
+    cast(Any, client).app.state.providers = ProviderBundle(
         embedding=probe,
         answer=ExtractiveAnswerProvider(mode="extractive-local-onnx"),
     )

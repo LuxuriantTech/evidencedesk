@@ -1,6 +1,8 @@
+from typing import cast
+
 from evidencedesk_api.models import Base, Chunk, Document, DocumentStatus
 from pgvector.sqlalchemy import Vector
-from sqlalchemy import String, UniqueConstraint
+from sqlalchemy import String, Table, UniqueConstraint
 
 
 def test_database_schema_contains_operational_entities() -> None:
@@ -17,11 +19,12 @@ def test_database_schema_contains_operational_entities() -> None:
 
 
 def test_chunk_embedding_is_a_384_dimension_pgvector() -> None:
-    vector_type = Chunk.__table__.c.embedding.type
+    chunk_table = cast(Table, Chunk.__table__)
+    vector_type = chunk_table.c.embedding.type
 
     assert isinstance(vector_type, Vector)
     assert vector_type.dim == 384
-    assert {index.name for index in Chunk.__table__.indexes} >= {
+    assert {index.name for index in chunk_table.indexes} >= {
         "ix_chunks_embedding_hnsw",
         "ix_chunks_embedding_model_id",
         "ix_chunks_search_vector_gin",
@@ -37,8 +40,9 @@ def test_chunk_records_the_embedding_space_for_safe_vector_filtering() -> None:
 
 
 def test_document_content_is_unique_per_active_dossier() -> None:
+    document_table = cast(Table, Document.__table__)
     index = next(
-        index for index in Document.__table__.indexes if index.name == "uq_active_document_hash"
+        index for index in document_table.indexes if index.name == "uq_active_document_hash"
     )
 
     assert index.unique is True
@@ -47,9 +51,10 @@ def test_document_content_is_unique_per_active_dossier() -> None:
 
 
 def test_chunk_order_is_unique_inside_a_document() -> None:
+    chunk_table = cast(Table, Chunk.__table__)
     constraints = [
         constraint
-        for constraint in Chunk.__table__.constraints
+        for constraint in chunk_table.constraints
         if isinstance(constraint, UniqueConstraint)
     ]
 

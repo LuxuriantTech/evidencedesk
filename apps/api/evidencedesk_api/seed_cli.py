@@ -208,10 +208,7 @@ def _load_evaluation_artifacts(artifacts_dir: Path) -> list[tuple[Path, dict[str
         result = json.loads(path.read_text(encoding="utf-8"))
         if not isinstance(result, dict):
             raise RuntimeError(f"invalid evaluation artifact: {path.name}")
-        if result.get("schema_version") not in {
-            "evaluation-result-v1",
-            "holdout-v4-raw-result-v2",
-        }:
+        if result.get("schema_version") != "evaluation-result-v1":
             continue
         dataset_version = result.get("dataset_version")
         parameters_version = result.get("parameters_version")

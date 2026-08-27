@@ -7,7 +7,7 @@ from evidencedesk_api.auth import Role
 from evidencedesk_api.config import Settings
 from evidencedesk_api.db import build_engine, build_session_factory
 from evidencedesk_api.models import Dossier, User
-from evidencedesk_api.security import hash_password
+from evidencedesk_api.security import hash_password, verify_password
 
 DEMO_DOSSIER_ID = UUID("08dcdf59-6086-43da-bb59-29fb37bd67f6")
 
@@ -16,6 +16,11 @@ async def _ensure_user(session: AsyncSession, *, username: str, password: str, r
     existing = await session.scalar(select(User).where(User.username == username))
     if existing is None:
         session.add(User(username=username, password_hash=hash_password(password), role=role))
+        return
+    if not verify_password(password, existing.password_hash):
+        existing.password_hash = hash_password(password)
+    existing.role = role
+    existing.is_active = True
 
 
 async def seed_demo_data(settings: Settings, *, engine: AsyncEngine | None = None) -> None:
@@ -23,24 +28,38 @@ async def seed_demo_data(settings: Settings, *, engine: AsyncEngine | None = Non
     active_engine = engine or build_engine(settings)
     factory: async_sessionmaker[AsyncSession] = build_session_factory(active_engine)
     async with factory() as session:
-        await _ensure_user(
-            session,
-            username="demo.admin",
-            password=settings.demo_admin_password,
-            role=Role.ADMIN,
-        )
+        if settings.demo_admin_enabled:
+            await _ensure_user(
+                session,
+                username="demo.admin",
+                password=settings.demo_admin_password,
+                role=Role.ADMIN,
+            )
+        else:
+            existing_admin = await session.scalar(
+                select(User).where(User.username == "demo.admin")
+            )
+            if existing_admin is not None:
+                existing_admin.is_active = False
         await _ensure_user(
             session,
             username="demo.analyst",
             password=settings.demo_analyst_password,
             role=Role.ANALYST,
         )
-        await _ensure_user(
-            session,
-            username="demo.reader",
-            password=settings.demo_reader_password,
-            role=Role.READER,
-        )
+        if settings.demo_reader_enabled:
+            await _ensure_user(
+                session,
+                username="demo.reader",
+                password=settings.demo_reader_password,
+                role=Role.READER,
+            )
+        else:
+            existing_reader = await session.scalar(
+                select(User).where(User.username == "demo.reader")
+            )
+            if existing_reader is not None:
+                existing_reader.is_active = False
         dossier = await session.get(Dossier, DEMO_DOSSIER_ID)
         if dossier is None:
             session.add(

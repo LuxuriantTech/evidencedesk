@@ -12,9 +12,15 @@ from pathlib import Path
 from typing import Any
 
 from evals.runner import _meets_acceptance_targets
+from evals.schema_versions import (
+    ATTESTED_HOLDOUT_RAW_SCHEMA,
+    RECALCULATED_EVALUATION_SCHEMA,
+)
 
 _STRICT_RETRIEVAL_SCHEMAS = {
     "evaluation-result-v4",
+    ATTESTED_HOLDOUT_RAW_SCHEMA,
+    # Immutable v7 and older artifacts retain this historical identifier.
     "evidencedesk-holdout-raw-v4",
 }
 _LEGACY_RETRIEVAL_SCHEMAS = {
@@ -303,7 +309,7 @@ def main() -> None:
         raise FileExistsError(f"recalculation output already exists: {args.output}")
     raw = json.loads(args.input.read_text(encoding="utf-8"))
     result = {
-        "schema_version": "evidencedesk-evaluation-recalculation-v4",
+        "schema_version": RECALCULATED_EVALUATION_SCHEMA,
         "created_at": datetime.now(UTC).isoformat(),
         "raw_artifact_sha256": _sha256(args.input),
         **recalculate_metrics(raw),

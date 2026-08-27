@@ -23,6 +23,11 @@ class Settings(BaseSettings):
     max_document_pages: int = Field(default=200, ge=1, le=10_000)
     max_extracted_chars: int = Field(default=1_000_000, ge=1, le=50_000_000)
     max_document_chunks: int = Field(default=5_000, ge=1, le=100_000)
+    rate_limit_enabled: bool = True
+    rate_limit_window_seconds: float = Field(default=60.0, ge=1.0, le=3_600.0)
+    auth_requests_per_window: int = Field(default=20, ge=1, le=10_000)
+    ask_requests_per_window: int = Field(default=60, ge=1, le=10_000)
+    upload_requests_per_window: int = Field(default=20, ge=1, le=10_000)
     pdf_parse_timeout_seconds: float = Field(default=10.0, ge=0.1, le=120.0)
     pdf_parse_memory_bytes: int = Field(
         default=512 * 1024 * 1024,
@@ -41,8 +46,10 @@ class Settings(BaseSettings):
     corpus_manifest: Path = Path("datasets/corpus_manifest.json")
     public_demo_allowlist: Path = Path("datasets/public_demo_uploads.json")
     demo_admin_password: str
+    demo_admin_enabled: bool = True
     demo_analyst_password: str
     demo_reader_password: str
+    demo_reader_enabled: bool = True
 
 
 @lru_cache

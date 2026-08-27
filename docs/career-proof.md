@@ -35,6 +35,10 @@ prototype technique et non une preuve de qualité RAG généralisable.
 5. CPU local et aucun fournisseur payant simplifient confidentialité et coût, au prix d'un modèle de
    384 dimensions, d'un téléchargement mesuré à 266 906 689 octets et de performances à démontrer
    hors corpus de test.
+6. Le holdout v7 a restitué une instruction documentaire. Après le gel, j'ai séparé règles système,
+   question, contenu non fiable et preuve, puis ajouté des gardes communs et des régressions
+   adversariales. Le holdout n'a pas été rejoué : ce correctif logiciel ne devient pas une nouvelle
+   métrique empirique.
 
 ## Résultat réellement mesuré
 
@@ -82,9 +86,10 @@ et extraction insuffisantes.
 
 ### Quel serait le prochain travail ?
 
-Créer un nouveau développement séparé, améliorer la résistance aux injections, la décision et le
-schéma d'extraction, puis geler un moteur avant un nouveau holdout indépendant. Le v7 déjà ouvert
-ne doit pas devenir un jeu de réglage.
+Le cycle expérimental est arrêté et aucun v8 ne doit être créé. Le travail de cette release candidate
+porte sur sécurité, qualité, documentation et reproductibilité. Une future campagne scientifique,
+si elle est décidée séparément, devra repartir d'un nouveau développement et d'un protocole gelé ;
+v7 ne doit jamais devenir un jeu de réglage.
 
 ### L'évaluation couvre-t-elle tout le produit ?
 
@@ -93,24 +98,23 @@ preuves complémentaires, aucune ne valide à elle seule la qualité de producti
 
 ## Points CV proposés — anglais
 
-- Built a local document-review prototype with FastAPI, React/TypeScript, PostgreSQL/pgvector and
-  Redis/ARQ, including server-side RBAC, page-level evidence, PII redaction and correlated audit logs.
-- Implemented a local, CPU-only ONNX embedding pipeline and hybrid retrieval with pinned model
-  identity, file hashes and a 40-case evaluation artifact; reported the v7 holdout FAIL rather than
-  presenting development or demo results as general quality.
-- Verified a real browser-to-worker workflow with Playwright, covering asynchronous ingestion,
-  sourced answers, abstention, extraction, audit and controlled deletion.
+- Built a fully local document intelligence platform with asynchronous ingestion, hybrid retrieval,
+  evidence-linked answers, server-side RBAC, PII masking and correlated audit logging.
+- Created a reproducible blind evaluation framework that achieved 100% Recall@5 while identifying
+  significant answer-generation, citation and extraction limitations on unseen document families.
+- Validated the engineering workflow with 345 backend tests, 6 frontend unit tests, typed checks,
+  real-stack Playwright coverage, dependency scanning and documented adversarial security checks;
+  retained the negative v7 result instead of presenting demo data as general accuracy.
 
 ## Points CV proposés — français
 
-- Développement d'un prototype local de revue documentaire avec FastAPI, React/TypeScript,
-  PostgreSQL/pgvector et Redis/ARQ, incluant RBAC serveur, preuves par page, masquage PII et audit
-  corrélé.
-- Mise en place d'un pipeline d'embedding ONNX local sur CPU et de recherche hybride, avec identité
-  modèle figée, hashes de fichiers et artefact d'évaluation de 40 cas ; conservation du FAIL holdout
-  v7 sans présenter la démo ou le développement comme preuve de qualité générale.
-- Vérification d'un parcours réel navigateur–worker avec Playwright : ingestion asynchrone, réponse
-  sourcée, abstention, extraction, audit et suppression contrôlée.
+- Développement d'une plateforme locale d'intelligence documentaire avec ingestion asynchrone,
+  recherche hybride, réponses reliées aux preuves, RBAC serveur, masquage PII et audit corrélé.
+- Création d'un cadre d'évaluation aveugle reproductible ayant obtenu 100 % de Recall@5 tout en
+  révélant des limites importantes de réponse, citation et extraction sur des familles inédites.
+- Validation du parcours d'ingénierie par 345 tests backend, 6 tests unitaires frontend, contrôles
+  de typage, Playwright sur pile réelle, scans de dépendances et contrôles adversariaux documentés ;
+  conservation du résultat v7 négatif au lieu de présenter la démo comme une précision générale.
 
 ## Cohérence scolaire à corriger avant publication
 
