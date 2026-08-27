@@ -1,0 +1,48 @@
+{
+  "config_sha256": "a3987fdb7bb2db037a4089044438a79d150db4b6bcc5ab136b868cd6c54c7a38",
+  "created_at": "2026-08-27T18:08:33.375129+00:00",
+  "dependency_sha256": {
+    "pyproject.toml": "7ac3bf50fd235b473ce44f4f6ea83d6f78f3299e7c3f5db95605f668634cce97",
+    "uv.lock": "857336771ae3414c1e77f51b1dbc8f7e9e8f7e0094fc935e0f1536dad6c524fe"
+  },
+  "development_artifact_sha256": {
+    "artifacts/evaluations/development_v3/frozen-runtime-v4-locked-final/selection-r1-recalculated.json": "24ecba18e97ffc808aab0ba3c7e88391e59680fcb213de304363e9a0a832ebd1",
+    "artifacts/evaluations/development_v3/frozen-runtime-v4-locked-final/selection-r1.json": "d23e7c3a15e7eb2f2a229c2e43f3aa906c999d2f4d6d3103424773c9f6741fc9",
+    "artifacts/evaluations/development_v3/frozen-runtime-v4-locked-final/summary.json": "55597593c0f5018a4bb3539c7022430b7984f3bd01ff1ecbed5cc417bf039caf",
+    "artifacts/evaluations/development_v3/strategy_v3/comparison.json": "95a2bdfc1723d45bee41dd9ab106a221c0435bad2ab2c4dc13dd01b6e9c0828e",
+    "datasets/development_v3/corpus_manifest.json": "d61e15f7fb7c378ccfc52b5d4b1951831dfee91babd2eb77a5c68bbdb581fe08",
+    "datasets/development_v3/evaluation_cases.json": "3caa19c70680483c08c0872087a21b1a0a3adcf731119f9eb1da8f93a9004139",
+    "datasets/development_v3/generation_manifest.json": "b67bccf7f6eb69d13d1b320b3823e6433e8258330267dbc649f83d43a9c5f595",
+    "evals/configs/answer-v3-experiment-plan.json": "6536e31dd26c3eaa6f9e80fe2256b8dd2b7e200b73fda609498f62d3c066c3f6"
+  },
+  "engine_commit": "84971d8c01ac0e0eac840205527acad0a92561e7",
+  "engine_fingerprint": "fbff611f7bfa9dfdc81af6ca43925278b02400beead54ea3dd8cb0964cfed775",
+  "engine_paths": [
+    "pyproject.toml",
+    "uv.lock",
+    "evals/runner.py",
+    "evals/holdout_v4.py",
+    "evals/holdout.py",
+    "evals/validate_dataset.py",
+    "evals/benchmark.py",
+    "evals/recalculate.py",
+    "evals/freeze.py",
+    "evals/answer_v3_runtime.py",
+    "evals/finalize_answer_v3.py",
+    "evals/strategy_benchmark_v3.py",
+    "evals/configs/answer-v3-experiment-plan.json",
+    "apps/api/evidencedesk_api/retrieval.py",
+    "apps/api/evidencedesk_api/answering.py",
+    "apps/api/evidencedesk_api/extraction.py",
+    "apps/api/evidencedesk_api/nli_answering.py",
+    "apps/api/evidencedesk_api/qwen_answering.py",
+    "apps/api/evidencedesk_api/providers.py",
+    "apps/api/evidencedesk_api/processing.py",
+    "apps/api/evidencedesk_api/redaction.py",
+    "infra/models/paraphrase-multilingual-minilm-l12-v2.json",
+    "infra/models/mdeberta-v3-base-mnli-xnli.json",
+    "infra/models/qwen2.5-0.5b-instruct-q4-k-m.json"
+  ],
+  "model_manifest_sha256": "d930bf9c2c9f866ff606a50cba0a8ca498f3f51f6ef74b1881602e5af2e302cc",
+  "schema_version": "evidencedesk-engine-freeze-v3"
+}
