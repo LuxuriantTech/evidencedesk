@@ -1,4 +1,4 @@
-# ADR-0003 — Démonstration publique synthétique uniquement
+# ADR-0003: Démonstration publique synthétique uniquement
 
 ## Décision
 

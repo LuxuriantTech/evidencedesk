@@ -1,4 +1,4 @@
-# Spécification — Recherche sémantique et extraction v2
+# Spécification: recherche sémantique et extraction v2
 
 **Author:** EvidenceDesk
 **Date:** 2026-08-26

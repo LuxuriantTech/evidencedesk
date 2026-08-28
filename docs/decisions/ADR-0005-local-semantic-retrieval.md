@@ -1,4 +1,4 @@
-# ADR-0005 — Recherche sémantique locale ONNX
+# ADR-0005: Recherche sémantique locale ONNX
 
 ## Décision
 

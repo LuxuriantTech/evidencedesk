@@ -1,4 +1,4 @@
-# ADR-0001 — Monolithe API, worker séparé et PostgreSQL/pgvector
+# ADR-0001: Monolithe API, worker séparé et PostgreSQL/pgvector
 
 ## Décision
 

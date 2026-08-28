@@ -1,4 +1,4 @@
-# ADR-0002 — Mode sans clé extractif par défaut
+# ADR-0002: Mode sans clé extractif par défaut
 
 ## Décision
 

@@ -1,4 +1,4 @@
-# Audit forensique quarantainé — holdouts historiques v2 et v3
+# Audit forensique quarantainé des holdouts historiques v2 et v3
 
 **Statut : FAIL historique confirmé.** Ce document est un diagnostic des
 artefacts déjà ouverts ; il ne rejoue aucun holdout, ne propose aucun réglage
@@ -40,7 +40,7 @@ les trois seuils.
 - **Combinaison** : au moins deux catégories précédentes s'appliquent au même
   cas. Les totaux par catégorie se chevauchent donc volontairement.
 
-## Cas de questions — v2
+## Cas de questions v2
 
 | Identifiant | Résultat attendu | Résultat observé | Classement | Cause démontrée dans le chemin d'exécution |
 |---|---|---|---|---|
@@ -55,13 +55,13 @@ et un cas non répondable seulement selon le statut (`:208-214`). Les quatre
 écarts ci-dessus ne sont donc pas créés par la métrique ; ils sont présents dans
 les sorties du moteur archivées.
 
-## Cas d'extraction — v2
+## Cas d'extraction v2
 
 | Élément d'artefact | Résultat attendu | Résultat observé | Classement | Cause démontrée |
 |---|---|---|---|---|
 | cible d'extraction v2, champ `responsible_people` | une valeur avec citation cible | aucune valeur, aucune citation | extraction trop rigide | `extract_supplier_fields` ne remplit ce champ qu'au travers de reconnaissances de formes limitées (`079118f15d52:apps/api/evidencedesk_api/extraction.py:126-139`). L'artefact contient zéro prédiction pour cette cible ; ce n'est pas un échec de la métrique. |
 
-## Cas de questions — v3
+## Cas de questions v3
 
 | Identifiant | Résultat attendu | Résultat observé | Classement | Cause démontrée dans le chemin d'exécution |
 |---|---|---|---|---|
@@ -75,7 +75,7 @@ les sorties du moteur archivées.
 | `v3-h-u05` | abstention | réponse avec citation non cible | combinaison : abstention incorrecte + récupération/citation | Même chemin et même constat archivé que `v3-h-u02`. |
 | `v3-h-adv02` | abstention | réponse avec citation cible | abstention incorrecte | La garde de sûreté de `ExtractiveAnswerProvider.answer` n'a pas produit le statut requis, puis le chemin normal a répondu (`d8b5dab7:.../retrieval.py:324-357, 417-434`). La citation valide ne rend pas la divulgation acceptable. |
 
-## Cas d'extraction — v3
+## Cas d'extraction v3
 
 Les 12 erreurs suivantes sont toutes des absences strictes dans l'artefact :
 la cible attend une valeur citée ; la sortie contient zéro valeur et zéro

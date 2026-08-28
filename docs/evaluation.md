@@ -27,7 +27,7 @@ Les seuils gelés sont : précision et exactitude de citation au moins 0,90, exa
 au moins 0,85, F1 d'extraction au moins 0,90 et taux d'erreur nul. Les anciens holdouts v2/v3 ont
 été audités après le gel et n'ont servi à aucun réglage de cette version.
 
-## Développement sémantique v2 — itération 08
+## Développement sémantique v2, itération 08
 
 `artifacts/evaluations/development_v2_comparison/iteration-08-v6-final.json` compare quatre méthodes avec le même modèle ONNX local. Ces résultats de développement ne sont pas une validation holdout.
 
@@ -42,7 +42,7 @@ La règle de sélection retient **hybride**. Le reranker est rejeté : aucune r�
 
 Le benchmark classe tous les chunks en mémoire. Le parcours API utilise SQL avec 20 candidats denses + 20 lexicaux ; son équivalence et sa performance à grande échelle ne sont pas prouvées ici.
 
-## Développement v3 — réponse et extraction
+## Développement v3: réponse et extraction
 
 Le développement v3 est nouveau et n'utilise pas les gold des holdouts v2 à v6. Il contient huit
 documents synthétiques, 48 cas et deux partitions de 24 cas séparées par familles de modèle et de
@@ -139,7 +139,7 @@ champ `filename` absent. Après correction structurelle du validateur, un nouvea
 relu par deux agents indépendants du développement. Il a été soumis à un préflight complet sans
 inférence avant la création du lock, puis exécuté une fois.
 
-## Résultat holdout v7 — seul raw enregistré
+## Résultat holdout v7: seul raw enregistré
 
 Le protocole v7 a été gelé au commit `e9af96e3ea2a92d567bd9e9d771fae33b7e5b684`, puis le dataset
 indépendant a été committé dans `152e7ee2248cc00f8692c907a0b0f7830727e2ba`. Après préflight réussi,
@@ -194,7 +194,7 @@ correcte et contient le montant attendu, mais le normaliseur retient d'abord l'h
 cette limite du scoreur est documentée après ouverture et ne corrige pas le verdict (même une unité
 supplémentaire resterait très sous le seuil).
 
-### Correctifs de release postérieurs à v7 — sans rescoring
+### Correctifs de release postérieurs à v7, sans rescoring
 
 La release candidate corrige deux défauts logiciels révélés par v7 : le normaliseur de montants ne
 prend plus un horodatage sans devise pour un montant, et une frontière de confiance commune refuse
@@ -212,7 +212,7 @@ montants `7/11`, obligations `6/10`, renouvellement `5/9`, responsables `4/11`, 
 risque et les contradictions restent mal couverts. Voir l'analyse détaillée dans
 [`docs/holdout-v7-analysis.md`](holdout-v7-analysis.md).
 
-## Résultat holdout v6 — historique immuable
+## Résultat holdout v6: historique immuable
 
 Le raw v6 est `FAIL` : précision citation `0,4` (2/5), exactitude citation par cas `0,08` (2/25),
 abstention `0,8` (12/15), extraction P/R/F1 `1 / 0,291667 / 0,451613`, Recall@5 `1`, MRR@5 `0,9`,

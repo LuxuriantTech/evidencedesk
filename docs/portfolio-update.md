@@ -1,10 +1,10 @@
-# Préparation portfolio — EvidenceDesk
+# Préparation portfolio: EvidenceDesk
 
 **Statut : publication du code source autorisée.** Le dépôt dédié est
 [`LuxuriantTech/evidencedesk`](https://github.com/LuxuriantTech/evidencedesk). L'application
 n'est pas déployée sur Internet ; CV, LinkedIn, Indeed et profils restent hors périmètre.
 
-## Carte projet courte — anglais
+## Carte projet courte en anglais
 
 ### EvidenceDesk
 
@@ -12,7 +12,7 @@ Local evidence-grounded document-review prototype for synthetic supplier operati
 React/TypeScript interface, FastAPI, PostgreSQL/pgvector and Redis/ARQ, with asynchronous ingestion,
 page-level evidence, explicit abstention, PII redaction and correlated audit logs. The active local
 retrieval is hybrid and uses a CPU ONNX embedding with no external API key. Its 40-case v7 holdout
-is an honest FAIL, so this project demonstrates engineering and evaluation discipline—not validated
+is an honest FAIL, so this project demonstrates engineering and evaluation discipline, not validated
 general RAG quality.
 
 - Repository: [LuxuriantTech/evidencedesk](https://github.com/LuxuriantTech/evidencedesk)
@@ -20,7 +20,7 @@ general RAG quality.
 - Architecture: [docs/architecture.md](https://github.com/LuxuriantTech/evidencedesk/blob/main/docs/architecture.md)
 - Evaluation: [docs/evaluation.md](https://github.com/LuxuriantTech/evidencedesk/blob/main/docs/evaluation.md)
 
-## Carte projet courte — français
+## Carte projet courte en français
 
 ### EvidenceDesk
 

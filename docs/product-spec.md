@@ -2,7 +2,7 @@
 
 **Author:** Codex, sous la responsabilité d’Ardian Mehaj
 **Date:** 2026-08-26
-**Status:** Approved — exigences et autorisation locale fournies par le propriétaire le 2026-08-26
+**Status:** Approved; exigences et autorisation locale fournies par le propriétaire le 2026-08-26
 **Reviewers:** Ardian Mehaj (acceptation fonctionnelle par la demande source), revue adversariale indépendante avant livraison
 
 ## Context
@@ -289,10 +289,10 @@ Endpoints v1 :
 
 ## Out of Scope
 
-- OS-1: OCR, tableaux complexes, images et signatures manuscrites — v1 accepte uniquement les PDF contenant du texte extractible.
-- OS-2: Hébergement public, création GitHub, push, déploiement ou modification d’un profil — préparés localement puis soumis à un GO distinct.
-- OS-3: Appels payants ou gestion de clés de fournisseur — aucun appel externe en v1 ; le contrat d’extension est documenté.
-- OS-4: Corpus réel, CV, contrats clients, données scolaires, trading ou pièces d’identité — seules des données synthétiques versionnées sont autorisées pour la démo.
-- OS-5: Témoignages, utilisateurs réels, SLA production ou promesse commerciale — aucune adoption externe n’est revendiquée.
-- OS-6: Édition collaborative et multi-tenant commercial — un espace de démonstration unique avec contrôles de rôles suffit pour v1.
-- OS-7: Correction automatique des documents ou prise de décision juridique — EvidenceDesk expose des preuves et des incohérences, il ne remplace pas un professionnel.
+- OS-1: OCR, tableaux complexes, images et signatures manuscrites. La v1 accepte uniquement les PDF contenant du texte extractible.
+- OS-2: Hébergement public, création GitHub, push, déploiement ou modification d’un profil. Ces opérations sont préparées localement puis soumises à un GO distinct.
+- OS-3: Appels payants ou gestion de clés de fournisseur. Aucun appel externe en v1 ; le contrat d’extension est documenté.
+- OS-4: Corpus réel, CV, contrats clients, données scolaires, trading ou pièces d’identité. Seules des données synthétiques versionnées sont autorisées pour la démo.
+- OS-5: Témoignages, utilisateurs réels, SLA production ou promesse commerciale. Aucune adoption externe n’est revendiquée.
+- OS-6: Édition collaborative et multi-tenant commercial. Un espace de démonstration unique avec contrôles de rôles suffit pour v1.
+- OS-7: Correction automatique des documents ou prise de décision juridique. EvidenceDesk expose des preuves et des incohérences, il ne remplace pas un professionnel.

@@ -1,4 +1,4 @@
-# ADR-0006 — Moteur de réponse sourcée v3
+# ADR-0006: Moteur de réponse sourcée v3
 
 ## Statut
 

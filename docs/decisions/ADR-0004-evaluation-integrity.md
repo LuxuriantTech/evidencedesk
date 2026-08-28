@@ -1,4 +1,4 @@
-# ADR-0004 — Intégrité des évaluations et verrouillage local des holdouts
+# ADR-0004: Intégrité des évaluations et verrouillage local des holdouts
 
 ## Décision
 

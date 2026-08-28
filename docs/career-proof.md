@@ -1,4 +1,4 @@
-# EvidenceDesk — preuve carrière
+# EvidenceDesk: preuve carrière
 
 ## Résumé en 30 secondes
 
@@ -97,7 +97,7 @@ v7 ne doit jamais devenir un jeu de réglage.
 Non. L'évaluateur mesure le moteur ; Playwright couvre séparément le flux réel. Ce sont deux
 preuves complémentaires, aucune ne valide à elle seule la qualité de production.
 
-## Points CV proposés — anglais
+## Points CV proposés en anglais
 
 - Built a fully local document intelligence platform with asynchronous ingestion, hybrid retrieval,
   evidence-linked answers, server-side RBAC, PII masking and correlated audit logging.
@@ -107,7 +107,7 @@ preuves complémentaires, aucune ne valide à elle seule la qualité de producti
   real-stack Playwright coverage, dependency scanning and documented adversarial security checks;
   retained the negative v7 result instead of presenting demo data as general accuracy.
 
-## Points CV proposés — français
+## Points CV proposés en français
 
 - Développement d'une plateforme locale d'intelligence documentaire avec ingestion asynchrone,
   recherche hybride, réponses reliées aux preuves, RBAC serveur, masquage PII et audit corrélé.

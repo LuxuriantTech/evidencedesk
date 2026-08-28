@@ -48,8 +48,8 @@ couverture ou verdict de Deep Scan n'est revendiqué. Cette validation repose su
 limitée, des tests, Gitleaks, Trivy et les audits de dépendances ; elle ne leur attribue pas une
 couverture équivalente.
 
-Deux défauts faibles documentés auparavant — quota absent sur les routes sensibles et instruction
-documentaire restituable — ont été corrigés et gardent des tests de non-régression. Les tests
+Deux défauts faibles documentés auparavant (quota absent sur les routes sensibles et instruction
+documentaire restituable) ont été corrigés et gardent des tests de non-régression. Les tests
 adversariaux couvrent les variantes mono/multilignes, françaises/anglaises, ponctuées et Unicode sur
 les réponses, citations, évaluations candidates et extractions persistées. La détection reste
 déterministe et bornée, sans garantie d'immunité universelle.

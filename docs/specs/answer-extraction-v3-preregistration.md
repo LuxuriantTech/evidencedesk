@@ -1,4 +1,4 @@
-# Pré-enregistrement — réponse et extraction v3
+# Pré-enregistrement: réponse et extraction v3
 
 Date : 2026-08-27. Ce document et `evals/configs/answer-v3-experiment-plan.json` sont écrits avant
 le premier benchmark sur development v3.
