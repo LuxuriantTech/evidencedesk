@@ -1,10 +1,27 @@
 # EvidenceDesk
 
+EvidenceDesk is a local document review prototype for synthetic supplier records. It ingests files
+in the background, links answers to their source passages, and abstains when the available evidence
+is missing or contradictory.
+
 > **Research prototype using synthetic data only. Not validated for production, legal, medical,
 > financial or compliance decisions.**
 
-**An experimental, fully local document intelligence and RAG reliability platform with
-reproducible evaluation.**
+## Quick review
+
+- **Stack:** React, TypeScript, FastAPI, PostgreSQL with pgvector, Redis, ARQ and local ONNX
+  embeddings.
+- **Reviewable flow:** upload, asynchronous processing, cited answers, structured extraction,
+  explicit abstention, role checks and correlated audit logs.
+- **Evidence:** GitHub Actions runs backend, frontend, secret scanning and a real Docker Compose
+  browser path.
+- **Published limitation:** the independent v7 holdout reached 100% Recall@5 on answerable cases,
+  but only 36% answerable-case accuracy and 45.67% extraction F1. The result remains
+  `HONEST_NEGATIVE`.
+- **Short path:** start with the [three-minute demo](docs/demo-script.md), then read the
+  [career review notes](docs/career-proof.md) and [evaluation details](docs/evaluation.md).
+
+## Présentation détaillée
 
 EvidenceDesk est une plateforme locale de revue de dossiers fournisseurs. Elle importe des PDF texte,
 TXT et Markdown synthétiques, les traite hors requête HTTP, extrait des champs traçables et répond
