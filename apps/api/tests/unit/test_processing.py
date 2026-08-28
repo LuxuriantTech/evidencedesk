@@ -12,6 +12,8 @@ from evidencedesk_api.processing import (
 from evidencedesk_api.redaction import redact_pii
 from reportlab.pdfgen import canvas
 
+NON_TIMEOUT_PDF_TEST_SECONDS = 30.0
+
 
 def test_synthetic_pii_is_redacted_with_counts() -> None:
     source = "Contact Mina Example at mina@example.test or +32 470 12 34 56. Reference SYN-ID-4829."
@@ -135,7 +137,12 @@ def test_parser_rejects_pdf_beyond_the_page_budget() -> None:
     document.save()
 
     with pytest.raises(DocumentParseError, match=r"^too_many_pages$"):
-        parse_document(output.getvalue(), media_type="application/pdf", max_pages=1)
+        parse_document(
+            output.getvalue(),
+            media_type="application/pdf",
+            max_pages=1,
+            pdf_timeout_seconds=NON_TIMEOUT_PDF_TEST_SECONDS,
+        )
 
 
 def test_pdf_parser_core_enforces_limits_before_returning_pages() -> None:
@@ -184,6 +191,7 @@ def test_pdf_parser_reports_a_hard_memory_limit() -> None:
         parse_document(
             output.getvalue(),
             media_type="application/pdf",
+            pdf_timeout_seconds=NON_TIMEOUT_PDF_TEST_SECONDS,
             pdf_memory_bytes=64 * 1024 * 1024,
         )
 

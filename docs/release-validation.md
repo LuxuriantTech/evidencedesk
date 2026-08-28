@@ -13,7 +13,7 @@ l'environnement du projet, Node 24.15.0.
 
 | Contrôle | Commande | Résultat |
 |---|---|---|
-| Backend complet | `uv run pytest --cov --cov-report=term-missing --cov-report=json:artifacts/coverage.json` | 347 réussis en 34,88 s ; couverture totale 82,49 % |
+| Backend complet | `uv run pytest --cov --cov-report=term-missing --cov-report=json:artifacts/coverage.json` | 347 réussis en 35,23 s ; couverture totale 82,49 % |
 | Types Python | `uv run mypy` | 84 sources contrôlées, zéro erreur |
 | Lint Python | `uv run ruff check apps/api apps/worker evals scripts` | réussi |
 | Frontend | `npm run lint && npm run typecheck && npm run test -- --run && npm run build` | 6 tests réussis ; lint, types et build réussis |

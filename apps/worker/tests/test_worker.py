@@ -280,6 +280,7 @@ def test_worker_stops_after_three_storage_attempts(tmp_path: Path) -> None:
 def test_worker_reports_invalid_pdf_and_missing_job(tmp_path: Path) -> None:
     async def scenario() -> None:
         context, document_id, task_id = await _prepare(tmp_path)
+        context.settings.pdf_parse_timeout_seconds = 30.0
         try:
             async with context.session_factory() as session:
                 document = await session.get(Document, document_id)
