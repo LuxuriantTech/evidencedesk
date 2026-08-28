@@ -51,7 +51,7 @@ le contrôle serveur.
   logs JSON et métriques Prometheus ;
 - séparation explicite entre règles système, question utilisateur, document non fiable et preuve,
   avec validation commune des réponses, citations et extractions ;
-- Docker Compose, tests pytest/Vitest/Playwright, axe-core et CI GitHub Actions préparée ;
+- Docker Compose, tests pytest/Vitest/Playwright, axe-core et CI GitHub Actions active ;
 - corpus synthétique CC0, jeux d'évaluation versionnés, hashes, fingerprint moteur et locks holdout.
 
 Le mode par défaut utilise réellement
@@ -200,9 +200,10 @@ E2E_DEMO_ADMIN_PASSWORD='EvidenceDemo-Admin-2026!' \
 npm run e2e -- --grep 'real stack'
 ```
 
-La CI préparée dans [`.github/workflows/ci.yml`](.github/workflows/ci.yml) refait les vérifications
+La CI versionnée dans [`.github/workflows/ci.yml`](.github/workflows/ci.yml) refait les vérifications
 backend/frontend, les audits de dépendances, le scan de secrets et un vrai parcours
-web → API → Redis/worker → PostgreSQL. Elle n'a pas été exécutée sur GitHub faute de publication.
+web → API → Redis/worker → PostgreSQL. L'exécution publiée du commit `0d17813` est
+[verte sur GitHub Actions](https://github.com/LuxuriantTech/evidencedesk/actions/runs/33133108331).
 Le Mypy configuré couvre API, worker, évaluateur, tests et scripts maintenus. Les générateurs
 historiques immuables `generate_blind_holdout_v2` à `v7` sont explicitement exclus pour éviter de
 modifier rétrospectivement les artefacts aveugles ; ils ne font pas partie du runtime de la release.

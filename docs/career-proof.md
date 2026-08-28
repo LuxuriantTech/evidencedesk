@@ -61,7 +61,8 @@ métrique de qualité, et ne sont pas rejoués. Les résultats de développement
 
 ## Limites à dire spontanément
 
-- prototype local ; aucun client, usage production, SLA, URL publique ou CI GitHub exécutée ;
+- prototype local ; aucun client, usage production, SLA ou URL applicative publique ; la CI GitHub
+  du dépôt source est exécutée séparément et ne constitue pas un déploiement ;
 - holdout v7 en échec : aucun objectif de qualité ne doit être présenté comme atteint ;
 - les locks et hashes locaux améliorent la traçabilité mais ne prouvent pas un scellement externe ni
   l'absence de consultation ;
