@@ -1,7 +1,8 @@
 # Préparation portfolio — EvidenceDesk
 
-**Statut : PREPARE_ONLY.** Aucune modification de dépôt public, CV, LinkedIn, Indeed ou profil n'a
-été effectuée. Aucune URL n'est encore à publier.
+**Statut : publication du code source autorisée.** Le dépôt dédié est
+[`LuxuriantTech/evidencedesk`](https://github.com/LuxuriantTech/evidencedesk). L'application
+n'est pas déployée sur Internet ; CV, LinkedIn, Indeed et profils restent hors périmètre.
 
 ## Carte projet courte — anglais
 
@@ -14,10 +15,10 @@ retrieval is hybrid and uses a CPU ONNX embedding with no external API key. Its 
 is an honest FAIL, so this project demonstrates engineering and evaluation discipline—not validated
 general RAG quality.
 
-- Repository: `<ADD_AFTER_EXPLICIT_PUBLICATION_GO>`
-- Demo: `<ADD_AFTER_EXPLICIT_DEPLOYMENT_GO>`
-- Architecture: `<ADD_REPOSITORY_URL_AFTER_GO>/blob/main/docs/architecture.md`
-- Evaluation: `<ADD_REPOSITORY_URL_AFTER_GO>/blob/main/docs/evaluation.md`
+- Repository: [LuxuriantTech/evidencedesk](https://github.com/LuxuriantTech/evidencedesk)
+- Demo: not deployed; local Docker instructions are in the repository
+- Architecture: [docs/architecture.md](https://github.com/LuxuriantTech/evidencedesk/blob/main/docs/architecture.md)
+- Evaluation: [docs/evaluation.md](https://github.com/LuxuriantTech/evidencedesk/blob/main/docs/evaluation.md)
 
 ## Carte projet courte — français
 
@@ -30,22 +31,19 @@ corrélé. La recherche active est hybride avec embedding ONNX sur CPU, sans cl�
 holdout v7 de 40 cas est un FAIL assumé : le projet montre une réalisation technique et une
 discipline d'évaluation, pas une qualité RAG générale validée.
 
-- Dépôt : `<A_AJOUTER_APRES_GO_EXPLICITE_DE_PUBLICATION>`
-- Démonstration : `<A_AJOUTER_APRES_GO_EXPLICITE_DE_DEPLOIEMENT>`
-- Architecture : `<A_AJOUTER_URL_DEPOT_APRES_GO>/blob/main/docs/architecture.md`
-- Évaluation : `<A_AJOUTER_URL_DEPOT_APRES_GO>/blob/main/docs/evaluation.md`
+- Dépôt : [LuxuriantTech/evidencedesk](https://github.com/LuxuriantTech/evidencedesk)
+- Démonstration : non déployée ; lancement Docker local documenté dans le dépôt
+- Architecture : [docs/architecture.md](https://github.com/LuxuriantTech/evidencedesk/blob/main/docs/architecture.md)
+- Évaluation : [docs/evaluation.md](https://github.com/LuxuriantTech/evidencedesk/blob/main/docs/evaluation.md)
 
-## À faire seulement après GO explicite
+## Limites de publication
 
-1. Choisir et vérifier les URL du dépôt puis, séparément, de la démo si un déploiement est autorisé.
-2. Remplacer les quatre placeholders ci-dessus.
-3. Relire le contenu public : ne pas afficher un badge PASS global ni suggérer que les objectifs
-   holdout ont été atteints.
-4. Toute modification de CV, profil ou publication reste une action distincte, hors de ce fichier.
+Le portfolio ne doit afficher aucun badge PASS global ni suggérer que les objectifs holdout ont été
+atteints. Un déploiement applicatif, une modification de CV ou de profil et toute autre publication
+restent des actions distinctes.
 
-## Liens locaux vérifiables avant publication
+## Références dans le dépôt
 
-- produit : `/home/ardian/dev/evidencedesk` ;
 - architecture : `docs/architecture.md` ;
 - résultats : `docs/evaluation.md` et `artifacts/evaluations/holdout_v7/` ;
 - démonstration : `docs/demo-script.md` ;

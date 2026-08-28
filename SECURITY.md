@@ -5,9 +5,16 @@ EvidenceDesk est un projet de démonstration locale. Il ne revendique pas de SLA
 > **Research prototype using synthetic data only. Not validated for production, legal, medical,
 > financial or compliance decisions.**
 
+Le **Codex Security Deep Scan n'a pas été exécuté par décision utilisateur** pour cette
+publication. Aucun rapport, couverture ou verdict de Deep Scan n'est revendiqué ; les contrôles
+locaux documentés ne lui sont pas équivalents.
+
 Pour signaler une vulnérabilité, utilisez le mécanisme **GitHub Security Advisories** du dépôt concerné une fois celui-ci publié, plutôt qu’une issue publique. Incluez une description minimale, la version/commit concerné, les étapes de reproduction et l’impact observé. Le modèle local [`docs/security-report-template.md`](docs/security-report-template.md) peut être utilisé avant publication. N’incluez jamais de secret, token, document personnel ni jeu de données réel.
 
-Avant publication du dépôt, ne diffusez pas la vulnérabilité ni une preuve d’exploitation : conservez-la localement et demandez au mainteneur un canal privé. Les rapports publics peuvent être confirmés ou corrigés quand une remédiation est disponible, sans garantie de calendrier.
+Si GitHub Security Advisories est temporairement indisponible, ne diffusez pas la vulnérabilité ni
+une preuve d'exploitation : conservez-la localement et demandez au mainteneur un canal privé. Les
+rapports publics peuvent être confirmés ou corrigés quand une remédiation est disponible, sans
+garantie de calendrier.
 
 Le périmètre utile comprend authentification/autorisation, import, stockage, suppression, API, worker, dépendances et configuration Docker. Les données synthétiques et les configurations locales de démonstration ne doivent pas être réutilisées en production.
 

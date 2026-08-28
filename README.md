@@ -84,7 +84,7 @@ Le détail des flux, frontières et décisions est dans
 Prérequis : Docker Engine avec Compose v2. Aucun compte ou clé de modèle n'est nécessaire.
 
 ```bash
-git clone <URL_A_AJOUTER_APRES_PUBLICATION>
+git clone https://github.com/LuxuriantTech/evidencedesk.git
 cd evidencedesk
 docker compose up --build --wait --wait-timeout 600
 docker compose ps
@@ -295,8 +295,12 @@ citations, abstention, journalisation des erreurs et coût explicite.
 
 La politique de conservation, le modèle de menace et les limites sont détaillés dans
 [`docs/security.md`](docs/security.md), [`docs/threat-model.md`](docs/threat-model.md) et
-[`SECURITY.md`](SECURITY.md). La revue locale Codex Security et ses deux findings faibles remédiés
-sont résumés dans [`docs/security-scan.md`](docs/security-scan.md).
+[`SECURITY.md`](SECURITY.md). Les contrôles locaux limités et deux défauts faibles corrigés sont
+résumés dans [`docs/security-scan.md`](docs/security-scan.md).
+
+Le **Codex Security Deep Scan n'a pas été exécuté par décision utilisateur**. Aucun rapport,
+couverture ou verdict de Deep Scan n'est revendiqué. Les tests, audits de dépendances, Gitleaks et
+Trivy exécutés pour cette publication ne lui sont pas équivalents.
 
 ## Démonstration et exemples
 
@@ -325,7 +329,7 @@ Statut : prototype local fonctionnel, avec résultat empirique `HONEST_NEGATIVE`
 - la limite mémoire du sous-processus PDF est POSIX uniquement et la suppression
   fichier/transaction DB n'est pas atomique ;
 - pas de multi-tenant, chiffrement applicatif, stockage S3 réel ou fournisseur LLM retenu ;
-- aucune CI distante, URL publique, charge concurrente ou procédure Windows native n'a été validée ;
+- aucun déploiement applicatif, test de charge concurrente ou parcours Windows natif n'a été validé ;
 - aucun utilisateur, client, témoignage ou SLA de production n'est revendiqué.
 
 ## Licence et contribution

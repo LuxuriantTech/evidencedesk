@@ -7,8 +7,12 @@ COPY apps/web ./
 RUN npm run build
 
 FROM nginx:1.29-alpine@sha256:5616878291a2eed594aee8db4dade5878cf7edcb475e59193904b198d9b830de
-RUN apk upgrade --no-cache
+RUN apk upgrade --no-cache \
+    && touch /run/nginx.pid \
+    && chown -R nginx:nginx /var/cache/nginx /etc/nginx/conf.d \
+    && chown nginx:nginx /run/nginx.pid
 ARG NGINX_CONFIG=infra/nginx/default.conf
-COPY ${NGINX_CONFIG} /etc/nginx/conf.d/default.conf
-COPY --from=build /web/dist /usr/share/nginx/html
+COPY --chown=nginx:nginx ${NGINX_CONFIG} /etc/nginx/conf.d/default.conf
+COPY --chown=nginx:nginx --from=build /web/dist /usr/share/nginx/html
+USER nginx
 EXPOSE 8080

@@ -55,3 +55,26 @@ def test_supply_chain_check_requires_forced_build_for_local_image_aliases(
         "example-api:local" in violation and "forced build" in violation
         for violation in violations
     )
+
+
+def test_web_runtime_image_declares_a_non_root_user() -> None:
+    dockerfile = (ROOT / "infra" / "docker" / "web.Dockerfile").read_text(
+        encoding="utf-8"
+    )
+    user_directives = [
+        line.split(maxsplit=1)[1].strip()
+        for line in dockerfile.splitlines()
+        if line.strip().upper().startswith("USER ")
+    ]
+
+    assert user_directives
+    assert user_directives[-1].lower() not in {"0", "root"}
+
+
+def test_web_runtime_image_prepares_a_writable_nginx_pid_file() -> None:
+    dockerfile = (ROOT / "infra" / "docker" / "web.Dockerfile").read_text(
+        encoding="utf-8"
+    )
+
+    assert "touch /run/nginx.pid" in dockerfile
+    assert "chown nginx:nginx /run/nginx.pid" in dockerfile

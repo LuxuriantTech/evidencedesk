@@ -1,7 +1,8 @@
 # Validation locale de la release candidate
 
-Date : 27 août 2026. Commit de départ :
-`7a836458984ce3f79ebb8e64912bb735682a7b6b`. Branche : `main`. Aucun remote Git configuré.
+Date : 28 août 2026. Commit de départ :
+`a8e3d669d1494524765d3ec08aac0aaf848d8af9`. Branche : `main`. Aucun remote Git n'était
+configuré au début de la validation.
 
 Environnement observé : Ubuntu 24.04.4 LTS sous WSL2, noyau
 `6.18.33.2-microsoft-standard-WSL2`, x86_64, Intel Core i5-12600KF, 16 CPU logiques,
@@ -12,7 +13,7 @@ l'environnement du projet, Node 24.15.0.
 
 | Contrôle | Commande | Résultat |
 |---|---|---|
-| Backend complet | `uv run pytest --cov --cov-report=term-missing --cov-report=json:artifacts/coverage.json` | 345 réussis en 39,58 s ; couverture totale 82,52 % |
+| Backend complet | `uv run pytest --cov --cov-report=term-missing --cov-report=json:artifacts/coverage.json` | 347 réussis en 34,88 s ; couverture totale 82,49 % |
 | Types Python | `uv run mypy` | 84 sources contrôlées, zéro erreur |
 | Lint Python | `uv run ruff check apps/api apps/worker evals scripts` | réussi |
 | Frontend | `npm run lint && npm run typecheck && npm run test -- --run && npm run build` | 6 tests réussis ; lint, types et build réussis |
@@ -21,7 +22,7 @@ l'environnement du projet, Node 24.15.0.
 | Supply chain | `uv run python scripts/check_supply_chain_refs.py` | références exécutables immuables confirmées |
 | Dépendances Python | `uv run pip-audit --strict` | aucune vulnérabilité connue |
 | Dépendances frontend | `npm audit --omit=dev --audit-level=high` | zéro vulnérabilité |
-| Secrets | `gitleaks dir . --redact --max-target-megabytes 20` | zéro finding ; gros binaires modèle ignorés |
+| Secrets | `gitleaks git --log-opts='--all' .` et `gitleaks dir .` | zéro finding sur tout l'historique et le worktree ; les dépendances locales ignorées par Git ne sont pas publiées |
 
 Le Mypy configuré exclut uniquement les générateurs historiques immuables de holdouts v2 à v7. Il
 couvre le runtime, l'évaluateur, les tests et les scripts maintenus. Aucun holdout n'a été lancé.
@@ -42,16 +43,20 @@ d'authentification dans la fenêtre `429` ; `/health` et `/ready` réussis. Les 
 
 ## Sécurité
 
-Le scan Codex Security initial a trouvé deux findings faibles : quota de requêtes absent et
-instruction documentaire restituable. Les deux ont été corrigés. Une revue adversariale indépendante
-a tenté des injections mono/multilignes, françaises/anglaises, ponctuées et Unicode à travers les
-réponses legacy/v3, Qwen, NLI, citations, évaluations candidates et extractions persistées ; les
-canaux vérifiés refusent désormais ces valeurs. Une seconde revue a trouvé puis fait corriger une
-instruction adressée à l'assistant et déguisée en obligation contractuelle ; les contre-exemples
-d'obligations opérationnelles normales restent admis. La revue finale a aussi vérifié les variantes
-adressées à `system`, `tool`, au modèle de langage et à l'agent IA : 155 tests ciblés ont réussi sur
-les voies déterministe, extraction et Qwen. La détection reste déterministe et bornée, sans claim
-d'immunité universelle.
+Le **Codex Security Deep Scan n'a pas été exécuté par décision utilisateur**. Aucun rapport,
+couverture ou verdict de Deep Scan n'est revendiqué. Cette validation repose sur une revue locale
+limitée, des tests, Gitleaks, Trivy et les audits de dépendances ; elle ne leur attribue pas une
+couverture équivalente.
+
+Deux défauts faibles documentés auparavant — quota absent sur les routes sensibles et instruction
+documentaire restituable — ont été corrigés et gardent des tests de non-régression. Les tests
+adversariaux couvrent les variantes mono/multilignes, françaises/anglaises, ponctuées et Unicode sur
+les réponses, citations, évaluations candidates et extractions persistées. La détection reste
+déterministe et bornée, sans garantie d'immunité universelle.
+
+Trivy configuration a aussi détecté que l'image web s'exécutait en root. Le runtime utilise
+désormais l'utilisateur `nginx` et le nouveau test de dépôt empêche le retour d'un `USER` root ;
+la pile réelle et le contrôle Trivy configuration passent après ce correctif.
 
 Trivy brut rapporte zéro critique/élevée sur l'image web. L'image API Debian rapporte 16 occurrences,
 13 CVE système uniques critiques/élevées, sans version corrigée dans la base du jour ; le scan des

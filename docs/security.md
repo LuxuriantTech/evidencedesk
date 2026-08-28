@@ -59,13 +59,21 @@ Les actions GitHub et les images externes exécutables sont épinglées à un co
 
 La CI exécute Ruff, mypy, pytest avec couverture, le contrôle des références immuables, `pip-audit`, lint/typecheck/tests/build Playwright, `npm audit`, un test de stack Docker et Gitleaks. Ces contrôles réduisent le risque ; ils ne constituent pas une certification ni une revue de sécurité exhaustive.
 
+Le **Codex Security Deep Scan n'a pas été exécuté par décision utilisateur**. Aucun rapport,
+couverture ou verdict de Deep Scan n'est revendiqué. La revue de publication reste limitée aux
+contrôles locaux explicitement listés dans
+[`docs/release-validation.md`](release-validation.md).
+
 Le contrôle local final ajoute Trivy sur les images construites. Le runtime API est multi-stage : le
 binaire `uv` utilisé pour installer les dépendances reste dans le builder et n'est pas copié dans
 l'image. Les couches finales Debian et Alpine appliquent les mises à jour de sécurité disponibles au
 moment du build. L'upgrade au build améliore la fraîcheur mais rend la couche système moins
 reproductible qu'un snapshot de dépôt immuable.
 
-### Analyse Trivy du 27 août 2026
+L'image web déclare l'utilisateur `nginx` non-root et prépare son fichier PID avec des droits
+bornés. Ce correctif a été vérifié dans la pile réelle et par le contrôle de configuration Trivy.
+
+### Analyse Trivy du 28 août 2026
 
 Le scan brut, sans `--ignore-unfixed`, contredit l'ancien claim de zéro vulnérabilité : l'image web
 Alpine rapporte `0` critique/élevée, mais l'image API Debian 13.6 rapporte `16` occurrences, soit
