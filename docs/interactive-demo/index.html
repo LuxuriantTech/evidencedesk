@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EvidenceDesk</title>
+<link rel="stylesheet" href="site.css">
+<link rel="icon" href="data:,">
+</head>
+<body class="notebook" data-demo="evidence">
+<a class="skip" href="#main">Skip to evaluation record</a>
+<header class="site-head">
+<a href="https://project-atlas-six-delta.vercel.app/projects/">← five local studies</a>
+<nav aria-label="Project navigation">
+<a href="https://project-atlas-six-delta.vercel.app/projects/toolcall-replay/">ToolCall</a>
+<a href="https://project-atlas-six-delta.vercel.app/projects/entity-resolution-workbench/">Entity</a>
+<a href="https://project-atlas-six-delta.vercel.app/projects/postgres-migration-rehearsal/">PMR</a>
+<a href="https://project-atlas-six-delta.vercel.app/projects/api-contract-guard/">ACG</a>
+<a aria-current="page" href="./index.html">EvidenceDesk</a>
+</nav>
+</header>
+<main class="wrap" id="main" tabindex="-1">
+<p class="eyebrow">Local synthetic evidence-grounded document review prototype</p>
+<p class="quiet">Static walkthrough • synthetic examples • application runs locally.</p>
+<h1>The answer must carry its evidence.</h1>
+<p class="lede">EvidenceDesk combines asynchronous document processing, page-level citations, extraction, explicit abstention, and local evaluation for synthetic supplier-operation documents. It is a release-candidate prototype, not a validated service for production, legal, medical, financial, or compliance decisions.</p>
+<p><a href="https://github.com/LuxuriantTech/evidencedesk/tree/main">Source and local setup on GitHub</a></p>
+<div class="actions" aria-label="EvidenceDesk actions">
+<a class="action primary" href="#interactive-demo">Try the prepared examples</a>
+<a class="action" href="https://github.com/LuxuriantTech/evidencedesk/tree/main">GitHub</a>
+<a class="action" href="mailto:mehajardian@gmail.com?subject=EvidenceDesk">Contact me</a>
+</div>
+<section class="demo" id="interactive-demo" aria-labelledby="evidence-demo-title">
+<div class="demo-head"><div><p class="eyebrow">Interactive prepared illustration</p><h2 id="evidence-demo-title">Read the answer with its source</h2></div><button class="action" type="button" id="evidence-reset">Reset examples</button></div>
+<p>The examples are prepared from fictional document excerpts and render entirely in this page. They do not query the prototype or make a new model-quality claim.</p>
+<div class="demo-controls"><label>Example<select id="evidence-select" data-initial="answer"><option value="answer">Answer with source passage</option><option value="abstain">Abstention when evidence is absent</option><option value="limitation">Known frozen v7 limitation</option></select></label></div>
+<p id="evidence-live" class="sr-status" aria-live="polite"></p><div id="evidence-output" class="demo-output" aria-live="polite"></div>
+</section>
+<section class="negative">
+<strong>HONEST_NEGATIVE</strong>
+<p>The frozen v7 holdout is a historical FAIL. It remains the recorded result and was not rescored after later fixes.</p>
+</section>
+<hr class="rule">
+<section class="grid three">
+<article class="panel">
+<h2>Question</h2>
+<p lang="fr">Quel montant de plateforme annuel est indiqué&nbsp;?</p>
+</article>
+<article class="panel">
+<h2>Citation</h2>
+<p><code>northstar_master_services_agreement.pdf</code>, page 1.</p>
+</article>
+<article class="panel">
+<h2>Recorded answer</h2>
+<p><strong>EUR 48,000</strong>. This is a recorded synthetic browser-test result, not a live question field or interactive demo.</p>
+</article>
+</section>
+<section class="spaced">
+<h2>Frozen v7 metrics</h2>
+<div class="grid three">
+<article>
+<span class="metric">100%</span>
+<p>Recall@5<br>
+<span class="quiet">25/25 answerable cases retrieved a gold passage in the top five.</span>
+</p>
+</article>
+<article>
+<span class="metric">36%</span>
+<p>Answerable accuracy<br>
+<span class="quiet">9/25 correct.</span>
+</p>
+</article>
+<article>
+<span class="metric">80%</span>
+<p>Citation precision<br>
+<span class="quiet">12 correct citations out of 15 returned.</span>
+</p>
+</article>
+<article>
+<span class="metric">48%</span>
+<p>Citation recall<br>
+<span class="quiet">12/25 answerable cases had correct supporting evidence.</span>
+</p>
+</article>
+<article>
+<span class="metric">80%</span>
+<p>Abstention accuracy<br>
+<span class="quiet">12/15 non-answerable cases handled correctly.</span>
+</p>
+</article>
+<article>
+<span class="metric">45.67%</span>
+<p>Extraction F1<br>
+<span class="quiet">Historical frozen metric; it did not meet the target.</span>
+</p>
+</article>
+</div>
+</section>
+<section class="notice">
+<strong>What the negative result means</strong>Good candidate retrieval did not establish correct answers or extraction. The raw v7 record also exposed an injected-document instruction. Later fixes were added without rerunning or rescoring v7, so they are not measured v7 improvement.</section>
+<details>
+<summary>Local start and stop</summary>
+<pre class="command">
+<code>docker compose up --build --wait --wait-timeout 600
+docker compose down</code>
+</pre>
+<p>Use the prepared local checkout and Docker Compose v2. The local stack uses synthetic data. Do not use <code>--volumes</code> in this public quickstart, and do not expose the local services online.</p>
+</details>
+
+</main>
+<footer class="site-foot">
+<p>I define the needs, organize AI-assisted work, review the code with AI support, test the journeys, and improve the result. AI contributes strongly to implementation; I am still developing my ability to write code independently. <a href="mailto:mehajardian@gmail.com?subject=EvidenceDesk">mehajardian@gmail.com</a></p>
+</footer>
+<script src="demo.js"></script>
+</body>
+</html>

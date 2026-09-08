@@ -1,5 +1,7 @@
 # EvidenceDesk
 
+[Try the interactive synthetic demo](https://project-atlas-six-delta.vercel.app/projects/evidencedesk/) · [Demo source and local preview](docs/interactive-demo/README.md) · [Contact me](mailto:mehajardian@gmail.com)
+
 [Read the synthetic example and its limits](docs/portfolio-walkthrough.md).
 
 EvidenceDesk is a local document review prototype for synthetic supplier records. It ingests files
