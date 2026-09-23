@@ -1,12 +1,13 @@
 # EvidenceDesk
 
-[Try the interactive synthetic demo](https://project-atlas-six-delta.vercel.app/projects/evidencedesk/) · [Demo source and local preview](docs/interactive-demo/README.md) · [Contact me](mailto:mehajardian@gmail.com)
+[Explore the prepared synthetic walkthrough](https://ardian-mehaj-portfolio.vercel.app/projects/evidencedesk/) · [Walkthrough source and local preview](docs/interactive-demo/README.md) · [Contact me](mailto:mehajardian@gmail.com)
 
 [Read the synthetic example and its limits](docs/portfolio-walkthrough.md).
 
 EvidenceDesk is a local document review prototype for synthetic supplier records. It ingests files
 in the background, links answers to their source passages, and abstains when the available evidence
 is missing or contradictory.
+The hosted walkthrough presents prepared examples; it does not run this local application.
 
 > **Research prototype using synthetic data only. Not validated for production, legal, medical,
 > financial or compliance decisions.**
