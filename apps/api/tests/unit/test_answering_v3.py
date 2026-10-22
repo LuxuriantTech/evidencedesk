@@ -60,6 +60,36 @@ def test_grounded_answer_exposes_support_and_extracted_field() -> None:
     assert result.citations[0].excerpt == result.supporting_excerpt
 
 
+def test_effective_timestamp_is_not_ambiguous_with_a_later_renewal_date() -> None:
+    effective = "Custody became effective on 27 August 2031 at 08:30."
+    renewal = "The custody arrangement renews on 27 August 2032."
+
+    result = _provider().answer(
+        "When did the custody become effective, including the time?",
+        [_ranked("effective", effective, page=2), _ranked("renewal", renewal, page=3)],
+    )
+
+    assert result.status == "answered"
+    assert result.answer == "27 August 2031 at 08:30"
+    assert result.supporting_excerpt == effective
+    assert [citation.chunk_id for citation in result.citations] == ["effective"]
+
+
+def test_renewal_question_selects_renewal_date_over_effective_date() -> None:
+    effective = "Custody became effective on 27 August 2031 at 08:30."
+    renewal = "The custody arrangement renews on 27 August 2032."
+
+    result = _provider().answer(
+        "When does the custody arrangement renew?",
+        [_ranked("effective", effective, page=2), _ranked("renewal", renewal, page=3)],
+    )
+
+    assert result.status == "answered"
+    assert result.answer == "27 August 2032"
+    assert result.supporting_excerpt == renewal
+    assert [citation.chunk_id for citation in result.citations] == ["renewal"]
+
+
 def test_each_retrieved_passage_has_an_explicit_candidate_assessment() -> None:
     result = _provider().answer(
         "Whose account is described in the note?",

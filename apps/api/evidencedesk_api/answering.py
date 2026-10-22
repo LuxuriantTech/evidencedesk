@@ -192,10 +192,37 @@ def _question_kind(question: str) -> str:
     return "text"
 
 
+def _date_role(text: str) -> str | None:
+    """Return a requested/evidenced date role when it is stated explicitly."""
+    folded = _fold(text)
+    renewal = bool(re.search(r"\b(?:renew|renewal|renouvel|recondu|echeance)\w*\b", folded))
+    effective = bool(
+        re.search(
+            r"\b(?:effective|takes? effect|effective from|became effective|"
+            r"commence(?:ment)?|starts?|application|vigueur|prise d[' ]effet)\w*\b",
+            folded,
+        )
+    )
+    if renewal == effective:
+        return None
+    return "renewal" if renewal else "effective"
+
+
 def _value_for(kind: str, segment: str, question: str) -> str | None:
     if kind == "date":
         match = _DATE.search(segment)
-        return match.group(0) if match else None
+        if match is None:
+            return None
+        value = match.group(0)
+        if re.search(r"\b(?:time|heure)\b", _fold(question)):
+            clock = re.match(
+                r"\s*((?:at|a|à)\s*\d{1,2}:\d{2}(?:\s*[ap]\.?m\.?)?)",
+                segment[match.end() :],
+                re.IGNORECASE,
+            )
+            if clock is not None:
+                value = f"{value} {clock.group(1).strip()}"
+        return value
     if kind == "amount":
         matches = list(_AMOUNT.finditer(segment))
         if not matches:
@@ -272,6 +299,10 @@ def _relation_categories(text: str) -> frozenset[str]:
 def _relation_supported(question: str, segment: str, kind: str) -> bool:
     question_tokens = lexical_tokens(question) - _QUESTION_NOISE
     segment_tokens = lexical_tokens(segment)
+    if kind == "date":
+        requested_role = _date_role(question)
+        if requested_role is not None and _date_role(segment) != requested_role:
+            return False
     if kind == "organization_name":
         question_categories = _relation_categories(question)
         if question_categories:
