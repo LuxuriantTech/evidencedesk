@@ -11,6 +11,9 @@ LOCAL_MODEL_ID = "paraphrase-multilingual-minilm-l12-v2-onnx-q"
 LOCAL_MODEL_REPOSITORY = "Qdrant/paraphrase-multilingual-MiniLM-L12-v2-onnx-Q"
 LOCAL_MODEL_REVISION = "faf4aa4225822f3bc6376869cb1164e8e3feedd0"
 LOCAL_MODEL_LICENSE = "Apache-2.0"
+CURRENT_EMBEDDING_MANIFEST = Path(
+    "infra/models/paraphrase-multilingual-minilm-l12-v2-text-onnx.json"
+)
 
 
 class ModelIntegrityError(RuntimeError):
@@ -77,19 +80,18 @@ def _sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
-def _fastembed_backend(
+def _onnx_text_backend(
     *,
     model_path: Path,
     local_files_only: bool,
     providers: list[str],
 ) -> EmbeddingBackend:
-    from fastembed import TextEmbedding
+    from evidencedesk_api.text_onnx import LocalTextOnnxBackend
 
     return cast(
         EmbeddingBackend,
-        TextEmbedding(
-            model_name=LOCAL_MODEL_NAME,
-            specific_model_path=str(model_path),
+        LocalTextOnnxBackend(
+            model_path=model_path,
             local_files_only=local_files_only,
             providers=providers,
         ),
@@ -152,7 +154,7 @@ class LocalSemanticEmbeddingProvider:
 
         self.dimension = dimension
         self.model_id = f"{model_name}@{revision}"
-        factory = backend_factory or _fastembed_backend
+        factory = backend_factory or _onnx_text_backend
         self._backend = factory(
             model_path=model_path,
             local_files_only=True,

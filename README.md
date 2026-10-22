@@ -4,6 +4,8 @@
 
 [Read the synthetic example and its limits](docs/portfolio-walkthrough.md).
 
+[Current text-only ONNX runtime and historical evaluation boundaries](docs/text-embedding-runtime.md).
+
 EvidenceDesk is a local document review prototype for synthetic supplier records. It ingests files
 in the background, links answers to their source passages, and abstains when the available evidence
 is missing or contradictory.

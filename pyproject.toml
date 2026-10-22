@@ -21,7 +21,9 @@ dependencies = [
   "sqlalchemy[asyncio]>=2.0.43,<3",
   "structlog>=25,<26",
   "uvicorn[standard]>=0.35,<1",
-  "fastembed==0.8.0",
+  "numpy==2.5.2",
+  "onnxruntime==1.29.0",
+  "tokenizers==0.23.1",
   "huggingface-hub==0.36.0",
 ]
 
@@ -30,6 +32,7 @@ dev = [
   "httpx2>=2.12,<3",
   "mypy>=1.17,<2",
   "pip-audit>=2.9,<3",
+  "pillow>=13,<14",
   "psycopg[binary]>=3.2,<4",
   "pytest>=9.0.3,<10",
   "pytest-asyncio>=1.1,<2",
