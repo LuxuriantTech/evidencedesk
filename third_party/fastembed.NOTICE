@@ -1,0 +1,11 @@
+Tokenizer setup in apps/api/evidencedesk_api/text_onnx.py is adapted from
+Qdrant FastEmbed 0.8.0 under the Apache License 2.0.
+
+Copyright 2024 Qdrant
+This product includes software developed by Qdrant.
+
+Source: https://github.com/qdrant/fastembed/tree/v0.8.0
+License: third_party/fastembed.LICENSE
+
+The FastEmbed package and its image/multimodal model integrations are not bundled.
+This notice applies to the adapted text tokenizer setup.

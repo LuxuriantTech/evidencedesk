@@ -246,7 +246,8 @@ def test_frozen_config_matches_code_and_immutable_development_inputs() -> None:
     )
 
     assert config["retrieval_method"] == "hybrid"
-    assert config["embedding"]["fastembed_version"] == importlib.metadata.version("fastembed")
+    # Frozen records describe their historical runtime, not the current text-only adapter.
+    assert config["embedding"]["fastembed_version"] == "0.8.0"
     assert config["embedding"]["onnxruntime_version"] == importlib.metadata.version("onnxruntime")
     assert config["answer_candidate_limit"] == DEFAULT_RETRIEVAL_LIMIT
     assert config["rank_fusion"]["rrf_k"] == RRF_K
@@ -317,9 +318,7 @@ def test_v7_answer_v3_config_binds_frozen_development_and_runtime() -> None:
     assert config["engine_fingerprint_at_selection"] != _engine_fingerprint()
     with pytest.raises(ValueError, match="current engine sources"):
         _validate_v3_freeze_config(config_path)
-    assert config["embedding"]["fastembed_version"] == importlib.metadata.version(
-        "fastembed"
-    )
+    assert config["embedding"]["fastembed_version"] == "0.8.0"
     assert config["embedding"]["onnxruntime_version"] == importlib.metadata.version(
         "onnxruntime"
     )

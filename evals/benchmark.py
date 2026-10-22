@@ -149,8 +149,10 @@ def run_benchmark(
     hardware = _hardware()
     runtime = {
         **hardware,
-        "fastembed_version": importlib.metadata.version("fastembed"),
+        "embedding_backend": "text-onnx-v1",
         "onnxruntime_version": importlib.metadata.version("onnxruntime"),
+        "tokenizers_version": importlib.metadata.version("tokenizers"),
+        "numpy_version": importlib.metadata.version("numpy"),
         "model_manifest_sha256": _sha256(model_manifest_path),
         "external_api_cost_usd": 0.0,
     }
@@ -209,7 +211,7 @@ def main() -> None:
     parser.add_argument(
         "--model-manifest",
         type=Path,
-        default=Path("infra/models/paraphrase-multilingual-minilm-l12-v2.json"),
+        default=Path("infra/models/paraphrase-multilingual-minilm-l12-v2-text-onnx.json"),
     )
     parser.add_argument(
         "--model-path",

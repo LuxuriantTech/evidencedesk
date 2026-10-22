@@ -205,6 +205,23 @@ def test_effective_date_question_does_not_accept_renewal_date_evidence() -> None
     assert answer.citations == ()
 
 
+def test_effective_timestamp_ignores_a_distinct_renewal_date_in_same_document() -> None:
+    effective = "Custody became effective on 27 August 2031 at 08:30."
+    renewal = "The custody arrangement renews on 27 August 2032."
+
+    answer = ExtractiveAnswerProvider().answer(
+        "When did the custody become effective, including the time?",
+        [
+            _ranked("effective", effective, page=2),
+            _ranked("renewal", renewal, page=3),
+        ],
+    )
+
+    assert answer.status == "answered"
+    assert answer.answer == effective
+    assert [citation.chunk_id for citation in answer.citations] == ["effective"]
+
+
 def test_unscoped_question_with_conflicting_values_is_ambiguous() -> None:
     answer = ExtractiveAnswerProvider().answer(
         "What is the effective date across these supplier files?",

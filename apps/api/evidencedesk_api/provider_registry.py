@@ -9,6 +9,7 @@ from evidencedesk_api.answering import (
     GroundedAnswer,
 )
 from evidencedesk_api.providers import (
+    CURRENT_EMBEDDING_MANIFEST,
     DeterministicEmbeddingProvider,
     EmbeddingProvider,
     LocalSemanticEmbeddingProvider,
@@ -48,7 +49,7 @@ def build_provider_bundle(
     *,
     embedding_factory: Callable[[], EmbeddingProvider] | None = None,
     model_path: Path = Path("models/paraphrase-multilingual-minilm-l12-v2"),
-    manifest_path: Path = Path("infra/models/paraphrase-multilingual-minilm-l12-v2.json"),
+    manifest_path: Path = CURRENT_EMBEDDING_MANIFEST,
 ) -> ProviderBundle:
     if mode == "extractive-local-hash":
         embedding: EmbeddingProvider = DeterministicEmbeddingProvider(dimension=384)

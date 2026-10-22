@@ -131,7 +131,7 @@ def main() -> None:
     parser.add_argument(
         "--manifest",
         type=Path,
-        default=Path("infra/models/paraphrase-multilingual-minilm-l12-v2.json"),
+        default=Path("infra/models/paraphrase-multilingual-minilm-l12-v2-text-onnx.json"),
     )
     parser.add_argument(
         "--output",

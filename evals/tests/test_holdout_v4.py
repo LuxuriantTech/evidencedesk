@@ -163,6 +163,23 @@ def test_runtime_dependencies_must_match_frozen_versions(
         _verify_runtime_dependencies(config)
 
 
+def test_historical_runtime_replay_refuses_a_missing_fastembed(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from importlib.metadata import PackageNotFoundError
+
+    def installed_version(package: str) -> str:
+        if package == "fastembed":
+            raise PackageNotFoundError(package)
+        return "1.29.0"
+
+    monkeypatch.setattr("evals.holdout_v4.importlib.metadata.version", installed_version)
+    config = {"embedding": {"fastembed_version": "0.8.0", "onnxruntime_version": "1.29.0"}}
+
+    with pytest.raises(EvaluationError, match="fastembed is not installed"):
+        _verify_runtime_dependencies(config)
+
+
 def _git(repo: Path, *args: str) -> str:
     git = shutil.which("git")
     assert git is not None

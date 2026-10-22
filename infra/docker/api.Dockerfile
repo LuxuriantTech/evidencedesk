@@ -36,7 +36,7 @@ RUN --mount=type=bind,source=models,target=/local-models,ro \
            /model-cache/paraphrase-multilingual-minilm-l12-v2/; \
        fi \
     && python scripts/download_local_model.py \
-         --manifest infra/models/paraphrase-multilingual-minilm-l12-v2.json \
+         --manifest infra/models/paraphrase-multilingual-minilm-l12-v2-text-onnx.json \
          --output /model-cache/paraphrase-multilingual-minilm-l12-v2 \
     && mkdir -p /opt/evidencedesk/models/paraphrase-multilingual-minilm-l12-v2 \
     && cp -a /model-cache/paraphrase-multilingual-minilm-l12-v2/. \
@@ -52,7 +52,7 @@ COPY artifacts/evaluations ./artifacts/evaluations
 COPY scripts ./scripts
 
 ENV EMBEDDING_MODEL_PATH=/opt/evidencedesk/models/paraphrase-multilingual-minilm-l12-v2 \
-    EMBEDDING_MANIFEST_PATH=/app/infra/models/paraphrase-multilingual-minilm-l12-v2.json
+    EMBEDDING_MANIFEST_PATH=/app/infra/models/paraphrase-multilingual-minilm-l12-v2-text-onnx.json
 
 RUN useradd --create-home --uid 10001 appuser \
     && mkdir -p /data/documents \

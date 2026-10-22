@@ -39,7 +39,7 @@ class Settings(BaseSettings):
     ] = "grounded-local-v3"
     embedding_model_path: Path = Path("models/paraphrase-multilingual-minilm-l12-v2")
     embedding_manifest_path: Path = Path(
-        "infra/models/paraphrase-multilingual-minilm-l12-v2.json"
+        "infra/models/paraphrase-multilingual-minilm-l12-v2-text-onnx.json"
     )
     evaluation_manifest: Path = Path("datasets/development_v2/evaluation_cases.json")
     evaluation_corpus_manifest: Path = Path("datasets/development_v2/corpus_manifest.json")
