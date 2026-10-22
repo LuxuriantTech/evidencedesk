@@ -90,6 +90,71 @@ def test_renewal_question_selects_renewal_date_over_effective_date() -> None:
     assert [citation.chunk_id for citation in result.citations] == ["renewal"]
 
 
+@pytest.mark.parametrize("separator", ["; ", ", "])
+def test_effective_question_selects_its_date_from_a_mixed_role_line(separator: str) -> None:
+    text = f"Effective date is 27 August 2031{separator}renewal date is 27 August 2032."
+
+    result = _provider().answer(
+        "When did custody become effective?",
+        [_ranked("mixed", text)],
+    )
+
+    assert result.status == "answered"
+    assert result.answer == "27 August 2031"
+    assert result.supporting_excerpt == "Effective date is 27 August 2031"
+
+
+def test_time_before_date_is_preserved_when_question_requests_time() -> None:
+    text = "Custody became effective at 08:30 on 27 August 2031."
+
+    result = _provider().answer(
+        "When did custody become effective, including the time?",
+        [_ranked("effective", text)],
+    )
+
+    assert result.status == "answered"
+    assert result.answer == "at 08:30 on 27 August 2031"
+
+
+def test_french_effective_date_label_supports_effective_date_question() -> None:
+    text = "Date d\u2019effet: 27 August 2031."
+
+    result = _provider().answer(
+        "When did custody become effective?",
+        [_ranked("effective-fr", text)],
+    )
+
+    assert result.status == "answered"
+    assert result.answer == "27 August 2031"
+
+
+def test_distinct_effective_dates_remain_ambiguous() -> None:
+    result = _provider(contradiction_margin=1.0).answer(
+        "What is the effective date?",
+        [
+            _ranked("effective-one", "Effective date: 27 August 2031.", page=2),
+            _ranked("effective-two", "Effective date: 28 August 2031.", page=4),
+        ],
+    )
+
+    assert result.status == "ambiguous"
+    assert result.answerable is False
+    assert {citation.page for citation in result.citations} == {2, 4}
+
+
+def test_two_effective_dates_in_one_passage_remain_ambiguous() -> None:
+    text = "Effective date: 27 August 2031; amended effective date: 28 August 2031."
+    result = _provider(contradiction_margin=1.0).answer(
+        "What is the effective date?",
+        [_ranked("effective", text)],
+    )
+
+    assert result.status == "ambiguous"
+    assert result.answerable is False
+    assert len(result.citations) == 2
+    assert result.citations[0].excerpt != result.citations[1].excerpt
+
+
 def test_each_retrieved_passage_has_an_explicit_candidate_assessment() -> None:
     result = _provider().answer(
         "Whose account is described in the note?",

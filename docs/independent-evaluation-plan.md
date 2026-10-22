@@ -8,6 +8,9 @@ The focused effective-date/renewal-date regression added alongside this plan is 
 derived from an observed v7 failure. It is not a new evaluation case, a rerun of v7, or independent
 performance evidence.
 
+The code change is limited to the `DeterministicGroundedAnswerProvider` used by `grounded-local-v3`.
+The default `ExtractiveAnswerProvider` path is unchanged.
+
 ## Before collecting evaluation cases
 
 1. Freeze the code revision, dependency lock, answer-provider configuration, extraction schema,

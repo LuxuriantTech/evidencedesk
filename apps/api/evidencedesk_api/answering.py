@@ -199,7 +199,8 @@ def _date_role(text: str) -> str | None:
     effective = bool(
         re.search(
             r"\b(?:effective|takes? effect|effective from|became effective|"
-            r"commence(?:ment)?|starts?|application|vigueur|prise d[' ]effet)\w*\b",
+            r"commence(?:ment)?|starts?|application|vigueur|prise d[' ]?effet|"
+            r"date d[' ]?effet|date effet)\w*\b",
             folded,
         )
     )
@@ -208,20 +209,79 @@ def _date_role(text: str) -> str | None:
     return "renewal" if renewal else "effective"
 
 
+def _date_match_for_question(segment: str, question: str) -> re.Match[str] | None:
+    matches = list(_DATE.finditer(segment))
+    if not matches:
+        return None
+    requested_role = _date_role(question)
+    if requested_role is None or len(matches) == 1:
+        return matches[0]
+    for match in matches:
+        if _date_role(_date_context(segment, match)) == requested_role:
+            return match
+    return matches[0]
+
+
+def _date_context_bounds(segment: str, match: re.Match[str]) -> tuple[int, int]:
+    """Return the local clause bounds for one date among possible date matches."""
+    matches = list(_DATE.finditer(segment))
+    index = next((i for i, item in enumerate(matches) if item.start() == match.start()), 0)
+    start_candidates = [
+        segment.rfind(delimiter, 0, match.start()) + 1
+        for delimiter in (";", "\n", ",")
+    ]
+    end_candidates = [
+        position
+        for delimiter in (";", "\n", ",")
+        if (position := segment.find(delimiter, match.end())) >= 0
+    ]
+    if index > 0:
+        start_candidates.append(matches[index - 1].end())
+    if index + 1 < len(matches):
+        end_candidates.append(matches[index + 1].start())
+    return max(start_candidates), min(end_candidates) if end_candidates else len(segment)
+
+
+def _date_context(segment: str, match: re.Match[str]) -> str:
+    start, end = _date_context_bounds(segment, match)
+    return segment[start:end]
+
+
+def _date_evidence_segments(segment: str, question: str) -> list[str]:
+    matches = list(_DATE.finditer(segment))
+    if len(matches) < 2:
+        return [segment]
+    requested_role = _date_role(question)
+    clauses = [
+        context
+        for match in matches
+        if (context := _date_context(segment, match).strip())
+        and (requested_role is None or _date_role(context) == requested_role)
+    ]
+    return clauses or [segment]
+
+
 def _value_for(kind: str, segment: str, question: str) -> str | None:
     if kind == "date":
-        match = _DATE.search(segment)
+        match = _date_match_for_question(segment, question)
         if match is None:
             return None
         value = match.group(0)
         if re.search(r"\b(?:time|heure)\b", _fold(question)):
-            clock = re.match(
-                r"\s*((?:at|a|à)\s*\d{1,2}:\d{2}(?:\s*[ap]\.?m\.?)?)",
-                segment[match.end() :],
-                re.IGNORECASE,
+            context_start, context_end = _date_context_bounds(segment, match)
+            context = segment[context_start:context_end]
+            clock_matches = list(
+                re.finditer(
+                    r"\b(?:at|a|à)\s*(\d{1,2}:\d{2}(?:\s*[ap]\.?m\.?)?)",
+                    context,
+                    re.IGNORECASE,
+                )
             )
-            if clock is not None:
-                value = f"{value} {clock.group(1).strip()}"
+            if len(clock_matches) == 1:
+                clock = clock_matches[0]
+                start = min(match.start() - context_start, clock.start())
+                end = max(match.end() - context_start, clock.end())
+                value = context[start:end].strip()
         return value
     if kind == "amount":
         matches = list(_AMOUNT.finditer(segment))
@@ -301,8 +361,11 @@ def _relation_supported(question: str, segment: str, kind: str) -> bool:
     segment_tokens = lexical_tokens(segment)
     if kind == "date":
         requested_role = _date_role(question)
-        if requested_role is not None and _date_role(segment) != requested_role:
-            return False
+        if requested_role is not None:
+            match = _date_match_for_question(segment, question)
+            if match is None or _date_role(_date_context(segment, match)) != requested_role:
+                return False
+            return True
     if kind == "organization_name":
         question_categories = _relation_categories(question)
         if question_categories:
@@ -627,30 +690,34 @@ class DeterministicGroundedAnswerProvider:
             for segment_index, segment in enumerate(segments):
                 if segment_index in blocked_segments:
                     continue
-                admitted = admit_evidence_excerpt(
-                    UntrustedDocumentContent(
-                        document_id=parent_content.document_id,
-                        page=parent_content.page,
-                        chunk_id=item.chunk.id,
-                        text=segment,
+                evidence_segments = (
+                    _date_evidence_segments(segment, question) if kind == "date" else [segment]
+                )
+                for evidence_segment in evidence_segments:
+                    admitted = admit_evidence_excerpt(
+                        UntrustedDocumentContent(
+                            document_id=parent_content.document_id,
+                            page=parent_content.page,
+                            chunk_id=item.chunk.id,
+                            text=evidence_segment,
+                        )
                     )
-                )
-                if admitted is None:
-                    continue
-                evidence_text = admitted.text
-                score = _support_score(question, evidence_text, kind, self.embeddings)
-                value = _value_for(kind, evidence_text, question)
-                relation = _relation_supported(question, evidence_text, kind)
-                evaluated.setdefault(item.chunk.id, []).append(
-                    (score, evidence_text, value, relation)
-                )
-                if value is not None and relation:
-                    candidates.append((score, evidence_text, value, item))
-                elif (
-                    score >= self.config.partial_support_threshold
-                    and _has_explicit_relation(question, evidence_text)
-                ):
-                    partials.append((score, evidence_text, item))
+                    if admitted is None:
+                        continue
+                    evidence_text = admitted.text
+                    score = _support_score(question, evidence_text, kind, self.embeddings)
+                    value = _value_for(kind, evidence_text, question)
+                    relation = _relation_supported(question, evidence_text, kind)
+                    evaluated.setdefault(item.chunk.id, []).append(
+                        (score, evidence_text, value, relation)
+                    )
+                    if value is not None and relation:
+                        candidates.append((score, evidence_text, value, item))
+                    elif (
+                        score >= self.config.partial_support_threshold
+                        and _has_explicit_relation(question, evidence_text)
+                    ):
+                        partials.append((score, evidence_text, item))
         assessments = self._candidate_assessments(kind, ranked, evaluated)
         candidates.sort(key=lambda value: (-value[0], -value[3].score, value[3].chunk.id))
         supported = [item for item in candidates if item[0] >= self.config.support_threshold]
