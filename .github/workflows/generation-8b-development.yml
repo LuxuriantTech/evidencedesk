@@ -1,6 +1,6 @@
 name: Generative 8B answer development experiment
 
-run-name: "Generation 8B V6 development ${{ github.sha }}"
+run-name: "Generation 8B V7 cache-bound development ${{ github.sha }}"
 
 on:
   push:
@@ -13,7 +13,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: generative-8b-v6-development-${{ github.ref }}
+  group: generative-8b-v7-development-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:

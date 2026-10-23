@@ -36,7 +36,8 @@
     "parallel": 1,
     "n_gpu_layers": 0,
     "reasoning": "off",
-    "no_context_shift": true
+    "no_context_shift": true,
+    "cache_ram_mib": 0
   },
   "resource_scope": {
     "memory_max_bytes": 10737418240,

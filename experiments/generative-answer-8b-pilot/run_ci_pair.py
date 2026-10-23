@@ -37,7 +37,7 @@ URL = "http://127.0.0.1:50193"
 SERVER_CONFIG = {
     "host": "127.0.0.1", "port": 50193, "threads": 4,
     "threads_batch": 4, "batch_size": 128, "ubatch_size": 128, "parallel": 1,
-    "n_gpu_layers": 0, "reasoning": "off", "no_context_shift": True,
+    "n_gpu_layers": 0, "reasoning": "off", "no_context_shift": True, "cache_ram_mib": 0,
     "alias": "Qwen3-8B-Q4_K_M.gguf",
 }
 GENERATION_CONFIG = {"seed": 20261023, "temperature": 0.0, "enable_thinking": False,
@@ -48,7 +48,7 @@ MIN_HOST_MEM_AVAILABLE_BYTES = 12 * 1024 * 1024 * 1024
 CI_CODE_FILES = ("ci_common.py", "run_ci_pair.py", "run_generation_case.py", "remote_baseline.py",
                  "run_smoke_cases.py", "run_ci_pair.sh", "prepare_artifacts.py", "generative_provider.py",
                  "ARTIFACT_MANIFEST.json", "GENERATION_DATASET_MANIFEST.json", "README.md",
-                 "test_gen_ci_preparation.py", "test_generative_provider.py", "PROVIDER_V5_POLICY.md", "PROVIDER_V6_POLICY.md")
+                 "test_gen_ci_preparation.py", "test_generative_provider.py", "PROVIDER_V5_POLICY.md", "PROVIDER_V6_POLICY.md", "PROVIDER_V7_RUNTIME_POLICY.md", "test_v7_cache_bound.py")
 PROVIDER_SHA256 = "4a782199bf3c80273dc4c8975e1020253151f6c18ee7ed4f61b69c0cbdef7570"
 SMOKE_CASES = 4
 
@@ -77,6 +77,23 @@ def validate_generation_receipt(receipt: dict[str, Any]) -> None:
             or receipt.get("model_validation_error_count", 0) != 0
             or receipt.get("backend_error_count", 0) != 0):
         raise RuntimeError("generation child reports a technical/provider validation failure")
+
+
+def build_server_command(server_binary: Path, model_path: Path) -> list[str]:
+    """Build the frozen V7 server argv; cache bound is the sole V7 delta."""
+    return [str(server_binary), "--model", str(model_path), "--host", SERVER_CONFIG["host"],
+            "--alias", SERVER_CONFIG["alias"], "--port", str(SERVER_CONFIG["port"]),
+            "--ctx-size", str(GENERATION_CONFIG["context_tokens"]),
+            "--threads", str(SERVER_CONFIG["threads"]),
+            "--threads-batch", str(SERVER_CONFIG["threads_batch"]),
+            "--batch-size", str(SERVER_CONFIG["batch_size"]),
+            "--ubatch-size", str(SERVER_CONFIG["ubatch_size"]),
+            "--parallel", str(SERVER_CONFIG["parallel"]),
+            "--n-gpu-layers", str(SERVER_CONFIG["n_gpu_layers"]),
+            "--reasoning", SERVER_CONFIG["reasoning"],
+            "--n-predict", str(GENERATION_CONFIG["max_tokens"]),
+            "--seed", str(GENERATION_CONFIG["seed"]), "--jinja",
+            "--no-context-shift", "--cache-ram", str(SERVER_CONFIG["cache_ram_mib"])]
 
 
 def sha256_file(path: Path) -> str:
@@ -363,11 +380,7 @@ def run(args: argparse.Namespace) -> None:
         receipt["raw_result_paths"]["baseline"] = str(baseline_result.relative_to(args.output))
 
         model_id = artifact["model"]["id"]
-        command = [str(paths["server_binary"]), "--model", str(paths["model"]), "--host", "127.0.0.1",
-                   "--alias", SERVER_CONFIG["alias"], "--port", "50193", "--ctx-size", "6144", "--threads", "4", "--threads-batch", "4",
-                   "--batch-size", "128", "--ubatch-size", "128", "--parallel", "1",
-                   "--n-gpu-layers", "0", "--reasoning", "off", "--n-predict", "512",
-                   "--seed", "20261023", "--jinja", "--no-context-shift"]
+        command = build_server_command(paths["server_binary"], paths["model"])
         server_logs = [(args.output / "server.stdout.log").open("xb"),
                        (args.output / "server.stderr.log").open("xb")]
         server = subprocess.Popen(command, cwd=paths["runtime_root"], env=env,

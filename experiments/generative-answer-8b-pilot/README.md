@@ -24,3 +24,8 @@ See PROVIDER_V5_POLICY.md for the constrained contract and PROVIDER_V6_POLICY.md
 for the new payload experiment. RELEASE_CRITERIA.md defines unchanged 70%/+25 pp, citation/abstention non-regression, zero-error and
 actual-answer audit gates. Fresh GEN8-F1 authoring is permitted only after
 development qualification. No workflow merges or deploys anything.
+
+V7 keeps the V6 answer provider unchanged and explicitly sets `--cache-ram 0`.
+See PROVIDER_V7_RUNTIME_POLICY.md for the confirmed prior OOM and the unproven
+cache hypothesis. This is a separately measured runtime cohort, not a repair
+retroactively applied to V5/V6 results or a change to the 10 GiB limit.
