@@ -25,6 +25,9 @@ The hosted walkthrough presents prepared examples; it does not run this local ap
 - **Published limitation:** the independent v7 holdout reached 100% Recall@5 on answerable cases,
   but only 36% answerable-case accuracy and 45.67% extraction F1. The result remains
   `HONEST_NEGATIVE`.
+- **Answer review:** the deterministic engine matches evidence by question type, source scope,
+  relation and local condition. Its displayed source-support score is not a calibrated probability;
+  development suites are not independent validation. See the [answer-quality notes](docs/answer-quality-development.md).
 - **Short path:** start with the [three-minute demo](docs/demo-script.md), then read the
   [career review notes](docs/career-proof.md) and [evaluation details](docs/evaluation.md).
 
@@ -40,6 +43,14 @@ holdout v7 indépendant a produit un seul lock/raw enregistré après gel et a �
 statut empirique reste `HONEST_NEGATIVE`. Les résultats négatifs et préflights avortés sont conservés
 au lieu d'être masqués. Les commits, hashes et locks sont des preuves locales cohérentes, pas un
 scellement externe.
+
+Le moteur `grounded-local-v3` classe le type de question, le document source demandé, la relation
+recherchée et les conditions qui s'appliquent à chaque valeur. Il vérifie les extraits cités avant de
+répondre et s'abstient lorsqu'une question composée ou plusieurs sources ne peuvent pas être résolues
+avec les preuves disponibles. Son score d'appui aide à décider si une réponse peut être retenue; il
+n'est pas calibré comme une probabilité de justesse. Les suites E1 et E2 ont été consultées pendant
+le développement et ne sont plus des validations indépendantes. Les comparaisons et leurs limites
+sont détaillées dans les [notes de qualité des réponses](docs/answer-quality-development.md).
 
 ![Réponse avec sa source](docs/screenshots/02-sourced-answer-desktop.png)
 

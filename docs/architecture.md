@@ -44,6 +44,34 @@ persistée, le contexte adjacent est restauré et le garde déterministe est rej
 post-v7 bloque les formes adversariales sur les canaux testés, sans prétendre résoudre
 universellement la prompt injection.
 
+### Réponse fondée sur les sources
+
+`DeterministicGroundedAnswerProvider` suit le même pipeline pour les réponses du mode local :
+
+1. Il classe la forme de la question (par exemple date, montant, durée, statut ou oui/non). Les
+   demandes qui exigent plusieurs faits distincts sont laissées sans réponse lorsqu'ils ne peuvent
+   pas être réunis de manière sûre.
+2. Il détermine la portée documentaire à partir des termes de source et du contexte. Un document
+   simplement nommé comme cible d'une question ne devient pas automatiquement la source exclusive.
+3. Il repère dans les passages les valeurs et relations pertinentes, en tenant compte de leur clause
+   locale et des conditions indiquées, comme le type d'incident auquel un délai s'applique.
+4. Il traite une négation en lien avec la relation recherchée. Une coordination de sujets qui partage
+   un prédicat conserve cette portée (« couverture et maintenance ne sont pas incluses »); une
+   coordination de deux propositions ne les confond pas si chacune a son propre prédicat. Deux
+   valeurs ne sont contradictoires que si elles répondent à la même relation dans la portée
+   applicable.
+5. Il retourne l'extrait vérifiable et ses références. Une preuve insuffisante ou des sources
+   réellement incompatibles entraînent une abstention ou un résultat ambigu.
+
+Cette logique déterministe utilise des règles linguistiques limitées et des équivalences de termes;
+ce n'est pas une analyse complète du langage. Elle peut manquer des formulations inédites,
+des références implicites ou des relations exprimées de façon complexe. Le score d'appui interne
+sert au seuil de décision, mais n'est pas calibré : il ne doit pas être interprété ni affiché comme
+une probabilité de justesse. L'interface présente maintenant l'appui des sources sur 100. Les
+mesures des jeux synthétiques E1/E2 et development_v3 servent au développement; elles ne valident
+pas une généralisation indépendante ou un usage en production. Les limites et compteurs sont dans
+[`answer-quality-development.md`](answer-quality-development.md).
+
 ## Modes de réponse
 
 Le mode livré est `grounded-local-v3`. Son vecteur est l'embedding ONNX local
