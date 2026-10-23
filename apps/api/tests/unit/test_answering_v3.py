@@ -658,7 +658,7 @@ def test_french_question_starter_is_not_treated_as_a_named_subject() -> None:
     assert result.answer == "Mira Vale"
 
 
-def test_named_subject_scope_can_rejoin_verified_entities_across_documents() -> None:
+def test_named_subject_scope_rejoins_documents_with_a_shared_typed_reference() -> None:
     question = "What reference identifies the Meadowrun shipment received in Dijon?"
     ranked = [
         _ranked(
@@ -669,7 +669,7 @@ def test_named_subject_scope_can_rejoin_verified_entities_across_documents() -> 
         ),
         _ranked(
             "delivery",
-            "The shipment was received in Dijon.",
+            "Shipment SH-2841 was received in Dijon.",
             document_id="delivery",
             document_name="delivery_note.txt",
         ),
@@ -682,6 +682,26 @@ def test_named_subject_scope_can_rejoin_verified_entities_across_documents() -> 
     assert _scope_ranked(
         "What reference identifies the Unlisted shipment received in Dijon?", ranked
     ) == []
+
+
+def test_named_subject_scope_does_not_join_distinct_shipments_by_coincidence() -> None:
+    question = "What reference identifies the Meadowrun shipment received in Dijon?"
+    ranked = [
+        _ranked(
+            "manifest",
+            "Meadowrun shipment reference: SH-2841.",
+            document_id="manifest",
+            document_name="meadowrun_manifest.txt",
+        ),
+        _ranked(
+            "delivery",
+            "A different shipment, SH-9999, was received in Dijon.",
+            document_id="delivery",
+            document_name="delivery_note.txt",
+        ),
+    ]
+
+    assert _scope_ranked(question, ranked) == []
 
 
 def test_named_subject_scope_preserves_complete_hyphenated_identifiers() -> None:

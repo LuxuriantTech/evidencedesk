@@ -342,6 +342,23 @@ def _subject_matches(subject: str, contents: str) -> bool:
     return bool(_relation_tokens(subject) & _relation_tokens(contents))
 
 
+_TYPED_LINK_ID = re.compile(
+    r"\b(shipment|dispatch|consignment|purchase\s+order|order|contract|"
+    r"agreement|invoice|case|claim|batch|lot|container)\s+"
+    r"(?:(?:reference|ref|id|number|no)\s*[:#]?\s*)?"
+    r"([a-z]{1,8}[-/]\d+[a-z0-9/-]*)\b",
+    re.IGNORECASE,
+)
+
+
+def _typed_link_keys(contents: str) -> set[tuple[str, str]]:
+    """Return explicit, typed record identifiers suitable for joining sources."""
+    return {
+        (re.sub(r"\s+", " ", _fold(match.group(1))), _fold(match.group(2)))
+        for match in _TYPED_LINK_ID.finditer(_fold(contents))
+    }
+
+
 def _scope_ranked(question: str, ranked: list[RankedChunk]) -> list[RankedChunk]:
     requested_type = _requested_document_type(question)
     subject_tokens = _named_subject_tokens(question)
@@ -361,11 +378,15 @@ def _scope_ranked(question: str, ranked: list[RankedChunk]) -> list[RankedChunk]
     allowed: set[str] = set()
     subjects_found_globally: set[str] = set()
     fully_scoped_documents: set[str] = set()
+    eligible_documents: set[str] = set()
+    link_keys_by_document: dict[str, set[tuple[str, str]]] = {}
     for document_id, items in grouped.items():
         contents = context_by_document[document_id]
         if requested_type is not None and _document_type(items[0], contents) != requested_type:
             continue
         if subject_tokens:
+            eligible_documents.add(document_id)
+            link_keys_by_document[document_id] = _typed_link_keys(contents)
             overlap = {
                 subject for subject in subject_tokens if _subject_matches(subject, contents)
             }
@@ -381,9 +402,28 @@ def _scope_ranked(question: str, ranked: list[RankedChunk]) -> list[RankedChunk]
         and subjects_found_globally == subject_tokens
         and not fully_scoped_documents
     ):
-        # The named entities are all present, but the dossier links them across
-        # source documents rather than repeating them together in one record.
-        return ranked
+        # Cross-document evidence is joined only by an explicit identifier with
+        # a record type (for example, shipment SH-2841) shared by the records.
+        # Coincidental co-occurrence of named entities across documents is not a link.
+        documents_by_key: dict[tuple[str, str], set[str]] = {}
+        for document_id in eligible_documents:
+            for key in link_keys_by_document.get(document_id, set()):
+                documents_by_key.setdefault(key, set()).add(document_id)
+        linked_documents: set[str] = set()
+        for document_ids in documents_by_key.values():
+            if len(document_ids) < 2:
+                continue
+            linked_subjects = {
+                subject
+                for document_id in document_ids
+                for subject in subject_tokens
+                if _subject_matches(subject, context_by_document[document_id])
+            }
+            if linked_subjects == subject_tokens:
+                linked_documents.update(document_ids)
+        if not linked_documents:
+            return []
+        return [item for item in ranked if item.chunk.document_id in linked_documents]
     if not allowed:
         return []
     return [item for item in ranked if item.chunk.document_id in allowed]
