@@ -1,0 +1,176 @@
+{
+  "format": "generative-answer-pilot-snapshot-v4",
+  "classification": "exposed development; not release qualified",
+  "native_candidate_commit": "120e233bb8ff09cabc1bd3c5004a8545039459aa",
+  "published_baseline_commit": "ffeba12c4d4d64a1e1f003f211dfa1781c64515d",
+  "previous_snapshot_sha256": "77cb58238e9ddeaa5756bcbb82174e08914ad252bcbcb54ff83861b6e33bb1d0",
+  "previous_ci_run": "https://github.com/LuxuriantTech/evidencedesk/actions/runs/40021798398",
+  "previous_attempt_status": "baseline completed; four model smokes executed; smoke failed; no candidate benchmark",
+  "previous_policy_inference_observed": true,
+  "v4_policy_inference_before_this_snapshot": false,
+  "changes": [
+    "Remove the redundant generated reason; retain a single strict decision status",
+    "Select exact evidence and spans before the decision; explicitly describe conflicting same-scope claims",
+    "Preserve V3 provider, tests, snapshots and failed raw responses",
+    "Keep native source, model weights, decoding, retrieval, input bytes and scorer unchanged",
+    "Keep all zero-error and factual release gates unchanged"
+  ],
+  "workflow_sha256": "df8c5cccaa69a74aa379d7ab7a05a782ad8f2cd8b0ee9482ed36eba3a15cdf2e",
+  "files": [
+    {
+      "path": ".gitattributes",
+      "bytes": 8,
+      "sha256": "705fd4d6451a31d36b3df7de96f83f30ac976c9b4a6d1e51671d8e2f33e2d0da"
+    },
+    {
+      "path": "ARTIFACT_MANIFEST.json",
+      "bytes": 1577,
+      "sha256": "94a6bec40382c308f0b445b120ee1ab108b4c640c50cc9c17921756a313f5a90"
+    },
+    {
+      "path": "CI_COHORT_AMENDMENT.md",
+      "bytes": 2364,
+      "sha256": "d5a3dc1c80b90b79ff544f27cd451cfb2d9ee132fef8333c1826a6459104f6ad"
+    },
+    {
+      "path": "GENERATION_DATASET_MANIFEST.json",
+      "bytes": 1995,
+      "sha256": "30225ca0f193c7983949628e0a33b748b63402d8b092d16242493b9fb6f70a65"
+    },
+    {
+      "path": "PUBLIC_SAFE_REVIEW.md",
+      "bytes": 1278,
+      "sha256": "630fac747db0ff00c7a94c4d58b01344aabae471cd721fa60203dcd8a2a15f3d"
+    },
+    {
+      "path": "README.md",
+      "bytes": 3299,
+      "sha256": "33fe4ee85e8bfda617fccaa118fccb70670c04830cd48b53bfeb98cd30f0e82e"
+    },
+    {
+      "path": "RELEASE_CRITERIA.md",
+      "bytes": 6318,
+      "sha256": "2c7fb031dbf4a1ecc7a49f4f4d72c16ccaacb12ec884a96bbc6301dcfe721484"
+    },
+    {
+      "path": "ci_common.py",
+      "bytes": 5409,
+      "sha256": "48dbd0de3eb3caf658a505901e15898eb28ddafc358c6a175fc5f6ab6f5086ea"
+    },
+    {
+      "path": "datasets/E4/corpus_manifest.json",
+      "bytes": 5595,
+      "sha256": "7fd7b7991557515c6007cf1a6982763b74c46e99929d0575f8be1023a8220951"
+    },
+    {
+      "path": "datasets/E4/evaluation_cases.json",
+      "bytes": 10679,
+      "sha256": "d8492380fd91ab058de0c05eb773d5fe79048cdd77894b24249be9de06baa228"
+    },
+    {
+      "path": "datasets/E5/corpus_manifest.json",
+      "bytes": 8395,
+      "sha256": "40b446b42516bd0840b69fc669f3bedd2d7f050849b41b55c3907bd7d0fa2329"
+    },
+    {
+      "path": "datasets/E5/evaluation_cases.json",
+      "bytes": 16414,
+      "sha256": "5185fbf6a621176e735fc8291383db2db2e7f340c269c0452fcbb5273c28a57e"
+    },
+    {
+      "path": "datasets/E6/corpus_manifest.json",
+      "bytes": 7003,
+      "sha256": "b64a0a8e310967b6825c5ec9340ae3e8081d1d6e53287f3cda4bf7fa31272029"
+    },
+    {
+      "path": "datasets/E6/evaluation_cases.json",
+      "bytes": 12658,
+      "sha256": "1c7de141d65795fec156a3c64cd20c25a17f977e1ddb2028e8749525839a1f3a"
+    },
+    {
+      "path": "generative_provider.py",
+      "bytes": 31204,
+      "sha256": "29f6f59791b9baeb526d10b9d6e6ed36744b37caa66b1c9291587de56c74273b"
+    },
+    {
+      "path": "prepare_artifacts.py",
+      "bytes": 27476,
+      "sha256": "413c2fd8caeb8434607171c96b968155584f58d4ecedf4c2a68dccfb1d7bbe25"
+    },
+    {
+      "path": "remote_baseline.py",
+      "bytes": 9725,
+      "sha256": "a976e48cec223387ca982ed672e5c2cf9ff898a33c8417f44b583de793665537"
+    },
+    {
+      "path": "run_ci_pair.py",
+      "bytes": 31398,
+      "sha256": "785d469d21514393a5f1dc52282d2e0e8763b4c27481757b8f3e094b8229b94a"
+    },
+    {
+      "path": "run_ci_pair.sh",
+      "bytes": 1714,
+      "sha256": "610f3d0f62963e64e581c54fa57e6c872fa76edf72cf0bec060cf1bbba0c02b3"
+    },
+    {
+      "path": "run_generation_case.py",
+      "bytes": 18270,
+      "sha256": "f8664dc3a1b8c10a18606b5722e7b83ad4247688cc686c5ab10411baefc0ffcc"
+    },
+    {
+      "path": "run_smoke_cases.py",
+      "bytes": 13036,
+      "sha256": "0e3fa209434e5cb97508539a9c9aa0dc9f3c42088c581460fe4388a4b5da719b"
+    },
+    {
+      "path": "test_gen_ci_preparation.py",
+      "bytes": 9062,
+      "sha256": "31fc35aa44bfbca69ae60fbd43921aed011f280b452489126ce5c362d78f3e40"
+    },
+    {
+      "path": "test_generative_provider.py",
+      "bytes": 17128,
+      "sha256": "d030827a3faac87e2ed671f53676499db53d15feede1e9773f34057b76fe8ae2"
+    },
+    {
+      "path": "PILOT_SNAPSHOT_V1.json",
+      "bytes": 4058,
+      "sha256": "df1d161d7677c165791049420b3bd9f1aaf8a89372ae6893860a7735b12642c2"
+    },
+    {
+      "path": "PILOT_SNAPSHOT_V2.json",
+      "bytes": 4766,
+      "sha256": "eb42545ecece59cc5f1bfe89ffc88cbe5478b3e0500f4799701c794337a38ccb"
+    },
+    {
+      "path": "R2_PRE_INFERENCE_NOTE.md",
+      "bytes": 1334,
+      "sha256": "294ea2b3db89c6391a98413e384530d90f630289d698e7b2086a49c734319b16"
+    },
+    {
+      "path": "PILOT_SNAPSHOT_V3.json",
+      "bytes": 5462,
+      "sha256": "77cb58238e9ddeaa5756bcbb82174e08914ad252bcbcb54ff83861b6e33bb1d0"
+    },
+    {
+      "path": "PROVIDER_V4_POLICY.md",
+      "bytes": 1844,
+      "sha256": "c7f79019e0c6b63cd9ae00591a7340b50f09293be3b4156f90a78743dc58b1b1"
+    },
+    {
+      "path": "history/provider-v3/generative_provider.py",
+      "bytes": 30981,
+      "sha256": "e77beaedc9f18b58a4c8287161fb516603c7bb39679668d05a1f3cc8a76447f9"
+    },
+    {
+      "path": "history/provider-v3/PRESERVATION_MANIFEST.json",
+      "bytes": 274,
+      "sha256": "5d22b479a35b3826270813899a6c9f0f753a6ba22403f7a5374673590c9acb64"
+    },
+    {
+      "path": "history/provider-v3/test_generative_provider.py",
+      "bytes": 14979,
+      "sha256": "6e28944d6de7cbcf2cad8f46a3c2deaea856537e7d53c460755e6feca8dfab05"
+    }
+  ]
+}

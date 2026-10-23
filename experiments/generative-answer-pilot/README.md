@@ -30,6 +30,15 @@ Native answer validation remains in force. Invalid model outputs are recorded
 separately even when the returned response safely abstains. Exact quotations and
 valid JSON do not by themselves establish that an answer is correct.
 
+The fourth experimental revision uses one generated decision field, `status`,
+after evidence and spans. It removes the redundant generated `reason` field.
+Revision three selected useful source text in its component smoke but emitted
+contradictory status/reason combinations. Every job failed that smoke (2/4), so
+no candidate dataset score was produced. Those failures remain failures. The
+old provider and tests are preserved in `history/provider-v3`; see
+`PROVIDER_V4_POLICY.md` for the new contract. Native validation and release
+thresholds remain unchanged.
+
 ## Results and release decision
 
 The workflow preserves requests, responses, native scores, errors and integrity

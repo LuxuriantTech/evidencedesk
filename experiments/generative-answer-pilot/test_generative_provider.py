@@ -63,12 +63,11 @@ def fake_local_post(content: str, input_tokens: int = 128):
     return call
 
 
-def decision(status: str = "answered", evidence=None, spans=None, reason="supported_fact") -> str:
+def decision(status: str = "answered", evidence=None, spans=None) -> str:
     return json.dumps({
-        "status": status,
         "evidence": evidence if evidence is not None else [{"chunk_id": "c1", "quote": "Serial is SN-73."}],
         "answer_spans": spans if spans is not None else [{"chunk_id": "c1", "text": "SN-73"}],
-        "reason": reason,
+        "status": status,
     })
 
 
@@ -102,6 +101,21 @@ class GenerativeProviderTests(unittest.TestCase):
         self.assertEqual(self.provider.diagnostics[-1]["context_preflight"], "passed_exact_server_token_count")
         self.assertEqual(post.call_args_list[0].args[1], post.call_args_list[1].args[1])
         self.assertEqual(result.mode if hasattr(result, "mode") else self.provider.mode, MODE)
+        self.assertEqual(JSON_SCHEMA["required"], ["evidence", "answer_spans", "status"])
+        self.assertEqual(list(JSON_SCHEMA["properties"]), ["evidence", "answer_spans", "status"])
+
+    def test_ambiguous_values_require_distinct_proof_quotes(self):
+        ranked = [c("c1", "The fee was EUR 40, later EUR 55."), c("c2", "Account is active.")]
+        content = decision(
+            "ambiguous",
+            [{"chunk_id": "c1", "quote": "The fee was EUR 40, later EUR 55."},
+             {"chunk_id": "c2", "quote": "Account is active."}],
+            [{"chunk_id": "c1", "text": "EUR 40"}, {"chunk_id": "c1", "text": "EUR 55"}],
+        )
+        result, _ = self.call_with_content(content, ranked)
+        self.assertEqual(result.status, "abstained")
+        self.assertEqual(self.provider.diagnostics[-1]["model_validation_reason"],
+                         "model_output_ambiguity_values_share_evidence")
 
     def test_ambiguous_requires_two_distinct_values_with_separate_evidence(self):
         content = decision(
@@ -114,7 +128,6 @@ class GenerativeProviderTests(unittest.TestCase):
                 {"chunk_id": "c1", "text": "EUR 40"},
                 {"chunk_id": "c2", "text": "EUR 55"},
             ],
-            "conflicting_sources",
         )
         result, _ = self.call_with_content(content, [c("c1", "The fee is EUR 40."), c("c2", "The fee is EUR 55.")])
         self.assertEqual(result.status, "ambiguous")
@@ -135,7 +148,6 @@ class GenerativeProviderTests(unittest.TestCase):
                 {"chunk_id": "c1", "text": "EUR 40"},
                 {"chunk_id": "c1", "text": "EUR 45"},
             ],
-            "conflicting_sources",
         )
         result, _ = self.call_with_content(content, [chunk])
         self.assertEqual(result.status, "ambiguous")
@@ -147,14 +159,13 @@ class GenerativeProviderTests(unittest.TestCase):
             "ambiguous",
             [{"chunk_id": "c1", "quote": "Fee EUR 40."}, {"chunk_id": "c2", "quote": "Fee EUR 40."}],
             [{"chunk_id": "c1", "text": "EUR 40"}, {"chunk_id": "c2", "text": "EUR 40"}],
-            "conflicting_sources",
         )
         result, _ = self.call_with_content(content, [c("c1", "Fee EUR 40."), c("c2", "Fee EUR 40.")])
         self.assertEqual(result.status, "abstained")
         self.assertEqual(self.provider.diagnostics[-1]["model_validation_reason"], "model_output_ambiguity_contract")
 
     def test_abstention_has_no_spans_or_citations(self):
-        content = decision("abstained", [], [], "no_evidence")
+        content = decision("abstained", [], [])
         result, _ = self.call_with_content(content, [c("c1", "No serial number is listed.")])
         self.assertEqual(result.status, "abstained")
         self.assertEqual(result.answer, ABSTENTION_TEXT)
@@ -167,11 +178,24 @@ class GenerativeProviderTests(unittest.TestCase):
             "answered",
             [{"chunk_id": "c1", "quote": "Contact: Lea Martin. Start date: 1 May 2028. Phone: 555-0100."}],
             [{"chunk_id": "c1", "text": "Lea Martin"}, {"chunk_id": "c1", "text": "1 May 2028"}],
-            "supported_fact",
         )
         result, _ = self.call_with_content(content, [chunk])
         self.assertEqual(result.status, "answered")
         self.assertEqual(result.answer, "Lea Martin. Start date: 1 May 2028")
+        validate_grounded_answer(result, [chunk])
+
+    def test_answered_allows_corroborating_quotes_when_spans_share_one_quote(self):
+        chunk = c("c1", "The account code is READY. Account code: READY.")
+        content = decision(
+            "answered",
+            [{"chunk_id": "c1", "quote": "The account code is READY."},
+             {"chunk_id": "c1", "quote": "Account code: READY."}],
+            [{"chunk_id": "c1", "text": "READY"}],
+        )
+        result, _ = self.call_with_content(content, [chunk])
+        self.assertEqual(result.status, "answered")
+        self.assertEqual(result.answer, "READY")
+        self.assertEqual(len(result.citations), 2)
         validate_grounded_answer(result, [chunk])
 
     def test_answered_spans_in_separate_chunks_fail_closed(self):
@@ -180,7 +204,6 @@ class GenerativeProviderTests(unittest.TestCase):
             "answered",
             [{"chunk_id": "c1", "quote": "Contact: Lea Martin."}, {"chunk_id": "c2", "quote": "Start date: 1 May 2028."}],
             [{"chunk_id": "c1", "text": "Lea Martin"}, {"chunk_id": "c2", "text": "1 May 2028"}],
-            "supported_fact",
         )
         result, _ = self.call_with_content(content, ranked)
         self.assertEqual(result.status, "abstained")
@@ -190,7 +213,7 @@ class GenerativeProviderTests(unittest.TestCase):
     def test_fail_closed_output_errors_are_countable_not_silent(self):
         for content, expected in [
             ("not json", "model_output_invalid_json"),
-            (json.dumps({"status": "answered", "evidence": [], "answer_spans": [], "reason": "supported_fact", "extra": 1}), "model_output_unknown_or_missing_keys"),
+            (json.dumps({"evidence": [], "answer_spans": [], "status": "abstained", "reason": "no_evidence"}), "model_output_unknown_or_missing_keys"),
             (decision(evidence=[{"chunk_id": "elsewhere", "quote": "Serial is SN-73."}]), "model_output_unknown_chunk_id"),
             (decision(evidence=[{"chunk_id": "c1", "quote": "Serial is SN-74."}]), "model_output_quote_not_exact_substring"),
             (decision(spans=[{"chunk_id": "c2", "text": "SN-73"}]), "model_output_unknown_span_chunk_id"),
@@ -200,6 +223,21 @@ class GenerativeProviderTests(unittest.TestCase):
                 self.assertEqual(result.status, "abstained")
                 self.assertEqual(self.provider.diagnostics[-1]["model_validation_reason"], expected)
                 validate_grounded_answer(result, [c("c1", "Serial is SN-73.")])
+
+    def test_duplicate_json_keys_are_rejected_at_every_object_level(self):
+        responses = (
+            '{"evidence":[{"chunk_id":"c1","quote":"Serial is SN-73."}],'
+            '"answer_spans":[{"chunk_id":"c1","text":"SN-73"}],'
+            '"status":"answered","status":"abstained"}',
+            '{"evidence":[{"chunk_id":"c1","chunk_id":"c1","quote":"Serial is SN-73."}],'
+            '"answer_spans":[{"chunk_id":"c1","text":"SN-73"}],"status":"answered"}',
+        )
+        for content in responses:
+            with self.subTest(content=content):
+                result, _ = self.call_with_content(content)
+                self.assertEqual(result.status, "abstained")
+                self.assertEqual(self.provider.diagnostics[-1]["model_validation_reason"],
+                                 "model_output_duplicate_json_key")
 
     def test_parseable_response_with_length_finish_reason_fails_closed(self):
         content = decision()
@@ -287,10 +325,9 @@ class GenerativeProviderTests(unittest.TestCase):
         chunk = c("c1", "Serial SN-73.").chunk
         chunks = [type("Wrapped", (), {"chunk": chunk})()]
         duplicate = {
-            "status": "answered",
             "evidence": [{"chunk_id": "c1", "quote": "Serial SN-73."}] * 2,
             "answer_spans": [{"chunk_id": "c1", "text": "SN-73"}],
-            "reason": "supported_fact",
+            "status": "answered",
         }
         with self.assertRaisesRegex(ModelOutputValidationError, "duplicate_evidence"):
             _validate_model_json(json.dumps(duplicate), [type("Simple", (), {"chunk_id": "c1", "text": chunk.text})()])
