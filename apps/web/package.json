@@ -35,7 +35,7 @@
     "jsdom": "latest",
     "typescript-eslint": "latest",
     "vite": "^8.2.4",
-    "vitest": "latest"
+    "vitest": "4.1.12"
   },
   "overrides": {
     "undici": "8.10.2",
