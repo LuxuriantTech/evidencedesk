@@ -614,18 +614,41 @@ def _field_value(
     )
     if original_value is None:
         return None
-    local_clause = _local_value_clause(
+    assertion_start, assertion_end = _assertion_bounds(
         segment,
         original_match.start(),
         original_match.end() + original_value.end(),
     )
-    if not _constraints_present(question, local_clause):
-        # A comma can separate a time/condition from its single field assertion;
-        # allow it only when the segment contains one unambiguous value label.
-        if len(field_matches) != 1 or not _constraints_present(
-            question, segment, constraint_context
-        ):
-            return None
+    assertion = segment[assertion_start:assertion_end]
+    assertion_folded = _fold(assertion)
+    assertion_ids = _requested_identifier_values(assertion)
+    requested_ids = _requested_identifier_values(question)
+    context_header = _has_unique_context_header(
+        question, segment, constraint_context
+    )
+    if not requested_ids <= assertion_ids and not context_header:
+        return None
+    if not _requested_conditions(question) <= {
+        condition
+        for condition in _requested_conditions(question)
+        if condition in assertion_folded
+    }:
+        return None
+    assertion_clocks = {
+        f"{match.group(1)} {match.group(2)}".casefold()
+        if match.group(2)
+        else match.group(1).casefold()
+        for match in _CLOCK.finditer(assertion)
+    }
+    if _requested_clock_values(question) and not (
+        _requested_clock_values(question) & assertion_clocks
+    ):
+        return None
+    assertion_dates = {_fold(match.group(0)) for match in _DATE.finditer(assertion)}
+    if _DATE.search(question) and not (
+        {_fold(match.group(0)) for match in _DATE.finditer(question)} & assertion_dates
+    ):
+        return None
     using_context = bool(constraint_context and segment in constraint_context)
     source = (
         constraint_context
@@ -638,13 +661,18 @@ def _field_value(
         offset = 0
     start = offset + original_match.start()
     end = offset + original_match.end() + original_value.end()
+    assertion_source_start = offset + assertion_start
+    assertion_source_end = offset + assertion_end
     for requested_id in _requested_identifier_values(question):
         id_match = re.search(
             rf"(?<![A-Z0-9]){re.escape(requested_id)}(?![A-Z0-9])",
             source,
             re.IGNORECASE,
         )
-        if id_match:
+        if id_match and (
+            assertion_source_start <= id_match.start() < assertion_source_end
+            or _has_unique_context_header(question, segment, constraint_context)
+        ):
             clause = _local_value_clause(source, id_match.start(), id_match.end())
             clause_start = source.find(clause)
             start = min(
@@ -657,6 +685,8 @@ def _field_value(
                 else id_match.end(),
             )
     for clock in _CLOCK.finditer(source):
+        if not assertion_source_start <= clock.start() < assertion_source_end:
+            continue
         clock_value = (
             f"{clock.group(1)} {clock.group(2)}".casefold()
             if clock.group(2)
@@ -666,12 +696,16 @@ def _field_value(
             start = min(start, clock.start())
             end = max(end, clock.end())
     for date_match in _DATE.finditer(source):
+        if not assertion_source_start <= date_match.start() < assertion_source_end:
+            continue
         if _fold(date_match.group(0)) in {
             _fold(match.group(0)) for match in _DATE.finditer(question)
         }:
             start = min(start, date_match.start())
             end = max(end, date_match.end())
     for condition_match in _CONDITION.finditer(source):
+        if not assertion_source_start <= condition_match.start() < assertion_source_end:
+            continue
         condition = re.sub(r"\s+", " ", _fold(condition_match.group(1))).strip()
         if condition in _requested_conditions(question):
             start = min(start, condition_match.start())
@@ -903,6 +937,45 @@ def _local_value_clause(segment: str, start: int, end: int) -> str:
             right = boundary
             break
     return segment[left:right].strip(" ,;:")
+
+
+def _assertion_bounds(segment: str, start: int, end: int) -> tuple[int, int]:
+    left = max(
+        (segment.rfind(mark, 0, start) + 1 for mark in (";", ".", "!", "?", "\n")),
+        default=0,
+    )
+    right_candidates = [
+        position
+        for mark in (";", ".", "!", "?", "\n")
+        if (position := segment.find(mark, end)) >= 0
+    ]
+    return left, min(right_candidates) if right_candidates else len(segment)
+
+
+def _is_identifier_header(text: str) -> bool:
+    if not _EXPLICIT_ID.search(text):
+        return False
+    remainder = _EXPLICIT_ID.sub("", text)
+    remainder = re.sub(
+        r"\b[A-Za-z][A-Za-z0-9]*(?:ID|Code|Tag|Ref|Number)\b", "", remainder
+    )
+    return re.sub(r"[\s|:;,./-]+", "", remainder) == ""
+
+
+def _has_unique_context_header(
+    question: str, segment: str, constraint_context: str | None
+) -> bool:
+    if not constraint_context or segment not in constraint_context:
+        return False
+    prefix = constraint_context[: constraint_context.find(segment)]
+    header = re.split(
+        r"[.!?;\n]", prefix.strip().rstrip(".!?;")
+    )[-1].strip()
+    if not _is_identifier_header(header):
+        return False
+    requested = _requested_identifier_values(question)
+    header_ids = {_fold(match.group(1)) for match in _EXPLICIT_ID.finditer(header)}
+    return bool(requested) and requested <= header_ids
 
 
 def _question_excluded_terms(question: str) -> set[str]:

@@ -1196,6 +1196,20 @@ def test_direct_field_value_binds_record_identifier_and_cites_local_assertion() 
     assert result.extracted_fields == {"answer": "SR-82"}
 
 
+def test_identifiers_in_separate_assertions_do_not_create_a_record_link() -> None:
+    result = _provider().answer(
+        "Which ServiceRecordID belongs to WorkOrderID WO-31?",
+        [
+            _ranked(
+                "separate-records",
+                "WorkOrderID WO-31 is open; ServiceRecordID SR-99 is inactive.",
+            )
+        ],
+    )
+
+    assert result.status == "abstained"
+
+
 def test_measurement_selection_uses_exact_time_and_ignores_unrelated_absence() -> None:
     first = "At 08:15, pressure at station QX-42/6 was 42 kPa."
     second = "At 08:45, pressure at station QX-42/6 was 57 kPa."
@@ -1228,7 +1242,7 @@ def test_repeated_unscoped_measurement_values_are_reported_as_ambiguous() -> Non
 
 
 def test_field_query_uses_interrogative_label_before_a_later_camelcase_constraint() -> None:
-    passage = "SampleBatchID XX-7; Nitrate concentration: 0.84 mg/L."
+    passage = "Nitrate concentration for SampleBatchID XX-7: 0.84 mg/L."
     question = "What nitrate concentration is reported for SampleBatchID XX-7?"
     result = _provider().answer(question, [_ranked("batch", passage)])
 
@@ -1254,6 +1268,21 @@ def test_requested_condition_is_required_when_selecting_labeled_values() -> None
     result = _provider().answer(
         "What pressure was recorded under high load?",
         [_ranked("low", "Pressure was 38.2 kPa under low load.")],
+    )
+
+    assert result.status == "abstained"
+
+
+def test_condition_in_an_adjacent_assertion_does_not_scope_a_field_value() -> None:
+    result = _provider().answer(
+        "What pressure was recorded at station B under high load?",
+        [
+            _ranked(
+                "adjacent-condition",
+                "Under high load, station A logged 5; "
+                "pressure at station B was 57 kPa.",
+            )
+        ],
     )
 
     assert result.status == "abstained"
