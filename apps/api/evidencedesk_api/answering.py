@@ -1079,7 +1079,7 @@ def _has_requested_field_absence(question: str, segment: str) -> bool:
 _LOCAL_PREDICATE = re.compile(
     r"\b(?:am|is|are|was|were|be|been|being|has|have|had|do|does|did|"
     r"can|could|may|might|must|shall|should|will|would|"
-    r"est|sont|etaient|sera|seront|a|ont|peut|peuvent|doit|doivent|"
+    r"est|sont|etait|etaient|était|étaient|sera|seront|a|ont|peut|peuvent|doit|doivent|"
     r"included|provided|recorded|listed|available|specified|stated|supplied|"
     r"covered|eligible|approved|authorized|allowed|required|applies|applied|"
     r"provides|gives|names|mentions|states|lists|records|identifies|"

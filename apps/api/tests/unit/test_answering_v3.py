@@ -1569,3 +1569,21 @@ def test_multiple_conditioned_values_in_one_sentence_are_not_guessed() -> None:
     )
 
     assert result.status == "abstained"
+
+
+def test_french_coordination_does_not_transfer_condition_between_subjects() -> None:
+    result = _provider().answer(
+        "Quelle pression est enregistrée au clapet B sous forte demande?",
+        [
+            _ranked(
+                "french-condition-coordination",
+                "Sous forte demande, le compresseur A a signalé 4, "
+                "et la pression au clapet B était de 71 kPa.",
+            )
+        ],
+    )
+
+    assert result.status == "abstained"
+    assert result.answerable is False
+    assert result.citations == ()
+    assert "71 kPa" not in result.answer
