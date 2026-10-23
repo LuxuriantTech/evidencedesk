@@ -1,0 +1,107 @@
+{
+  "dataset_version": "independent-synthetic-corpus-2026.10.23-v4",
+  "license": "CC0-1.0",
+  "synthetic_only": true,
+  "generation_seed": 20261023,
+  "documents": [
+    {
+      "id": "e4-plan",
+      "filename": "plan.txt",
+      "format": "txt",
+      "source_path": "datasets/sources/plan.txt",
+      "pages": [
+        "Field Plan FP-611 | CampaignID C-17 | SiteCode BR-4 | Field date 2026-10-14 | Lead: Nadia Laurent. The plan assigns Quadrat Q-3 for the vegetation transect. FP-611 references PermitID PR-88 for access to BR-4.",
+        "Adjacent planning note: Field Plan FP-612 belongs to CampaignID C-71 at SiteCode BR-7. No street address for BR-4, boat operator, or grant amount is recorded in this plan."
+      ]
+    },
+    {
+      "id": "e4-permit",
+      "filename": "permit.txt",
+      "format": "txt",
+      "source_path": "datasets/sources/permit.txt",
+      "pages": [
+        "Permit PR-88 | CampaignID C-17 | SiteCode BR-4 | Approved for 2026-10-14. Entry window begins 07:30 CEST; exit by 18:00 CEST. Access point: North Gate. Permit PR-88 explicitly authorizes FieldPlanID FP-611.",
+        "Scope: pedestrian sampling only. The permit does not name a boat operator, give a postal address for BR-4, or state a grant amount."
+      ]
+    },
+    {
+      "id": "e4-bulletin",
+      "filename": "bulletin.txt",
+      "format": "txt",
+      "source_path": "datasets/sources/bulletin.txt",
+      "pages": [
+        "Bulletin FB-204 | PermitID PR-88 | CampaignID C-17 | SiteCode BR-4 | Date 2026-10-14. Meet at North Gate; team entry time is printed as 08:00 CEST.",
+        "This bulletin is marked current and released, but it does not say it amends, replaces, or corrects Permit PR-88. No reconciliation note appears before departure."
+      ]
+    },
+    {
+      "id": "e4-checkout",
+      "filename": "checkout.txt",
+      "format": "txt",
+      "source_path": "datasets/sources/checkout.txt",
+      "pages": [
+        "CheckoutID CO-090, dated 2026-10-14: the checkout record explicitly assigns AssetTag CTD-204 to CampaignID C-17. Model listed: AquaScan 4X. CalibrationCertificateID CAL-204A is entered on the same checkout line.",
+        "CheckoutID CO-091 is for CampaignID C-71 and AssetTag CTD-240, model AquaScan 4X-Lite. These are separate assets and a separate campaign."
+      ]
+    },
+    {
+      "id": "e4-station",
+      "filename": "station.txt",
+      "format": "txt",
+      "source_path": "datasets/sources/station.txt",
+      "pages": [
+        "StationRecordID SR-901 | CampaignID C-17 | SiteCode BR-4 | Date 2026-10-14. The record explicitly binds SampleBatchID SB-031 and AssetTag CTD-204 to CampaignID C-17. At 10:15 CEST, salinity was 12.6 PSU, water temperature 15.8 °C, and turbidity 2.1 NTU.",
+        "At 10:40 CEST, the same SampleBatchID SB-031 has a second salinity reading of 12.9 PSU. Peak turbidity for SR-901 was 3.6 NTU. The record specifies no averaging rule and does not designate either salinity reading as the sole current value."
+      ]
+    },
+    {
+      "id": "e4-lab",
+      "filename": "lab.txt",
+      "format": "txt",
+      "source_path": "datasets/sources/lab.txt",
+      "pages": [
+        "LabReportID LR-550 | SampleBatchID SB-031. Nitrate: 0.84 mg/L. Laboratory pH: 7.43. Phosphate: not tested. The report says SampleBatchID SB-031 was received from StationRecordID SR-901. Finalized 2026-10-16 by M. Caron.",
+        "A separate entry for SampleBatchID SB-013 reports nitrate 0.48 mg/L. SB-013 is not the batch analyzed in LR-550."
+      ]
+    },
+    {
+      "id": "e4-calibration",
+      "filename": "calibration.txt",
+      "format": "txt",
+      "source_path": "datasets/sources/calibration.txt",
+      "pages": [
+        "CalibrationCertificateID CAL-204A is issued for AssetTag CTD-204. The certificate states that calibration remains valid through 2026-10-31."
+      ]
+    },
+    {
+      "id": "e4-asset-register",
+      "filename": "asset-register.txt",
+      "format": "txt",
+      "source_path": "datasets/sources/asset-register.txt",
+      "pages": [
+        "Register snapshot dated 2026-10-10: AssetTag CTD-204 is active. The register lists calibration due 2026-11-15.",
+        "The snapshot remains current in the filing system. No revision note reconciles this register date with CalibrationCertificateID CAL-204A; neither record is marked superseded."
+      ]
+    },
+    {
+      "id": "e4-service",
+      "filename": "service.txt",
+      "format": "txt",
+      "source_path": "datasets/sources/service.txt",
+      "pages": [
+        "ServiceOrderID SO-44 explicitly references AssetTag CTD-204 and CampaignID C-17. On 2026-10-14 at 11:20 CEST, technician A. Morel replaced the battery. Bench testing after the service did not reproduce a fault.",
+        "IncidentTicketID IT-77 also references AssetTag CTD-204 and CampaignID C-17. A field observer reported intermittent dropouts. IT-77 remains OPEN; cause is unconfirmed and no final finding is recorded."
+      ]
+    },
+    {
+      "id": "e4-ranger",
+      "filename": "ranger.txt",
+      "format": "txt",
+      "source_path": "datasets/sources/ranger.txt",
+      "pages": [
+        "FieldObservationID FO-18 | CampaignID C-17 | SiteCode BR-4. After the storm of 2026-10-14, FO-18 marks Quadrat Q-3 as flooded.",
+        "RangerFollowupID RF-38 | CampaignID C-17 | SiteCode BR-4. After the same 2026-10-14 storm, RF-38 marks Quadrat Q-4 as flooded. Both notes remain current and unreconciled. No visitor count is recorded."
+      ]
+    }
+  ]
+}

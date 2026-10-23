@@ -1,0 +1,204 @@
+{
+  "dataset_version": "independent-synthetic-corpus-2026.10.23-v1",
+  "parameters_version": "ind23-comparison-cases-v1",
+  "mode": "grounded-local-v3",
+  "seed": 20261023,
+  "synthetic_only": true,
+  "metrics": {
+    "case_accuracy": "Each answerable case requires the exact fact requested; dates and amounts must match the canonical value. No fuzzy or post-run tolerance changes.",
+    "citation_accuracy": "Every answerable result must cite the gold document and page with an exact supporting excerpt. For ambiguous cases both relevant documents/pages must be cited.",
+    "abstention_accuracy": "Unanswerable cases require an explicit abstention and no invented value. Ambiguous cases require the ambiguity to be surfaced without selecting one unsupported single answer.",
+    "paraphrase_consistency": "Cases sharing a paraphrase_group must preserve the same factual answer and citation regardless of language or wording.",
+    "negation_accuracy": "Negative questions must preserve the polarity of the cited source rule.",
+    "collision_handling": "When two agreements provide potentially overlapping deadlines and the corpus contains no precedence rule, identify both terms and state that the corpus does not establish which single term controls.",
+    "no_threshold_asserted": true
+  },
+  "extraction_targets": [],
+  "cases": [
+    {
+      "id": "ind23-a01",
+      "split": "development",
+      "kind": "answerable",
+      "question": "On what date did the Aster–Quill agreement become effective?",
+      "expected_answer": "2027-02-10",
+      "expected_citations": [{"document_id": "ind23-aster-msa", "page": 1, "excerpt": "Effective date: 2027-02-10."}],
+      "paraphrase_group": "aster-effective-date"
+    },
+    {
+      "id": "ind23-a02",
+      "split": "development",
+      "kind": "answerable",
+      "question": "À compter de quelle date l'accord Aster–Quill prend-il effet ?",
+      "expected_answer": "2027-02-10",
+      "expected_citations": [{"document_id": "ind23-aster-msa", "page": 1, "excerpt": "Effective date: 2027-02-10."}],
+      "paraphrase_group": "aster-effective-date"
+    },
+    {
+      "id": "ind23-a03",
+      "split": "development",
+      "kind": "answerable",
+      "question": "When is the Aster Fleet Services Agreement due for renewal?",
+      "expected_answer": "2028-02-10",
+      "expected_citations": [{"document_id": "ind23-aster-msa", "page": 2, "excerpt": "The agreement renews on 2028-02-10 unless either party gives 45 days' written notice."}],
+      "paraphrase_group": "aster-renewal-date"
+    },
+    {
+      "id": "ind23-a04",
+      "split": "development",
+      "kind": "answerable",
+      "question": "À quelle date le contrat Aster–Quill arrive-t-il à son renouvellement ?",
+      "expected_answer": "2028-02-10",
+      "expected_citations": [{"document_id": "ind23-aster-msa", "page": 2, "excerpt": "The agreement renews on 2028-02-10 unless either party gives 45 days' written notice."}],
+      "paraphrase_group": "aster-renewal-date"
+    },
+    {
+      "id": "ind23-a05",
+      "split": "development",
+      "kind": "answerable",
+      "question": "What annual platform charge does the Aster agreement specify?",
+      "expected_answer": "EUR 42,800",
+      "expected_citations": [{"document_id": "ind23-aster-msa", "page": 1, "excerpt": "Annual platform charge: EUR 42,800."}]
+    },
+    {
+      "id": "ind23-a06",
+      "split": "development",
+      "kind": "answerable",
+      "question": "Which monthly storage charge is listed for Cobalt Archive Services?",
+      "expected_answer": "EUR 1,250 per month",
+      "expected_citations": [{"document_id": "ind23-cobalt-register", "page": 1, "excerpt": "Monthly storage charge: EUR 1,250."}]
+    },
+    {
+      "id": "ind23-a07",
+      "split": "development",
+      "kind": "answerable",
+      "question": "How long was Quill Harbor's dispatch feed delayed?",
+      "expected_answer": "17 minutes",
+      "expected_citations": [{"document_id": "ind23-routing-incident", "page": 1, "excerpt": "Quill Harbor's dispatch feed was delayed from 08:06 to 08:23 UTC, a total of 17 minutes."}],
+      "paraphrase_group": "dispatch-delay-duration"
+    },
+    {
+      "id": "ind23-a08",
+      "split": "development",
+      "kind": "answerable",
+      "question": "De combien de temps le flux d'expédition de Quill Harbor a-t-il été retardé ?",
+      "expected_answer": "17 minutes",
+      "expected_citations": [{"document_id": "ind23-routing-incident", "page": 1, "excerpt": "Quill Harbor's dispatch feed was delayed from 08:06 to 08:23 UTC, a total of 17 minutes."}],
+      "paraphrase_group": "dispatch-delay-duration"
+    },
+    {
+      "id": "ind23-a09",
+      "split": "development",
+      "kind": "answerable",
+      "question": "Can a subcontractor access production data without Quill Harbor's written approval?",
+      "expected_answer": "No. Prior written approval from Quill Harbor is required.",
+      "expected_citations": [{"document_id": "ind23-aster-msa", "page": 2, "excerpt": "No subcontractor may access production data without prior written approval from Quill Harbor."}],
+      "category": "negation"
+    },
+    {
+      "id": "ind23-a10",
+      "split": "development",
+      "kind": "answerable",
+      "question": "Does the routing incident report amend the Aster agreement?",
+      "expected_answer": "No. The report says it does not amend the agreement.",
+      "expected_citations": [{"document_id": "ind23-routing-incident", "page": 2, "excerpt": "This report does not amend the Aster Fleet Services Agreement."}],
+      "category": "negation"
+    },
+    {
+      "id": "ind23-a11",
+      "split": "development",
+      "kind": "answerable",
+      "question": "What is the Aster agreement's annual platform charge: EUR 42,800 or EUR 43,800?",
+      "expected_answer": "EUR 42,800",
+      "expected_citations": [{"document_id": "ind23-aster-msa", "page": 1, "excerpt": "Annual platform charge: EUR 42,800."}],
+      "category": "close-values"
+    },
+    {
+      "id": "ind23-a12",
+      "split": "development",
+      "kind": "answerable",
+      "question": "Was the dispatch-feed delay 17 or 18 minutes?",
+      "expected_answer": "17 minutes",
+      "expected_citations": [{"document_id": "ind23-routing-incident", "page": 1, "excerpt": "Quill Harbor's dispatch feed was delayed from 08:06 to 08:23 UTC, a total of 17 minutes."}],
+      "category": "close-values"
+    },
+    {
+      "id": "ind23-a13",
+      "split": "development",
+      "kind": "answerable",
+      "question": "Is a renewal date listed for Cobalt Archive Services?",
+      "expected_answer": "No. The register says the renewal date is not recorded.",
+      "expected_citations": [{"document_id": "ind23-cobalt-register", "page": 2, "excerpt": "Renewal date: not recorded."}],
+      "category": "explicit-absence"
+    },
+    {
+      "id": "ind23-u01",
+      "split": "development",
+      "kind": "unanswerable",
+      "question": "On which date does Cobalt Archive Services renew its contract?",
+      "expected_answer": null,
+      "expected_citations": [],
+      "category": "abstention"
+    },
+    {
+      "id": "ind23-u02",
+      "split": "development",
+      "kind": "unanswerable",
+      "question": "What is the monthly storage charge stated in the Aster Fleet Services Agreement?",
+      "expected_answer": null,
+      "expected_citations": [],
+      "category": "scope-and-near-value-abstention"
+    },
+    {
+      "id": "ind23-u03",
+      "split": "development",
+      "kind": "unanswerable",
+      "question": "What tax/VAT registration number is listed for Cobalt Archive Services?",
+      "expected_answer": null,
+      "expected_citations": [],
+      "category": "abstention"
+    },
+    {
+      "id": "ind23-u04",
+      "split": "development",
+      "kind": "unanswerable",
+      "question": "On what date did Aster notify Quill Harbor of a confirmed cybersecurity incident?",
+      "expected_answer": null,
+      "expected_citations": [],
+      "category": "abstention"
+    },
+    {
+      "id": "ind23-u05",
+      "split": "development",
+      "kind": "unanswerable",
+      "question": "What invoice amount was charged for the routing incident?",
+      "expected_answer": null,
+      "expected_citations": [],
+      "category": "abstention"
+    },
+    {
+      "id": "ind23-c01",
+      "split": "development",
+      "kind": "ambiguous",
+      "question": "If one deadline must be selected for a confirmed incident that is also a personal-data breach, which notification period controls under the two Aster agreements?",
+      "expected_answer": null,
+      "expected_citations": [
+        {"document_id": "ind23-aster-msa", "page": 2, "excerpt": "Aster shall notify Quill Harbor of a confirmed cybersecurity incident within 24 hours."},
+        {"document_id": "ind23-aster-dpa", "page": 1, "excerpt": "For a confirmed personal-data breach, Aster shall notify Quill Harbor within 12 hours after discovery."},
+        {"document_id": "ind23-aster-dpa", "page": 1, "excerpt": "This addendum does not state whether it replaces or takes precedence over the security-incident notice term in the Aster Fleet Services Agreement."}
+      ],
+      "category": "contract-collision"
+    },
+    {
+      "id": "ind23-c02",
+      "split": "development",
+      "kind": "ambiguous",
+      "question": "What is the supplier's effective date?",
+      "expected_answer": null,
+      "expected_citations": [
+        {"document_id": "ind23-aster-msa", "page": 1, "excerpt": "Effective date: 2027-02-10."},
+        {"document_id": "ind23-cobalt-register", "page": 1, "excerpt": "Effective date: 2027-03-01."}
+      ],
+      "category": "entity-collision"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "version": "ind23-comparison-cases-v1",
+  "freeze_status": "cases_frozen_before_any_baseline_or_candidate_run",
+  "date_local": "2026-10-23",
+  "timezone": "Europe/Brussels",
+  "claims": {
+    "system_outputs_seen_before_freeze": false,
+    "runtime_modified_by_author": false,
+    "tests_or_model_runs_performed": false,
+    "third_party_blind_certification": false
+  },
+  "case_count": 20,
+  "case_counts": {
+    "answerable": 13,
+    "unanswerable": 5,
+    "ambiguous": 2
+  },
+  "artifacts": {
+    "PROTOCOL.md": "273d918fc9687515e78ae2eb8d485b94a69776affc2c546d2a802b2609b81969",
+    "datasets/corpus_manifest.json": "01d93dba59f0bd90293374c2a8f9aefeef807cb8953c83bcfd75c3943906631c",
+    "datasets/evaluation_cases.json": "85fc6e595f0780539bdf77d5950192f217d61f425a0efc719479f50e2be5b46b",
+    "datasets/sources/aster_data_processing_addendum.txt": "a1bc7ff8cfd1ba163ac1517df6743ff081765ee1777ec8704dfff93d6aa9c9ae",
+    "datasets/sources/aster_fleet_agreement.txt": "750e8dbbe15bf259039ad0903680bab64a4f336ed551d239be0dd3eb84431e30",
+    "datasets/sources/cobalt_supplier_register.txt": "b933ee0ee0964ad2c762dc3c7e932a3977333d8256217fb06c281f6a4d17a318",
+    "datasets/sources/routing_incident_note.txt": "4a4fdb15b82a26abea83f8fd002e98e64d509fc230b72db05ac634fc70486bab"
+  },
+  "read_only_reference_inputs": {
+    "repository_root": "output/portfolio-improvements-20261022/evidencedesk-deps",
+    "files": {
+      "datasets/corpus_manifest.json": "bc8393f3852a2a50d5be6e0a6bc6da10a935eac2443648d336820b6830a98b73",
+      "datasets/sources/supplier_register.txt": "63b018cc342c7ce4b556698ac01f360e5e63f9771f25e5cc6820545e6895c605",
+      "datasets/sources/routing_delay_incident.md": "386aa0750c1338bf1391b94bc147e59b4c81599b27b8cd43876a1c3edc24a3ba",
+      "datasets/sources/northstar_master_services_agreement_source.json": "791f040a2a87a40564c7c8b87eb8c28b46e965b3a74d7a02c447886850c23f5f",
+      "docs/independent-evaluation-plan.md": "1c0ae13c81440ff979ac373adfae7c49ced0f0089b448818fe15de70bc541bbe",
+      "docs/evaluation.md": "9bd34a1bb4a49480c49dd3d3c3d88b3f7e41ba371f289186d8b4d87ba55e1d42",
+      "evals/validate_dataset.py": "8a23ef86da7d503dae38b90057823591868ddf6f162072f26775bdddfdbfc472"
+    }
+  }
+}

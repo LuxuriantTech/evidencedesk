@@ -1,0 +1,6 @@
+PAGE 1
+COLD-CHAIN LOGGER EXPORT — SH-2841 / CH-06
+Required transport range: 2–6 °C.
+Mean product-zone temperature: 4.4 °C; highest recorded reading: 6.3 °C.
+Readings remained above 6 °C for 12 minutes, from 09:16 to 09:28 CEST.
+The logger export reports no power-loss interval. No calibration-certificate expiry date is included.

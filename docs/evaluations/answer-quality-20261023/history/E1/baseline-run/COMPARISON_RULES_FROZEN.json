@@ -1,0 +1,36 @@
+{
+  "comparison_label": "ind23-comparison-cases-v1",
+  "frozen_at": "2026-10-23",
+  "suite_sha256": "85fc6e595f0780539bdf77d5950192f217d61f425a0efc719479f50e2be5b46b",
+  "corpus_sha256": "01d93dba59f0bd90293374c2a8f9aefeef807cb8953c83bcfd75c3943906631c",
+  "adapter_sha256": "0608fb6b6fb9d4608ffe19d5cf9ecd6f2e0ac43f904eefb50f3b63474229ed6a",
+  "metric_source_commit": "0ae029757bfae524034d07335d0c518423b4afa9",
+  "metric_source_files_sha256": {
+    "evals/runner.py": "5475e891fc623ac50f793eacc22898c5873577f4c751876e91845a17a0bec259",
+    "evals/schema_versions.py": "2b3411ed24498fdffa09a71dfbf0e4fee137cafeab4727b9d3904d930a340f10",
+    "evals/validate_dataset.py": "2c1e72091155f5caa9443eacff3d107f8c46f463c33329c44c755688f2789613",
+    "evals/answer_v3_runtime.py": "b496f5290a350f420ed4d3d53ba1413a5fff82f16ba23cea065c072cd883748d",
+    "evals/configs/answer-v3-frozen-v7.json": "a3987fdb7bb2db037a4089044438a79d150db4b6bcc5ab136b868cd6c54c7a38"
+  },
+  "runner_acceptance_targets": {
+    "citation_precision": 0.9,
+    "citation_recall": 0.9,
+    "citation_case_accuracy": 0.9,
+    "abstention_accuracy": 0.85,
+    "extraction_f1": 0.9,
+    "error_rate": 0.0,
+    "schema_error_rate": 0.0
+  },
+  "primary_comparable_score": {
+    "key": "result.metric_counts.answerable_correct / result.metric_counts.answerable_total",
+    "baseline_value": "7/13",
+    "runner_metric_key": "citation_case_accuracy",
+    "rounding": "result JSON native round to 6 decimals",
+    "no_post_run_gold_or_alias_changes": true
+  },
+  "secondary_notes_not_scored": [
+    "ind23-a09: semantic polarity appears correct under the cited exact clause, but excluded from the machine-comparable numerator because the frozen runner answer_match is false"
+  ],
+  "full_runner_report_sha256": "01a857af7e624f08cbdfe32cce95d4819497bf82b40b226fc4ed2ebe043fd377",
+  "engine_fingerprint": "7fb30ee26e973e842539383f0a59f69c349a95fa991e4b097d10fe27d03da5ca"
+}

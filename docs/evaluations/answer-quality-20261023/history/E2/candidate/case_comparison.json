@@ -1,0 +1,866 @@
+{
+  "format": "e2-case-comparison-v1",
+  "rules_sha256": "e10ee8c31d48f8c0c1a6b5184e0e8217fe55992f872fe49fe762c6ae355cdc2e",
+  "suite_sha256": "4bef7e84ae8bd61e4b98e7fd918d01a467aa75ff45038fd41783d42b8a9c94a0",
+  "corpus_sha256": "4774dcc13f1628be8d09f969668f3fd667f54beb2b35a32af33e190bf5791fc8",
+  "adapter_sha256": "0608fb6b6fb9d4608ffe19d5cf9ecd6f2e0ac43f904eefb50f3b63474229ed6a",
+  "baseline_commit": "0ae029757bfae524034d07335d0c518423b4afa9",
+  "candidate_commit": "123535b9b1c45603bce1ee1ccfd5adec07bb7c38",
+  "baseline_engine_fingerprint": "7fb30ee26e973e842539383f0a59f69c349a95fa991e4b097d10fe27d03da5ca",
+  "candidate_engine_fingerprint": "c27768e92c3125fbc1ec3169c6b55a97d74ef4c75aa627f06fdb2d6bd2f8ef7f",
+  "primary_metric": "result.metric_counts.answerable_correct / answerable_total; use runner result as emitted, with citation_case_accuracy as equivalent decimal",
+  "counts_from_native_runner": {
+    "baseline": {
+      "citation_correct": 9,
+      "citation_returned": 13,
+      "citation_expected": 13,
+      "citation_expected_matched": 9,
+      "answerable_correct": 6,
+      "answerable_total": 13,
+      "retrieval_hits_at_5": 12,
+      "abstention_correct": 1,
+      "abstention_total": 6,
+      "extraction_true_positive": 0,
+      "extraction_predicted": 0,
+      "extraction_gold": 0,
+      "errors": 0,
+      "schema_errors": 0
+    },
+    "candidate": {
+      "citation_correct": 8,
+      "citation_returned": 12,
+      "citation_expected": 13,
+      "citation_expected_matched": 8,
+      "answerable_correct": 4,
+      "answerable_total": 13,
+      "retrieval_hits_at_5": 12,
+      "abstention_correct": 4,
+      "abstention_total": 6,
+      "extraction_true_positive": 0,
+      "extraction_predicted": 0,
+      "extraction_gold": 0,
+      "errors": 0,
+      "schema_errors": 0
+    },
+    "answerable_correct_delta": -2
+  },
+  "cases": [
+    {
+      "id": "e2-a01",
+      "kind": "answerable",
+      "category": null,
+      "baseline": {
+        "id": "e2-a01",
+        "kind": "answerable",
+        "status": "answered",
+        "answer": "2027-04-03",
+        "answer_match": true,
+        "citation_matches": [
+          true
+        ],
+        "expected_citation_matches": [
+          true
+        ],
+        "citations": [
+          "e2-orion-msa:p1:c2"
+        ],
+        "retrieval_rank": 1,
+        "native_answerable_correct": true,
+        "protocol_outcome_auxiliary": "correct"
+      },
+      "candidate": {
+        "id": "e2-a01",
+        "kind": "answerable",
+        "status": "answered",
+        "answer": "2027-04-03",
+        "answer_match": true,
+        "citation_matches": [
+          true
+        ],
+        "expected_citation_matches": [
+          true
+        ],
+        "citations": [
+          "e2-orion-msa:p1:c2"
+        ],
+        "retrieval_rank": 1,
+        "native_answerable_correct": true,
+        "protocol_outcome_auxiliary": "correct"
+      },
+      "answerable_correct_delta": 0,
+      "status_changed": false
+    },
+    {
+      "id": "e2-a02",
+      "kind": "answerable",
+      "category": null,
+      "baseline": {
+        "id": "e2-a02",
+        "kind": "answerable",
+        "status": "answered",
+        "answer": "2027-04-03",
+        "answer_match": true,
+        "citation_matches": [
+          true
+        ],
+        "expected_citation_matches": [
+          true
+        ],
+        "citations": [
+          "e2-orion-msa:p1:c2"
+        ],
+        "retrieval_rank": 1,
+        "native_answerable_correct": true,
+        "protocol_outcome_auxiliary": "correct"
+      },
+      "candidate": {
+        "id": "e2-a02",
+        "kind": "answerable",
+        "status": "answered",
+        "answer": "2027-04-03",
+        "answer_match": true,
+        "citation_matches": [
+          true
+        ],
+        "expected_citation_matches": [
+          true
+        ],
+        "citations": [
+          "e2-orion-msa:p1:c2"
+        ],
+        "retrieval_rank": 1,
+        "native_answerable_correct": true,
+        "protocol_outcome_auxiliary": "correct"
+      },
+      "answerable_correct_delta": 0,
+      "status_changed": false
+    },
+    {
+      "id": "e2-a03",
+      "kind": "answerable",
+      "category": null,
+      "baseline": {
+        "id": "e2-a03",
+        "kind": "answerable",
+        "status": "answered",
+        "answer": "2028-04-03",
+        "answer_match": true,
+        "citation_matches": [
+          true
+        ],
+        "expected_citation_matches": [
+          true
+        ],
+        "citations": [
+          "e2-orion-msa:p2:c1"
+        ],
+        "retrieval_rank": 1,
+        "native_answerable_correct": true,
+        "protocol_outcome_auxiliary": "correct"
+      },
+      "candidate": {
+        "id": "e2-a03",
+        "kind": "answerable",
+        "status": "answered",
+        "answer": "2028-04-03",
+        "answer_match": true,
+        "citation_matches": [
+          true
+        ],
+        "expected_citation_matches": [
+          true
+        ],
+        "citations": [
+          "e2-orion-msa:p2:c1"
+        ],
+        "retrieval_rank": 1,
+        "native_answerable_correct": true,
+        "protocol_outcome_auxiliary": "correct"
+      },
+      "answerable_correct_delta": 0,
+      "status_changed": false
+    },
+    {
+      "id": "e2-a04",
+      "kind": "answerable",
+      "category": null,
+      "baseline": {
+        "id": "e2-a04",
+        "kind": "answerable",
+        "status": "answered",
+        "answer": "Annual platform fee: EUR 61,400, billed in two equal instalments.",
+        "answer_match": true,
+        "citation_matches": [
+          true
+        ],
+        "expected_citation_matches": [
+          true
+        ],
+        "citations": [
+          "e2-orion-msa:p1:c3"
+        ],
+        "retrieval_rank": 1,
+        "native_answerable_correct": true,
+        "protocol_outcome_auxiliary": "correct"
+      },
+      "candidate": {
+        "id": "e2-a04",
+        "kind": "answerable",
+        "status": "ambiguous",
+        "answer": "Conflicting values are supported; review the cited passages.",
+        "answer_match": false,
+        "citation_matches": [
+          true,
+          false
+        ],
+        "expected_citation_matches": [
+          true
+        ],
+        "citations": [
+          "e2-orion-msa:p1:c3",
+          "e2-orion-msa:p1:c4"
+        ],
+        "retrieval_rank": 1,
+        "native_answerable_correct": false,
+        "protocol_outcome_auxiliary": "wrong"
+      },
+      "answerable_correct_delta": -1,
+      "status_changed": true
+    },
+    {
+      "id": "e2-a05",
+      "kind": "answerable",
+      "category": "close-values",
+      "baseline": {
+        "id": "e2-a05",
+        "kind": "answerable",
+        "status": "answered",
+        "answer": "Annual platform fee: EUR 61,400, billed in two equal instalments.",
+        "answer_match": true,
+        "citation_matches": [
+          true
+        ],
+        "expected_citation_matches": [
+          true
+        ],
+        "citations": [
+          "e2-orion-msa:p1:c3"
+        ],
+        "retrieval_rank": 1,
+        "native_answerable_correct": true,
+        "protocol_outcome_auxiliary": "correct"
+      },
+      "candidate": {
+        "id": "e2-a05",
+        "kind": "answerable",
+        "status": "ambiguous",
+        "answer": "Conflicting values are supported; review the cited passages.",
+        "answer_match": false,
+        "citation_matches": [
+          true,
+          false
+        ],
+        "expected_citation_matches": [
+          true
+        ],
+        "citations": [
+          "e2-orion-msa:p1:c3",
+          "e2-orion-msa:p1:c4"
+        ],
+        "retrieval_rank": 1,
+        "native_answerable_correct": false,
+        "protocol_outcome_auxiliary": "wrong"
+      },
+      "answerable_correct_delta": -1,
+      "status_changed": true
+    },
+    {
+      "id": "e2-a06",
+      "kind": "answerable",
+      "category": null,
+      "baseline": {
+        "id": "e2-a06",
+        "kind": "answerable",
+        "status": "abstained",
+        "answer": "Insufficient evidence in the selected dossier.",
+        "answer_match": false,
+        "citation_matches": [],
+        "expected_citation_matches": [
+          false
+        ],
+        "citations": [],
+        "retrieval_rank": 1,
+        "native_answerable_correct": false,
+        "protocol_outcome_auxiliary": "wrong"
+      },
+      "candidate": {
+        "id": "e2-a06",
+        "kind": "answerable",
+        "status": "abstained",
+        "answer": "Insufficient evidence in the selected dossier.",
+        "answer_match": false,
+        "citation_matches": [],
+        "expected_citation_matches": [
+          false
+        ],
+        "citations": [],
+        "retrieval_rank": 1,
+        "native_answerable_correct": false,
+        "protocol_outcome_auxiliary": "wrong"
+      },
+      "answerable_correct_delta": 0,
+      "status_changed": false
+    },
+    {
+      "id": "e2-a07",
+      "kind": "answerable",
+      "category": null,
+      "baseline": {
+        "id": "e2-a07",
+        "kind": "answerable",
+        "status": "answered",
+        "answer": "PERSONAL-DATA BREACH NOTICE",
+        "answer_match": false,
+        "citation_matches": [
+          false
+        ],
+        "expected_citation_matches": [
+          false
+        ],
+        "citations": [
+          "e2-orion-dpa:p1:c2"
+        ],
+        "retrieval_rank": 1,
+        "native_answerable_correct": false,
+        "protocol_outcome_auxiliary": "wrong"
+      },
+      "candidate": {
+        "id": "e2-a07",
+        "kind": "answerable",
+        "status": "abstained",
+        "answer": "Insufficient evidence in the selected dossier.",
+        "answer_match": false,
+        "citation_matches": [],
+        "expected_citation_matches": [
+          false
+        ],
+        "citations": [],
+        "retrieval_rank": 1,
+        "native_answerable_correct": false,
+        "protocol_outcome_auxiliary": "wrong"
+      },
+      "answerable_correct_delta": 0,
+      "status_changed": true
+    },
+    {
+      "id": "e2-a08",
+      "kind": "answerable",
+      "category": "negation",
+      "baseline": {
+        "id": "e2-a08",
+        "kind": "answerable",
+        "status": "answered",
+        "answer": "No subcontractor may access Orion production data before Orion gives prior written approval.",
+        "answer_match": false,
+        "citation_matches": [
+          true
+        ],
+        "expected_citation_matches": [
+          true
+        ],
+        "citations": [
+          "e2-orion-msa:p3:c1"
+        ],
+        "retrieval_rank": null,
+        "native_answerable_correct": false,
+        "protocol_outcome_auxiliary": "correct"
+      },
+      "candidate": {
+        "id": "e2-a08",
+        "kind": "answerable",
+        "status": "ambiguous",
+        "answer": "Conflicting values are supported; review the cited passages.",
+        "answer_match": false,
+        "citation_matches": [
+          true,
+          false
+        ],
+        "expected_citation_matches": [
+          true
+        ],
+        "citations": [
+          "e2-orion-msa:p3:c1",
+          "e2-orion-dpa:p1:c4"
+        ],
+        "retrieval_rank": null,
+        "native_answerable_correct": false,
+        "protocol_outcome_auxiliary": "wrong"
+      },
+      "answerable_correct_delta": 0,
+      "status_changed": true
+    },
+    {
+      "id": "e2-a09",
+      "kind": "answerable",
+      "category": "negation",
+      "baseline": {
+        "id": "e2-a09",
+        "kind": "answerable",
+        "status": "answered",
+        "answer": "This incident report does not amend the Master Services Agreement.",
+        "answer_match": false,
+        "citation_matches": [
+          true
+        ],
+        "expected_citation_matches": [
+          true
+        ],
+        "citations": [
+          "e2-orion-incident:p2:c3"
+        ],
+        "retrieval_rank": 1,
+        "native_answerable_correct": false,
+        "protocol_outcome_auxiliary": "correct"
+      },
+      "candidate": {
+        "id": "e2-a09",
+        "kind": "answerable",
+        "status": "abstained",
+        "answer": "Insufficient evidence in the selected dossier.",
+        "answer_match": false,
+        "citation_matches": [],
+        "expected_citation_matches": [
+          false
+        ],
+        "citations": [],
+        "retrieval_rank": 1,
+        "native_answerable_correct": false,
+        "protocol_outcome_auxiliary": "wrong"
+      },
+      "answerable_correct_delta": 0,
+      "status_changed": true
+    },
+    {
+      "id": "e2-a10",
+      "kind": "answerable",
+      "category": "close-values",
+      "baseline": {
+        "id": "e2-a10",
+        "kind": "answerable",
+        "status": "answered",
+        "answer": "18 minutes",
+        "answer_match": true,
+        "citation_matches": [
+          true
+        ],
+        "expected_citation_matches": [
+          true
+        ],
+        "citations": [
+          "e2-orion-incident:p1:c3"
+        ],
+        "retrieval_rank": 1,
+        "native_answerable_correct": true,
+        "protocol_outcome_auxiliary": "correct"
+      },
+      "candidate": {
+        "id": "e2-a10",
+        "kind": "answerable",
+        "status": "ambiguous",
+        "answer": "Conflicting values are supported; review the cited passages.",
+        "answer_match": false,
+        "citation_matches": [
+          true,
+          false
+        ],
+        "expected_citation_matches": [
+          true
+        ],
+        "citations": [
+          "e2-orion-incident:p1:c3",
+          "e2-orion-dpa:p1:c3"
+        ],
+        "retrieval_rank": 1,
+        "native_answerable_correct": false,
+        "protocol_outcome_auxiliary": "wrong"
+      },
+      "answerable_correct_delta": -1,
+      "status_changed": true
+    },
+    {
+      "id": "e2-a11",
+      "kind": "answerable",
+      "category": null,
+      "baseline": {
+        "id": "e2-a11",
+        "kind": "answerable",
+        "status": "ambiguous",
+        "answer": "Conflicting values are supported; review the cited passages.",
+        "answer_match": false,
+        "citation_matches": [
+          false,
+          true
+        ],
+        "expected_citation_matches": [
+          true
+        ],
+        "citations": [
+          "e2-rivage-record:p1:c3",
+          "e2-rivage-record:p1:c2"
+        ],
+        "retrieval_rank": 1,
+        "native_answerable_correct": false,
+        "protocol_outcome_auxiliary": "wrong"
+      },
+      "candidate": {
+        "id": "e2-a11",
+        "kind": "answerable",
+        "status": "answered",
+        "answer": "2 100 EUR",
+        "answer_match": true,
+        "citation_matches": [
+          true
+        ],
+        "expected_citation_matches": [
+          true
+        ],
+        "citations": [
+          "e2-rivage-record:p1:c2"
+        ],
+        "retrieval_rank": 1,
+        "native_answerable_correct": true,
+        "protocol_outcome_auxiliary": "correct"
+      },
+      "answerable_correct_delta": 1,
+      "status_changed": true
+    },
+    {
+      "id": "e2-a12",
+      "kind": "answerable",
+      "category": "explicit-absence",
+      "baseline": {
+        "id": "e2-a12",
+        "kind": "answerable",
+        "status": "answered",
+        "answer": "2028-04-03",
+        "answer_match": false,
+        "citation_matches": [
+          false
+        ],
+        "expected_citation_matches": [
+          false
+        ],
+        "citations": [
+          "e2-orion-msa:p2:c1"
+        ],
+        "retrieval_rank": 1,
+        "native_answerable_correct": false,
+        "protocol_outcome_auxiliary": "wrong"
+      },
+      "candidate": {
+        "id": "e2-a12",
+        "kind": "answerable",
+        "status": "abstained",
+        "answer": "Insufficient evidence in the selected dossier.",
+        "answer_match": false,
+        "citation_matches": [],
+        "expected_citation_matches": [
+          false
+        ],
+        "citations": [],
+        "retrieval_rank": 1,
+        "native_answerable_correct": false,
+        "protocol_outcome_auxiliary": "wrong"
+      },
+      "answerable_correct_delta": 0,
+      "status_changed": true
+    },
+    {
+      "id": "e2-a13",
+      "kind": "answerable",
+      "category": null,
+      "baseline": {
+        "id": "e2-a13",
+        "kind": "answerable",
+        "status": "answered",
+        "answer": "Une option de restauration express coûte 2 190 EUR par intervention; elle ne fait pas partie du tarif mensuel standard.",
+        "answer_match": false,
+        "citation_matches": [
+          false
+        ],
+        "expected_citation_matches": [
+          false
+        ],
+        "citations": [
+          "e2-rivage-record:p1:c3"
+        ],
+        "retrieval_rank": 1,
+        "native_answerable_correct": false,
+        "protocol_outcome_auxiliary": "wrong"
+      },
+      "candidate": {
+        "id": "e2-a13",
+        "kind": "answerable",
+        "status": "abstained",
+        "answer": "Insufficient evidence in the selected dossier.",
+        "answer_match": false,
+        "citation_matches": [],
+        "expected_citation_matches": [
+          false
+        ],
+        "citations": [],
+        "retrieval_rank": 1,
+        "native_answerable_correct": false,
+        "protocol_outcome_auxiliary": "wrong"
+      },
+      "answerable_correct_delta": 0,
+      "status_changed": true
+    },
+    {
+      "id": "e2-u01",
+      "kind": "unanswerable",
+      "category": "abstention",
+      "baseline": {
+        "id": "e2-u01",
+        "kind": "unanswerable",
+        "status": "answered",
+        "answer": "2028-04-03",
+        "answer_match": false,
+        "citation_matches": [
+          false
+        ],
+        "expected_citation_matches": [],
+        "citations": [
+          "e2-orion-msa:p2:c1"
+        ],
+        "retrieval_rank": null,
+        "native_answerable_correct": false,
+        "protocol_outcome_auxiliary": "wrong_or_hallucinated"
+      },
+      "candidate": {
+        "id": "e2-u01",
+        "kind": "unanswerable",
+        "status": "abstained",
+        "answer": "Insufficient evidence in the selected dossier.",
+        "answer_match": false,
+        "citation_matches": [],
+        "expected_citation_matches": [],
+        "citations": [],
+        "retrieval_rank": null,
+        "native_answerable_correct": false,
+        "protocol_outcome_auxiliary": "correct_abstention"
+      },
+      "answerable_correct_delta": 0,
+      "status_changed": true
+    },
+    {
+      "id": "e2-u02",
+      "kind": "unanswerable",
+      "category": "abstention",
+      "baseline": {
+        "id": "e2-u02",
+        "kind": "unanswerable",
+        "status": "answered",
+        "answer": "La présente fiche a été validée le 1er mai 2027 pour les services d’archivage de Rivage Archive Services.",
+        "answer_match": false,
+        "citation_matches": [
+          false
+        ],
+        "expected_citation_matches": [],
+        "citations": [
+          "e2-rivage-record:p1:c1"
+        ],
+        "retrieval_rank": null,
+        "native_answerable_correct": false,
+        "protocol_outcome_auxiliary": "wrong_or_hallucinated"
+      },
+      "candidate": {
+        "id": "e2-u02",
+        "kind": "unanswerable",
+        "status": "abstained",
+        "answer": "Insufficient evidence in the selected dossier.",
+        "answer_match": false,
+        "citation_matches": [],
+        "expected_citation_matches": [],
+        "citations": [],
+        "retrieval_rank": null,
+        "native_answerable_correct": false,
+        "protocol_outcome_auxiliary": "correct_abstention"
+      },
+      "answerable_correct_delta": 0,
+      "status_changed": true
+    },
+    {
+      "id": "e2-u03",
+      "kind": "unanswerable",
+      "category": "abstention",
+      "baseline": {
+        "id": "e2-u03",
+        "kind": "unanswerable",
+        "status": "abstained",
+        "answer": "Insufficient evidence in the selected dossier.",
+        "answer_match": false,
+        "citation_matches": [],
+        "expected_citation_matches": [],
+        "citations": [],
+        "retrieval_rank": null,
+        "native_answerable_correct": false,
+        "protocol_outcome_auxiliary": "correct_abstention"
+      },
+      "candidate": {
+        "id": "e2-u03",
+        "kind": "unanswerable",
+        "status": "abstained",
+        "answer": "Insufficient evidence in the selected dossier.",
+        "answer_match": false,
+        "citation_matches": [],
+        "expected_citation_matches": [],
+        "citations": [],
+        "retrieval_rank": null,
+        "native_answerable_correct": false,
+        "protocol_outcome_auxiliary": "correct_abstention"
+      },
+      "answerable_correct_delta": 0,
+      "status_changed": false
+    },
+    {
+      "id": "e2-u04",
+      "kind": "unanswerable",
+      "category": "abstention",
+      "baseline": {
+        "id": "e2-u04",
+        "kind": "unanswerable",
+        "status": "answered",
+        "answer": "LumenGrid shall notify Orion of a confirmed cybersecurity incident within 36 hours after confirmation.",
+        "answer_match": false,
+        "citation_matches": [
+          false
+        ],
+        "expected_citation_matches": [],
+        "citations": [
+          "e2-orion-msa:p2:c3"
+        ],
+        "retrieval_rank": null,
+        "native_answerable_correct": false,
+        "protocol_outcome_auxiliary": "wrong_or_hallucinated"
+      },
+      "candidate": {
+        "id": "e2-u04",
+        "kind": "unanswerable",
+        "status": "answered",
+        "answer": "LumenGrid shall notify Orion of a confirmed cybersecurity incident within 36 hours after confirmation.",
+        "answer_match": false,
+        "citation_matches": [
+          false
+        ],
+        "expected_citation_matches": [],
+        "citations": [
+          "e2-orion-msa:p2:c3"
+        ],
+        "retrieval_rank": null,
+        "native_answerable_correct": false,
+        "protocol_outcome_auxiliary": "wrong_or_hallucinated"
+      },
+      "answerable_correct_delta": 0,
+      "status_changed": false
+    },
+    {
+      "id": "e2-c01",
+      "kind": "ambiguous",
+      "category": "contract-collision",
+      "baseline": {
+        "id": "e2-c01",
+        "kind": "ambiguous",
+        "status": "answered",
+        "answer": "2027-06-14",
+        "answer_match": false,
+        "citation_matches": [
+          false
+        ],
+        "expected_citation_matches": [
+          false,
+          false,
+          false
+        ],
+        "citations": [
+          "e2-orion-incident:p1:c1"
+        ],
+        "retrieval_rank": null,
+        "native_answerable_correct": false,
+        "protocol_outcome_auxiliary": "wrong_or_overconfident"
+      },
+      "candidate": {
+        "id": "e2-c01",
+        "kind": "ambiguous",
+        "status": "ambiguous",
+        "answer": "Conflicting values are supported; review the cited passages.",
+        "answer_match": false,
+        "citation_matches": [
+          true,
+          true
+        ],
+        "expected_citation_matches": [
+          true,
+          true,
+          false
+        ],
+        "citations": [
+          "e2-orion-dpa:p1:c3",
+          "e2-orion-msa:p2:c3"
+        ],
+        "retrieval_rank": null,
+        "native_answerable_correct": false,
+        "protocol_outcome_auxiliary": "correct_ambiguity"
+      },
+      "answerable_correct_delta": 0,
+      "status_changed": true
+    },
+    {
+      "id": "e2-c02",
+      "kind": "ambiguous",
+      "category": "entity-collision",
+      "baseline": {
+        "id": "e2-c02",
+        "kind": "ambiguous",
+        "status": "answered",
+        "answer": "2027-04-03",
+        "answer_match": false,
+        "citation_matches": [
+          true
+        ],
+        "expected_citation_matches": [
+          true,
+          false
+        ],
+        "citations": [
+          "e2-orion-msa:p1:c2"
+        ],
+        "retrieval_rank": null,
+        "native_answerable_correct": false,
+        "protocol_outcome_auxiliary": "wrong_or_overconfident"
+      },
+      "candidate": {
+        "id": "e2-c02",
+        "kind": "ambiguous",
+        "status": "answered",
+        "answer": "2027-04-03",
+        "answer_match": false,
+        "citation_matches": [
+          true
+        ],
+        "expected_citation_matches": [
+          true,
+          false
+        ],
+        "citations": [
+          "e2-orion-msa:p1:c2"
+        ],
+        "retrieval_rank": null,
+        "native_answerable_correct": false,
+        "protocol_outcome_auxiliary": "wrong_or_overconfident"
+      },
+      "answerable_correct_delta": 0,
+      "status_changed": false
+    }
+  ]
+}

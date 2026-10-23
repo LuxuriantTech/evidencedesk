@@ -1,0 +1,77 @@
+{
+  "artifact_manifest": "E3 private evaluation evidence; no publication authorized",
+  "files": {
+    "datasets/evaluation_cases.json": {
+      "sha256": "f24b11ed813b00edc1ae6a6bdcc55f48e1085553eb64ac7765dd1dad245d7ed0",
+      "bytes": 10989
+    },
+    "datasets/corpus_manifest.json": {
+      "sha256": "943683290c1ebdcd2f1cf03e85d1015490eb069a9f560c5316212bfa7927f189",
+      "bytes": 5452
+    },
+    "PROTOCOL.md": {
+      "sha256": "54ec19bbfeac59539a1a924236e4a5da0ae75b7bbb3edc055c7ed0566d17dd12",
+      "bytes": 2295
+    },
+    "COMPARISON_RULES_FROZEN.json": {
+      "sha256": "a86201116348030f2b2e94781c8fd82790b135433e88c7125753a0c26a80567a",
+      "bytes": 3378
+    },
+    "SHA256SUMS.json": {
+      "sha256": "fd90374f2fc11f427f840296af2e9ead3d285a320804460dc462d3276685bebe",
+      "bytes": 3998
+    },
+    "FREEZE_ATTESTATION.json": {
+      "sha256": "46888e58575375154d820a10bfc2629b39d6c4c53886062ac5507c1cac798f14",
+      "bytes": 1280
+    },
+    "adapters/run_baseline.py": {
+      "sha256": "0608fb6b6fb9d4608ffe19d5cf9ecd6f2e0ac43f904eefb50f3b63474229ed6a",
+      "bytes": 3470
+    },
+    "baseline-run/raw_results.json": {
+      "sha256": "fcebde99adefb3bcf16e67a78ac1048b0c3bd9aea2bae51f769d35a0b31e0cf6",
+      "bytes": 468317
+    },
+    "baseline-run/runner_stdout.txt": {
+      "sha256": "d91a8cca05bfa7888d67c2738f3ec93d25a4ee3832f20167c6cfdf09d3eab248",
+      "bytes": 1019
+    },
+    "candidate-run/raw_results.json": {
+      "sha256": "a4cfd7ebdfaec1ae80e2a68a3a7dc7b98d20c2c1e7024c7676e0e4db069c74a0",
+      "bytes": 310215
+    },
+    "candidate-run/misrouted-attempt/raw_results.json": {
+      "sha256": "a4cfd7ebdfaec1ae80e2a68a3a7dc7b98d20c2c1e7024c7676e0e4db069c74a0",
+      "bytes": 310215
+    },
+    "candidate-run/misrouted-attempt/runner_stdout.txt": {
+      "sha256": "dba05b828d30b44f877838b67b65f7604ca78f4a2138ee1d1463abbed74914fb",
+      "bytes": 1007
+    },
+    "candidate-run/runner_stdout.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate-run/adapters/run_baseline.py": {
+      "sha256": "0608fb6b6fb9d4608ffe19d5cf9ecd6f2e0ac43f904eefb50f3b63474229ed6a",
+      "bytes": 3470
+    },
+    "candidate-run/datasets/evaluation_cases.json": {
+      "sha256": "f24b11ed813b00edc1ae6a6bdcc55f48e1085553eb64ac7765dd1dad245d7ed0",
+      "bytes": 10989
+    },
+    "candidate-run/datasets/corpus_manifest.json": {
+      "sha256": "943683290c1ebdcd2f1cf03e85d1015490eb069a9f560c5316212bfa7927f189",
+      "bytes": 5452
+    },
+    "COMPARISON_REPORT_PRIVATE.json": {
+      "sha256": "6fb085a356187ae614cc37215cd60fdbddbad65a2078337d43cde3b4eb91da18",
+      "bytes": 23991
+    },
+    "RUN_PROVENANCE.md": {
+      "sha256": "7a2f6305ecd04ae4775ce8c23a8aa61cb6e6d5515c9448e1649f29901111f7da",
+      "bytes": 2220
+    }
+  }
+}

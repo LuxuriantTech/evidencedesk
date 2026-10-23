@@ -1,0 +1,14 @@
+ASTER FLEET SERVICES AGREEMENT
+Parties: Aster Freight Systems Ltd. and Quill Harbor Logistics GmbH.
+Effective date: 2027-02-10.
+Annual platform charge: EUR 42,800.
+
+--- PAGE 2 ---
+TERM AND RENEWAL
+The agreement renews on 2028-02-10 unless either party gives 45 days' written notice.
+
+SECURITY INCIDENTS
+Aster shall notify Quill Harbor of a confirmed cybersecurity incident within 24 hours.
+
+SUBCONTRACTING
+No subcontractor may access production data without prior written approval from Quill Harbor.

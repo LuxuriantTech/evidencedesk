@@ -1,0 +1,7 @@
+ASTER DATA PROCESSING ADDENDUM
+Parties: Aster Freight Systems Ltd. and Quill Harbor Logistics GmbH.
+Effective date: 2027-02-10.
+
+PERSONAL DATA BREACH NOTICE
+For a confirmed personal-data breach, Aster shall notify Quill Harbor within 12 hours after discovery.
+This clause applies to personal-data breaches. This addendum does not state whether it replaces or takes precedence over the security-incident notice term in the Aster Fleet Services Agreement.

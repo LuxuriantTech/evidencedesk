@@ -29,6 +29,13 @@ L’import accepte uniquement PDF textuel, TXT et Markdown. Un middleware ASGI b
 
 Une contrainte d’unicité partielle `(dossier_id, content_sha256)` empêche un second document actif identique. Chaque document possède une unique tâche, un identifiant de corrélation, des états `queued`, `processing`, `completed`, `failed` ou `deleted`. Le worker est idempotent : un document déjà terminé ne recrée pas ses chunks. La suppression et tous les chemins worker verrouillent tâche puis document ; le marqueur `deleted` est revérifié avant persistance et avant mise à jour d’échec. Les erreurs de stockage et de traitement ont une reprise ARQ contrôlée ; après les tentatives prévues, la tâche est marquée en échec avec un code court.
 
+Lorsqu’une question demande de relier plusieurs documents, le runtime ne joint pas les dossiers sur
+la seule coïncidence de noms. Il utilise une référence explicite typée, telle que `(shipment,
+SH-2841)`, et exige la même valeur de référence typée dans les documents concernés. Si les sources
+présentent plusieurs valeurs incompatibles pour le type de référence demandé, la jointure est
+refusée plutôt que devinée. Une référence de contrat commune ne suffit donc pas à prouver que deux
+documents concernent le même envoi.
+
 Après la limite d’import, trois budgets bornent l’expansion : 200 pages, 1 000 000 de caractères extraits et 5 000 chunks par défaut. Un dépassement est terminal avec un code stable, sans reprise inutile. Pour PDF, `pypdf` tourne dans un sous-processus `spawn` avec délai mural ; sous POSIX, `RLIMIT_AS` et `RLIMIT_CPU` ajoutent des plafonds d’espace d’adressage et de CPU. La limite mémoire dure n’est pas disponible sous Windows natif.
 
 Les chunks conservent page, section, ordinal et texte masqué. La recherche combine candidats
@@ -68,8 +75,10 @@ ce n'est pas une analyse complète du langage. Elle peut manquer des formulation
 des références implicites ou des relations exprimées de façon complexe. Le score d'appui interne
 sert au seuil de décision, mais n'est pas calibré : il ne doit pas être interprété ni affiché comme
 une probabilité de justesse. L'interface présente maintenant l'appui des sources sur 100. Les
-mesures des jeux synthétiques E1/E2 et development_v3 servent au développement; elles ne valident
-pas une généralisation indépendante ou un usage en production. Les limites et compteurs sont dans
+mesures des jeux synthétiques E1/E2/E3, E4 et development_v3 servent au développement; elles ne
+valident pas une généralisation indépendante ou un usage en production. E4 a passé son critère
+préenregistré de non-régression et de gain sur certaines métriques, mais n'a pas amélioré
+l'exactitude (2/18 dans les deux versions) et son verdict natif reste FAIL. Les limites et compteurs sont dans
 [`answer-quality-development.md`](answer-quality-development.md).
 
 ## Modes de réponse

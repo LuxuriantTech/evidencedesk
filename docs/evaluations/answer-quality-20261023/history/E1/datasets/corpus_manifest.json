@@ -1,0 +1,47 @@
+{
+  "dataset_version": "independent-synthetic-corpus-2026.10.23-v1",
+  "license": "CC0-1.0",
+  "synthetic_only": true,
+  "generation_seed": 20261023,
+  "documents": [
+    {
+      "id": "ind23-aster-msa",
+      "filename": "aster_fleet_agreement.txt",
+      "format": "txt",
+      "source_path": "datasets/sources/aster_fleet_agreement.txt",
+      "pages": [
+        "ASTER FLEET SERVICES AGREEMENT\nParties: Aster Freight Systems Ltd. and Quill Harbor Logistics GmbH.\nEffective date: 2027-02-10.\nAnnual platform charge: EUR 42,800.",
+        "TERM AND RENEWAL\nThe agreement renews on 2028-02-10 unless either party gives 45 days' written notice.\n\nSECURITY INCIDENTS\nAster shall notify Quill Harbor of a confirmed cybersecurity incident within 24 hours.\n\nSUBCONTRACTING\nNo subcontractor may access production data without prior written approval from Quill Harbor."
+      ]
+    },
+    {
+      "id": "ind23-aster-dpa",
+      "filename": "aster_data_processing_addendum.txt",
+      "format": "txt",
+      "source_path": "datasets/sources/aster_data_processing_addendum.txt",
+      "pages": [
+        "ASTER DATA PROCESSING ADDENDUM\nParties: Aster Freight Systems Ltd. and Quill Harbor Logistics GmbH.\nEffective date: 2027-02-10.\n\nPERSONAL DATA BREACH NOTICE\nFor a confirmed personal-data breach, Aster shall notify Quill Harbor within 12 hours after discovery.\nThis clause applies to personal-data breaches. This addendum does not state whether it replaces or takes precedence over the security-incident notice term in the Aster Fleet Services Agreement."
+      ]
+    },
+    {
+      "id": "ind23-routing-incident",
+      "filename": "routing_incident_note.txt",
+      "format": "txt",
+      "source_path": "datasets/sources/routing_incident_note.txt",
+      "pages": [
+        "ROUTING INCIDENT REPORT\nDate: 2027-09-08.\nQuill Harbor's dispatch feed was delayed from 08:06 to 08:23 UTC, a total of 17 minutes.\nThe event was classified SEV-2.",
+        "CUSTOMER COMMUNICATION\nThe operations note sets a target to notify affected customers within 48 hours.\nThis report does not amend the Aster Fleet Services Agreement.\nRisk note: the 48-hour target conflicts with the agreement's 24-hour deadline for a confirmed cybersecurity incident."
+      ]
+    },
+    {
+      "id": "ind23-cobalt-register",
+      "filename": "cobalt_supplier_register.txt",
+      "format": "txt",
+      "source_path": "datasets/sources/cobalt_supplier_register.txt",
+      "pages": [
+        "SUPPLIER REGISTER\nCobalt Archive Services\nEffective date: 2027-03-01.\nMonthly storage charge: EUR 1,250.",
+        "Renewal date: not recorded.\nTax/VAT registration number: not provided.\nRetention: destroy exported copies within 45 days after contract termination."
+      ]
+    }
+  ]
+}

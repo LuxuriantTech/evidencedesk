@@ -24,8 +24,10 @@ The independent v7 holdout remains unchanged and negative: `answerable_correct` 
 Its other previously recorded results remain in the root README and
 [`evaluation.md`](evaluation.md); v7 was not rerun or used to choose these changes.
 
-E1 and E2 have now been read and used during development. They are **development comparisons, not
-independent or holdout evaluations**.
+E1, E2 and E3 were read after their first run and used during development; they are **development
+comparisons, not independent or holdout evaluations**. E4 used a new synthetic set reviewed and
+frozen before inference, but it is still a development comparison rather than a production
+qualification.
 
 | Comparison | Answerable correct (`metric_counts`) | Other recorded counters | Interpretation |
 |---|---:|---|---|
@@ -33,16 +35,22 @@ independent or holdout evaluations**.
 | Latest E1 development run (`candidate-run-v6`, source `1ffbaff`) | 10/13 | expected citations matched 13/13; retrieval hits@5 12/13; abstention 7/7; errors/schema errors 0/0 | Later development result; do not substitute protocol-outcome totals for `answerable_correct/total`. |
 | First E2 baseline / candidate (`123535b`) | 6/13 / 4/13 | candidate abstention 4/6; errors/schema errors 0/0 | Negative initial comparison; retained as recorded. |
 | Later E2 development run (source `1ffbaff`) | 11/13 | expected citations matched 13/13; retrieval hits@5 12/13; abstention 5/6; errors/schema errors 0/0 | Development-only comparison; not an independent result. |
+| E3 baseline recovery / first candidate run | 10/17 / 7/17 | Both `FAIL`; original baseline raw/stdout were overwritten, so the retained baseline is a recovery rerun; the first candidate inference is preserved | E3 was reviewed after its first run and is development evidence, not a fresh holdout. See [`history/E3`](evaluations/answer-quality-20261023/history/E3/README.md). |
 | Development_v3 calibration (source `1ffbaff`) | 16/16 | citations 16/16; abstention 8/8; extraction TP/gold 44/44; errors/schema errors 0/0 | No delta from the prior saved calibration run. |
-| Development_v3 selection (source `1ffbaff`) | 16/16 | citations 16/16; abstention 7/8; extraction TP/gold 44/45; errors/schema errors 0/0 | No delta from the prior saved selection run; the abstention target is still missed. |
+| Development_v3 selection (source `1ffbaff`) | 16/16 | citations 16/16; abstention 7/8; extraction TP/gold 44/45; errors/schema errors 0/0 | No delta from the prior saved selection run; one non-answerable case remains incorrect. |
+| E4 preregistered comparison (source `ffeba12c4d4d64a1e1f003f211dfa1781c64515d`) | 2/18 / 2/18 | Citation precision 2/10 → 2/5 (0.20 → 0.40); citation recall 2/18 for both; correct abstentions 3/10 → 5/10; retrieval 18/18; errors/schema errors 0/0; native verdict `FAIL` / `FAIL` | The 28-case synthetic set was reviewed and frozen before inference. Its pre-registered non-regression and at-least-one-gain gate passed, but answer accuracy did not improve and the native verdict remains FAIL. See the [E4 evidence packet](evaluations/answer-quality-20261023/e4/README.md). |
 
 Counts above are the runner's `metric_counts`, especially `answerable_correct` and
 `answerable_total`; they are not manually reclassified using secondary outcome labels. E1, E2 and
-development_v3 are synthetic suites and provide limited regression evidence. They do not establish
-performance on new documents, real contracts, or production traffic. No E3 candidate result or
-independent conclusion is reported here; that evaluation is being prepared separately. The listed
-E1/E2/development_v3 development runs predate the focused follow-up fix `8d709d0`; its focused and
-full unit gates passed, but these suites were not rerun after that fix.
+E3 were read after their first run and are development comparisons. E3's first baseline raw/stdout
+were overwritten; the retained baseline recovery rerun and first candidate run are both preserved
+and explicitly identified as such. E4 is a separate 28-case synthetic development comparison whose
+cases were reviewed and frozen before inference; it still does not establish performance on new
+documents, real contracts, or production traffic. E4 met its pre-registered four-metric
+non-regression and one-metric-gain gate, but both sides remained at 2/18 answerable correct and the
+native verdict remained FAIL. Do not describe this as an accuracy improvement or qualification.
+The listed E1/E2/development_v3 development runs predate the focused follow-up fix `8d709d0`; its
+focused and full unit gates passed, but these suites were not rerun after that fix.
 
 ## Reproduction
 

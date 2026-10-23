@@ -28,6 +28,11 @@ The hosted walkthrough presents prepared examples; it does not run this local ap
 - **Answer review:** the deterministic engine matches evidence by question type, source scope,
   relation and local condition. Its displayed source-support score is not a calibrated probability;
   development suites are not independent validation. See the [answer-quality notes](docs/answer-quality-development.md).
+- **E4 development comparison:** on a new synthetic set frozen before inference, baseline and
+  candidate both answered 2/18 answerable questions correctly. Citation precision rose from 2/10
+  to 2/5 and correct abstentions from 3/10 to 5/10, while citation recall stayed 2/18. The
+  pre-registered metric gate passed, but both native verdicts were `FAIL`; this is not an accuracy
+  gain or a qualification. See the [E4 evidence packet](docs/evaluations/answer-quality-20261023/e4/README.md).
 - **Short path:** start with the [three-minute demo](docs/demo-script.md), then read the
   [career review notes](docs/career-proof.md) and [evaluation details](docs/evaluation.md).
 
@@ -48,9 +53,11 @@ Le moteur `grounded-local-v3` classe le type de question, le document source dem
 recherchée et les conditions qui s'appliquent à chaque valeur. Il vérifie les extraits cités avant de
 répondre et s'abstient lorsqu'une question composée ou plusieurs sources ne peuvent pas être résolues
 avec les preuves disponibles. Son score d'appui aide à décider si une réponse peut être retenue; il
-n'est pas calibré comme une probabilité de justesse. Les suites E1 et E2 ont été consultées pendant
-le développement et ne sont plus des validations indépendantes. Les comparaisons et leurs limites
-sont détaillées dans les [notes de qualité des réponses](docs/answer-quality-development.md).
+n'est pas calibré comme une probabilité de justesse. E1, E2 et E3 ont été consultées pendant le
+développement et ne sont pas des validations indépendantes. E4 a été gelée avant inférence et a
+respecté son critère préenregistré de non-régression/gain, mais les deux versions restent à 2/18 en
+exactitude et le verdict natif reste `FAIL`. Les comparaisons et leurs limites sont détaillées dans
+les [notes de qualité des réponses](docs/answer-quality-development.md).
 
 ![Réponse avec sa source](docs/screenshots/02-sourced-answer-desktop.png)
 

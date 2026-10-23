@@ -1,0 +1,870 @@
+{
+  "suite_hash": "f24b11ed813b00edc1ae6a6bdcc55f48e1085553eb64ac7765dd1dad245d7ed0",
+  "corpus_hash": "943683290c1ebdcd2f1cf03e85d1015490eb069a9f560c5316212bfa7927f189",
+  "baseline": {
+    "engine_fingerprint": "7fb30ee26e973e842539383f0a59f69c349a95fa991e4b097d10fe27d03da5ca",
+    "metrics": {
+      "citation_precision": 0.909091,
+      "citation_recall": 0.588235,
+      "citation_case_accuracy": 0.588235,
+      "retrieval_recall_at_5": 0.941176,
+      "retrieval_mrr_at_5": 0.901961,
+      "abstention_accuracy": 0.166667,
+      "error_rate": 0.0,
+      "schema_error_rate": 0.0,
+      "latency_median_ms": 1095.449,
+      "latency_p95_ms": 1282.32,
+      "indexing_ms": 1683.862
+    },
+    "metric_counts": {
+      "citation_correct": 10,
+      "citation_returned": 11,
+      "citation_expected": 17,
+      "citation_expected_matched": 10,
+      "answerable_correct": 10,
+      "answerable_total": 17,
+      "retrieval_hits_at_5": 16,
+      "abstention_correct": 2,
+      "abstention_total": 12,
+      "extraction_true_positive": 0,
+      "extraction_predicted": 0,
+      "extraction_gold": 0,
+      "errors": 0,
+      "schema_errors": 0
+    },
+    "raw_sha256": "fcebde99adefb3bcf16e67a78ac1048b0c3bd9aea2bae51f769d35a0b31e0cf6",
+    "stdout_sha256": "d91a8cca05bfa7888d67c2738f3ec93d25a4ee3832f20167c6cfdf09d3eab248"
+  },
+  "candidate": {
+    "engine_fingerprint": "ce9d485fdbdb25d5c79129b70e2eb2bf97ef6037c13866fe4d08e637a8b7e369",
+    "metrics": {
+      "citation_precision": 1.0,
+      "citation_recall": 0.411765,
+      "citation_case_accuracy": 0.411765,
+      "retrieval_recall_at_5": 0.941176,
+      "retrieval_mrr_at_5": 0.901961,
+      "abstention_accuracy": 0.416667,
+      "error_rate": 0.0,
+      "schema_error_rate": 0.0,
+      "latency_median_ms": 42.519,
+      "latency_p95_ms": 966.94,
+      "indexing_ms": 1729.736
+    },
+    "metric_counts": {
+      "citation_correct": 7,
+      "citation_returned": 7,
+      "citation_expected": 17,
+      "citation_expected_matched": 7,
+      "answerable_correct": 7,
+      "answerable_total": 17,
+      "retrieval_hits_at_5": 16,
+      "abstention_correct": 5,
+      "abstention_total": 12,
+      "extraction_true_positive": 0,
+      "extraction_predicted": 0,
+      "extraction_gold": 0,
+      "errors": 0,
+      "schema_errors": 0
+    },
+    "raw_sha256": "a4cfd7ebdfaec1ae80e2a68a3a7dc7b98d20c2c1e7024c7676e0e4db069c74a0",
+    "stdout_sha256": "dba05b828d30b44f877838b67b65f7604ca78f4a2138ee1d1463abbed74914fb",
+    "initial_run_output_path_misrouted": true
+  },
+  "primary_score": {
+    "baseline_correct": 10,
+    "candidate_correct": 7,
+    "total": 17,
+    "baseline": 0.588235,
+    "candidate": 0.411765,
+    "delta": -0.17647
+  },
+  "protocol_outcome_transition_counts": {
+    "correct -> correct": 7,
+    "correct -> wrong": 3,
+    "correct_abstention -> correct_abstention": 2,
+    "wrong -> wrong": 7,
+    "wrong_or_hallucinated -> correct_abstention": 3,
+    "wrong_or_hallucinated -> wrong_or_hallucinated": 1,
+    "wrong_or_overconfident -> wrong_or_overconfident": 6
+  },
+  "improved_case_ids": [
+    "e3-u01",
+    "e3-u04",
+    "e3-u05"
+  ],
+  "regressed_case_ids": [
+    "e3-a01",
+    "e3-a09",
+    "e3-a12"
+  ],
+  "per_case": [
+    {
+      "id": "e3-a01",
+      "baseline": {
+        "outcome": "correct",
+        "status": "answered",
+        "answer_match": true,
+        "citations": [
+          {
+            "chunk_id": "e3-meadowrun-manifest:p1:c1",
+            "document_id": "e3-meadowrun-manifest",
+            "document_name": "meadowrun_shipment_manifest.txt",
+            "page": 1,
+            "section": null,
+            "excerpt": "Shipment reference: SH-2841."
+          }
+        ],
+        "citation_matches": [
+          true
+        ]
+      },
+      "candidate": {
+        "outcome": "wrong",
+        "status": "abstained",
+        "answer_match": false,
+        "citations": [],
+        "citation_matches": []
+      }
+    },
+    {
+      "id": "e3-a02",
+      "baseline": {
+        "outcome": "wrong",
+        "status": "abstained",
+        "answer_match": false,
+        "citations": [],
+        "citation_matches": []
+      },
+      "candidate": {
+        "outcome": "wrong",
+        "status": "abstained",
+        "answer_match": false,
+        "citations": [],
+        "citation_matches": []
+      }
+    },
+    {
+      "id": "e3-a03",
+      "baseline": {
+        "outcome": "wrong",
+        "status": "abstained",
+        "answer_match": false,
+        "citations": [],
+        "citation_matches": []
+      },
+      "candidate": {
+        "outcome": "wrong",
+        "status": "abstained",
+        "answer_match": false,
+        "citations": [],
+        "citation_matches": []
+      }
+    },
+    {
+      "id": "e3-a04",
+      "baseline": {
+        "outcome": "correct",
+        "status": "answered",
+        "answer_match": true,
+        "citations": [
+          {
+            "chunk_id": "e3-meadowrun-manifest:p1:c5",
+            "document_id": "e3-meadowrun-manifest",
+            "document_name": "meadowrun_shipment_manifest.txt",
+            "page": 1,
+            "section": null,
+            "excerpt": "48 crates of dessert apples were loaded, six pallets in total; gross cargo mass: 1,152 kg."
+          }
+        ],
+        "citation_matches": [
+          true
+        ]
+      },
+      "candidate": {
+        "outcome": "correct",
+        "status": "answered",
+        "answer_match": true,
+        "citations": [
+          {
+            "chunk_id": "e3-meadowrun-manifest:p1:c5",
+            "document_id": "e3-meadowrun-manifest",
+            "document_name": "meadowrun_shipment_manifest.txt",
+            "page": 1,
+            "section": null,
+            "excerpt": "48 crates of dessert apples were loaded, six pallets in total; gross cargo mass: 1,152 kg."
+          }
+        ],
+        "citation_matches": [
+          true
+        ]
+      }
+    },
+    {
+      "id": "e3-a05",
+      "baseline": {
+        "outcome": "wrong",
+        "status": "answered",
+        "answer_match": true,
+        "citations": [
+          {
+            "chunk_id": "e3-delivery-note:p1:c1",
+            "document_id": "e3-delivery-note",
+            "document_name": "larkspur_dijon_delivery_note.txt",
+            "page": 1,
+            "section": null,
+            "excerpt": "Shipment SH-2841 reached the Dijon depot on 2026-08-19 at 14:20 CEST."
+          }
+        ],
+        "citation_matches": [
+          false
+        ]
+      },
+      "candidate": {
+        "outcome": "wrong",
+        "status": "abstained",
+        "answer_match": false,
+        "citations": [],
+        "citation_matches": []
+      }
+    },
+    {
+      "id": "e3-a06",
+      "baseline": {
+        "outcome": "correct",
+        "status": "answered",
+        "answer_match": true,
+        "citations": [
+          {
+            "chunk_id": "e3-meadowrun-logger:p1:c1",
+            "document_id": "e3-meadowrun-logger",
+            "document_name": "meadowrun_cold_chain_logger_report.txt",
+            "page": 1,
+            "section": null,
+            "excerpt": "Required transport range: 2–6 °C."
+          }
+        ],
+        "citation_matches": [
+          true
+        ]
+      },
+      "candidate": {
+        "outcome": "correct",
+        "status": "answered",
+        "answer_match": true,
+        "citations": [
+          {
+            "chunk_id": "e3-meadowrun-logger:p1:c1",
+            "document_id": "e3-meadowrun-logger",
+            "document_name": "meadowrun_cold_chain_logger_report.txt",
+            "page": 1,
+            "section": null,
+            "excerpt": "Required transport range: 2–6 °C."
+          }
+        ],
+        "citation_matches": [
+          true
+        ]
+      }
+    },
+    {
+      "id": "e3-a07",
+      "baseline": {
+        "outcome": "correct",
+        "status": "answered",
+        "answer_match": true,
+        "citations": [
+          {
+            "chunk_id": "e3-meadowrun-logger:p1:c2",
+            "document_id": "e3-meadowrun-logger",
+            "document_name": "meadowrun_cold_chain_logger_report.txt",
+            "page": 1,
+            "section": null,
+            "excerpt": "Mean product-zone temperature: 4.4 °C; highest recorded reading: 6.3 °C."
+          }
+        ],
+        "citation_matches": [
+          true
+        ]
+      },
+      "candidate": {
+        "outcome": "correct",
+        "status": "answered",
+        "answer_match": true,
+        "citations": [
+          {
+            "chunk_id": "e3-meadowrun-logger:p1:c2",
+            "document_id": "e3-meadowrun-logger",
+            "document_name": "meadowrun_cold_chain_logger_report.txt",
+            "page": 1,
+            "section": null,
+            "excerpt": "Mean product-zone temperature: 4.4 °C; highest recorded reading: 6.3 °C."
+          }
+        ],
+        "citation_matches": [
+          true
+        ]
+      }
+    },
+    {
+      "id": "e3-a08",
+      "baseline": {
+        "outcome": "correct",
+        "status": "answered",
+        "answer_match": true,
+        "citations": [
+          {
+            "chunk_id": "e3-meadowrun-logger:p1:c2",
+            "document_id": "e3-meadowrun-logger",
+            "document_name": "meadowrun_cold_chain_logger_report.txt",
+            "page": 1,
+            "section": null,
+            "excerpt": "Mean product-zone temperature: 4.4 °C; highest recorded reading: 6.3 °C."
+          }
+        ],
+        "citation_matches": [
+          true
+        ]
+      },
+      "candidate": {
+        "outcome": "correct",
+        "status": "answered",
+        "answer_match": true,
+        "citations": [
+          {
+            "chunk_id": "e3-meadowrun-logger:p1:c2",
+            "document_id": "e3-meadowrun-logger",
+            "document_name": "meadowrun_cold_chain_logger_report.txt",
+            "page": 1,
+            "section": null,
+            "excerpt": "Mean product-zone temperature: 4.4 °C; highest recorded reading: 6.3 °C."
+          }
+        ],
+        "citation_matches": [
+          true
+        ]
+      }
+    },
+    {
+      "id": "e3-a09",
+      "baseline": {
+        "outcome": "correct",
+        "status": "answered",
+        "answer_match": true,
+        "citations": [
+          {
+            "chunk_id": "e3-meadowrun-logger:p1:c3",
+            "document_id": "e3-meadowrun-logger",
+            "document_name": "meadowrun_cold_chain_logger_report.txt",
+            "page": 1,
+            "section": null,
+            "excerpt": "Readings remained above 6 °C for 12 minutes, from 09:16 to 09:28 CEST."
+          }
+        ],
+        "citation_matches": [
+          true
+        ]
+      },
+      "candidate": {
+        "outcome": "wrong",
+        "status": "abstained",
+        "answer_match": false,
+        "citations": [],
+        "citation_matches": []
+      }
+    },
+    {
+      "id": "e3-a10",
+      "baseline": {
+        "outcome": "wrong",
+        "status": "abstained",
+        "answer_match": false,
+        "citations": [],
+        "citation_matches": []
+      },
+      "candidate": {
+        "outcome": "wrong",
+        "status": "abstained",
+        "answer_match": false,
+        "citations": [],
+        "citation_matches": []
+      }
+    },
+    {
+      "id": "e3-a11",
+      "baseline": {
+        "outcome": "wrong",
+        "status": "abstained",
+        "answer_match": false,
+        "citations": [],
+        "citation_matches": []
+      },
+      "candidate": {
+        "outcome": "wrong",
+        "status": "abstained",
+        "answer_match": false,
+        "citations": [],
+        "citation_matches": []
+      }
+    },
+    {
+      "id": "e3-a12",
+      "baseline": {
+        "outcome": "correct",
+        "status": "answered",
+        "answer_match": true,
+        "citations": [
+          {
+            "chunk_id": "e3-lab-certificate:p1:c2",
+            "document_id": "e3-lab-certificate",
+            "document_name": "certificat_laboratoire_lot_AP-73.txt",
+            "page": 1,
+            "section": null,
+            "excerpt": "Échantillon prélevé le 18 août 2026."
+          }
+        ],
+        "citation_matches": [
+          true
+        ]
+      },
+      "candidate": {
+        "outcome": "wrong",
+        "status": "abstained",
+        "answer_match": false,
+        "citations": [],
+        "citation_matches": []
+      }
+    },
+    {
+      "id": "e3-a13",
+      "baseline": {
+        "outcome": "wrong",
+        "status": "abstained",
+        "answer_match": false,
+        "citations": [],
+        "citation_matches": []
+      },
+      "candidate": {
+        "outcome": "wrong",
+        "status": "abstained",
+        "answer_match": false,
+        "citations": [],
+        "citation_matches": []
+      }
+    },
+    {
+      "id": "e3-a14",
+      "baseline": {
+        "outcome": "correct",
+        "status": "answered",
+        "answer_match": true,
+        "citations": [
+          {
+            "chunk_id": "e3-lab-certificate:p1:c4",
+            "document_id": "e3-lab-certificate",
+            "document_name": "certificat_laboratoire_lot_AP-73.txt",
+            "page": 1,
+            "section": null,
+            "excerpt": "Acidité titrable : 0,42 g/100 mL."
+          }
+        ],
+        "citation_matches": [
+          true
+        ]
+      },
+      "candidate": {
+        "outcome": "correct",
+        "status": "answered",
+        "answer_match": true,
+        "citations": [
+          {
+            "chunk_id": "e3-lab-certificate:p1:c4",
+            "document_id": "e3-lab-certificate",
+            "document_name": "certificat_laboratoire_lot_AP-73.txt",
+            "page": 1,
+            "section": null,
+            "excerpt": "Acidité titrable : 0,42 g/100 mL."
+          }
+        ],
+        "citation_matches": [
+          true
+        ]
+      }
+    },
+    {
+      "id": "e3-a15",
+      "baseline": {
+        "outcome": "correct",
+        "status": "answered",
+        "answer_match": true,
+        "citations": [
+          {
+            "chunk_id": "e3-pack-instruction:p1:c1",
+            "document_id": "e3-pack-instruction",
+            "document_name": "consigne_emballage_export.txt",
+            "page": 1,
+            "section": null,
+            "excerpt": "Pour chaque caisse de pommes, placer deux sachets réfrigérants dans les emplacements latéraux prévus."
+          }
+        ],
+        "citation_matches": [
+          true
+        ]
+      },
+      "candidate": {
+        "outcome": "correct",
+        "status": "answered",
+        "answer_match": true,
+        "citations": [
+          {
+            "chunk_id": "e3-pack-instruction:p1:c1",
+            "document_id": "e3-pack-instruction",
+            "document_name": "consigne_emballage_export.txt",
+            "page": 1,
+            "section": null,
+            "excerpt": "Pour chaque caisse de pommes, placer deux sachets réfrigérants dans les emplacements latéraux prévus."
+          }
+        ],
+        "citation_matches": [
+          true
+        ]
+      }
+    },
+    {
+      "id": "e3-a16",
+      "baseline": {
+        "outcome": "correct",
+        "status": "answered",
+        "answer_match": true,
+        "citations": [
+          {
+            "chunk_id": "e3-pack-instruction:p1:c3",
+            "document_id": "e3-pack-instruction",
+            "document_name": "consigne_emballage_export.txt",
+            "page": 1,
+            "section": null,
+            "excerpt": "À la réception, inspecter l’emballage dans les 36 heures et noter tout sceau rompu."
+          }
+        ],
+        "citation_matches": [
+          true
+        ]
+      },
+      "candidate": {
+        "outcome": "correct",
+        "status": "answered",
+        "answer_match": true,
+        "citations": [
+          {
+            "chunk_id": "e3-pack-instruction:p1:c3",
+            "document_id": "e3-pack-instruction",
+            "document_name": "consigne_emballage_export.txt",
+            "page": 1,
+            "section": null,
+            "excerpt": "À la réception, inspecter l’emballage dans les 36 heures et noter tout sceau rompu."
+          }
+        ],
+        "citation_matches": [
+          true
+        ]
+      }
+    },
+    {
+      "id": "e3-a17",
+      "baseline": {
+        "outcome": "wrong",
+        "status": "abstained",
+        "answer_match": false,
+        "citations": [],
+        "citation_matches": []
+      },
+      "candidate": {
+        "outcome": "wrong",
+        "status": "abstained",
+        "answer_match": false,
+        "citations": [],
+        "citation_matches": []
+      }
+    },
+    {
+      "id": "e3-u01",
+      "baseline": {
+        "outcome": "wrong_or_hallucinated",
+        "status": "answered",
+        "answer_match": false,
+        "citations": [
+          {
+            "chunk_id": "e3-delivery-note:p1:c1",
+            "document_id": "e3-delivery-note",
+            "document_name": "larkspur_dijon_delivery_note.txt",
+            "page": 1,
+            "section": null,
+            "excerpt": "Shipment SH-2841 reached the Dijon depot on 2026-08-19 at 14:20 CEST."
+          }
+        ],
+        "citation_matches": [
+          false
+        ]
+      },
+      "candidate": {
+        "outcome": "correct_abstention",
+        "status": "abstained",
+        "answer_match": false,
+        "citations": [],
+        "citation_matches": []
+      }
+    },
+    {
+      "id": "e3-u02",
+      "baseline": {
+        "outcome": "correct_abstention",
+        "status": "abstained",
+        "answer_match": false,
+        "citations": [],
+        "citation_matches": []
+      },
+      "candidate": {
+        "outcome": "correct_abstention",
+        "status": "abstained",
+        "answer_match": false,
+        "citations": [],
+        "citation_matches": []
+      }
+    },
+    {
+      "id": "e3-u03",
+      "baseline": {
+        "outcome": "correct_abstention",
+        "status": "abstained",
+        "answer_match": false,
+        "citations": [],
+        "citation_matches": []
+      },
+      "candidate": {
+        "outcome": "correct_abstention",
+        "status": "abstained",
+        "answer_match": false,
+        "citations": [],
+        "citation_matches": []
+      }
+    },
+    {
+      "id": "e3-u04",
+      "baseline": {
+        "outcome": "wrong_or_hallucinated",
+        "status": "answered",
+        "answer_match": false,
+        "citations": [
+          {
+            "chunk_id": "e3-lab-certificate:p2:c3",
+            "document_id": "e3-lab-certificate",
+            "document_name": "certificat_laboratoire_lot_AP-73.txt",
+            "page": 2,
+            "section": null,
+            "excerpt": "Le nom d’un acheteur final et le numéro de commande ne figurent pas sur le certificat."
+          }
+        ],
+        "citation_matches": [
+          false
+        ]
+      },
+      "candidate": {
+        "outcome": "correct_abstention",
+        "status": "abstained",
+        "answer_match": false,
+        "citations": [],
+        "citation_matches": []
+      }
+    },
+    {
+      "id": "e3-u05",
+      "baseline": {
+        "outcome": "wrong_or_hallucinated",
+        "status": "answered",
+        "answer_match": false,
+        "citations": [
+          {
+            "chunk_id": "e3-well-lab:p1:c1",
+            "document_id": "e3-well-lab",
+            "document_name": "boreal_washwater_lab_result.txt",
+            "page": 1,
+            "section": null,
+            "excerpt": "Sample point: Well B-4."
+          }
+        ],
+        "citation_matches": [
+          false
+        ]
+      },
+      "candidate": {
+        "outcome": "correct_abstention",
+        "status": "abstained",
+        "answer_match": false,
+        "citations": [],
+        "citation_matches": []
+      }
+    },
+    {
+      "id": "e3-u06",
+      "baseline": {
+        "outcome": "wrong_or_hallucinated",
+        "status": "partially_supported",
+        "answer_match": false,
+        "citations": [
+          {
+            "chunk_id": "e3-quality-audit:p1:c4",
+            "document_id": "e3-quality-audit",
+            "document_name": "meadowrun_packline_quality_audit.txt",
+            "page": 1,
+            "section": null,
+            "excerpt": "It did not record a pesticide result, driver safety rating or the next planned delivery date."
+          }
+        ],
+        "citation_matches": [
+          false
+        ]
+      },
+      "candidate": {
+        "outcome": "wrong_or_hallucinated",
+        "status": "partially_supported",
+        "answer_match": false,
+        "citations": [
+          {
+            "chunk_id": "e3-quality-audit:p1:c4",
+            "document_id": "e3-quality-audit",
+            "document_name": "meadowrun_packline_quality_audit.txt",
+            "page": 1,
+            "section": null,
+            "excerpt": "It did not record a pesticide result, driver safety rating or the next planned delivery date."
+          }
+        ],
+        "citation_matches": [
+          false
+        ]
+      }
+    },
+    {
+      "id": "e3-c01",
+      "baseline": {
+        "outcome": "wrong_or_overconfident",
+        "status": "abstained",
+        "answer_match": false,
+        "citations": [],
+        "citation_matches": []
+      },
+      "candidate": {
+        "outcome": "wrong_or_overconfident",
+        "status": "abstained",
+        "answer_match": false,
+        "citations": [],
+        "citation_matches": []
+      }
+    },
+    {
+      "id": "e3-c02",
+      "baseline": {
+        "outcome": "wrong_or_overconfident",
+        "status": "abstained",
+        "answer_match": false,
+        "citations": [],
+        "citation_matches": []
+      },
+      "candidate": {
+        "outcome": "wrong_or_overconfident",
+        "status": "abstained",
+        "answer_match": false,
+        "citations": [],
+        "citation_matches": []
+      }
+    },
+    {
+      "id": "e3-c03",
+      "baseline": {
+        "outcome": "wrong_or_overconfident",
+        "status": "answered",
+        "answer_match": false,
+        "citations": [
+          {
+            "chunk_id": "e3-well-lab:p1:c4",
+            "document_id": "e3-well-lab",
+            "document_name": "boreal_washwater_lab_result.txt",
+            "page": 1,
+            "section": null,
+            "excerpt": "Nitrate concentration: 18 mg/L."
+          }
+        ],
+        "citation_matches": [
+          false
+        ]
+      },
+      "candidate": {
+        "outcome": "wrong_or_overconfident",
+        "status": "abstained",
+        "answer_match": false,
+        "citations": [],
+        "citation_matches": []
+      }
+    },
+    {
+      "id": "e3-c04",
+      "baseline": {
+        "outcome": "wrong_or_overconfident",
+        "status": "abstained",
+        "answer_match": false,
+        "citations": [],
+        "citation_matches": []
+      },
+      "candidate": {
+        "outcome": "wrong_or_overconfident",
+        "status": "abstained",
+        "answer_match": false,
+        "citations": [],
+        "citation_matches": []
+      }
+    },
+    {
+      "id": "e3-c05",
+      "baseline": {
+        "outcome": "wrong_or_overconfident",
+        "status": "answered",
+        "answer_match": false,
+        "citations": [
+          {
+            "chunk_id": "e3-well-field:p1:c4",
+            "document_id": "e3-well-field",
+            "document_name": "boreal_well_b4_field_sheet.txt",
+            "page": 1,
+            "section": null,
+            "excerpt": "Provisional disposition: HOLD FOR DUPLICATE TEST."
+          }
+        ],
+        "citation_matches": [
+          false
+        ]
+      },
+      "candidate": {
+        "outcome": "wrong_or_overconfident",
+        "status": "abstained",
+        "answer_match": false,
+        "citations": [],
+        "citation_matches": []
+      }
+    },
+    {
+      "id": "e3-c06",
+      "baseline": {
+        "outcome": "wrong_or_overconfident",
+        "status": "abstained",
+        "answer_match": false,
+        "citations": [],
+        "citation_matches": []
+      },
+      "candidate": {
+        "outcome": "wrong_or_overconfident",
+        "status": "abstained",
+        "answer_match": false,
+        "citations": [],
+        "citation_matches": []
+      }
+    }
+  ]
+}

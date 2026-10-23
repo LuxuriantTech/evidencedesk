@@ -1,0 +1,10 @@
+ROUTING INCIDENT REPORT
+Date: 2027-09-08.
+Quill Harbor's dispatch feed was delayed from 08:06 to 08:23 UTC, a total of 17 minutes.
+The event was classified SEV-2.
+
+--- PAGE 2 ---
+CUSTOMER COMMUNICATION
+The operations note sets a target to notify affected customers within 48 hours.
+This report does not amend the Aster Fleet Services Agreement.
+Risk note: the 48-hour target conflicts with the agreement's 24-hour deadline for a confirmed cybersecurity incident.

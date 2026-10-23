@@ -1,0 +1,8 @@
+ORION CLOUD PLATFORM — SERVICE INCIDENT REPORT
+Incident date: 2027-06-14. The gateway began dropping dispatch acknowledgements at 09:10 UTC. Service was restored at 09:28 UTC, so the interruption lasted 18 minutes.
+The report distinguishes the 18-minute service interruption from notification duties in the signed agreements.
+
+CUSTOMER FOLLOW-UP
+The operations team set an internal target to update affected customers within 72 hours. This is an operational target, not an amendment to the Master Services Agreement.
+This incident report does not amend the Master Services Agreement.
+At report approval, the review had not established a personal-data breach. No customer compensation amount or named notification recipient is stated in this report.

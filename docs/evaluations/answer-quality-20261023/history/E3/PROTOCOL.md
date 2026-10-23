@@ -1,0 +1,11 @@
+# E3 frozen evaluation protocol
+
+This is a newly authored synthetic evaluation in a different domain from E1/E2: cold-chain produce logistics, laboratory results, packaging work instructions, and water-quality records. Eight documents use different organizations, facts, terminology, and writing styles in English and French. The 29 fixed questions comprise 17 answerable, 6 unanswerable, and 6 ambiguous cases. Coverage includes paraphrase/language variation, linked shipment and logger records, near numeric values, negative/non-measured facts, mixed operational and laboratory evidence, and conflicting unreconciled water-test records.
+
+This is internal evidence, not third-party blind certification or production qualification. The developer and source reviewer have not been given these documents, questions, or golds. They remain private until the parent completes the independent source review and explicitly authorizes a candidate run.
+
+All cases use split development solely because the frozen repository runner requires it for this common adapter; that label does not imply external holdout status. Golds and exact evidence excerpts are fixed in datasets/evaluation_cases.json; canonical pages are in datasets/corpus_manifest.json and source text under datasets/sources. No extraction targets are scored.
+
+Primary score is only the frozen runner’s metric_counts.answerable_correct / answerable_total, exactly as emitted. No manual aliases, post-run tolerances, or hand-scored substitutions are permitted. Secondary measures are native citation precision/recall, retrieval recall@5/MRR@5, abstention accuracy, errors/schema errors, and latency. Model, answer configuration, dependency lock, grader, and adapter are identical to the previous frozen protocol; only the E3 suite/corpus inputs are new.
+
+The adapter is byte-identical to the previous common adapter. Suite, corpus, source files, rules, protocol, grader, model manifest, and adapter hashes were frozen before the authorized baseline run. Only the baseline run is authorized at this stage. Wait for explicit root freeze before running a candidate. Do not revise inputs after baseline. Once the parent or developer reads E3 outputs for diagnosis, E3 becomes development data and must not be reused as an independent holdout.

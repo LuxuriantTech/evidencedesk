@@ -1,0 +1,85 @@
+{
+  "comparison_label": "e3-fixed-runner-v1",
+  "frozen_before_any_run": true,
+  "frozen_on": "2026-10-23",
+  "baseline_commit": "0ae029757bfae524034d07335d0c518423b4afa9",
+  "baseline_tree": "d744ed7e47c65b25f6441ba41016b8dfd9a979b1",
+  "suite_sha256": "f24b11ed813b00edc1ae6a6bdcc55f48e1085553eb64ac7765dd1dad245d7ed0",
+  "corpus_sha256": "943683290c1ebdcd2f1cf03e85d1015490eb069a9f560c5316212bfa7927f189",
+  "protocol_sha256": "54ec19bbfeac59539a1a924236e4a5da0ae75b7bbb3edc055c7ed0566d17dd12",
+  "adapter_sha256": "0608fb6b6fb9d4608ffe19d5cf9ecd6f2e0ac43f904eefb50f3b63474229ed6a",
+  "model_manifest_sha256": "69b870fae9bae6060e43aace617bf8cc17d3e200bfbaf06172c3219f79eb49ec",
+  "model_files": [
+    {
+      "path": "config.json",
+      "bytes": 673,
+      "sha256": "c8ec081fdad2df991bf5abbf18418fec7a5cdaa421f60ffb060a30040b8c376f",
+      "verified": true
+    },
+    {
+      "path": "model_optimized.onnx",
+      "bytes": 235052644,
+      "sha256": "634d0f66c29dc934c8fa72b8a4fe91dd4d420a22f1d82a241058d4316e659a99",
+      "verified": true
+    },
+    {
+      "path": "ort_config.json",
+      "bytes": 1272,
+      "sha256": "99881c45e073696289224931dd48694398bc6bcd1fe7cb7018bca1e0cc00e1fc",
+      "verified": true
+    },
+    {
+      "path": "special_tokens_map.json",
+      "bytes": 964,
+      "sha256": "8c785abebea9ae3257b61681b4e6fd8365ceafde980c21970d001e834cf10835",
+      "verified": true
+    },
+    {
+      "path": "tokenizer.json",
+      "bytes": 17083009,
+      "sha256": "fa685fc160bbdbab64058d4fc91b60e62d207e8dc60b9af5c002c5ab946ded00",
+      "verified": true
+    },
+    {
+      "path": "tokenizer_config.json",
+      "bytes": 1416,
+      "sha256": "0666eebf692422757e1dddf3c9fb1ded73ba3dc726c5828671fc89e45bf3609f",
+      "verified": true
+    },
+    {
+      "path": "unigram.json",
+      "bytes": 14763260,
+      "sha256": "da145b5e7700ae40f16691ec32a0b1fdc1ee3298db22a31ea55f57a966c4a65d",
+      "verified": true
+    }
+  ],
+  "grader_files_sha256": {
+    "evals/runner.py": "5475e891fc623ac50f793eacc22898c5873577f4c751876e91845a17a0bec259",
+    "evals/schema_versions.py": "2b3411ed24498fdffa09a71dfbf0e4fee137cafeab4727b9d3904d930a340f10",
+    "evals/validate_dataset.py": "2c1e72091155f5caa9443eacff3d107f8c46f463c33329c44c755688f2789613",
+    "evals/answer_v3_runtime.py": "b496f5290a350f420ed4d3d53ba1413a5fff82f16ba23cea065c072cd883748d",
+    "evals/configs/answer-v3-frozen-v7.json": "a3987fdb7bb2db037a4089044438a79d150db4b6bcc5ab136b868cd6c54c7a38"
+  },
+  "runner_acceptance_targets": {
+    "citation_precision": 0.9,
+    "citation_recall": 0.9,
+    "citation_case_accuracy": 0.9,
+    "abstention_accuracy": 0.85,
+    "extraction_f1": 0.9,
+    "error_rate": 0.0,
+    "schema_error_rate": 0.0
+  },
+  "primary_score": "result.metric_counts.answerable_correct / answerable_total; use runner result as emitted, with citation_case_accuracy as equivalent decimal",
+  "score_aliases_or_posthoc_changes": false,
+  "secondary_metrics": [
+    "citation_precision",
+    "citation_recall",
+    "retrieval_recall_at_5",
+    "retrieval_mrr_at_5",
+    "abstention_accuracy",
+    "error_rate",
+    "schema_error_rate"
+  ],
+  "extraction_f1_status": "not applicable; extraction_targets is empty",
+  "answer_configuration": "baseline 0ae0297 checkout evals/configs/answer-v3-frozen-v7.json, SHA-256 a3987fdb7bb2db037a4089044438a79d150db4b6bcc5ab136b868cd6c54c7a38"
+}

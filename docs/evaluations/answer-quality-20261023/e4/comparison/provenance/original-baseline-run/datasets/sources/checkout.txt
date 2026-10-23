@@ -1,0 +1,3 @@
+CheckoutID CO-090, dated 2026-10-14: the checkout record explicitly assigns AssetTag CTD-204 to CampaignID C-17. Model listed: AquaScan 4X. CalibrationCertificateID CAL-204A is entered on the same checkout line.
+
+CheckoutID CO-091 is for CampaignID C-71 and AssetTag CTD-240, model AquaScan 4X-Lite. These are separate assets and a separate campaign.

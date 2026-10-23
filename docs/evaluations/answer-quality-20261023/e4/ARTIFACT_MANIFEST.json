@@ -1,0 +1,766 @@
+{
+  "manifest_version": "e4-public-evidence-bundle-v1",
+  "source_root": "output/portfolio-product-20261023/evaluation-independent-v4",
+  "bundle_scope": "Local review bundle; no external publication. Raw output JSON, frozen final inputs, run receipts, and exact pinned source files are preserved. Selected provenance paths are redacted and declared per file.",
+  "artifacts": [
+    {
+      "path": "E4_RESULT_REVIEW.md",
+      "source": "output/portfolio-product-20261023/E4_RESULT_REVIEW.md",
+      "source_sha256": "db2e7a0800e01148a4213b843870290c362f66f338a100ef29124986ccf31c02",
+      "copy_sha256": "db2e7a0800e01148a4213b843870290c362f66f338a100ef29124986ccf31c02",
+      "bytes": 4088,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "PROTOCOL.md",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/PROTOCOL.md",
+      "source_sha256": "7aa83c67cfb4c0d66deb547cbcf9391efaed6d980397acc79e1507576ebd0ef4",
+      "copy_sha256": "7aa83c67cfb4c0d66deb547cbcf9391efaed6d980397acc79e1507576ebd0ef4",
+      "bytes": 3243,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "LAYOUT_CORRECTION_NOTE.md",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/LAYOUT_CORRECTION_NOTE.md",
+      "source_sha256": "5e76dc0b285b195e036543c9f1bd2d582fdfa99388460fe403db8555e2bb4e18",
+      "copy_sha256": "5e76dc0b285b195e036543c9f1bd2d582fdfa99388460fe403db8555e2bb4e18",
+      "bytes": 977,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "COMPARISON_RULES_FROZEN.json",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/COMPARISON_RULES_FROZEN.json",
+      "source_sha256": "aeb4a8b27796a8465102312d729f7e0855aa4fc4e3b5809f10b77387f205706d",
+      "copy_sha256": "aeb4a8b27796a8465102312d729f7e0855aa4fc4e3b5809f10b77387f205706d",
+      "bytes": 956,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "FREEZE_RECEIPT.json",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/FREEZE_RECEIPT.json",
+      "source_sha256": "5f0e996bddcd908339d61eba1dd2b758845b3bd03b24311836e70f6f7e902a2d",
+      "copy_sha256": "5f0e996bddcd908339d61eba1dd2b758845b3bd03b24311836e70f6f7e902a2d",
+      "bytes": 852,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "input-package/COMPARISON_RULES_FROZEN.json",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/inputs/COMPARISON_RULES_FROZEN.json",
+      "source_sha256": "aeb4a8b27796a8465102312d729f7e0855aa4fc4e3b5809f10b77387f205706d",
+      "copy_sha256": "aeb4a8b27796a8465102312d729f7e0855aa4fc4e3b5809f10b77387f205706d",
+      "bytes": 956,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "input-package/FREEZE_RECEIPT.json",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/inputs/FREEZE_RECEIPT.json",
+      "source_sha256": "5f0e996bddcd908339d61eba1dd2b758845b3bd03b24311836e70f6f7e902a2d",
+      "copy_sha256": "5f0e996bddcd908339d61eba1dd2b758845b3bd03b24311836e70f6f7e902a2d",
+      "bytes": 852,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "input-package/FROZEN_INPUT_MANIFEST.json",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/inputs/FROZEN_INPUT_MANIFEST.json",
+      "source_sha256": "e9c18c0523a391b630dc7559349fc676e4e740f5b91a8a9cf4a4cb69dc697326",
+      "copy_sha256": "889298f9f09acff8e48c9ee137ba3bf9125df17553a90d0d2f1e6f13752897f1",
+      "bytes": 3110,
+      "transformation": "JSON copy with only the machine-local model directory replaced; source and copy hashes recorded."
+    },
+    {
+      "path": "input-package/LAYOUT_CORRECTION_NOTE.md",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/inputs/LAYOUT_CORRECTION_NOTE.md",
+      "source_sha256": "5e76dc0b285b195e036543c9f1bd2d582fdfa99388460fe403db8555e2bb4e18",
+      "copy_sha256": "5e76dc0b285b195e036543c9f1bd2d582fdfa99388460fe403db8555e2bb4e18",
+      "bytes": 977,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "input-package/PROTOCOL.md",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/inputs/PROTOCOL.md",
+      "source_sha256": "7aa83c67cfb4c0d66deb547cbcf9391efaed6d980397acc79e1507576ebd0ef4",
+      "copy_sha256": "7aa83c67cfb4c0d66deb547cbcf9391efaed6d980397acc79e1507576ebd0ef4",
+      "bytes": 3243,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "input-package/adapters/run_baseline.py",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/inputs/adapters/run_baseline.py",
+      "source_sha256": "0608fb6b6fb9d4608ffe19d5cf9ecd6f2e0ac43f904eefb50f3b63474229ed6a",
+      "copy_sha256": "0608fb6b6fb9d4608ffe19d5cf9ecd6f2e0ac43f904eefb50f3b63474229ed6a",
+      "bytes": 3470,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "input-package/datasets/corpus_manifest.json",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/inputs/datasets/corpus_manifest.json",
+      "source_sha256": "7fd7b7991557515c6007cf1a6982763b74c46e99929d0575f8be1023a8220951",
+      "copy_sha256": "7fd7b7991557515c6007cf1a6982763b74c46e99929d0575f8be1023a8220951",
+      "bytes": 5595,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "input-package/datasets/evaluation_cases.json",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/inputs/datasets/evaluation_cases.json",
+      "source_sha256": "d8492380fd91ab058de0c05eb773d5fe79048cdd77894b24249be9de06baa228",
+      "copy_sha256": "d8492380fd91ab058de0c05eb773d5fe79048cdd77894b24249be9de06baa228",
+      "bytes": 10679,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "input-package/datasets/sources/asset-register.txt",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/inputs/datasets/sources/asset-register.txt",
+      "source_sha256": "b1a02ade2b516d24fb0b82e2fc3f4447ca7294f40b4a10eea7254a637bfd1eb6",
+      "copy_sha256": "b1a02ade2b516d24fb0b82e2fc3f4447ca7294f40b4a10eea7254a637bfd1eb6",
+      "bytes": 290,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "input-package/datasets/sources/bulletin.txt",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/inputs/datasets/sources/bulletin.txt",
+      "source_sha256": "8a982524af20500f3425b6912ba3ae7ef62480d57ff5400bea7acba2c813d27d",
+      "copy_sha256": "8a982524af20500f3425b6912ba3ae7ef62480d57ff5400bea7acba2c813d27d",
+      "bytes": 314,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "input-package/datasets/sources/calibration.txt",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/inputs/datasets/sources/calibration.txt",
+      "source_sha256": "983348c100694e2b6c463ad6e86ec9f28d4f26e9f98262bcd67db55ef3e8f866",
+      "copy_sha256": "983348c100694e2b6c463ad6e86ec9f28d4f26e9f98262bcd67db55ef3e8f866",
+      "bytes": 141,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "input-package/datasets/sources/checkout.txt",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/inputs/datasets/sources/checkout.txt",
+      "source_sha256": "ff664c3b917a565d206b909391b41bc94902c9132d1a6179bd7acd9fc625458b",
+      "copy_sha256": "ff664c3b917a565d206b909391b41bc94902c9132d1a6179bd7acd9fc625458b",
+      "bytes": 354,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "input-package/datasets/sources/lab.txt",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/inputs/datasets/sources/lab.txt",
+      "source_sha256": "08a5b2c31d0d50320bd696dfc5ef3de9a4d4c58c0905de72c8147f70c432be7d",
+      "copy_sha256": "08a5b2c31d0d50320bd696dfc5ef3de9a4d4c58c0905de72c8147f70c432be7d",
+      "bytes": 337,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "input-package/datasets/sources/permit.txt",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/inputs/datasets/sources/permit.txt",
+      "source_sha256": "6283ad2a46b9dbe5df0c72d86a5aba5ea1e9ce2f78edc8ee5890ddc824414b7b",
+      "copy_sha256": "6283ad2a46b9dbe5df0c72d86a5aba5ea1e9ce2f78edc8ee5890ddc824414b7b",
+      "bytes": 343,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "input-package/datasets/sources/plan.txt",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/inputs/datasets/sources/plan.txt",
+      "source_sha256": "d7933c1b021f76681171e07c264e19c11ecd149cb14e60cf703032684ad115ca",
+      "copy_sha256": "d7933c1b021f76681171e07c264e19c11ecd149cb14e60cf703032684ad115ca",
+      "bytes": 386,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "input-package/datasets/sources/ranger.txt",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/inputs/datasets/sources/ranger.txt",
+      "source_sha256": "e48bd42b0f7a0c947c7de156c0f787c7fc9485cb412e3e85648a6ef039f7e7bc",
+      "copy_sha256": "e48bd42b0f7a0c947c7de156c0f787c7fc9485cb412e3e85648a6ef039f7e7bc",
+      "bytes": 332,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "input-package/datasets/sources/service.txt",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/inputs/datasets/sources/service.txt",
+      "source_sha256": "e24060842326bf535df6f445a12421f57899bb8b6184cb19bdd678086613db6c",
+      "copy_sha256": "e24060842326bf535df6f445a12421f57899bb8b6184cb19bdd678086613db6c",
+      "bytes": 416,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "input-package/datasets/sources/station.txt",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/inputs/datasets/sources/station.txt",
+      "source_sha256": "1c4dbb1ec5ba5f338bf76aab4baf6ccca79b75fe6468082e2fb287cb6ec34e14",
+      "copy_sha256": "1c4dbb1ec5ba5f338bf76aab4baf6ccca79b75fe6468082e2fb287cb6ec34e14",
+      "bytes": 499,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/PROVENANCE.json",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/PROVENANCE.json",
+      "source_sha256": "9b994496d21ca071c6a0a6bb7c8f7e780063111f0d78a9a9c458511df0c40739",
+      "copy_sha256": "cf263d19317b41e2faca07679a27f8a1677290f7bcbc46fc433434967e613e62",
+      "bytes": 1564,
+      "transformation": "JSON copy with run-root paths replaced by role labels; raw results and receipts retained byte-identically."
+    },
+    {
+      "path": "comparison/REVIEWABLE_ARTIFACTS_SHA256SUMS.json",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/REVIEWABLE_ARTIFACTS_SHA256SUMS.json",
+      "source_sha256": "7b94e4abdad032447981ea36671ee1ec3203d5cf8e57c35d922e5bddbdcfeda7",
+      "copy_sha256": "7b94e4abdad032447981ea36671ee1ec3203d5cf8e57c35d922e5bddbdcfeda7",
+      "bytes": 9785,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/TECHNICAL_COMPARISON.md",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/TECHNICAL_COMPARISON.md",
+      "source_sha256": "5bf33de13bd6e58427764908fdc539d74a60971c66f2d8e54ba859c8b90aa93b",
+      "copy_sha256": "5bf33de13bd6e58427764908fdc539d74a60971c66f2d8e54ba859c8b90aa93b",
+      "bytes": 3585,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/baseline-run/raw_results.json",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/baseline-run/raw_results.json",
+      "source_sha256": "4b0cb2130aa7bf13eda158d2d70cfcf549431eaaf3691085dd48ad299a421f22",
+      "copy_sha256": "4b0cb2130aa7bf13eda158d2d70cfcf549431eaaf3691085dd48ad299a421f22",
+      "bytes": 451477,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/candidate-run/ARTIFACTS_SHA256SUMS.json",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/candidate-run/ARTIFACTS_SHA256SUMS.json",
+      "source_sha256": "cc1998f08ab69b620fc6883e1d977efb57c7f1d8e2e709bab597df34e72b425c",
+      "copy_sha256": "cc1998f08ab69b620fc6883e1d977efb57c7f1d8e2e709bab597df34e72b425c",
+      "bytes": 704,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/candidate-run/raw_results.json",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/candidate-run/raw_results.json",
+      "source_sha256": "5bff3758538ae10fe47907826de9a945b13b3cc50cb12beb91a02b2dae6ca2a1",
+      "copy_sha256": "5bff3758538ae10fe47907826de9a945b13b3cc50cb12beb91a02b2dae6ca2a1",
+      "bytes": 332919,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/datasets/corpus_manifest.json",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/datasets/corpus_manifest.json",
+      "source_sha256": "7fd7b7991557515c6007cf1a6982763b74c46e99929d0575f8be1023a8220951",
+      "copy_sha256": "7fd7b7991557515c6007cf1a6982763b74c46e99929d0575f8be1023a8220951",
+      "bytes": 5595,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/datasets/evaluation_cases.json",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/datasets/evaluation_cases.json",
+      "source_sha256": "d8492380fd91ab058de0c05eb773d5fe79048cdd77894b24249be9de06baa228",
+      "copy_sha256": "d8492380fd91ab058de0c05eb773d5fe79048cdd77894b24249be9de06baa228",
+      "bytes": 10679,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/provenance/E4_REGISTRATION.json",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/provenance/E4_REGISTRATION.json",
+      "source_sha256": "24ec1c048e914b7ccbea9419e505a29b3d51508a1d52fcc20fc8b28bb4931a81",
+      "copy_sha256": "24ec1c048e914b7ccbea9419e505a29b3d51508a1d52fcc20fc8b28bb4931a81",
+      "bytes": 3778,
+      "transformation": "JSON copy with run-root paths replaced by role labels; raw results and receipts retained byte-identically."
+    },
+    {
+      "path": "comparison/provenance/original-baseline-run/ATTEMPT.json",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/provenance/original-baseline-run/ATTEMPT.json",
+      "source_sha256": "d243fdcabc70de20ae7e911f09fdf61393349ca05c608edd882fcc29539afcea",
+      "copy_sha256": "d243fdcabc70de20ae7e911f09fdf61393349ca05c608edd882fcc29539afcea",
+      "bytes": 246,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/provenance/original-baseline-run/FINISH_RECEIPT.json",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/provenance/original-baseline-run/FINISH_RECEIPT.json",
+      "source_sha256": "f92367e09a7f2eb5ee5e29fcdc31b114be819e4216e012525fd883a24760c385",
+      "copy_sha256": "f92367e09a7f2eb5ee5e29fcdc31b114be819e4216e012525fd883a24760c385",
+      "bytes": 964,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/provenance/original-baseline-run/START_RECEIPT.json",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/provenance/original-baseline-run/START_RECEIPT.json",
+      "source_sha256": "77066a17db85d3dbbb37981f4467325af09843d39af9aed62e8c1636acf31b4b",
+      "copy_sha256": "77066a17db85d3dbbb37981f4467325af09843d39af9aed62e8c1636acf31b4b",
+      "bytes": 8750,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/provenance/original-baseline-run/stderr.txt",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/provenance/original-baseline-run/stderr.txt",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "copy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/provenance/original-baseline-run/stdout.txt",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/provenance/original-baseline-run/stdout.txt",
+      "source_sha256": "b4e07d906124b126de239a10b1c7fb8486c7a00faad3be4181083483cbf9e80b",
+      "copy_sha256": "c4835dea93756e7c9b1edf8bdff56881c5ee32b231c80126afdaff49ea18ac4f",
+      "bytes": 977,
+      "transformation": "Output path redacted; all other stdout bytes/text retained. Original hash is recorded."
+    },
+    {
+      "path": "comparison/provenance/original-candidate-run/ATTEMPT.json",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/provenance/original-candidate-run/ATTEMPT.json",
+      "source_sha256": "648055b09b897146bd2d42ca7dfd17c89e953bd7ea1ae19012cec2a91d00202f",
+      "copy_sha256": "648055b09b897146bd2d42ca7dfd17c89e953bd7ea1ae19012cec2a91d00202f",
+      "bytes": 247,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/provenance/original-candidate-run/FINISH_RECEIPT.json",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/provenance/original-candidate-run/FINISH_RECEIPT.json",
+      "source_sha256": "b8710a16ade97f427b7d0755144432c4a7eff2da5075465b7b64d023a3330acc",
+      "copy_sha256": "b8710a16ade97f427b7d0755144432c4a7eff2da5075465b7b64d023a3330acc",
+      "bytes": 964,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/provenance/original-candidate-run/START_RECEIPT.json",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/provenance/original-candidate-run/START_RECEIPT.json",
+      "source_sha256": "cee29ff2fa4de59e4c0751b2d4c4c4e372333844a58de1a72551d01c24ca780b",
+      "copy_sha256": "cee29ff2fa4de59e4c0751b2d4c4c4e372333844a58de1a72551d01c24ca780b",
+      "bytes": 8751,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/provenance/original-candidate-run/stderr.txt",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/provenance/original-candidate-run/stderr.txt",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "copy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/provenance/original-candidate-run/stdout.txt",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/provenance/original-candidate-run/stdout.txt",
+      "source_sha256": "40a811fe37deec0571cf1a21a6da34f7410d9d362f902f65e47d91672bce2793",
+      "copy_sha256": "1ccfde09b678a0a68fa8c67716d5079c701594f6a207cbf5b5890f0b10a46b6c",
+      "bytes": 977,
+      "transformation": "Output path redacted; all other stdout bytes/text retained. Original hash is recorded."
+    },
+    {
+      "path": "comparison/provenance/original-candidate-run/adapters/run_baseline.py",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/provenance/original-candidate-run/adapters/run_baseline.py",
+      "source_sha256": "0608fb6b6fb9d4608ffe19d5cf9ecd6f2e0ac43f904eefb50f3b63474229ed6a",
+      "copy_sha256": "0608fb6b6fb9d4608ffe19d5cf9ecd6f2e0ac43f904eefb50f3b63474229ed6a",
+      "bytes": 3470,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/provenance/original-candidate-run/baseline-run/raw_results.json",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/provenance/original-candidate-run/baseline-run/raw_results.json",
+      "source_sha256": "5bff3758538ae10fe47907826de9a945b13b3cc50cb12beb91a02b2dae6ca2a1",
+      "copy_sha256": "5bff3758538ae10fe47907826de9a945b13b3cc50cb12beb91a02b2dae6ca2a1",
+      "bytes": 332919,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/provenance/original-candidate-run/datasets/corpus_manifest.json",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/provenance/original-candidate-run/datasets/corpus_manifest.json",
+      "source_sha256": "7fd7b7991557515c6007cf1a6982763b74c46e99929d0575f8be1023a8220951",
+      "copy_sha256": "7fd7b7991557515c6007cf1a6982763b74c46e99929d0575f8be1023a8220951",
+      "bytes": 5595,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/provenance/original-candidate-run/datasets/evaluation_cases.json",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/provenance/original-candidate-run/datasets/evaluation_cases.json",
+      "source_sha256": "d8492380fd91ab058de0c05eb773d5fe79048cdd77894b24249be9de06baa228",
+      "copy_sha256": "d8492380fd91ab058de0c05eb773d5fe79048cdd77894b24249be9de06baa228",
+      "bytes": 10679,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/provenance/original-candidate-run/datasets/sources/asset-register.txt",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/provenance/original-candidate-run/datasets/sources/asset-register.txt",
+      "source_sha256": "b1a02ade2b516d24fb0b82e2fc3f4447ca7294f40b4a10eea7254a637bfd1eb6",
+      "copy_sha256": "b1a02ade2b516d24fb0b82e2fc3f4447ca7294f40b4a10eea7254a637bfd1eb6",
+      "bytes": 290,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/provenance/original-candidate-run/datasets/sources/bulletin.txt",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/provenance/original-candidate-run/datasets/sources/bulletin.txt",
+      "source_sha256": "8a982524af20500f3425b6912ba3ae7ef62480d57ff5400bea7acba2c813d27d",
+      "copy_sha256": "8a982524af20500f3425b6912ba3ae7ef62480d57ff5400bea7acba2c813d27d",
+      "bytes": 314,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/provenance/original-candidate-run/datasets/sources/calibration.txt",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/provenance/original-candidate-run/datasets/sources/calibration.txt",
+      "source_sha256": "983348c100694e2b6c463ad6e86ec9f28d4f26e9f98262bcd67db55ef3e8f866",
+      "copy_sha256": "983348c100694e2b6c463ad6e86ec9f28d4f26e9f98262bcd67db55ef3e8f866",
+      "bytes": 141,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/provenance/original-candidate-run/datasets/sources/checkout.txt",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/provenance/original-candidate-run/datasets/sources/checkout.txt",
+      "source_sha256": "ff664c3b917a565d206b909391b41bc94902c9132d1a6179bd7acd9fc625458b",
+      "copy_sha256": "ff664c3b917a565d206b909391b41bc94902c9132d1a6179bd7acd9fc625458b",
+      "bytes": 354,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/provenance/original-candidate-run/datasets/sources/lab.txt",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/provenance/original-candidate-run/datasets/sources/lab.txt",
+      "source_sha256": "08a5b2c31d0d50320bd696dfc5ef3de9a4d4c58c0905de72c8147f70c432be7d",
+      "copy_sha256": "08a5b2c31d0d50320bd696dfc5ef3de9a4d4c58c0905de72c8147f70c432be7d",
+      "bytes": 337,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/provenance/original-candidate-run/datasets/sources/permit.txt",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/provenance/original-candidate-run/datasets/sources/permit.txt",
+      "source_sha256": "6283ad2a46b9dbe5df0c72d86a5aba5ea1e9ce2f78edc8ee5890ddc824414b7b",
+      "copy_sha256": "6283ad2a46b9dbe5df0c72d86a5aba5ea1e9ce2f78edc8ee5890ddc824414b7b",
+      "bytes": 343,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/provenance/original-candidate-run/datasets/sources/plan.txt",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/provenance/original-candidate-run/datasets/sources/plan.txt",
+      "source_sha256": "d7933c1b021f76681171e07c264e19c11ecd149cb14e60cf703032684ad115ca",
+      "copy_sha256": "d7933c1b021f76681171e07c264e19c11ecd149cb14e60cf703032684ad115ca",
+      "bytes": 386,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/provenance/original-candidate-run/datasets/sources/ranger.txt",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/provenance/original-candidate-run/datasets/sources/ranger.txt",
+      "source_sha256": "e48bd42b0f7a0c947c7de156c0f787c7fc9485cb412e3e85648a6ef039f7e7bc",
+      "copy_sha256": "e48bd42b0f7a0c947c7de156c0f787c7fc9485cb412e3e85648a6ef039f7e7bc",
+      "bytes": 332,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/provenance/original-candidate-run/datasets/sources/service.txt",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/provenance/original-candidate-run/datasets/sources/service.txt",
+      "source_sha256": "e24060842326bf535df6f445a12421f57899bb8b6184cb19bdd678086613db6c",
+      "copy_sha256": "e24060842326bf535df6f445a12421f57899bb8b6184cb19bdd678086613db6c",
+      "bytes": 416,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/provenance/original-candidate-run/datasets/sources/station.txt",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/provenance/original-candidate-run/datasets/sources/station.txt",
+      "source_sha256": "1c4dbb1ec5ba5f338bf76aab4baf6ccca79b75fe6468082e2fb287cb6ec34e14",
+      "copy_sha256": "1c4dbb1ec5ba5f338bf76aab4baf6ccca79b75fe6468082e2fb287cb6ec34e14",
+      "bytes": 499,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/provenance/original-baseline-run/adapters/run_baseline.py",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/provenance/original-baseline-run/adapters/run_baseline.py",
+      "source_sha256": "0608fb6b6fb9d4608ffe19d5cf9ecd6f2e0ac43f904eefb50f3b63474229ed6a",
+      "copy_sha256": "0608fb6b6fb9d4608ffe19d5cf9ecd6f2e0ac43f904eefb50f3b63474229ed6a",
+      "bytes": 3470,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/provenance/original-baseline-run/baseline-run/raw_results.json",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/provenance/original-baseline-run/baseline-run/raw_results.json",
+      "source_sha256": "4b0cb2130aa7bf13eda158d2d70cfcf549431eaaf3691085dd48ad299a421f22",
+      "copy_sha256": "4b0cb2130aa7bf13eda158d2d70cfcf549431eaaf3691085dd48ad299a421f22",
+      "bytes": 451477,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/provenance/original-baseline-run/datasets/corpus_manifest.json",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/provenance/original-baseline-run/datasets/corpus_manifest.json",
+      "source_sha256": "7fd7b7991557515c6007cf1a6982763b74c46e99929d0575f8be1023a8220951",
+      "copy_sha256": "7fd7b7991557515c6007cf1a6982763b74c46e99929d0575f8be1023a8220951",
+      "bytes": 5595,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/provenance/original-baseline-run/datasets/evaluation_cases.json",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/provenance/original-baseline-run/datasets/evaluation_cases.json",
+      "source_sha256": "d8492380fd91ab058de0c05eb773d5fe79048cdd77894b24249be9de06baa228",
+      "copy_sha256": "d8492380fd91ab058de0c05eb773d5fe79048cdd77894b24249be9de06baa228",
+      "bytes": 10679,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/provenance/original-baseline-run/datasets/sources/asset-register.txt",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/provenance/original-baseline-run/datasets/sources/asset-register.txt",
+      "source_sha256": "b1a02ade2b516d24fb0b82e2fc3f4447ca7294f40b4a10eea7254a637bfd1eb6",
+      "copy_sha256": "b1a02ade2b516d24fb0b82e2fc3f4447ca7294f40b4a10eea7254a637bfd1eb6",
+      "bytes": 290,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/provenance/original-baseline-run/datasets/sources/bulletin.txt",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/provenance/original-baseline-run/datasets/sources/bulletin.txt",
+      "source_sha256": "8a982524af20500f3425b6912ba3ae7ef62480d57ff5400bea7acba2c813d27d",
+      "copy_sha256": "8a982524af20500f3425b6912ba3ae7ef62480d57ff5400bea7acba2c813d27d",
+      "bytes": 314,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/provenance/original-baseline-run/datasets/sources/calibration.txt",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/provenance/original-baseline-run/datasets/sources/calibration.txt",
+      "source_sha256": "983348c100694e2b6c463ad6e86ec9f28d4f26e9f98262bcd67db55ef3e8f866",
+      "copy_sha256": "983348c100694e2b6c463ad6e86ec9f28d4f26e9f98262bcd67db55ef3e8f866",
+      "bytes": 141,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/provenance/original-baseline-run/datasets/sources/checkout.txt",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/provenance/original-baseline-run/datasets/sources/checkout.txt",
+      "source_sha256": "ff664c3b917a565d206b909391b41bc94902c9132d1a6179bd7acd9fc625458b",
+      "copy_sha256": "ff664c3b917a565d206b909391b41bc94902c9132d1a6179bd7acd9fc625458b",
+      "bytes": 354,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/provenance/original-baseline-run/datasets/sources/lab.txt",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/provenance/original-baseline-run/datasets/sources/lab.txt",
+      "source_sha256": "08a5b2c31d0d50320bd696dfc5ef3de9a4d4c58c0905de72c8147f70c432be7d",
+      "copy_sha256": "08a5b2c31d0d50320bd696dfc5ef3de9a4d4c58c0905de72c8147f70c432be7d",
+      "bytes": 337,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/provenance/original-baseline-run/datasets/sources/permit.txt",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/provenance/original-baseline-run/datasets/sources/permit.txt",
+      "source_sha256": "6283ad2a46b9dbe5df0c72d86a5aba5ea1e9ce2f78edc8ee5890ddc824414b7b",
+      "copy_sha256": "6283ad2a46b9dbe5df0c72d86a5aba5ea1e9ce2f78edc8ee5890ddc824414b7b",
+      "bytes": 343,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/provenance/original-baseline-run/datasets/sources/plan.txt",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/provenance/original-baseline-run/datasets/sources/plan.txt",
+      "source_sha256": "d7933c1b021f76681171e07c264e19c11ecd149cb14e60cf703032684ad115ca",
+      "copy_sha256": "d7933c1b021f76681171e07c264e19c11ecd149cb14e60cf703032684ad115ca",
+      "bytes": 386,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/provenance/original-baseline-run/datasets/sources/ranger.txt",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/provenance/original-baseline-run/datasets/sources/ranger.txt",
+      "source_sha256": "e48bd42b0f7a0c947c7de156c0f787c7fc9485cb412e3e85648a6ef039f7e7bc",
+      "copy_sha256": "e48bd42b0f7a0c947c7de156c0f787c7fc9485cb412e3e85648a6ef039f7e7bc",
+      "bytes": 332,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/provenance/original-baseline-run/datasets/sources/service.txt",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/provenance/original-baseline-run/datasets/sources/service.txt",
+      "source_sha256": "e24060842326bf535df6f445a12421f57899bb8b6184cb19bdd678086613db6c",
+      "copy_sha256": "e24060842326bf535df6f445a12421f57899bb8b6184cb19bdd678086613db6c",
+      "bytes": 416,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/provenance/original-baseline-run/datasets/sources/station.txt",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/provenance/original-baseline-run/datasets/sources/station.txt",
+      "source_sha256": "1c4dbb1ec5ba5f338bf76aab4baf6ccca79b75fe6468082e2fb287cb6ec34e14",
+      "copy_sha256": "1c4dbb1ec5ba5f338bf76aab4baf6ccca79b75fe6468082e2fb287cb6ec34e14",
+      "bytes": 499,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/datasets/sources/asset-register.txt",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/datasets/sources/asset-register.txt",
+      "source_sha256": "b1a02ade2b516d24fb0b82e2fc3f4447ca7294f40b4a10eea7254a637bfd1eb6",
+      "copy_sha256": "b1a02ade2b516d24fb0b82e2fc3f4447ca7294f40b4a10eea7254a637bfd1eb6",
+      "bytes": 290,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/datasets/sources/bulletin.txt",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/datasets/sources/bulletin.txt",
+      "source_sha256": "8a982524af20500f3425b6912ba3ae7ef62480d57ff5400bea7acba2c813d27d",
+      "copy_sha256": "8a982524af20500f3425b6912ba3ae7ef62480d57ff5400bea7acba2c813d27d",
+      "bytes": 314,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/datasets/sources/calibration.txt",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/datasets/sources/calibration.txt",
+      "source_sha256": "983348c100694e2b6c463ad6e86ec9f28d4f26e9f98262bcd67db55ef3e8f866",
+      "copy_sha256": "983348c100694e2b6c463ad6e86ec9f28d4f26e9f98262bcd67db55ef3e8f866",
+      "bytes": 141,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/datasets/sources/checkout.txt",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/datasets/sources/checkout.txt",
+      "source_sha256": "ff664c3b917a565d206b909391b41bc94902c9132d1a6179bd7acd9fc625458b",
+      "copy_sha256": "ff664c3b917a565d206b909391b41bc94902c9132d1a6179bd7acd9fc625458b",
+      "bytes": 354,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/datasets/sources/lab.txt",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/datasets/sources/lab.txt",
+      "source_sha256": "08a5b2c31d0d50320bd696dfc5ef3de9a4d4c58c0905de72c8147f70c432be7d",
+      "copy_sha256": "08a5b2c31d0d50320bd696dfc5ef3de9a4d4c58c0905de72c8147f70c432be7d",
+      "bytes": 337,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/datasets/sources/permit.txt",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/datasets/sources/permit.txt",
+      "source_sha256": "6283ad2a46b9dbe5df0c72d86a5aba5ea1e9ce2f78edc8ee5890ddc824414b7b",
+      "copy_sha256": "6283ad2a46b9dbe5df0c72d86a5aba5ea1e9ce2f78edc8ee5890ddc824414b7b",
+      "bytes": 343,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/datasets/sources/plan.txt",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/datasets/sources/plan.txt",
+      "source_sha256": "d7933c1b021f76681171e07c264e19c11ecd149cb14e60cf703032684ad115ca",
+      "copy_sha256": "d7933c1b021f76681171e07c264e19c11ecd149cb14e60cf703032684ad115ca",
+      "bytes": 386,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/datasets/sources/ranger.txt",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/datasets/sources/ranger.txt",
+      "source_sha256": "e48bd42b0f7a0c947c7de156c0f787c7fc9485cb412e3e85648a6ef039f7e7bc",
+      "copy_sha256": "e48bd42b0f7a0c947c7de156c0f787c7fc9485cb412e3e85648a6ef039f7e7bc",
+      "bytes": 332,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/datasets/sources/service.txt",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/datasets/sources/service.txt",
+      "source_sha256": "e24060842326bf535df6f445a12421f57899bb8b6184cb19bdd678086613db6c",
+      "copy_sha256": "e24060842326bf535df6f445a12421f57899bb8b6184cb19bdd678086613db6c",
+      "bytes": 416,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "comparison/datasets/sources/station.txt",
+      "source": "output/portfolio-product-20261023/evaluation-independent-v4/reviewable-comparison/datasets/sources/station.txt",
+      "source_sha256": "1c4dbb1ec5ba5f338bf76aab4baf6ccca79b75fe6468082e2fb287cb6ec34e14",
+      "copy_sha256": "1c4dbb1ec5ba5f338bf76aab4baf6ccca79b75fe6468082e2fb287cb6ec34e14",
+      "bytes": 499,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "pinned-toolchain/execute_frozen_eval_v2.py",
+      "source": "output/portfolio-product-20261023/execute_frozen_eval_v2.py",
+      "source_sha256": "9cccff012f506aa305703fc96fb65066e5e0692d36e94a446a4222130a6bfae9",
+      "copy_sha256": "9cccff012f506aa305703fc96fb65066e5e0692d36e94a446a4222130a6bfae9",
+      "bytes": 8595,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "pinned-toolchain/uv.lock",
+      "source": "output/portfolio-product-20261023/e2-public-comparison-123535b/config/uv.lock",
+      "source_sha256": "66e5f55726aa07b667cdf8911c95b836eb70c003cca4ef1c9b146370ee4c3372",
+      "copy_sha256": "66e5f55726aa07b667cdf8911c95b836eb70c003cca4ef1c9b146370ee4c3372",
+      "bytes": 516100,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "pinned-toolchain/pyproject.toml",
+      "source": "output/portfolio-product-20261023/e2-public-comparison-123535b/config/pyproject.toml",
+      "source_sha256": "aff2c398d34bce6fc2a2ab23dbee9ba91f050c70cec3ba8d795eb5b8376cab63",
+      "copy_sha256": "aff2c398d34bce6fc2a2ab23dbee9ba91f050c70cec3ba8d795eb5b8376cab63",
+      "bytes": 2170,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "pinned-toolchain/answer-v3-frozen-v7.json",
+      "source": "output/portfolio-product-20261023/e2-public-comparison-123535b/config/answer-v3-frozen-v7.json",
+      "source_sha256": "a3987fdb7bb2db037a4089044438a79d150db4b6bcc5ab136b868cd6c54c7a38",
+      "copy_sha256": "a3987fdb7bb2db037a4089044438a79d150db4b6bcc5ab136b868cd6c54c7a38",
+      "bytes": 3867,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "pinned-toolchain/grader/runner.py",
+      "source": "output/portfolio-product-20261023/e2-public-comparison-123535b/grader/runner.py",
+      "source_sha256": "5475e891fc623ac50f793eacc22898c5873577f4c751876e91845a17a0bec259",
+      "copy_sha256": "5475e891fc623ac50f793eacc22898c5873577f4c751876e91845a17a0bec259",
+      "bytes": 36925,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "pinned-toolchain/grader/schema_versions.py",
+      "source": "output/portfolio-product-20261023/e2-public-comparison-123535b/grader/schema_versions.py",
+      "source_sha256": "2b3411ed24498fdffa09a71dfbf0e4fee137cafeab4727b9d3904d930a340f10",
+      "copy_sha256": "2b3411ed24498fdffa09a71dfbf0e4fee137cafeab4727b9d3904d930a340f10",
+      "bytes": 361,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "pinned-toolchain/grader/validate_dataset.py",
+      "source": "output/portfolio-product-20261023/e2-public-comparison-123535b/grader/validate_dataset.py",
+      "source_sha256": "2c1e72091155f5caa9443eacff3d107f8c46f463c33329c44c755688f2789613",
+      "copy_sha256": "2c1e72091155f5caa9443eacff3d107f8c46f463c33329c44c755688f2789613",
+      "bytes": 11867,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "pinned-toolchain/grader/answer_v3_runtime.py",
+      "source": "output/portfolio-product-20261023/e2-public-comparison-123535b/grader/answer_v3_runtime.py",
+      "source_sha256": "b496f5290a350f420ed4d3d53ba1413a5fff82f16ba23cea065c072cd883748d",
+      "copy_sha256": "b496f5290a350f420ed4d3d53ba1413a5fff82f16ba23cea065c072cd883748d",
+      "bytes": 4127,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "pinned-toolchain/model-manifest.json",
+      "source": "output/portfolio-product-20261023/evaluation-independent/baseline-checkout/infra/models/paraphrase-multilingual-minilm-l12-v2-text-onnx.json",
+      "source_sha256": "69b870fae9bae6060e43aace617bf8cc17d3e200bfbaf06172c3219f79eb49ec",
+      "copy_sha256": "69b870fae9bae6060e43aace617bf8cc17d3e200bfbaf06172c3219f79eb49ec",
+      "bytes": 1892,
+      "transformation": "Copied byte-for-byte."
+    },
+    {
+      "path": "registration/E4_REGISTRATION.json",
+      "source": "output/portfolio-product-20261023/E4_REGISTRATION.json",
+      "source_sha256": "24ec1c048e914b7ccbea9419e505a29b3d51508a1d52fcc20fc8b28bb4931a81",
+      "copy_sha256": "24ec1c048e914b7ccbea9419e505a29b3d51508a1d52fcc20fc8b28bb4931a81",
+      "bytes": 3778,
+      "transformation": "Registration copy with only local run roots redacted; hash of original recorded."
+    },
+    {
+      "path": "README.md",
+      "source": null,
+      "source_sha256": null,
+      "copy_sha256": "cdf94e74ad4fca6809fff74c2e11e862529d07fb791a7a8e340d917caeb3d23c",
+      "bytes": 3675,
+      "transformation": "New reader-facing summary derived from the frozen protocol, raw outputs, and independent result review; not an original run artifact."
+    },
+    {
+      "path": "pinned-toolchain/environment-inventory.json",
+      "source": "comparison/provenance/original-baseline-run/START_RECEIPT.json#environment.distributions",
+      "source_sha256": "77066a17db85d3dbbb37981f4467325af09843d39af9aed62e8c1636acf31b4b",
+      "copy_sha256": "591aeab5ac0256f5e593b86329f65ec28e5585590b2805cbf4dbf9b71f88937f",
+      "bytes": 2217,
+      "transformation": "Canonical JSON serialization (ensure_ascii=true, compact separators) of the 96 distribution pairs recorded in the original baseline start receipt; SHA-256 exactly matches the environment inventory hash pinned before execution."
+    }
+  ],
+  "excluded_items": [
+    {
+      "source": "evaluation-independent-v4/history/pre-layout/",
+      "reason": "Superseded pre-layout package stopped before registration or inference. The correction and stop are documented in LAYOUT_CORRECTION_NOTE.md; no result evidence is omitted."
+    },
+    {
+      "source": "evaluation-independent-v4 model bundle (seven payload files; about 266 MB total)",
+      "reason": "Large model payload excluded from this review bundle. Exact seven file hashes, sizes, and verified status are retained in input-package/FROZEN_INPUT_MANIFEST.json; model manifest is included under pinned-toolchain/."
+    },
+    {
+      "source": "Pinned Linux environment inventory artifact",
+      "reason": "The run receipts retain the 96 installed distribution pairs and the expected pre-execution inventory SHA-256. A canonical JSON derivative is included and its SHA-256 matches that pin exactly; no separate original inventory file is claimed."
+    },
+    {
+      "source": "Caches, temporary execution directories, and machine-local clones",
+      "reason": "Not needed for review and could expose local machine paths; source run roots are represented by role labels in staged provenance."
+    }
+  ],
+  "integrity_notes": [
+    "This manifest records byte counts and SHA-256 for every included file except itself. For redacted copies, both original source SHA-256 and staged copy SHA-256 are recorded.",
+    "The manifest is intentionally self-excluded; its own hash is not embedded.",
+    "Files under comparison/*/raw_results.json, input-package/datasets/*, and run receipt JSON files are byte-identical to their listed source copies."
+  ]
+}

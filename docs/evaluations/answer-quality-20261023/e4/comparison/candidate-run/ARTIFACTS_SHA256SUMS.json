@@ -1,0 +1,10 @@
+{
+  "baseline_commit": "0ae029757bfae524034d07335d0c518423b4afa9",
+  "candidate_commit": "ffeba12c4d4d64a1e1f003f211dfa1781c64515d",
+  "candidate_raw_results_sha256": "5bff3758538ae10fe47907826de9a945b13b3cc50cb12beb91a02b2dae6ca2a1",
+  "baseline_raw_results_sha256": "4b0cb2130aa7bf13eda158d2d70cfcf549431eaaf3691085dd48ad299a421f22",
+  "suite_sha256": "d8492380fd91ab058de0c05eb773d5fe79048cdd77894b24249be9de06baa228",
+  "corpus_sha256": "7fd7b7991557515c6007cf1a6982763b74c46e99929d0575f8be1023a8220951",
+  "registration_sha256": "24ec1c048e914b7ccbea9419e505a29b3d51508a1d52fcc20fc8b28bb4931a81",
+  "note": "Raw result bytes preserved exactly from exclusive wrapper runs; no rescoring."
+}

@@ -1,0 +1,50 @@
+{
+  "registered_at_utc": "2026-10-23T02:16:56.596753+00:00",
+  "commits": {
+    "baseline": "0ae029757bfae524034d07335d0c518423b4afa9",
+    "candidate": "ffeba12c4d4d64a1e1f003f211dfa1781c64515d"
+  },
+  "wrapper_sha256": "9cccff012f506aa305703fc96fb65066e5e0692d36e94a446a4222130a6bfae9",
+  "environment_inventory_sha256": "591aeab5ac0256f5e593b86329f65ec28e5585590b2805cbf4dbf9b71f88937f",
+  "inputs_sha256": {
+    "adapters/run_baseline.py": "0608fb6b6fb9d4608ffe19d5cf9ecd6f2e0ac43f904eefb50f3b63474229ed6a",
+    "COMPARISON_RULES_FROZEN.json": "aeb4a8b27796a8465102312d729f7e0855aa4fc4e3b5809f10b77387f205706d",
+    "datasets/corpus_manifest.json": "7fd7b7991557515c6007cf1a6982763b74c46e99929d0575f8be1023a8220951",
+    "datasets/evaluation_cases.json": "d8492380fd91ab058de0c05eb773d5fe79048cdd77894b24249be9de06baa228",
+    "datasets/sources/asset-register.txt": "b1a02ade2b516d24fb0b82e2fc3f4447ca7294f40b4a10eea7254a637bfd1eb6",
+    "datasets/sources/bulletin.txt": "8a982524af20500f3425b6912ba3ae7ef62480d57ff5400bea7acba2c813d27d",
+    "datasets/sources/calibration.txt": "983348c100694e2b6c463ad6e86ec9f28d4f26e9f98262bcd67db55ef3e8f866",
+    "datasets/sources/checkout.txt": "ff664c3b917a565d206b909391b41bc94902c9132d1a6179bd7acd9fc625458b",
+    "datasets/sources/lab.txt": "08a5b2c31d0d50320bd696dfc5ef3de9a4d4c58c0905de72c8147f70c432be7d",
+    "datasets/sources/permit.txt": "6283ad2a46b9dbe5df0c72d86a5aba5ea1e9ce2f78edc8ee5890ddc824414b7b",
+    "datasets/sources/plan.txt": "d7933c1b021f76681171e07c264e19c11ecd149cb14e60cf703032684ad115ca",
+    "datasets/sources/ranger.txt": "e48bd42b0f7a0c947c7de156c0f787c7fc9485cb412e3e85648a6ef039f7e7bc",
+    "datasets/sources/service.txt": "e24060842326bf535df6f445a12421f57899bb8b6184cb19bdd678086613db6c",
+    "datasets/sources/station.txt": "1c4dbb1ec5ba5f338bf76aab4baf6ccca79b75fe6468082e2fb287cb6ec34e14",
+    "FREEZE_RECEIPT.json": "5f0e996bddcd908339d61eba1dd2b758845b3bd03b24311836e70f6f7e902a2d",
+    "FROZEN_INPUT_MANIFEST.json": "e9c18c0523a391b630dc7559349fc676e4e740f5b91a8a9cf4a4cb69dc697326",
+    "LAYOUT_CORRECTION_NOTE.md": "5e76dc0b285b195e036543c9f1bd2d582fdfa99388460fe403db8555e2bb4e18",
+    "PROTOCOL.md": "7aa83c67cfb4c0d66deb547cbcf9391efaed6d980397acc79e1507576ebd0ef4"
+  },
+  "support_files_sha256": {
+    "evals/runner.py": "5475e891fc623ac50f793eacc22898c5873577f4c751876e91845a17a0bec259",
+    "evals/schema_versions.py": "2b3411ed24498fdffa09a71dfbf0e4fee137cafeab4727b9d3904d930a340f10",
+    "evals/validate_dataset.py": "2c1e72091155f5caa9443eacff3d107f8c46f463c33329c44c755688f2789613",
+    "evals/answer_v3_runtime.py": "b496f5290a350f420ed4d3d53ba1413a5fff82f16ba23cea065c072cd883748d",
+    "evals/configs/answer-v3-frozen-v7.json": "a3987fdb7bb2db037a4089044438a79d150db4b6bcc5ab136b868cd6c54c7a38",
+    "infra/models/paraphrase-multilingual-minilm-l12-v2-text-onnx.json": "69b870fae9bae6060e43aace617bf8cc17d3e200bfbaf06172c3219f79eb49ec",
+    "uv.lock": "66e5f55726aa07b667cdf8911c95b836eb70c003cca4ef1c9b146370ee4c3372",
+    "pyproject.toml": "aff2c398d34bce6fc2a2ab23dbee9ba91f050c70cec3ba8d795eb5b8376cab63"
+  },
+  "release_criteria": {
+    "answerable_accuracy": "candidate >= baseline",
+    "citation_precision": "candidate >= baseline",
+    "citation_recall": "candidate >= baseline",
+    "abstention_accuracy": "candidate >= baseline",
+    "improvement": "at least one of these four quality metrics strictly improves",
+    "technical_errors_and_schema_errors": "zero for both roles",
+    "actual_app_checks": "final exact release CI and real PDF regression pass",
+    "scope": "small frozen synthetic follow-up; native verdicts and historical failures remain visible"
+  },
+  "execution": "one run per role, separate new output root; unchanged adapter and native metrics"
+}

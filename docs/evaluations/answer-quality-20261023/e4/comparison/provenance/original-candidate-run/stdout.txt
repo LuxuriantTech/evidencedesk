@@ -1,0 +1,34 @@
+{
+  "output": "[candidate run root]/baseline-run/raw_results.json",
+  "engine_fingerprint": "2d346470b162c245e25038b8268608b09a67dd01e7c12c5fd2adce95a76a8fe4",
+  "case_count": 28,
+  "metric_counts": {
+    "citation_correct": 2,
+    "citation_returned": 5,
+    "citation_expected": 18,
+    "citation_expected_matched": 2,
+    "answerable_correct": 2,
+    "answerable_total": 18,
+    "retrieval_hits_at_5": 18,
+    "abstention_correct": 5,
+    "abstention_total": 10,
+    "extraction_true_positive": 0,
+    "extraction_predicted": 0,
+    "extraction_gold": 0,
+    "errors": 0,
+    "schema_errors": 0
+  },
+  "metrics": {
+    "citation_precision": 0.4,
+    "citation_recall": 0.111111,
+    "citation_case_accuracy": 0.111111,
+    "retrieval_recall_at_5": 1.0,
+    "retrieval_mrr_at_5": 0.714815,
+    "abstention_accuracy": 0.5,
+    "error_rate": 0.0,
+    "schema_error_rate": 0.0,
+    "latency_median_ms": 753.718,
+    "latency_p95_ms": 1368.848,
+    "indexing_ms": 1778.557
+  }
+}

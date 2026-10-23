@@ -1,0 +1,352 @@
+{
+  "dataset_version": "independent-synthetic-corpus-2026.10.23-v3",
+  "parameters_version": "e3-fixed-runner-v1",
+  "mode": "grounded-local-v3",
+  "seed": 20261023,
+  "synthetic_only": true,
+  "metrics": {
+    "case_accuracy": "Frozen main-branch runner metric_counts.answerable_correct / answerable_total, with exact typed normalization and citation requirement.",
+    "citation_accuracy": "Frozen runner citation_precision and citation_recall.",
+    "abstention_accuracy": "Frozen runner abstention_accuracy, over unanswerable and ambiguous cases.",
+    "retrieval_accuracy": "Frozen runner retrieval_recall_at_5 and retrieval_mrr_at_5.",
+    "technical_errors": "Frozen runner errors and schema_errors counts.",
+    "no_post_run_gold_or_alias_changes": true
+  },
+  "extraction_targets": [],
+  "cases": [
+    {
+      "id": "e3-a01",
+      "split": "development",
+      "kind": "answerable",
+      "question": "What reference identifies the Meadowrun shipment received in Dijon?",
+      "expected_answer": "SH-2841",
+      "expected_citations": [
+        {
+          "document_id": "e3-meadowrun-manifest",
+          "page": 1,
+          "excerpt": "Shipment reference: SH-2841."
+        }
+      ]
+    },
+    {
+      "id": "e3-a02",
+      "split": "development",
+      "kind": "answerable",
+      "question": "Quel conteneur a transporté l’expédition SH-2841 ?",
+      "expected_answer": "CH-06",
+      "expected_citations": [
+        {
+          "document_id": "e3-meadowrun-manifest",
+          "page": 1,
+          "excerpt": "Consignee: Larkspur Grocers Cooperative. Container: CH-06."
+        }
+      ]
+    },
+    {
+      "id": "e3-a03",
+      "split": "development",
+      "kind": "answerable",
+      "question": "How many apple crates were loaded for shipment SH-2841?",
+      "expected_answer": "48 crates",
+      "expected_citations": [
+        {
+          "document_id": "e3-meadowrun-manifest",
+          "page": 1,
+          "excerpt": "48 crates of dessert apples were loaded, six pallets in total; gross cargo mass: 1,152 kg."
+        }
+      ]
+    },
+    {
+      "id": "e3-a04",
+      "split": "development",
+      "kind": "answerable",
+      "question": "What gross cargo mass appears on the signed manifest?",
+      "expected_answer": "1,152 kg",
+      "expected_citations": [
+        {
+          "document_id": "e3-meadowrun-manifest",
+          "page": 1,
+          "excerpt": "48 crates of dessert apples were loaded, six pallets in total; gross cargo mass: 1,152 kg."
+        }
+      ]
+    },
+    {
+      "id": "e3-a05",
+      "split": "development",
+      "kind": "answerable",
+      "question": "À quelle date le chargement de SH-2841 a-t-il été terminé ?",
+      "expected_answer": "2026-08-19",
+      "expected_citations": [
+        {
+          "document_id": "e3-meadowrun-manifest",
+          "page": 1,
+          "excerpt": "Loading completed on 2026-08-19 at 05:40 CEST."
+        }
+      ]
+    },
+    {
+      "id": "e3-a06",
+      "split": "development",
+      "kind": "answerable",
+      "question": "What temperature range was required during transport?",
+      "expected_answer": "2–6 °C",
+      "expected_citations": [
+        {
+          "document_id": "e3-meadowrun-logger",
+          "page": 1,
+          "excerpt": "Required transport range: 2–6 °C."
+        }
+      ]
+    },
+    {
+      "id": "e3-a07",
+      "split": "development",
+      "kind": "answerable",
+      "question": "What was the mean product-zone temperature?",
+      "expected_answer": "4.4 °C",
+      "expected_citations": [
+        {
+          "document_id": "e3-meadowrun-logger",
+          "page": 1,
+          "excerpt": "Mean product-zone temperature: 4.4 °C; highest recorded reading: 6.3 °C."
+        }
+      ]
+    },
+    {
+      "id": "e3-a08",
+      "split": "development",
+      "kind": "answerable",
+      "question": "What was the highest temperature shown by the logger?",
+      "expected_answer": "6.3 °C",
+      "expected_citations": [
+        {
+          "document_id": "e3-meadowrun-logger",
+          "page": 1,
+          "excerpt": "Mean product-zone temperature: 4.4 °C; highest recorded reading: 6.3 °C."
+        }
+      ]
+    },
+    {
+      "id": "e3-a09",
+      "split": "development",
+      "kind": "answerable",
+      "question": "For how long did readings exceed the transport limit?",
+      "expected_answer": "12 minutes",
+      "expected_citations": [
+        {
+          "document_id": "e3-meadowrun-logger",
+          "page": 1,
+          "excerpt": "Readings remained above 6 °C for 12 minutes, from 09:16 to 09:28 CEST."
+        }
+      ]
+    },
+    {
+      "id": "e3-a10",
+      "split": "development",
+      "kind": "answerable",
+      "question": "At what time did the shipment arrive at the Dijon depot?",
+      "expected_answer": "14:20 CEST",
+      "expected_citations": [
+        {
+          "document_id": "e3-delivery-note",
+          "page": 1,
+          "excerpt": "Shipment SH-2841 reached the Dijon depot on 2026-08-19 at 14:20 CEST."
+        }
+      ]
+    },
+    {
+      "id": "e3-a11",
+      "split": "development",
+      "kind": "answerable",
+      "question": "Which road closure prompted the driver to use the east approach?",
+      "expected_answer": "D19 north exit was closed for roadworks.",
+      "expected_citations": [
+        {
+          "document_id": "e3-delivery-note",
+          "page": 1,
+          "excerpt": "The driver used the east approach after the D19 north exit was closed for roadworks."
+        }
+      ]
+    },
+    {
+      "id": "e3-a12",
+      "split": "development",
+      "kind": "answerable",
+      "question": "Quand l’échantillon du lot AP-73 a-t-il été prélevé ?",
+      "expected_answer": "18 août 2026",
+      "expected_citations": [
+        {
+          "document_id": "e3-lab-certificate",
+          "page": 1,
+          "excerpt": "Lot AP-73, pommes dessert. Échantillon prélevé le 18 août 2026."
+        }
+      ]
+    },
+    {
+      "id": "e3-a13",
+      "split": "development",
+      "kind": "answerable",
+      "question": "What soluble-solids result did the laboratory report for lot AP-73?",
+      "expected_answer": "12,4 °Brix",
+      "expected_citations": [
+        {
+          "document_id": "e3-lab-certificate",
+          "page": 1,
+          "excerpt": "Solides solubles : 12,4 °Brix."
+        }
+      ]
+    },
+    {
+      "id": "e3-a14",
+      "split": "development",
+      "kind": "answerable",
+      "question": "Quelle acidité titrable est indiquée sur le certificat ?",
+      "expected_answer": "0,42 g/100 mL",
+      "expected_citations": [
+        {
+          "document_id": "e3-lab-certificate",
+          "page": 1,
+          "excerpt": "Acidité titrable : 0,42 g/100 mL."
+        }
+      ]
+    },
+    {
+      "id": "e3-a15",
+      "split": "development",
+      "kind": "answerable",
+      "question": "Combien de sachets réfrigérants faut-il placer dans chaque caisse ?",
+      "expected_answer": "deux sachets réfrigérants",
+      "expected_citations": [
+        {
+          "document_id": "e3-pack-instruction",
+          "page": 1,
+          "excerpt": "Pour chaque caisse de pommes, placer deux sachets réfrigérants dans les emplacements latéraux prévus."
+        }
+      ]
+    },
+    {
+      "id": "e3-a16",
+      "split": "development",
+      "kind": "answerable",
+      "question": "À la réception, sous quel délai faut-il inspecter l’emballage ?",
+      "expected_answer": "36 heures",
+      "expected_citations": [
+        {
+          "document_id": "e3-pack-instruction",
+          "page": 1,
+          "excerpt": "À la réception, inspecter l’emballage dans les 36 heures et noter tout sceau rompu."
+        }
+      ]
+    },
+    {
+      "id": "e3-a17",
+      "split": "development",
+      "kind": "answerable",
+      "question": "What score did the Meadowrun packline quality audit receive?",
+      "expected_answer": "96/100",
+      "expected_citations": [
+        {
+          "document_id": "e3-quality-audit",
+          "page": 1,
+          "excerpt": "Audit completed on 2026-08-28. Recorded score: 96/100."
+        }
+      ]
+    },
+    {
+      "id": "e3-u01",
+      "split": "development",
+      "kind": "unanswerable",
+      "question": "What is the full name of the driver who carried shipment SH-2841?",
+      "expected_answer": null,
+      "expected_citations": []
+    },
+    {
+      "id": "e3-u02",
+      "split": "development",
+      "kind": "unanswerable",
+      "question": "How many litres of diesel did the truck use on the Dijon trip?",
+      "expected_answer": null,
+      "expected_citations": []
+    },
+    {
+      "id": "e3-u03",
+      "split": "development",
+      "kind": "unanswerable",
+      "question": "What pesticide residue concentration was measured for lot AP-73?",
+      "expected_answer": null,
+      "expected_citations": []
+    },
+    {
+      "id": "e3-u04",
+      "split": "development",
+      "kind": "unanswerable",
+      "question": "Quel numéro de bon de commande a été attribué par le client final ?",
+      "expected_answer": null,
+      "expected_citations": []
+    },
+    {
+      "id": "e3-u05",
+      "split": "development",
+      "kind": "unanswerable",
+      "question": "Who personally collected the Well B-4 sample?",
+      "expected_answer": null,
+      "expected_citations": []
+    },
+    {
+      "id": "e3-u06",
+      "split": "development",
+      "kind": "unanswerable",
+      "question": "On what date is Meadowrun’s next outbound delivery scheduled?",
+      "expected_answer": null,
+      "expected_citations": []
+    },
+    {
+      "id": "e3-c01",
+      "split": "development",
+      "kind": "ambiguous",
+      "question": "What pH value should be treated as the current result for Well B-4?",
+      "expected_answer": null,
+      "expected_citations": []
+    },
+    {
+      "id": "e3-c02",
+      "split": "development",
+      "kind": "ambiguous",
+      "question": "Quelle valeur de pH faut-il retenir pour le puits B-4 ?",
+      "expected_answer": null,
+      "expected_citations": []
+    },
+    {
+      "id": "e3-c03",
+      "split": "development",
+      "kind": "ambiguous",
+      "question": "What nitrate concentration should be used for Well B-4?",
+      "expected_answer": null,
+      "expected_citations": []
+    },
+    {
+      "id": "e3-c04",
+      "split": "development",
+      "kind": "ambiguous",
+      "question": "Quelle concentration de nitrates est la bonne pour l’échantillon B-4 ?",
+      "expected_answer": null,
+      "expected_citations": []
+    },
+    {
+      "id": "e3-c05",
+      "split": "development",
+      "kind": "ambiguous",
+      "question": "Is the current disposition for Well B-4 acceptable or on hold?",
+      "expected_answer": null,
+      "expected_citations": []
+    },
+    {
+      "id": "e3-c06",
+      "split": "development",
+      "kind": "ambiguous",
+      "question": "Quel est le statut définitif du contrôle d’eau B-4 ?",
+      "expected_answer": null,
+      "expected_citations": []
+    }
+  ]
+}

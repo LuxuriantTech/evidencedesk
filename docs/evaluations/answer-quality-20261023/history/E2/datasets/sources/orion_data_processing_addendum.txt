@@ -1,0 +1,9 @@
+ORION CLOUD PLATFORM — DATA PROCESSING ADDENDUM
+This addendum applies to personal data processed by LumenGrid for Orion under the Master Services Agreement.
+
+PERSONAL-DATA BREACH NOTICE
+For a confirmed personal-data breach, LumenGrid shall notify Orion within 18 hours after discovery.
+The parties did not record whether this addendum replaces or takes precedence over the cybersecurity-incident notice term in the Master Services Agreement.
+
+RETENTION
+Exported personal data must be deleted within 30 days after termination, subject to a documented legal hold.

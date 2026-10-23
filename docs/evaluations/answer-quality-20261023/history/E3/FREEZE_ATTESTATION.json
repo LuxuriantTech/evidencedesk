@@ -1,0 +1,18 @@
+{
+  "freeze_status": "inputs and scoring frozen before baseline execution",
+  "freeze_date": "2026-10-23",
+  "baseline_commit": "0ae029757bfae524034d07335d0c518423b4afa9",
+  "baseline_tree": "d744ed7e47c65b25f6441ba41016b8dfd9a979b1",
+  "python": "CPython 3.12.14",
+  "suite_sha256": "f24b11ed813b00edc1ae6a6bdcc55f48e1085553eb64ac7765dd1dad245d7ed0",
+  "corpus_sha256": "943683290c1ebdcd2f1cf03e85d1015490eb069a9f560c5316212bfa7927f189",
+  "protocol_sha256": "54ec19bbfeac59539a1a924236e4a5da0ae75b7bbb3edc055c7ed0566d17dd12",
+  "comparison_rules_sha256": "a86201116348030f2b2e94781c8fd82790b135433e88c7125753a0c26a80567a",
+  "adapter_sha256": "0608fb6b6fb9d4608ffe19d5cf9ecd6f2e0ac43f904eefb50f3b63474229ed6a",
+  "hash_manifest_sha256": "fd90374f2fc11f427f840296af2e9ead3d285a320804460dc462d3276685bebe",
+  "model_manifest_sha256": "69b870fae9bae6060e43aace617bf8cc17d3e200bfbaf06172c3219f79eb49ec",
+  "answer_config_sha256": "a3987fdb7bb2db037a4089044438a79d150db4b6bcc5ab136b868cd6c54c7a38",
+  "baseline_pyproject_sha256": "aff2c398d34bce6fc2a2ab23dbee9ba91f050c70cec3ba8d795eb5b8376cab63",
+  "baseline_uv_lock_sha256": "66e5f55726aa07b667cdf8911c95b836eb70c003cca4ef1c9b146370ee4c3372",
+  "suite_status": "synthetic development suite, not third-party blind certification"
+}

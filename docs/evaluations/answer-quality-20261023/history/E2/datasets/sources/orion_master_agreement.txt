@@ -1,0 +1,20 @@
+ORION CLOUD PLATFORM — MASTER SERVICES AGREEMENT
+Parties: Orion Materials Group plc and LumenGrid Systems SAS.
+Effective date: 2027-04-03.
+Annual platform fee: EUR 61,400, billed in two equal instalments.
+The annual security review budget is EUR 61,900 and is separate from the platform fee.
+
+--- PAGE 2 ---
+TERM, RENEWAL AND NOTICE
+The agreement renews on 2028-04-03 unless a party gives written notice at least 30 days before renewal.
+
+SECURITY EVENTS
+LumenGrid shall notify Orion of a confirmed cybersecurity incident within 36 hours after confirmation.
+The incident clock begins at confirmation, not when the first service alert appears.
+
+--- PAGE 3 ---
+PRODUCTION ACCESS
+No subcontractor may access Orion production data before Orion gives prior written approval.
+
+SERVICE DESK
+For a routine service request, LumenGrid targets an initial response within four business hours. This service-desk target is not an incident-notification deadline.

@@ -1,0 +1,3 @@
+ServiceOrderID SO-44 explicitly references AssetTag CTD-204 and CampaignID C-17. On 2026-10-14 at 11:20 CEST, technician A. Morel replaced the battery. Bench testing after the service did not reproduce a fault.
+
+IncidentTicketID IT-77 also references AssetTag CTD-204 and CampaignID C-17. A field observer reported intermittent dropouts. IT-77 remains OPEN; cause is unconfirmed and no final finding is recorded.
