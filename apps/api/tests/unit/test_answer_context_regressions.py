@@ -2,6 +2,7 @@ from evidencedesk_api.answering import (
     DecisionConfig,
     DeterministicGroundedAnswerProvider,
     _field_value,
+    _principal_identity,
     _requested_source_ids,
     _scope_ranked,
 )
@@ -255,6 +256,31 @@ def test_source_identity_header_keeps_principal_id_before_linked_ids() -> None:
     assert [item.chunk.document_id for item in scoped] == ["handover"]
 
 
+def test_source_identity_head_supports_common_supplier_record_types() -> None:
+    examples = (
+        (
+            "Purchase order PO-62 references delivery DL-41.",
+            "Purchase order PO-62",
+        ),
+        (
+            "Reconciliation note RN-57 cites agreement AG-93.",
+            "Reconciliation note RN-57",
+        ),
+        (
+            "Invoice IV-98 bills North River Cooperative EUR 38.60 under agreement AG-93.",
+            "Invoice IV-98",
+        ),
+        (
+            "Delivery record DR-54 was shipped under agreement AG-93.",
+            "Delivery record DR-54",
+        ),
+        ("Agreement AG-93 states a unit price of EUR 18.40.", "Agreement AG-93"),
+    )
+
+    for text, expected_identity in examples:
+        assert _principal_identity(text) == expected_identity
+
+
 def test_source_header_with_multiple_pre_predicate_ids_is_not_primary_identity() -> None:
     ambiguous_header = _ranked(
         "change-record:p1:c0",
@@ -262,13 +288,53 @@ def test_source_header_with_multiple_pre_predicate_ids_is_not_primary_identity()
         document_id="change-record",
         document_name="change_record.txt",
     )
-
-    scoped = _scope_ranked(
-        "According to change record CR-82, what is the revision status?",
-        [ambiguous_header],
+    agreement = _ranked(
+        "agreement:p1:c0",
+        "Agreement AG-27 states that revision A was approved.",
+        document_id="agreement",
+        document_name="agreement.txt",
     )
 
-    assert scoped == []
+    scoped = _scope_ranked(
+        "According to agreement AG-27, what is the revision status?",
+        [ambiguous_header, agreement],
+    )
+
+    assert [item.chunk.document_id for item in scoped] == ["agreement"]
+
+
+def test_linked_transaction_and_shipment_ids_do_not_change_primary_source_id() -> None:
+    delivery_record = _ranked(
+        "delivery:p1:c0",
+        "Delivery record DR-54 was shipped under agreement AG-91 on 12 June.",
+        document_id="delivery",
+        document_name="delivery_record.txt",
+    )
+    invoice = _ranked(
+        "invoice:p1:c0",
+        "Invoice IV-92 bills North River Cooperative EUR 36.20 under agreement AG-91.",
+        document_id="invoice",
+        document_name="invoice.txt",
+    )
+    inspection = _ranked(
+        "inspection:p1:c0",
+        "Inspection record IR-16 cites purchase agreement AG-91 for the valve check.",
+        document_id="inspection",
+        document_name="inspection_record.txt",
+    )
+    agreement = _ranked(
+        "agreement:p1:c0",
+        "Agreement AG-91 sets the unit price at EUR 18.40.",
+        document_id="agreement",
+        document_name="agreement.txt",
+    )
+
+    scoped = _scope_ranked(
+        "According to agreement AG-91, what unit price is set?",
+        [delivery_record, invoice, inspection, agreement],
+    )
+
+    assert [item.chunk.document_id for item in scoped] == ["agreement"]
 
 
 def test_unique_header_context_scopes_date_and_time_in_later_chunks() -> None:

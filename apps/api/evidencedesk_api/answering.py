@@ -249,15 +249,9 @@ _DOCUMENT_TYPE_TERMS = {
 }
 
 _SOURCE_IDENTITY_NOUNS = re.compile(
-    r"\b(?:agreement|annex|case|contract|document|file|handover|invoice|log|"
-    r"plan|permit|receipt|record|register|report|service\s+record|sheet|"
-    r"tally|work\s+order)\b",
-    re.IGNORECASE,
-)
-_SOURCE_PREDICATE = re.compile(
-    r"\b(?:links?|references?|cites?|quotes?|states?|says?|provides?|authorizes?|"
-    r"mentions?|lists?|reports?|records?|indicates?|identifies?|shows?|"
-    r"relie|associe|indique|identifie|consigne|mentionne)\b",
+    r"\b(?:agreement|annex|case|change\s+record|contract|document|file|handover|"
+    r"invoice|log|note|order|plan|permit|purchase\s+order|receipt|record|"
+    r"register|report|service\s+record|sheet|tally|work\s+order)\b",
     re.IGNORECASE,
 )
 
@@ -619,28 +613,25 @@ def _document_type(item: RankedChunk, contents: str) -> str | None:
 
 
 def _principal_identity(text: str) -> str:
-    """Keep a source title's identity before predicates that introduce links."""
-    saw_predicate = False
-    for match in _SOURCE_PREDICATE.finditer(text):
-        if (
-            match.group(0).casefold() in {"record", "report"}
-            and _EXPLICIT_ID.search(text[match.end() : match.end() + 48])
+    """Keep only an ID attached directly to the first source-type noun."""
+    first_id = _EXPLICIT_ID.search(text)
+    if first_id is not None:
+        source_noun = _SOURCE_IDENTITY_NOUNS.search(text[: first_id.start()])
+        if source_noun is None:
+            return ""
+        gap = text[source_noun.end() : first_id.start()]
+        if not re.fullmatch(
+            r"[\s,;:#()\-]*(?:(?:id|number|no\.?)\s*)?", gap, re.IGNORECASE
         ):
-            # Here “record/report” is the source's leading noun, not a verb
-            # introducing a relation.
-            continue
-        saw_predicate = True
-        prefix = text[: match.start()]
-        # A source title can introduce related records before its predicate
-        # (for example, "Change record CR-82 under agreement AG-27 states").
-        # In that shape, the prefix is not enough to identify which ID names
-        # the source itself, so leave the identity unqualified.
-        identifiers = list(_EXPLICIT_ID.finditer(prefix))
-        if len(identifiers) == 1:
-            return prefix.strip(" \t,;:-")
-    # A title with no unique explicit source ID cannot safely establish
-    # primary identity from a sentence that merely names another document.
-    return "" if saw_predicate else text.strip()
+            return ""
+        # The first typed ID belongs to the document/source head. IDs later in
+        # the sentence can be linked agreements, shipments, or references.
+        return text[: first_id.end()].strip(" \t,;:-")
+    # Without an ID, only a short heading can establish a textual source name;
+    # a sentence that mentions another document cannot set primary identity.
+    if len(text.split()) <= 8 and not re.search(r"[.!?]", text):
+        return text.strip()
+    return ""
 
 
 def _named_subject_tokens(question: str) -> set[str]:
