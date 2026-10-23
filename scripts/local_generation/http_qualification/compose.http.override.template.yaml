@@ -1,0 +1,85 @@
+# Copy to RUNNER_TEMP only; Compose interpolates ephemeral values from the job environment.
+services:
+  api:
+    image: ${HTTP_API_IMAGE:?}
+    ports: !override
+      - "127.0.0.1::8000"
+    mem_limit: 896m
+    memswap_limit: 896m
+    environment:
+      DATABASE_URL: postgresql+asyncpg://evidencedesk:${TEST_DB_PASSWORD:?}@postgres:5432/evidencedesk
+      JWT_SECRET: ${TEST_JWT_SECRET:?}
+      PUBLIC_DEMO_MODE: "false"
+      DEMO_ADMIN_ENABLED: "false"
+      DEMO_ADMIN_PASSWORD: ${SMOKE_ADMIN_PASSWORD:?}
+      DEMO_ANALYST_PASSWORD: ${SMOKE_ANALYST_PASSWORD:?}
+      DEMO_READER_PASSWORD: ${SMOKE_READER_PASSWORD:?}
+      DEMO_READER_ENABLED: "true"
+
+  migrate:
+    image: ${HTTP_API_IMAGE:?}
+    mem_limit: 512m
+    memswap_limit: 512m
+    environment:
+      DATABASE_URL: postgresql+asyncpg://evidencedesk:${TEST_DB_PASSWORD:?}@postgres:5432/evidencedesk
+      JWT_SECRET: ${TEST_JWT_SECRET:?}
+      PUBLIC_DEMO_MODE: "false"
+      DEMO_ADMIN_ENABLED: "false"
+      DEMO_ADMIN_PASSWORD: ${SMOKE_ADMIN_PASSWORD:?}
+      DEMO_ANALYST_PASSWORD: ${SMOKE_ANALYST_PASSWORD:?}
+      DEMO_READER_PASSWORD: ${SMOKE_READER_PASSWORD:?}
+
+  seed:
+    image: ${HTTP_API_IMAGE:?}
+    command: ["python", "/tmp/http_qualification_seed.py"]
+    volumes:
+      - type: bind
+        source: ${HTTP_SEED_SCRIPT:?}
+        target: /tmp/http_qualification_seed.py
+        read_only: true
+        bind:
+          create_host_path: false
+    mem_limit: 512m
+    memswap_limit: 512m
+    environment:
+      DATABASE_URL: postgresql+asyncpg://evidencedesk:${TEST_DB_PASSWORD:?}@postgres:5432/evidencedesk
+      JWT_SECRET: ${TEST_JWT_SECRET:?}
+      PUBLIC_DEMO_MODE: "false"
+      DEMO_ADMIN_ENABLED: "false"
+      DEMO_ADMIN_PASSWORD: ${SMOKE_ADMIN_PASSWORD:?}
+      DEMO_ANALYST_PASSWORD: ${SMOKE_ANALYST_PASSWORD:?}
+      DEMO_READER_PASSWORD: ${SMOKE_READER_PASSWORD:?}
+      DEMO_READER_ENABLED: "true"
+      SMOKE_ANALYST_USERNAME: ${SMOKE_ANALYST_USERNAME:?}
+      SMOKE_ANALYST_PASSWORD: ${SMOKE_ANALYST_PASSWORD:?}
+      SMOKE_READER_USERNAME: ${SMOKE_READER_USERNAME:?}
+      SMOKE_READER_PASSWORD: ${SMOKE_READER_PASSWORD:?}
+
+  worker:
+    image: ${HTTP_API_IMAGE:?}
+    mem_limit: 384m
+    memswap_limit: 384m
+    environment:
+      DATABASE_URL: postgresql+asyncpg://evidencedesk:${TEST_DB_PASSWORD:?}@postgres:5432/evidencedesk
+      JWT_SECRET: ${TEST_JWT_SECRET:?}
+      PUBLIC_DEMO_MODE: "false"
+      DEMO_ADMIN_ENABLED: "false"
+      DEMO_ADMIN_PASSWORD: ${SMOKE_ADMIN_PASSWORD:?}
+      DEMO_ANALYST_PASSWORD: ${SMOKE_ANALYST_PASSWORD:?}
+      DEMO_READER_PASSWORD: ${SMOKE_READER_PASSWORD:?}
+      DEMO_READER_ENABLED: "true"
+
+  postgres:
+    ports: !reset []
+    mem_limit: 512m
+    memswap_limit: 512m
+    environment:
+      POSTGRES_PASSWORD: ${TEST_DB_PASSWORD:?}
+
+  redis:
+    ports: !reset []
+    mem_limit: 128m
+    memswap_limit: 128m
+
+  local-8b:
+    image: ${HTTP_SIDECAR_IMAGE:?}

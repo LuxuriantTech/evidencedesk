@@ -1,0 +1,281 @@
+# DRAFT ONLY — keep outside `.github/workflows` until reviewed and staged on the experimental branch.
+# This is an integration smoke, not a development-quality or model-qualification gate.
+name: EvidenceDesk local 8B synthetic HTTP smoke (draft)
+
+on:
+  push:
+    branches:
+      - codex/evidencedesk-local8b-integration-20261023
+    paths:
+      - "scripts/local_generation/http_qualification/**"
+      - ".github/workflows/http-local8b-smoke.yml"
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  authenticated-http:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 75
+    steps:
+      - name: Check out the exact experimental candidate
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Verify public repository, exact candidate pins, and required base
+        shell: bash
+        env:
+          REPOSITORY_VISIBILITY: ${{ github.event.repository.visibility }}
+          REQUIRED_BASE_SHA: 1ee666834caf7fb8f31b4fe0a07813a998335b1b
+          EXPECTED_CORE_SHA256: f0a0c05be71c5485f7fe220f07559cb400e810d1881b469fe71d9f4e01365967
+          EXPECTED_PROVIDER_SHA256: 168c8689688af5523230647c7f03efa566cc2f89c7461f2d533c2943f186b005
+          EXPECTED_MANIFEST_SHA256: 99963feb5a12730d49ac866fe1d162b6307a2130a83b21950a6b51efdc2f8452
+          EXPECTED_LOCK_SHA256: 9a7167c75d52e0bf3ec882782ae979da2ce39266d1e5f96957c733e0b9f6d91a
+        run: |
+          set -Eeuo pipefail
+          test "$REPOSITORY_VISIBILITY" = public
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git merge-base --is-ancestor "$REQUIRED_BASE_SHA" HEAD
+          test "$(sha256sum apps/api/evidencedesk_api/local_generation_core.py | cut -d' ' -f1)" = "$EXPECTED_CORE_SHA256"
+          test "$(sha256sum apps/api/evidencedesk_api/local_generation.py | cut -d' ' -f1)" = "$EXPECTED_PROVIDER_SHA256"
+          test "$(sha256sum scripts/local_generation/manifest.json | cut -d' ' -f1)" = "$EXPECTED_MANIFEST_SHA256"
+          test "$(sha256sum uv.lock | cut -d' ' -f1)" = "$EXPECTED_LOCK_SHA256"
+          test "$(docker compose version --short | sed 's/^v//')" != ""
+          python3 - <<'PY'
+          import re, subprocess
+          version = subprocess.check_output(["docker", "compose", "version", "--short"], text=True).strip().lstrip("v")
+          match = re.match(r"(\d+)\.(\d+)\.(\d+)", version)
+          assert match and tuple(map(int, match.groups())) >= (2, 24, 4), version
+          print("PASS compose_version_minimum")
+          PY
+
+      - name: Wait up to ten minutes for no-inference CI on this exact commit
+        timeout-minutes: 11
+        shell: bash
+        env:
+          EXPECTED_WORKFLOW: integration-local8b-ci.yml
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -Eeuo pipefail
+          deadline=$((SECONDS + 600))
+          while (( SECONDS < deadline )); do
+            runs="$(gh run list --workflow "$EXPECTED_WORKFLOW" --commit "$GITHUB_SHA" \
+              --json headSha,status,conclusion,databaseId --limit 20)"
+            matching="$(jq --arg sha "$GITHUB_SHA" '[.[] | select(.headSha == $sha)] | first // empty' <<<"$runs")"
+            if [[ -n "$matching" ]]; then
+              status="$(jq -r '.status' <<<"$matching")"
+              conclusion="$(jq -r '.conclusion // ""' <<<"$matching")"
+              if [[ "$status" == completed ]]; then
+                test "$conclusion" = success || { echo 'FAIL step=no_inference_ci code=not_success'; exit 1; }
+                echo 'PASS check=no_inference_ci_same_commit'
+                break
+              fi
+            fi
+            sleep 15
+          done
+          (( SECONDS < deadline )) || { echo 'FAIL step=no_inference_ci code=timeout'; exit 1; }
+
+      # This only runs the harness's mocked contract tests; it never launches Docker.
+      - name: Test the staged HTTP harness without external services
+        run: python3 -m unittest discover -s scripts/local_generation/http_qualification -p 'test_*.py' -v
+
+      - name: Create unique names, fake credentials, and temporary Compose override
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python3 scripts/local_generation/http_qualification/prepare_run.py \
+            --candidate-root "$GITHUB_WORKSPACE" \
+            --runner-temp "$RUNNER_TEMP" \
+            --compose-template scripts/local_generation/http_qualification/compose.http.override.template.yaml
+
+      - name: Check disk before model download
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          free_bytes="$(df --output=avail -B1 "$RUNNER_TEMP" | tail -n 1 | tr -d ' ')"
+          test "$free_bytes" -ge 10737418240 # 10 GiB; otherwise fail closed
+          printf 'PASS disk_pre_download_bytes=%s\n' "$free_bytes"
+
+      - name: Prepare and verify the pinned model/runtime in the runner temp directory
+        timeout-minutes: 20
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          test ! -e "$HTTP_BUNDLE_DIR"
+          python3 -m scripts.local_generation.prepare_8b_bundle --output "$HTTP_BUNDLE_DIR"
+          test "$(sha256sum "$HTTP_BUNDLE_DIR/models/Qwen3-8B-Q4_K_M.gguf" | cut -d' ' -f1)" = \
+            d98cdcbd03e17ce47681435b5150e34c1417f50b5c0019dd560e4882c5745785
+          free_bytes="$(df --output=avail -B1 "$RUNNER_TEMP" | tail -n 1 | tr -d ' ')"
+          test "$free_bytes" -ge 6442450944 # preserve 6 GiB for image builds and disposable services
+
+      - name: Validate temporary Compose config and build unique images
+        timeout-minutes: 20
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          export EVIDENCEDESK_8B_BUNDLE="$HTTP_BUNDLE_DIR"
+          docker compose --project-name "$COMPOSE_PROJECT_NAME" \
+            --file compose.yaml --file compose.local-8b.yaml --file "$HTTP_COMPOSE_OVERRIDE" \
+            --profile local-8b-pilot config --quiet
+          docker compose --project-name "$COMPOSE_PROJECT_NAME" \
+            --file compose.yaml --file compose.local-8b.yaml --file "$HTTP_COMPOSE_OVERRIDE" \
+            --profile local-8b-pilot build api migrate seed worker local-8b
+          free_bytes="$(df --output=avail -B1 "$RUNNER_TEMP" | tail -n 1 | tr -d ' ')"
+          test "$free_bytes" -ge 6442450944
+
+      - name: Start a 12 GiB host-memory guard for this unique project
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python3 scripts/local_generation/http_qualification/host_memory_guard.py \
+            --compose-project "$COMPOSE_PROJECT_NAME" \
+            --compose-file compose.yaml \
+            --compose-file compose.local-8b.yaml \
+            --compose-file "$HTTP_COMPOSE_OVERRIDE" \
+            --limit-gib 12 \
+            --receipt "$HTTP_RUN_DIR/host-memory-guard.json" \
+            > "$HTTP_RUN_DIR/host-memory-guard.log" 2>&1 &
+          echo $! > "$HTTP_RUN_DIR/host-memory-guard.pid"
+          sleep 1
+          kill -0 "$(cat "$HTTP_RUN_DIR/host-memory-guard.pid")"
+
+      - name: Start API, worker, DB, Redis, and the pinned Qwen sidecar
+        timeout-minutes: 15
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          export EVIDENCEDESK_8B_BUNDLE="$HTTP_BUNDLE_DIR"
+          free_bytes="$(df --output=avail -B1 "$RUNNER_TEMP" | tail -n 1 | tr -d ' ')"
+          test "$free_bytes" -ge 3221225472 # before starting model plus API/worker/DB
+          docker compose --project-name "$COMPOSE_PROJECT_NAME" \
+            --file compose.yaml --file compose.local-8b.yaml --file "$HTTP_COMPOSE_OVERRIDE" \
+            --profile local-8b-pilot up --detach --wait --wait-timeout 240 \
+            postgres redis api worker local-8b
+          port_line="$(docker compose --project-name "$COMPOSE_PROJECT_NAME" \
+            --file compose.yaml --file compose.local-8b.yaml --file "$HTTP_COMPOSE_OVERRIDE" \
+            port api 8000)"
+          api_port="${port_line##*:}"
+          test "$api_port" -ge 1 && test "$api_port" -le 65535
+          echo "SMOKE_API_BASE_URL=http://127.0.0.1:$api_port" >> "$GITHUB_ENV"
+          python3 scripts/local_generation/http_qualification/verify_container_limits.py \
+            --compose-project "$COMPOSE_PROJECT_NAME" \
+            --compose-files compose.yaml compose.local-8b.yaml "$HTTP_COMPOSE_OVERRIDE"
+          # This call runs inside the API's shared network namespace; its output is sanitized.
+          docker compose --project-name "$COMPOSE_PROJECT_NAME" \
+            --file compose.yaml --file compose.local-8b.yaml --file "$HTTP_COMPOSE_OVERRIDE" \
+            exec --no-TTY api python - <<'PY'
+          import json, time, urllib.request
+          base = "http://127.0.0.1:50193"
+          class NoRedirect(urllib.request.HTTPRedirectHandler):
+              def redirect_request(self, req, fp, code, msg, headers, newurl):
+                  return None
+          opener = urllib.request.build_opener(urllib.request.ProxyHandler({}), NoRedirect())
+          deadline = time.monotonic() + 180
+          while time.monotonic() < deadline:
+              try:
+                  with opener.open(base + "/health", timeout=3) as r:
+                      health = json.load(r)
+                  with opener.open(base + "/v1/models", timeout=3) as r:
+                      models = json.load(r)
+                  with opener.open(base + "/props", timeout=3) as r:
+                      props = json.load(r)
+                  assert health.get("status") == "ok"
+                  model = next(x for x in models["data"] if x.get("id") == "Qwen3-8B-Q4_K_M.gguf")
+                  assert model.get("meta", {}).get("n_ctx") == 6144
+                  assert props.get("model_alias") == "Qwen3-8B-Q4_K_M.gguf"
+                  assert props.get("total_slots") == 1
+                  assert props.get("default_generation_settings", {}).get("n_ctx") == 6144
+                  print("PASS pinned_server_identity")
+                  break
+              except Exception:
+                  time.sleep(2)
+          else:
+              raise SystemExit("FAIL step=server_identity code=timeout")
+          PY
+
+      - name: Seed two disposable synthetic dossiers and one empty dossier
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          docker compose --project-name "$COMPOSE_PROJECT_NAME" \
+            --file compose.yaml --file compose.local-8b.yaml --file "$HTTP_COMPOSE_OVERRIDE" \
+            exec --no-TTY postgres psql -v ON_ERROR_STOP=1 -U evidencedesk -d evidencedesk \
+              -v dossier_a="$SMOKE_DOSSIER_A" -v dossier_b="$SMOKE_DOSSIER_B" \
+              -v dossier_empty="$SMOKE_DOSSIER_EMPTY" <<'SQL'
+          INSERT INTO dossiers (id, name, description, is_synthetic) VALUES
+            (:'dossier_a'::uuid, 'HTTP fixture A', 'Synthetic CI-only scope fixture', TRUE),
+            (:'dossier_b'::uuid, 'HTTP fixture B', 'Synthetic CI-only contrast fixture', TRUE),
+            (:'dossier_empty'::uuid, 'HTTP fixture empty', 'Synthetic CI-only abstention fixture', TRUE);
+          SQL
+
+      - name: Real authenticated upload, worker ingestion, citations, and refusal
+        timeout-minutes: 20
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python3 scripts/local_generation/http_qualification/smoke_http.py \
+            --phase available --base-url "$SMOKE_API_BASE_URL" \
+            --receipt "$HTTP_RUN_DIR/http-available-receipt.json"
+
+      - name: Stop only this run's sidecar and verify sanitized unavailable response
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          docker compose --project-name "$COMPOSE_PROJECT_NAME" \
+            --file compose.yaml --file compose.local-8b.yaml --file "$HTTP_COMPOSE_OVERRIDE" \
+            stop local-8b
+          python3 scripts/local_generation/http_qualification/smoke_http.py \
+            --phase unavailable --base-url "$SMOKE_API_BASE_URL" \
+            --receipt "$HTTP_RUN_DIR/http-available-receipt.json"
+
+      - name: Stop the guard and write a small non-sensitive summary
+        if: always()
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          if [[ -f "$HTTP_RUN_DIR/host-memory-guard.pid" ]]; then
+            guard_pid="$(cat "$HTTP_RUN_DIR/host-memory-guard.pid")"
+            kill -TERM "$guard_pid" 2>/dev/null || true
+            wait "$guard_pid" 2>/dev/null || true
+          fi
+          printf 'head=%s\n' "$GITHUB_SHA" > "$HTTP_RUN_DIR/summary.txt"
+          printf 'model_sha256=%s\n' d98cdcbd03e17ce47681435b5150e34c1417f50b5c0019dd560e4882c5745785 >> "$HTTP_RUN_DIR/summary.txt"
+          printf 'http_live_model_requested=true\n' >> "$HTTP_RUN_DIR/summary.txt"
+          printf 'raw_prompts_or_answers_uploaded=false\n' >> "$HTTP_RUN_DIR/summary.txt"
+          if [[ -f "$HTTP_RUN_DIR/host-memory-guard.json" ]]; then
+            python3 scripts/local_generation/http_qualification/summarize_receipts.py \
+              --http-receipt "$HTTP_RUN_DIR/http-available-receipt.json" \
+              --http-unavailable "$HTTP_RUN_DIR/http-unavailable-receipt.json" \
+              --memory-receipt "$HTTP_RUN_DIR/host-memory-guard.json" \
+              --output "$HTTP_RUN_DIR/summary.json"
+          fi
+          cat "$HTTP_RUN_DIR/summary.txt" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload only the sanitized summary
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: qwen8b-http-summary-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/evidencedesk-httpq-${{ github.run_id }}-${{ github.run_attempt }}/summary.txt
+            ${{ runner.temp }}/evidencedesk-httpq-${{ github.run_id }}-${{ github.run_attempt }}/summary.json
+          retention-days: 1
+          if-no-files-found: warn
+
+      - name: Remove only this project's containers, networks, volumes, images, and bundle
+        if: always()
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          docker compose --project-name "$COMPOSE_PROJECT_NAME" \
+            --file compose.yaml --file compose.local-8b.yaml --file "$HTTP_COMPOSE_OVERRIDE" \
+            --profile local-8b-pilot down --volumes --remove-orphans --timeout 20 || true
+          docker image rm -f "$HTTP_API_IMAGE" "$HTTP_SIDECAR_IMAGE" 2>/dev/null || true
+          case "$HTTP_RUN_DIR" in
+            "$RUNNER_TEMP"/evidencedesk-httpq-*) python3 scripts/local_generation/http_qualification/safe_remove_tree.py "$HTTP_RUN_DIR" ;;
+            *) echo 'FAIL step=cleanup code=unsafe_path'; exit 1 ;;
+          esac
