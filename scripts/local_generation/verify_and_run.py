@@ -30,6 +30,7 @@ def main() -> int:
         "--threads", str(server["threads"]), "--threads-batch", str(server["threads_batch"]),
         "--batch-size", str(server["batch_size"]), "--ubatch-size", str(server["ubatch_size"]),
         "--parallel", str(server["parallel"]), "--n-gpu-layers", str(server["n_gpu_layers"]),
+        "--cache-ram", str(server["cache_ram_mib"]),
         "--reasoning", server["reasoning"], "--n-predict",
         str(MANIFEST["generation"]["max_tokens"]),
         "--seed", str(MANIFEST["generation"]["seed"]), "--jinja", "--no-context-shift",

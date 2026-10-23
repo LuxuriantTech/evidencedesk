@@ -11,6 +11,14 @@ those passages and validates their provenance. This prevents invented answer
 text from being displayed, but does not prove that a selected passage answers
 the question correctly. Semantic quality needs separate evaluation.
 
+The pinned launcher sets `--cache-ram 0` from the manifest. This disables the
+server's RAM prompt-cache pool and idle-slot snapshots, while active-slot
+longest-common-prefix reuse remains a separate mechanism. E5's 10 GiB cgroup
+OOM is confirmed, but its cause is not attributed to the cache. Treat this
+setting as an unvalidated hypothesis for a controlled resource run, not as a
+proven memory fix. The memory limit, context, batch, and other launch settings
+are unchanged.
+
 The adapter accepts a loopback endpoint only, verifies the server's declared
 model/context/slot configuration, and admits one request per API provider
 instance. It returns generic unavailable/busy responses. Raw requests and

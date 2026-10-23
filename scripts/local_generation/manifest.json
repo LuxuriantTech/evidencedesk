@@ -42,6 +42,7 @@
     "ubatch_size": 128,
     "parallel": 1,
     "n_gpu_layers": 0,
+    "cache_ram_mib": 0,
     "reasoning": "off",
     "jinja": true,
     "no_context_shift": true

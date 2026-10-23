@@ -96,7 +96,7 @@ jobs:
 
       - name: Bundle safety component tests (synthetic fixtures only)
         timeout-minutes: 5
-        run: uv run python -m unittest scripts.local_generation.test_bundle -v
+        run: uv run python -m unittest scripts.local_generation.test_bundle scripts.local_generation.test_verify_and_run -v
 
       - name: Supply-chain references and Python dependency audit
         timeout-minutes: 8
