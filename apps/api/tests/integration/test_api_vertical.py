@@ -7,6 +7,8 @@ from typing import Any, cast
 from uuid import UUID
 
 import pytest
+from evidencedesk_api import main as api_main
+from evidencedesk_api.answering import DeterministicGroundedAnswerProvider
 from evidencedesk_api.config import Settings
 from evidencedesk_api.db import build_engine, build_session_factory
 from evidencedesk_api.main import create_app
@@ -537,6 +539,99 @@ def test_processed_document_can_be_queried_with_exact_evidence(
         action == "document.extraction.view" and event_document_id == str(document_id)
         for action, event_document_id, _actor_id in observed
     )
+
+
+@pytest.mark.integration
+def test_grounded_api_provider_abstains_on_negation_and_cites_explicit_absence(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    settings = Settings(
+        database_url=DATABASE_URL,
+        redis_url="redis://127.0.0.1:56379/0",
+        storage_root=tmp_path,
+        jwt_secret="integration-secret-at-least-32-characters",
+        public_demo_mode=False,
+        answer_mode="grounded-local-v3",
+        demo_admin_password="EvidenceDemo-Admin-2026!",
+        demo_analyst_password="EvidenceDemo-Analyst-2026!",
+        demo_reader_password="EvidenceDemo-Reader-2026!",
+    )
+    asyncio.run(_reset_and_seed(settings))
+    queue = RecordingQueue()
+    original_builder = cast(Any, api_main).build_provider_bundle
+    embedding = DeterministicEmbeddingProvider(dimension=384)
+
+    def build_with_local_test_embedding(mode: str, **kwargs: Any) -> ProviderBundle:
+        return cast(
+            ProviderBundle,
+            original_builder(
+                mode,
+                embedding_factory=lambda: embedding,
+                **kwargs,
+            ),
+        )
+
+    monkeypatch.setattr(api_main, "build_provider_bundle", build_with_local_test_embedding)
+    with TestClient(create_app(settings=settings, task_queue=queue)) as client:
+        assert isinstance(
+            cast(Any, client).app.state.providers.answer,
+            DeterministicGroundedAnswerProvider,
+        )
+        analyst = _token(client, "demo.analyst", "EvidenceDemo-Analyst-2026!")
+        reader = _token(client, "demo.reader", "EvidenceDemo-Reader-2026!")
+        dossier_id = client.get("/api/v1/dossiers", headers=_headers(reader)).json()[0]["id"]
+        source = (
+            b"The service did not become effective on 27 August 2031.\n"
+            b"Renewal date: not recorded."
+        )
+        uploaded = client.post(
+            f"/api/v1/dossiers/{dossier_id}/documents",
+            headers=_headers(analyst),
+            files={"file": ("northstar_service_agreement.txt", source, "text/plain")},
+            data={"is_synthetic": "true"},
+        )
+        assert uploaded.status_code == 202, uploaded.text
+        document_id, task_id, correlation_id = queue.jobs[0]
+
+        async def run_worker() -> None:
+            engine = build_engine(settings)
+            worker = WorkerContext(
+                settings=settings,
+                engine=engine,
+                session_factory=build_session_factory(engine),
+                storage=LocalDocumentStorage(settings.storage_root),
+                embeddings=embedding,
+            )
+            try:
+                result = await process_document(
+                    {"worker": worker}, str(document_id), str(task_id), str(correlation_id)
+                )
+                assert result["status"] == "completed"
+            finally:
+                await engine.dispose()
+
+        asyncio.run(run_worker())
+
+        negated = client.post(
+            f"/api/v1/dossiers/{dossier_id}/ask",
+            headers=_headers(reader),
+            json={"question": "When did the Northstar service become effective?"},
+        )
+        assert negated.status_code == 200, negated.text
+        assert negated.json()["status"] == "abstained"
+        assert negated.json()["citations"] == []
+
+        absent = client.post(
+            f"/api/v1/dossiers/{dossier_id}/ask",
+            headers=_headers(reader),
+            json={"question": "Is the renewal date listed for Northstar?"},
+        )
+        assert absent.status_code == 200, absent.text
+        payload = absent.json()
+        assert payload["status"] == "answered"
+        assert payload["answer"] == "No. Renewal date: not recorded."
+        assert payload["citations"][0]["document_id"] == str(document_id)
+        assert payload["citations"][0]["excerpt"] == "Renewal date: not recorded."
 
 
 @pytest.mark.integration

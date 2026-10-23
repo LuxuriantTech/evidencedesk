@@ -79,6 +79,14 @@ _OBLIGATION = re.compile(
     r"\bs'engage à\b|\best tenu de\b|^No\s+.+\bmay\b)",
     re.IGNORECASE,
 )
+_NEGATED_OBLIGATION = re.compile(
+    r"\b(?:must|shall|will|do|does|did|is|are|was|were)\s+not\b|"
+    r"\bnot\s+(?:required|obligated|bound)\b|"
+    r"\bn(?:\u2019|')?est\s+pas\s+tenu\b|"
+    r"\bne\s+(?:doit|doivent|devra|devront|peut|peuvent|pourra|pourront)\s+pas\b|"
+    r"\bne\s+\w+\s+pas\s+(?:doit|est\s+tenu)\b",
+    re.IGNORECASE,
+)
 
 
 def _line_entries(chunks: list[EvidenceChunk]) -> list[tuple[EvidenceChunk, str]]:
@@ -506,7 +514,10 @@ def extract_supplier_fields_v3(
                     _append_unique(people, people_citations, match.group(1), citation)
         modal_obligation = _OBLIGATION.search(line)
         lexical_obligation = _OBLIGATION_VERBS_V3.search(line)
-        if modal_obligation or (lexical_obligation and not _RISK_V3.search(line)):
+        negated_obligation = _NEGATED_OBLIGATION.search(line) is not None
+        if not negated_obligation and (
+            modal_obligation or (lexical_obligation and not _RISK_V3.search(line))
+        ):
             clauses = [line] if modal_obligation else _obligation_clauses_v3(line)
             for clause in clauses:
                 _append_unique(obligations, obligation_citations, clause, citation)

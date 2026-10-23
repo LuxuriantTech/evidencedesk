@@ -13,11 +13,19 @@ from evidencedesk_api.providers import DeterministicEmbeddingProvider
 from evidencedesk_api.retrieval import Citation, EvidenceChunk, RankedChunk
 
 
-def _ranked(identifier: str, text: str, *, page: int = 1, score: float = 0.8) -> RankedChunk:
+def _ranked(
+    identifier: str,
+    text: str,
+    *,
+    page: int = 1,
+    score: float = 0.8,
+    document_id: str = "dossier-a",
+    document_name: str = "operations-note.md",
+) -> RankedChunk:
     chunk = EvidenceChunk(
         id=identifier,
-        document_id="dossier-a",
-        document_name="operations-note.md",
+        document_id=document_id,
+        document_name=document_name,
         page=page,
         section=None,
         text=text,
@@ -193,6 +201,272 @@ def test_two_effective_dates_in_one_passage_remain_ambiguous() -> None:
     assert result.answerable is False
     assert len(result.citations) == 2
     assert result.citations[0].excerpt != result.citations[1].excerpt
+
+
+def test_negated_effective_date_is_not_answered_as_a_positive_fact() -> None:
+    result = _provider().answer(
+        "When did the service become effective?",
+        [_ranked("negated", "The service did not become effective on 27 August 2031.")],
+    )
+
+    assert result.status == "abstained"
+    assert result.citations == ()
+
+
+@pytest.mark.parametrize(
+    ("question", "evidence"),
+    [
+        ("What is the effective date?", "Effective date was not 27 August 2031."),
+        ("What is the reserve amount?", "The reserve is not EUR 48,000."),
+    ],
+)
+def test_post_relation_negation_does_not_supply_scalar_value(question: str, evidence: str) -> None:
+    result = _provider().answer(question, [_ranked("negated-value", evidence)])
+
+    assert result.status == "abstained"
+    assert result.citations == ()
+
+
+def test_unrelated_clause_negation_does_not_invert_positive_boolean_fact() -> None:
+    result = _provider().answer(
+        "Does the provider maintain a service desk?",
+        [
+            _ranked(
+                "service-desk",
+                "The provider maintains a service desk, but does not cover nights.",
+            )
+        ],
+    )
+
+    assert result.status == "answered"
+    assert result.answer.startswith("Yes. ")
+
+
+@pytest.mark.parametrize("absence", ["unavailable", "absent", "missing"])
+def test_common_absence_adjectives_support_negative_availability(absence: str) -> None:
+    result = _provider().answer(
+        "Is the renewal date listed?",
+        [_ranked("missing-date", f"The renewal date is {absence}.")],
+    )
+
+    assert result.status == "answered"
+    assert result.answer.startswith("No. ")
+
+
+def test_acronym_named_subject_scopes_evidence() -> None:
+    result = _provider().answer(
+        "What is IBM's renewal date?",
+        [
+            _ranked(
+                "ibm-renewal",
+                "IBM renewal date: 27 August 2031.",
+                document_id="ibm",
+                document_name="ibm_agreement.txt",
+            ),
+            _ranked(
+                "other-renewal",
+                "ACME renewal date: 28 August 2031.",
+                document_id="acme",
+                document_name="acme_agreement.txt",
+            ),
+        ],
+    )
+
+    assert result.status == "answered"
+    assert result.answer == "27 August 2031"
+    assert result.supporting_document == "ibm"
+
+
+def test_absent_date_is_abstained_for_value_question() -> None:
+    result = _provider().answer(
+        "What is the renewal date?",
+        [_ranked("missing", "Renewal date: not recorded.")],
+    )
+
+    assert result.status == "abstained"
+    assert result.citations == ()
+
+
+def test_yes_no_question_can_report_explicitly_unrecorded_value() -> None:
+    result = _provider().answer(
+        "Is the renewal date listed?",
+        [_ranked("missing", "Renewal date: not recorded.")],
+    )
+
+    assert result.status == "answered"
+    assert result.answer == "No. Renewal date: not recorded."
+    assert result.citations[0].excerpt == "Renewal date: not recorded."
+
+
+def test_requested_contract_scope_excludes_same_subject_addendum() -> None:
+    result = _provider().answer(
+        "What is the effective date in the Northstar service agreement?",
+        [
+            _ranked(
+                "contract-date",
+                "Effective date: 27 August 2031.",
+                document_id="contract",
+                document_name="northstar_service_agreement.txt",
+            ),
+            _ranked(
+                "addendum-date",
+                "Effective date: 28 August 2031.",
+                document_id="addendum",
+                document_name="northstar_data_addendum.txt",
+            ),
+        ],
+    )
+
+    assert result.status == "answered"
+    assert result.answer == "27 August 2031"
+    assert result.supporting_document == "contract"
+    assert [citation.chunk_id for citation in result.citations] == ["contract-date"]
+
+
+def test_distinct_effective_dates_across_unscoped_documents_are_ambiguous() -> None:
+    result = _provider().answer(
+        "What is the effective date?",
+        [
+            _ranked("one", "Effective date: 27 August 2031.", document_id="one"),
+            _ranked("two", "Effective date: 28 August 2031.", document_id="two"),
+        ],
+    )
+
+    assert result.status == "ambiguous"
+    assert {citation.document_id for citation in result.citations} == {"one", "two"}
+
+
+def test_conflicting_yes_no_evidence_across_documents_is_ambiguous() -> None:
+    result = _provider().answer(
+        "Is subcontractor access allowed?",
+        [
+            _ranked(
+                "allow",
+                "Subcontractor access is allowed with written approval.",
+                document_id="policy-a",
+            ),
+            _ranked(
+                "deny",
+                "Subcontractor access is not allowed without written approval.",
+                document_id="policy-b",
+            ),
+        ],
+    )
+
+    assert result.status == "ambiguous"
+    assert {citation.document_id for citation in result.citations} == {"policy-a", "policy-b"}
+
+
+def test_possessive_named_subject_keeps_scoped_boolean_evidence() -> None:
+    result = _provider().answer(
+        "Can a subcontractor access production data without Northstar Harbor's written approval?",
+        [
+            _ranked(
+                "approval",
+                "No subcontractor may access production data without prior written approval "
+                "from Northstar Harbor.",
+            )
+        ],
+    )
+
+    assert result.status == "answered"
+    assert result.answer.startswith("No. ")
+    assert result.citations[0].excerpt == (
+        "No subcontractor may access production data without prior written approval "
+        "from Northstar Harbor."
+    )
+
+
+def test_report_scope_reads_source_title_after_filename() -> None:
+    result = _provider().answer(
+        "Does the routing incident report amend the Aster agreement?",
+        [
+            _ranked(
+                "incident-report",
+                "ROUTING INCIDENT REPORT\nThe report does not amend the Aster agreement.",
+                document_id="report",
+                document_name="routing_incident_note.txt",
+            ),
+            _ranked(
+                "agreement",
+                "ASTER SERVICES AGREEMENT\nThe agreement governs routing services.",
+                document_id="agreement",
+                document_name="aster_services_agreement.txt",
+            ),
+        ],
+    )
+
+    assert result.status == "answered"
+    assert result.answer.startswith("No. ")
+    assert result.supporting_document == "report"
+
+
+def test_past_event_date_does_not_return_deadline_as_partial_answer() -> None:
+    result = _provider().answer(
+        "On what date did the carrier notify the regulator of a confirmed incident?",
+        [_ranked("notice-duty", "The carrier must notify the regulator within 24 hours.")],
+    )
+
+    assert result.status == "abstained"
+    assert result.citations == ()
+
+
+def test_how_many_minutes_is_classified_as_duration() -> None:
+    result = _provider().answer(
+        "How many minutes did the recovery take?",
+        [_ranked("recovery", "The recovery took 17 minutes.")],
+    )
+
+    assert result.status == "answered"
+    assert result.answer == "17 minutes"
+
+
+def test_french_question_starter_is_not_treated_as_a_named_subject() -> None:
+    result = _provider().answer(
+        "Qui arbitre les incidents majeurs ?",
+        [_ranked("minutes", "Mira Vale arbitre les incidents majeurs.")],
+    )
+
+    assert result.status == "answered"
+    assert result.answer == "Mira Vale"
+
+
+def test_french_effective_future_question_keeps_date_role_and_scope() -> None:
+    result = _provider().answer(
+        "Quand la couverture prendra-t-elle effet ?",
+        [
+            _ranked(
+                "effective",
+                "La couverture prendra effet le 1 février 2028.",
+                document_id="policy",
+                document_name="maison_tilleul_lettre_couverture.txt",
+            ),
+            _ranked(
+                "renewal",
+                "Son examen annuel interviendra le 1 février 2029.",
+                document_id="policy",
+                document_name="maison_tilleul_lettre_couverture.txt",
+            ),
+        ],
+    )
+
+    assert result.status == "answered"
+    assert result.answer == "1 février 2028"
+    assert result.supporting_excerpt == "La couverture prendra effet le 1 février 2028."
+
+
+def test_date_answer_requires_specific_relation_when_subject_has_multiple_dates() -> None:
+    effective = "At sunrise on 12 January 2028, archive custody passes to the guild."
+    review = "The next custody review is scheduled for 12 January 2029."
+
+    result = _provider().answer(
+        "On what date does archive custody pass to the guild?",
+        [_ranked("handover", effective), _ranked("review", review)],
+    )
+
+    assert result.status == "answered"
+    assert result.answer == "12 January 2028"
+    assert result.supporting_excerpt == effective
 
 
 def test_each_retrieved_passage_has_an_explicit_candidate_assessment() -> None:

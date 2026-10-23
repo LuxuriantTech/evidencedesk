@@ -115,6 +115,23 @@ def test_common_noun_archive_does_not_create_obligation_false_positives() -> Non
     )
 
 
+def test_negated_duties_are_not_reported_as_positive_obligations() -> None:
+    result = extract_supplier_fields_v3(
+        [
+            _chunk(
+                "negative-duties",
+                "The custodian must not distribute draft keys. The vendor is not required to "
+                "archive temporary access lists. Le dépositaire n'est pas tenu de transmettre "
+                "les brouillons. Le fournisseur ne doit pas transmettre les clés.",
+                1,
+            )
+        ],
+        embeddings=DeterministicEmbeddingProvider(dimension=384),
+    )
+
+    assert result.obligations.value in (None, ())
+
+
 def test_semantic_extraction_preserves_explicit_contract_fields_and_modals() -> None:
     chunks = [
         _chunk(
