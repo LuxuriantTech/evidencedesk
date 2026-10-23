@@ -1,0 +1,148 @@
+{
+  "dataset_version": "evidencedesk-fresh-e5-20261023-v1",
+  "license": "CC0-1.0",
+  "synthetic_only": true,
+  "generation_seed": 2026102305,
+  "documents": [
+    {
+      "id": "e5-proc-01",
+      "filename": "North Quay valve supply agreement.txt",
+      "format": "txt",
+      "source_path": "datasets/sources/North Quay valve supply agreement.txt",
+      "pages": [
+        "Meridian Pump Works Ltd. issued agreement MPW-4407 to North Quay Water Cooperative on 14 March 2026. The agreement covers twelve Vela-8 isolation valves for the Alder Basin refurbishment.",
+        "The agreed unit price is EUR 1,840 excluding VAT. Delivery is due at North Quay Stores, Gate C, by 30 April 2026. Contract contact is Elise Van Doren, procurement coordinator, at Meridian Pump Works."
+      ]
+    },
+    {
+      "id": "e5-proc-02",
+      "filename": "North Quay delivery and inspection record.txt",
+      "format": "txt",
+      "source_path": "datasets/sources/North Quay delivery and inspection record.txt",
+      "pages": [
+        "On 29 April 2026, carrier Blue Heron Logistics delivered shipment BH-8821 to North Quay Stores, Gate C. The shipment contained twelve Vela-8 isolation valves and cited purchase agreement MPW-4407.",
+        "Receiving clerk Jonas Peeters recorded twelve crates in good external condition. The inspection sheet says the pressure certificates were placed in envelope CERT-19 and handed to Elise Van Doren for review."
+      ]
+    },
+    {
+      "id": "e5-proc-03",
+      "filename": "Meridian invoice and payment terms.txt",
+      "format": "txt",
+      "source_path": "datasets/sources/Meridian invoice and payment terms.txt",
+      "pages": [
+        "Invoice MI-2026-771, dated 2 May 2026, bills North Quay Water Cooperative EUR 22,080 excluding VAT for twelve Vela-8 isolation valves under agreement MPW-4407.",
+        "Payment is due within 30 calendar days of invoice receipt. The invoice names Meridian Pump Works Ltd. as payee and cites bank reference MPW-4407-771."
+      ]
+    },
+    {
+      "id": "e5-proc-04",
+      "filename": "Alder Basin change request.txt",
+      "format": "txt",
+      "source_path": "datasets/sources/Alder Basin change request.txt",
+      "pages": [
+        "Change request CR-18 for agreement MPW-4407 was approved by North Quay on 6 May 2026. It adds two stainless-steel mounting collars, model MC-2, at no additional charge.",
+        "The change request leaves the original delivery date and valve unit price unchanged. Elise Van Doren confirmed the collars will travel with the next scheduled maintenance van."
+      ]
+    },
+    {
+      "id": "e5-proc-05",
+      "filename": "North Quay maintenance handover.txt",
+      "format": "txt",
+      "source_path": "datasets/sources/North Quay maintenance handover.txt",
+      "pages": [
+        "Maintenance handover MH-55 links agreement MPW-4407 and delivery BH-8821 to the Alder Basin valve installation. Technician Mara Ilic signed the handover on 8 May 2026.",
+        "Mara Ilic reports that all twelve Vela-8 valves were installed and that two MC-2 collars remain in the North Quay workshop cabinet. The handover does not record a serial number for any valve."
+      ]
+    },
+    {
+      "id": "e5-archive-01",
+      "filename": "Harbor Glasshouse conservation work order.txt",
+      "format": "txt",
+      "source_path": "datasets/sources/Harbor Glasshouse conservation work order.txt",
+      "pages": [
+        "The Lumen City Museum issued work order LC-203 to Aster Conservation Studio on 3 February 2026 for humidity-control work in the Harbor Glasshouse, gallery H-2.",
+        "The approved work order sets the target relative humidity at 52 percent. Conservator Nia Okafor is the named site lead, and the work is scheduled for the east display case group."
+      ]
+    },
+    {
+      "id": "e5-archive-02",
+      "filename": "Harbor Glasshouse sensor log.txt",
+      "format": "txt",
+      "source_path": "datasets/sources/Harbor Glasshouse sensor log.txt",
+      "pages": [
+        "Sensor HG-6 recorded 51 percent relative humidity at 09:00 on 12 February 2026 in gallery H-2 of the Harbor Glasshouse.",
+        "At 15:00 on 12 February, the same sensor recorded 54 percent relative humidity. Technician Pavel Rusu noted that the east display case doors stayed closed during both readings."
+      ]
+    },
+    {
+      "id": "e5-archive-03",
+      "filename": "Museum treatment materials receipt.txt",
+      "format": "txt",
+      "source_path": "datasets/sources/Museum treatment materials receipt.txt",
+      "pages": [
+        "Receipt AST-91 records delivery of four rolls of inert barrier film from Aster Conservation Studio to the Lumen City Museum on 10 February 2026 for work order LC-203.",
+        "Storekeeper Leila Haddad placed the rolls in conservation cupboard C-4. The receipt says the material lot code is ABF-2601 and that no adhesive was included."
+      ]
+    },
+    {
+      "id": "e5-archive-04",
+      "filename": "Harbor Glasshouse access register.txt",
+      "format": "txt",
+      "source_path": "datasets/sources/Harbor Glasshouse access register.txt",
+      "pages": [
+        "Access register AG-12 records Nia Okafor entering gallery H-2 at 08:42 on 12 February 2026 for work order LC-203.",
+        "The register records Pavel Rusu leaving gallery H-2 at 16:18 that day. Both entries were countersigned by museum guard Theo Marchand."
+      ]
+    },
+    {
+      "id": "e5-archive-05",
+      "filename": "Conservation closeout note.txt",
+      "format": "txt",
+      "source_path": "datasets/sources/Conservation closeout note.txt",
+      "pages": [
+        "Closeout note CN-8 links work order LC-203, sensor HG-6 and material lot ABF-2601 to the Harbor Glasshouse east display cases. Nia Okafor signed the note on 18 February 2026.",
+        "The closeout says the barrier film was fitted to three case backs. It does not state the final room humidity after installation or identify the cases by accession number."
+      ]
+    },
+    {
+      "id": "e5-proc-06",
+      "filename": "Procurement reconciliation sheet.txt",
+      "format": "txt",
+      "source_path": "datasets/sources/Procurement reconciliation sheet.txt",
+      "pages": [
+        "Reconciliation note RN-4, prepared 11 May 2026 for agreement MPW-4407, records the Vela-8 unit price as EUR 1,860 excluding VAT. It does not explain the difference from the signed agreement.",
+        "The same note gives invoice MI-2026-771 a pre-VAT total of EUR 22,320. Its author marked both figures ‘to confirm’ and did not issue a correction."
+      ]
+    },
+    {
+      "id": "e5-proc-07",
+      "filename": "Workshop stock tally.txt",
+      "format": "txt",
+      "source_path": "datasets/sources/Workshop stock tally.txt",
+      "pages": [
+        "Workshop tally WT-9, dated 9 May 2026, states that three MC-2 collars remain in the North Quay workshop cabinet after installation under handover MH-55.",
+        "WT-9 identifies the same cabinet and post-installation stock count described in MH-55, but contains no recount or approval resolving the one-collar discrepancy."
+      ]
+    },
+    {
+      "id": "e5-archive-06",
+      "filename": "Sensor review worksheet.txt",
+      "format": "txt",
+      "source_path": "datasets/sources/Sensor review worksheet.txt",
+      "pages": [
+        "Review worksheet RW-2 for sensor HG-6 in Harbor Glasshouse gallery H-2 on 12 February 2026 lists the day’s humidity as 53 percent relative humidity.",
+        "RW-2 labels 53 percent as the reading for that date without naming a measurement time; it gives no explanation for the difference from the instrument log."
+      ]
+    },
+    {
+      "id": "e5-archive-07",
+      "filename": "Sensor transcription correction.txt",
+      "format": "txt",
+      "source_path": "datasets/sources/Sensor transcription correction.txt",
+      "pages": [
+        "Transcription sheet TS-3 for sensor HG-6 in gallery H-2 on 12 February 2026 identifies the 09:00 reading as 52 percent relative humidity.",
+        "TS-3 covers the same HG-6 morning reading in gallery H-2 on 12 February 2026 as log HG-6-1, but transcribes its time as 09:15 rather than 09:00. It has no signed correction or note resolving the conflicting time."
+      ]
+    }
+  ]
+}
