@@ -59,7 +59,7 @@ jobs:
       - name: Checkout the experimental source only
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
-          fetch-depth: 1
+          fetch-depth: 0
           persist-credentials: false
 
       - name: Set up exact Python
@@ -93,6 +93,10 @@ jobs:
         run: |
           uv run ruff check apps/api apps/worker evals scripts
           uv run mypy
+
+      - name: Initialize the database schema for integration tests
+        timeout-minutes: 3
+        run: uv run alembic upgrade head
 
       - name: API, worker, evaluation and mocked tests
         timeout-minutes: 20
