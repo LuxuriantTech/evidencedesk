@@ -1,0 +1,27 @@
+{
+  "role": "baseline",
+  "commit": "0ae029757bfae524034d07335d0c518423b4afa9",
+  "finished_at_utc": "2026-10-23T02:18:40.407667+00:00",
+  "status": "completed",
+  "returncode": 0,
+  "stdout_sha256": "b4e07d906124b126de239a10b1c7fb8486c7a00faad3be4181083483cbf9e80b",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "raw_results_sha256": "4b0cb2130aa7bf13eda158d2d70cfcf549431eaaf3691085dd48ad299a421f22",
+  "metric_counts": {
+    "citation_correct": 2,
+    "citation_returned": 10,
+    "citation_expected": 18,
+    "citation_expected_matched": 2,
+    "answerable_correct": 2,
+    "answerable_total": 18,
+    "retrieval_hits_at_5": 18,
+    "abstention_correct": 3,
+    "abstention_total": 10,
+    "extraction_true_positive": 0,
+    "extraction_predicted": 0,
+    "extraction_gold": 0,
+    "errors": 0,
+    "schema_errors": 0
+  },
+  "engine_fingerprint": "7fb30ee26e973e842539383f0a59f69c349a95fa991e4b097d10fe27d03da5ca"
+}

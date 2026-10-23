@@ -1,0 +1,461 @@
+{
+  "role": "candidate",
+  "commit": "ffeba12c4d4d64a1e1f003f211dfa1781c64515d",
+  "tree": "18301ee2f1fb51573988b3c315afd9cd8ef63e41",
+  "started_at_utc": "2026-10-23T02:19:35.229505+00:00",
+  "environment": {
+    "platform": "linux",
+    "implementation": "cpython",
+    "version": "3.12.14",
+    "distributions": [
+      [
+        "alembic",
+        "1.19.1"
+      ],
+      [
+        "annotated-doc",
+        "0.0.5"
+      ],
+      [
+        "annotated-types",
+        "0.8.0"
+      ],
+      [
+        "anyio",
+        "4.14.2"
+      ],
+      [
+        "argon2-cffi",
+        "25.1.0"
+      ],
+      [
+        "argon2-cffi-bindings",
+        "26.1.0"
+      ],
+      [
+        "arq",
+        "0.28.0"
+      ],
+      [
+        "asyncpg",
+        "0.31.0"
+      ],
+      [
+        "boolean.py",
+        "5.0"
+      ],
+      [
+        "cachecontrol",
+        "0.14.4"
+      ],
+      [
+        "certifi",
+        "2026.10.19"
+      ],
+      [
+        "cffi",
+        "2.1.1"
+      ],
+      [
+        "charset-normalizer",
+        "3.5.1"
+      ],
+      [
+        "click",
+        "8.5.0"
+      ],
+      [
+        "coverage",
+        "7.15.4"
+      ],
+      [
+        "cryptography",
+        "50.0.1"
+      ],
+      [
+        "cyclonedx-python-lib",
+        "11.12.0"
+      ],
+      [
+        "defusedxml",
+        "0.7.1"
+      ],
+      [
+        "fastapi",
+        "0.141.1"
+      ],
+      [
+        "filelock",
+        "3.32.4"
+      ],
+      [
+        "flatbuffers",
+        "25.12.19"
+      ],
+      [
+        "fsspec",
+        "2026.7.0"
+      ],
+      [
+        "greenlet",
+        "3.5.5"
+      ],
+      [
+        "h11",
+        "0.16.0"
+      ],
+      [
+        "hf-xet",
+        "1.6.0"
+      ],
+      [
+        "hiredis",
+        "3.4.1"
+      ],
+      [
+        "httpcore2",
+        "2.12.0"
+      ],
+      [
+        "httptools",
+        "0.8.0"
+      ],
+      [
+        "httpx2",
+        "2.12.0"
+      ],
+      [
+        "huggingface-hub",
+        "0.36.0"
+      ],
+      [
+        "idna",
+        "3.19"
+      ],
+      [
+        "iniconfig",
+        "2.3.0"
+      ],
+      [
+        "librt",
+        "0.15.0"
+      ],
+      [
+        "license-expression",
+        "30.4.4"
+      ],
+      [
+        "mako",
+        "1.4.1"
+      ],
+      [
+        "markdown-it-py",
+        "4.2.0"
+      ],
+      [
+        "markupsafe",
+        "3.0.3"
+      ],
+      [
+        "mdurl",
+        "0.1.2"
+      ],
+      [
+        "msgpack",
+        "1.2.1"
+      ],
+      [
+        "mypy",
+        "1.20.2"
+      ],
+      [
+        "mypy-extensions",
+        "1.1.0"
+      ],
+      [
+        "numpy",
+        "2.5.2"
+      ],
+      [
+        "onnxruntime",
+        "1.29.0"
+      ],
+      [
+        "packageurl-python",
+        "0.17.6"
+      ],
+      [
+        "packaging",
+        "26.3"
+      ],
+      [
+        "pathspec",
+        "1.1.1"
+      ],
+      [
+        "pgvector",
+        "0.5.0"
+      ],
+      [
+        "pillow",
+        "13.0.0"
+      ],
+      [
+        "pip",
+        "26.2.1"
+      ],
+      [
+        "pip-api",
+        "0.0.34"
+      ],
+      [
+        "pip-audit",
+        "2.10.1"
+      ],
+      [
+        "pip-requirements-parser",
+        "32.0.1"
+      ],
+      [
+        "platformdirs",
+        "4.11.4"
+      ],
+      [
+        "pluggy",
+        "1.6.0"
+      ],
+      [
+        "prometheus-client",
+        "0.26.0"
+      ],
+      [
+        "protobuf",
+        "7.36.0"
+      ],
+      [
+        "psycopg",
+        "3.3.4"
+      ],
+      [
+        "psycopg-binary",
+        "3.3.4"
+      ],
+      [
+        "pwdlib",
+        "0.3.1"
+      ],
+      [
+        "py-serializable",
+        "2.1.0"
+      ],
+      [
+        "pycparser",
+        "3.0"
+      ],
+      [
+        "pydantic",
+        "2.13.4"
+      ],
+      [
+        "pydantic-core",
+        "2.46.4"
+      ],
+      [
+        "pydantic-settings",
+        "2.15.0"
+      ],
+      [
+        "pygments",
+        "2.21.0"
+      ],
+      [
+        "pyjwt",
+        "2.15.1"
+      ],
+      [
+        "pyparsing",
+        "3.3.2"
+      ],
+      [
+        "pypdf",
+        "6.21.2"
+      ],
+      [
+        "pytest",
+        "9.1.1"
+      ],
+      [
+        "pytest-asyncio",
+        "1.4.0"
+      ],
+      [
+        "pytest-cov",
+        "6.3.0"
+      ],
+      [
+        "python-dotenv",
+        "1.2.3"
+      ],
+      [
+        "python-multipart",
+        "0.0.32"
+      ],
+      [
+        "pyyaml",
+        "6.0.3"
+      ],
+      [
+        "redis",
+        "5.3.1"
+      ],
+      [
+        "reportlab",
+        "4.5.1"
+      ],
+      [
+        "requests",
+        "2.34.2"
+      ],
+      [
+        "rich",
+        "15.0.0"
+      ],
+      [
+        "ruff",
+        "0.16.4"
+      ],
+      [
+        "sortedcontainers",
+        "2.4.0"
+      ],
+      [
+        "sqlalchemy",
+        "2.0.52"
+      ],
+      [
+        "starlette",
+        "1.6.0"
+      ],
+      [
+        "structlog",
+        "25.5.0"
+      ],
+      [
+        "tokenizers",
+        "0.23.1"
+      ],
+      [
+        "tomli",
+        "2.4.1"
+      ],
+      [
+        "tomli-w",
+        "1.2.0"
+      ],
+      [
+        "tqdm",
+        "4.70.0"
+      ],
+      [
+        "truststore",
+        "0.10.4"
+      ],
+      [
+        "types-reportlab",
+        "4.5.1.20260827"
+      ],
+      [
+        "typing-extensions",
+        "4.16.0"
+      ],
+      [
+        "typing-inspection",
+        "0.4.4"
+      ],
+      [
+        "urllib3",
+        "2.8.0"
+      ],
+      [
+        "uvicorn",
+        "0.52.4"
+      ],
+      [
+        "uvloop",
+        "0.22.1"
+      ],
+      [
+        "watchfiles",
+        "1.2.0"
+      ],
+      [
+        "websockets",
+        "17.1"
+      ]
+    ]
+  },
+  "environment_inventory_sha256": "591aeab5ac0256f5e593b86329f65ec28e5585590b2805cbf4dbf9b71f88937f",
+  "registration_sha256": "24ec1c048e914b7ccbea9419e505a29b3d51508a1d52fcc20fc8b28bb4931a81",
+  "orchestration_wrapper_sha256": "9cccff012f506aa305703fc96fb65066e5e0692d36e94a446a4222130a6bfae9",
+  "input_files_sha256": {
+    "datasets/corpus_manifest.json": "7fd7b7991557515c6007cf1a6982763b74c46e99929d0575f8be1023a8220951",
+    "datasets/evaluation_cases.json": "d8492380fd91ab058de0c05eb773d5fe79048cdd77894b24249be9de06baa228",
+    "datasets/sources/asset-register.txt": "b1a02ade2b516d24fb0b82e2fc3f4447ca7294f40b4a10eea7254a637bfd1eb6",
+    "datasets/sources/bulletin.txt": "8a982524af20500f3425b6912ba3ae7ef62480d57ff5400bea7acba2c813d27d",
+    "datasets/sources/calibration.txt": "983348c100694e2b6c463ad6e86ec9f28d4f26e9f98262bcd67db55ef3e8f866",
+    "datasets/sources/checkout.txt": "ff664c3b917a565d206b909391b41bc94902c9132d1a6179bd7acd9fc625458b",
+    "datasets/sources/lab.txt": "08a5b2c31d0d50320bd696dfc5ef3de9a4d4c58c0905de72c8147f70c432be7d",
+    "datasets/sources/permit.txt": "6283ad2a46b9dbe5df0c72d86a5aba5ea1e9ce2f78edc8ee5890ddc824414b7b",
+    "datasets/sources/plan.txt": "d7933c1b021f76681171e07c264e19c11ecd149cb14e60cf703032684ad115ca",
+    "datasets/sources/ranger.txt": "e48bd42b0f7a0c947c7de156c0f787c7fc9485cb412e3e85648a6ef039f7e7bc",
+    "datasets/sources/service.txt": "e24060842326bf535df6f445a12421f57899bb8b6184cb19bdd678086613db6c",
+    "datasets/sources/station.txt": "1c4dbb1ec5ba5f338bf76aab4baf6ccca79b75fe6468082e2fb287cb6ec34e14",
+    "adapters/run_baseline.py": "0608fb6b6fb9d4608ffe19d5cf9ecd6f2e0ac43f904eefb50f3b63474229ed6a"
+  },
+  "expected_engine_fingerprint": "2d346470b162c245e25038b8268608b09a67dd01e7c12c5fd2adce95a76a8fe4",
+  "verified_model_files": [
+    {
+      "path": "config.json",
+      "bytes": 673,
+      "sha256": "c8ec081fdad2df991bf5abbf18418fec7a5cdaa421f60ffb060a30040b8c376f",
+      "verified": true
+    },
+    {
+      "path": "model_optimized.onnx",
+      "bytes": 235052644,
+      "sha256": "634d0f66c29dc934c8fa72b8a4fe91dd4d420a22f1d82a241058d4316e659a99",
+      "verified": true
+    },
+    {
+      "path": "ort_config.json",
+      "bytes": 1272,
+      "sha256": "99881c45e073696289224931dd48694398bc6bcd1fe7cb7018bca1e0cc00e1fc",
+      "verified": true
+    },
+    {
+      "path": "special_tokens_map.json",
+      "bytes": 964,
+      "sha256": "8c785abebea9ae3257b61681b4e6fd8365ceafde980c21970d001e834cf10835",
+      "verified": true
+    },
+    {
+      "path": "tokenizer.json",
+      "bytes": 17083009,
+      "sha256": "fa685fc160bbdbab64058d4fc91b60e62d207e8dc60b9af5c002c5ab946ded00",
+      "verified": true
+    },
+    {
+      "path": "tokenizer_config.json",
+      "bytes": 1416,
+      "sha256": "0666eebf692422757e1dddf3c9fb1ded73ba3dc726c5828671fc89e45bf3609f",
+      "verified": true
+    },
+    {
+      "path": "unigram.json",
+      "bytes": 14763260,
+      "sha256": "da145b5e7700ae40f16691ec32a0b1fdc1ee3298db22a31ea55f57a966c4a65d",
+      "verified": true
+    }
+  ],
+  "output_name_is_fixed_by_unchanged_adapter": "baseline-run/raw_results.json"
+}

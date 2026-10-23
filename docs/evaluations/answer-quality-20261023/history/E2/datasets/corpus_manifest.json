@@ -1,0 +1,48 @@
+{
+  "dataset_version": "independent-synthetic-corpus-2026.10.23-v2",
+  "license": "CC0-1.0",
+  "synthetic_only": true,
+  "generation_seed": 20261023,
+  "documents": [
+    {
+      "id": "e2-orion-msa",
+      "filename": "orion_master_agreement.txt",
+      "format": "txt",
+      "source_path": "datasets/sources/orion_master_agreement.txt",
+      "pages": [
+        "ORION CLOUD PLATFORM — MASTER SERVICES AGREEMENT\nParties: Orion Materials Group plc and LumenGrid Systems SAS.\nEffective date: 2027-04-03.\nAnnual platform fee: EUR 61,400, billed in two equal instalments.\nThe annual security review budget is EUR 61,900 and is separate from the platform fee.",
+        "TERM, RENEWAL AND NOTICE\nThe agreement renews on 2028-04-03 unless a party gives written notice at least 30 days before renewal.\n\nSECURITY EVENTS\nLumenGrid shall notify Orion of a confirmed cybersecurity incident within 36 hours after confirmation.\nThe incident clock begins at confirmation, not when the first service alert appears.",
+        "PRODUCTION ACCESS\nNo subcontractor may access Orion production data before Orion gives prior written approval.\n\nSERVICE DESK\nFor a routine service request, LumenGrid targets an initial response within four business hours. This service-desk target is not an incident-notification deadline."
+      ]
+    },
+    {
+      "id": "e2-orion-dpa",
+      "filename": "orion_data_processing_addendum.txt",
+      "format": "txt",
+      "source_path": "datasets/sources/orion_data_processing_addendum.txt",
+      "pages": [
+        "ORION CLOUD PLATFORM — DATA PROCESSING ADDENDUM\nThis addendum applies to personal data processed by LumenGrid for Orion under the Master Services Agreement.\n\nPERSONAL-DATA BREACH NOTICE\nFor a confirmed personal-data breach, LumenGrid shall notify Orion within 18 hours after discovery.\nThe parties did not record whether this addendum replaces or takes precedence over the cybersecurity-incident notice term in the Master Services Agreement.\n\nRETENTION\nExported personal data must be deleted within 30 days after termination, subject to a documented legal hold."
+      ]
+    },
+    {
+      "id": "e2-orion-incident",
+      "filename": "orion_service_incident_report.txt",
+      "format": "txt",
+      "source_path": "datasets/sources/orion_service_incident_report.txt",
+      "pages": [
+        "ORION CLOUD PLATFORM — SERVICE INCIDENT REPORT\nIncident date: 2027-06-14. The gateway began dropping dispatch acknowledgements at 09:10 UTC. Service was restored at 09:28 UTC, so the interruption lasted 18 minutes.\nThe report distinguishes the 18-minute service interruption from notification duties in the signed agreements.",
+        "CUSTOMER FOLLOW-UP\nThe operations team set an internal target to update affected customers within 72 hours. This is an operational target, not an amendment to the Master Services Agreement.\nThis incident report does not amend the Master Services Agreement.\nAt report approval, the review had not established a personal-data breach. No customer compensation amount or named notification recipient is stated in this report."
+      ]
+    },
+    {
+      "id": "e2-rivage-record",
+      "filename": "rivage_supplier_record_fr.txt",
+      "format": "txt",
+      "source_path": "datasets/sources/rivage_supplier_record_fr.txt",
+      "pages": [
+        "FICHE FOURNISSEUR — RIVAGE ARCHIVE SERVICES\nLa présente fiche a été validée le 1er mai 2027 pour les services d’archivage de Rivage Archive Services.\nLe stockage standard est facturé 2 100 EUR par mois. Une option de restauration express coûte 2 190 EUR par intervention; elle ne fait pas partie du tarif mensuel standard.",
+        "SUIVI CONTRACTUEL\nDate de renouvellement contractuel : non consignée.\nIdentifiant TVA : non fourni dans le dossier reçu.\nLes exports temporaires sont supprimés dans les 45 jours suivant la fin du contrat."
+      ]
+    }
+  ]
+}

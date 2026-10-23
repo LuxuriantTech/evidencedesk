@@ -1,0 +1,3 @@
+LabReportID LR-550 | SampleBatchID SB-031. Nitrate: 0.84 mg/L. Laboratory pH: 7.43. Phosphate: not tested. The report says SampleBatchID SB-031 was received from StationRecordID SR-901. Finalized 2026-10-16 by M. Caron.
+
+A separate entry for SampleBatchID SB-013 reports nitrate 0.48 mg/L. SB-013 is not the batch analyzed in LR-550.

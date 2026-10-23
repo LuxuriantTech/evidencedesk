@@ -1,0 +1,14 @@
+{
+  "status": "FROZEN_PRE_INFERENCE_LAYOUT_COMPLETE",
+  "manifest": "FROZEN_INPUT_MANIFEST.json",
+  "manifest_sha256": "e9c18c0523a391b630dc7559349fc676e4e740f5b91a8a9cf4a4cb69dc697326",
+  "protocol_sha256": "7aa83c67cfb4c0d66deb547cbcf9391efaed6d980397acc79e1507576ebd0ef4",
+  "comparison_rules_sha256": "aeb4a8b27796a8465102312d729f7e0855aa4fc4e3b5809f10b77387f205706d",
+  "suite_sha256": "d8492380fd91ab058de0c05eb773d5fe79048cdd77894b24249be9de06baa228",
+  "corpus_manifest_sha256": "7fd7b7991557515c6007cf1a6982763b74c46e99929d0575f8be1023a8220951",
+  "adapter_sha256": "0608fb6b6fb9d4608ffe19d5cf9ecd6f2e0ac43f904eefb50f3b63474229ed6a",
+  "source_payload_count": 10,
+  "no_inference_executed": true,
+  "baseline_commit": "0ae029757bfae524034d07335d0c518423b4afa9",
+  "candidate_commit": "ffeba12c4d4d64a1e1f003f211dfa1781c64515d"
+}

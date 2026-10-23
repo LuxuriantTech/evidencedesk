@@ -1,0 +1,85 @@
+{
+  "dataset_version": "independent-synthetic-corpus-2026.10.23-v3",
+  "license": "CC0-1.0",
+  "synthetic_only": true,
+  "generation_seed": 20261023,
+  "documents": [
+    {
+      "id": "e3-meadowrun-manifest",
+      "filename": "meadowrun_shipment_manifest.txt",
+      "format": "txt",
+      "source_path": "datasets/sources/meadowrun_shipment_manifest.txt",
+      "pages": [
+        "MEADOWRUN ORCHARDS — OUTBOUND SHIPMENT MANIFEST\nShipment reference: SH-2841. Product lot: AP-73.\nConsignee: Larkspur Grocers Cooperative. Container: CH-06.\n48 crates of dessert apples were loaded, six pallets in total; gross cargo mass: 1,152 kg.\nLoading completed on 2026-08-19 at 05:40 CEST.",
+        "SEAL CONTROL\nContainer seal CH06-991 was intact at dispatch. The carrier received the signed manifest at 05:48 CEST.\nThe manifest records no driver name, fuel quantity or customer purchase-order number."
+      ]
+    },
+    {
+      "id": "e3-meadowrun-logger",
+      "filename": "meadowrun_cold_chain_logger_report.txt",
+      "format": "txt",
+      "source_path": "datasets/sources/meadowrun_cold_chain_logger_report.txt",
+      "pages": [
+        "COLD-CHAIN LOGGER EXPORT — SH-2841 / CH-06\nRequired transport range: 2–6 °C.\nMean product-zone temperature: 4.4 °C; highest recorded reading: 6.3 °C.\nReadings remained above 6 °C for 12 minutes, from 09:16 to 09:28 CEST.\nThe logger export reports no power-loss interval. No calibration-certificate expiry date is included."
+      ]
+    },
+    {
+      "id": "e3-delivery-note",
+      "filename": "larkspur_dijon_delivery_note.txt",
+      "format": "txt",
+      "source_path": "datasets/sources/larkspur_dijon_delivery_note.txt",
+      "pages": [
+        "LARKSPUR GROCERS — DIJON DEPOT RECEIPT\nShipment SH-2841 reached the Dijon depot on 2026-08-19 at 14:20 CEST.\nThe driver used the east approach after the D19 north exit was closed for roadworks.\nAll 48 crates were counted at intake; the container seal was intact. No damaged-crate count was entered.",
+        "RECEIVING DESK NOTE\nThe receiver confirmed the pallet count but did not identify the driver. The dispatch record contains no fuel-consumption reading.\nThe depot note does not state whether the brief logger excursion affected fruit quality."
+      ]
+    },
+    {
+      "id": "e3-lab-certificate",
+      "filename": "certificat_laboratoire_lot_AP-73.txt",
+      "format": "txt",
+      "source_path": "datasets/sources/certificat_laboratoire_lot_AP-73.txt",
+      "pages": [
+        "ATELIER DES VALLONS — CERTIFICAT D’ANALYSE\nLot AP-73, pommes dessert. Échantillon prélevé le 18 août 2026.\nSolides solubles : 12,4 °Brix.\nAcidité titrable : 0,42 g/100 mL.\nRapport approuvé le 20 août 2026 par le laboratoire.",
+        "PORTÉE DE L’ANALYSE\nLe certificat porte uniquement sur les paramètres indiqués ci-dessus. Aucun dosage de résidus de pesticides n’a été effectué.\nLe nom d’un acheteur final et le numéro de commande ne figurent pas sur le certificat."
+      ]
+    },
+    {
+      "id": "e3-pack-instruction",
+      "filename": "consigne_emballage_export.txt",
+      "format": "txt",
+      "source_path": "datasets/sources/consigne_emballage_export.txt",
+      "pages": [
+        "CONSIGNE D’EMBALLAGE — EXPORT\nPour chaque caisse de pommes, placer deux sachets réfrigérants dans les emplacements latéraux prévus.\nGarder l’étiquette du lot AP-73 visible après fermeture.\nÀ la réception, inspecter l’emballage dans les 36 heures et noter tout sceau rompu.",
+        "NOTE DE CONTRÔLE\nCette consigne décrit l’emballage et la réception. Elle ne fixe pas la date de la prochaine expédition et ne vaut pas rapport de qualité du fruit."
+      ]
+    },
+    {
+      "id": "e3-well-lab",
+      "filename": "boreal_washwater_lab_result.txt",
+      "format": "txt",
+      "source_path": "datasets/sources/boreal_washwater_lab_result.txt",
+      "pages": [
+        "BOREAL WASH-LINE WATER — LABORATORY CERTIFICATE\nSample point: Well B-4. Sample date: 2026-08-20.\nLaboratory pH reading: 7.2.\nNitrate concentration: 18 mg/L.\nLaboratory disposition: acceptable for the wash line. The certificate was filed by the Water Quality Unit.",
+        "RECORD SCOPE\nThe certificate identifies the unit, not an individual sampler. It contains no repeat-sample result or signed reconciliation with field readings."
+      ]
+    },
+    {
+      "id": "e3-well-field",
+      "filename": "boreal_well_b4_field_sheet.txt",
+      "format": "txt",
+      "source_path": "datasets/sources/boreal_well_b4_field_sheet.txt",
+      "pages": [
+        "BOREAL WASH-LINE — FIELD SHEET\nWell B-4, sample taken 2026-08-20. Field pH reading: 7.6.\nField nitrate reading: 21 mg/L. Provisional disposition: HOLD FOR DUPLICATE TEST.\nThe sheet and laboratory certificate are both current records. Their different readings and dispositions have not been reconciled or superseded."
+      ]
+    },
+    {
+      "id": "e3-quality-audit",
+      "filename": "meadowrun_packline_quality_audit.txt",
+      "format": "txt",
+      "source_path": "datasets/sources/meadowrun_packline_quality_audit.txt",
+      "pages": [
+        "MEADOWRUN PACKLINE — QUALITY AUDIT SUMMARY\nAudit completed on 2026-08-28. Recorded score: 96/100.\nThe audit reviewed crate handling, seal checks and cold-room records.\nIt did not record a pesticide result, driver safety rating or the next planned delivery date."
+      ]
+    }
+  ]
+}

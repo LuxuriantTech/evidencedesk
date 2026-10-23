@@ -1,0 +1,29 @@
+{
+  "rules_version": "e4-frozen-comparison-rules-v2",
+  "frozen_before_inference": true,
+  "native_scorer_authoritative": true,
+  "do_not_change_scorer_thresholds_or_verdict": true,
+  "release_criteria": {
+    "metrics": [
+      "answerable_accuracy",
+      "citation_precision",
+      "citation_recall",
+      "abstention_performance"
+    ],
+    "all_metrics_non_regressive": true,
+    "at_least_one_metric_improves": true,
+    "schema_errors_must_equal": 0,
+    "full_project_ci_must_pass": true,
+    "criteria_do_not_override_native_scorer_verdict": true
+  },
+  "expected_dataset_counts": {
+    "documents": 10,
+    "answerable": 18,
+    "unanswerable": 5,
+    "ambiguous": 5,
+    "total_cases": 28
+  },
+  "expected_input_sha256": "d8492380fd91ab058de0c05eb773d5fe79048cdd77894b24249be9de06baa228",
+  "adapter_sha256": "0608fb6b6fb9d4608ffe19d5cf9ecd6f2e0ac43f904eefb50f3b63474229ed6a",
+  "source_payloads_required": true
+}

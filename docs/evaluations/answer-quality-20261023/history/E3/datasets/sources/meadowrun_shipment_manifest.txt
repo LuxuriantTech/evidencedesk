@@ -1,0 +1,11 @@
+PAGE 1
+MEADOWRUN ORCHARDS — OUTBOUND SHIPMENT MANIFEST
+Shipment reference: SH-2841. Product lot: AP-73.
+Consignee: Larkspur Grocers Cooperative. Container: CH-06.
+48 crates of dessert apples were loaded, six pallets in total; gross cargo mass: 1,152 kg.
+Loading completed on 2026-08-19 at 05:40 CEST.
+
+PAGE 2
+SEAL CONTROL
+Container seal CH06-991 was intact at dispatch. The carrier received the signed manifest at 05:48 CEST.
+The manifest records no driver name, fuel quantity or customer purchase-order number.

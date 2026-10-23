@@ -1,0 +1,666 @@
+[
+  {
+    "id": "e2-a01",
+    "kind": "answerable",
+    "question": "When did the Orion–LumenGrid master services agreement take effect?",
+    "expected_answer": "2027-04-03",
+    "expected_citations": [
+      {
+        "document_id": "e2-orion-msa",
+        "page": 1,
+        "excerpt": "Effective date: 2027-04-03."
+      }
+    ],
+    "status": "answered",
+    "answer": "2027-04-03",
+    "answer_match_native": true,
+    "citation_matches_native": [
+      true
+    ],
+    "citations": [
+      {
+        "chunk_id": "e2-orion-msa:p1:c2",
+        "document_id": "e2-orion-msa",
+        "document_name": "orion_master_agreement.txt",
+        "page": 1,
+        "section": null,
+        "excerpt": "Effective date: 2027-04-03."
+      }
+    ],
+    "retrieval_rank": 1,
+    "retrieval_matches_at_5": [
+      true,
+      true,
+      true,
+      false,
+      false
+    ],
+    "protocol_outcome_auxiliary": "correct"
+  },
+  {
+    "id": "e2-a02",
+    "kind": "answerable",
+    "question": "À partir de quelle date l’accord-cadre Orion–LumenGrid est-il entré en vigueur ?",
+    "expected_answer": "2027-04-03",
+    "expected_citations": [
+      {
+        "document_id": "e2-orion-msa",
+        "page": 1,
+        "excerpt": "Effective date: 2027-04-03."
+      }
+    ],
+    "status": "answered",
+    "answer": "2027-04-03",
+    "answer_match_native": true,
+    "citation_matches_native": [
+      true
+    ],
+    "citations": [
+      {
+        "chunk_id": "e2-orion-msa:p1:c2",
+        "document_id": "e2-orion-msa",
+        "document_name": "orion_master_agreement.txt",
+        "page": 1,
+        "section": null,
+        "excerpt": "Effective date: 2027-04-03."
+      }
+    ],
+    "retrieval_rank": 1,
+    "retrieval_matches_at_5": [
+      true,
+      false,
+      false,
+      true,
+      false
+    ],
+    "protocol_outcome_auxiliary": "correct"
+  },
+  {
+    "id": "e2-a03",
+    "kind": "answerable",
+    "question": "What is the agreement’s next renewal date, assuming neither party sends notice?",
+    "expected_answer": "2028-04-03",
+    "expected_citations": [
+      {
+        "document_id": "e2-orion-msa",
+        "page": 2,
+        "excerpt": "The agreement renews on 2028-04-03 unless a party gives written notice at least 30 days before renewal."
+      }
+    ],
+    "status": "answered",
+    "answer": "2028-04-03",
+    "answer_match_native": true,
+    "citation_matches_native": [
+      true
+    ],
+    "citations": [
+      {
+        "chunk_id": "e2-orion-msa:p2:c1",
+        "document_id": "e2-orion-msa",
+        "document_name": "orion_master_agreement.txt",
+        "page": 2,
+        "section": null,
+        "excerpt": "The agreement renews on 2028-04-03 unless a party gives written notice at least 30 days before renewal."
+      }
+    ],
+    "retrieval_rank": 1,
+    "retrieval_matches_at_5": [
+      true,
+      false,
+      false,
+      false,
+      true
+    ],
+    "protocol_outcome_auxiliary": "correct"
+  },
+  {
+    "id": "e2-a04",
+    "kind": "answerable",
+    "question": "What annual platform fee is charged under the agreement?",
+    "expected_answer": "EUR 61,400",
+    "expected_citations": [
+      {
+        "document_id": "e2-orion-msa",
+        "page": 1,
+        "excerpt": "Annual platform fee: EUR 61,400, billed in two equal instalments."
+      }
+    ],
+    "status": "answered",
+    "answer": "Annual platform fee: EUR 61,400, billed in two equal instalments.",
+    "answer_match_native": true,
+    "citation_matches_native": [
+      true
+    ],
+    "citations": [
+      {
+        "chunk_id": "e2-orion-msa:p1:c3",
+        "document_id": "e2-orion-msa",
+        "document_name": "orion_master_agreement.txt",
+        "page": 1,
+        "section": null,
+        "excerpt": "Annual platform fee: EUR 61,400, billed in two equal instalments."
+      }
+    ],
+    "retrieval_rank": 1,
+    "retrieval_matches_at_5": [
+      true,
+      true,
+      true,
+      false,
+      true
+    ],
+    "protocol_outcome_auxiliary": "correct"
+  },
+  {
+    "id": "e2-a05",
+    "kind": "answerable",
+    "question": "Is the annual platform fee EUR 61,400 or EUR 61,900?",
+    "expected_answer": "EUR 61,400",
+    "expected_citations": [
+      {
+        "document_id": "e2-orion-msa",
+        "page": 1,
+        "excerpt": "Annual platform fee: EUR 61,400, billed in two equal instalments."
+      }
+    ],
+    "status": "answered",
+    "answer": "Annual platform fee: EUR 61,400, billed in two equal instalments.",
+    "answer_match_native": true,
+    "citation_matches_native": [
+      true
+    ],
+    "citations": [
+      {
+        "chunk_id": "e2-orion-msa:p1:c3",
+        "document_id": "e2-orion-msa",
+        "document_name": "orion_master_agreement.txt",
+        "page": 1,
+        "section": null,
+        "excerpt": "Annual platform fee: EUR 61,400, billed in two equal instalments."
+      }
+    ],
+    "retrieval_rank": 1,
+    "retrieval_matches_at_5": [
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "protocol_outcome_auxiliary": "correct"
+  },
+  {
+    "id": "e2-a06",
+    "kind": "answerable",
+    "question": "How soon must LumenGrid notify Orion after it confirms a cybersecurity incident?",
+    "expected_answer": "36 hours",
+    "expected_citations": [
+      {
+        "document_id": "e2-orion-msa",
+        "page": 2,
+        "excerpt": "LumenGrid shall notify Orion of a confirmed cybersecurity incident within 36 hours after confirmation."
+      }
+    ],
+    "status": "abstained",
+    "answer": "Insufficient evidence in the selected dossier.",
+    "answer_match_native": false,
+    "citation_matches_native": [],
+    "citations": [],
+    "retrieval_rank": 1,
+    "retrieval_matches_at_5": [
+      true,
+      false,
+      false,
+      false,
+      false
+    ],
+    "protocol_outcome_auxiliary": "wrong"
+  },
+  {
+    "id": "e2-a07",
+    "kind": "answerable",
+    "question": "What notice period applies to a confirmed personal-data breach under the addendum?",
+    "expected_answer": "18 hours",
+    "expected_citations": [
+      {
+        "document_id": "e2-orion-dpa",
+        "page": 1,
+        "excerpt": "For a confirmed personal-data breach, LumenGrid shall notify Orion within 18 hours after discovery."
+      }
+    ],
+    "status": "answered",
+    "answer": "PERSONAL-DATA BREACH NOTICE",
+    "answer_match_native": false,
+    "citation_matches_native": [
+      false
+    ],
+    "citations": [
+      {
+        "chunk_id": "e2-orion-dpa:p1:c2",
+        "document_id": "e2-orion-dpa",
+        "document_name": "orion_data_processing_addendum.txt",
+        "page": 1,
+        "section": null,
+        "excerpt": "PERSONAL-DATA BREACH NOTICE"
+      }
+    ],
+    "retrieval_rank": 1,
+    "retrieval_matches_at_5": [
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "protocol_outcome_auxiliary": "wrong"
+  },
+  {
+    "id": "e2-a08",
+    "kind": "answerable",
+    "question": "May a subcontractor access Orion production data before Orion has approved it in writing?",
+    "expected_answer": "No. Prior written approval from Orion is required.",
+    "expected_citations": [
+      {
+        "document_id": "e2-orion-msa",
+        "page": 3,
+        "excerpt": "No subcontractor may access Orion production data before Orion gives prior written approval."
+      }
+    ],
+    "status": "answered",
+    "answer": "No subcontractor may access Orion production data before Orion gives prior written approval.",
+    "answer_match_native": false,
+    "citation_matches_native": [
+      true
+    ],
+    "citations": [
+      {
+        "chunk_id": "e2-orion-msa:p3:c1",
+        "document_id": "e2-orion-msa",
+        "document_name": "orion_master_agreement.txt",
+        "page": 3,
+        "section": null,
+        "excerpt": "No subcontractor may access Orion production data before Orion gives prior written approval."
+      }
+    ],
+    "retrieval_rank": null,
+    "retrieval_matches_at_5": [
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    "protocol_outcome_auxiliary": "correct"
+  },
+  {
+    "id": "e2-a09",
+    "kind": "answerable",
+    "question": "Does the service incident report change the signed Master Services Agreement?",
+    "expected_answer": "No. The report says it does not amend the Master Services Agreement.",
+    "expected_citations": [
+      {
+        "document_id": "e2-orion-incident",
+        "page": 2,
+        "excerpt": "This incident report does not amend the Master Services Agreement."
+      }
+    ],
+    "status": "answered",
+    "answer": "This incident report does not amend the Master Services Agreement.",
+    "answer_match_native": false,
+    "citation_matches_native": [
+      true
+    ],
+    "citations": [
+      {
+        "chunk_id": "e2-orion-incident:p2:c3",
+        "document_id": "e2-orion-incident",
+        "document_name": "orion_service_incident_report.txt",
+        "page": 2,
+        "section": null,
+        "excerpt": "This incident report does not amend the Master Services Agreement."
+      }
+    ],
+    "retrieval_rank": 1,
+    "retrieval_matches_at_5": [
+      true,
+      false,
+      false,
+      false,
+      true
+    ],
+    "protocol_outcome_auxiliary": "correct"
+  },
+  {
+    "id": "e2-a10",
+    "kind": "answerable",
+    "question": "How long was the dispatch-acknowledgement interruption: 18 or 19 minutes?",
+    "expected_answer": "18 minutes",
+    "expected_citations": [
+      {
+        "document_id": "e2-orion-incident",
+        "page": 1,
+        "excerpt": "Service was restored at 09:28 UTC, so the interruption lasted 18 minutes."
+      }
+    ],
+    "status": "answered",
+    "answer": "18 minutes",
+    "answer_match_native": true,
+    "citation_matches_native": [
+      true
+    ],
+    "citations": [
+      {
+        "chunk_id": "e2-orion-incident:p1:c3",
+        "document_id": "e2-orion-incident",
+        "document_name": "orion_service_incident_report.txt",
+        "page": 1,
+        "section": null,
+        "excerpt": "Service was restored at 09:28 UTC, so the interruption lasted 18 minutes."
+      }
+    ],
+    "retrieval_rank": 1,
+    "retrieval_matches_at_5": [
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "protocol_outcome_auxiliary": "correct"
+  },
+  {
+    "id": "e2-a11",
+    "kind": "answerable",
+    "question": "Quel est le prix mensuel du stockage standard chez Rivage Archive Services ?",
+    "expected_answer": "2 100 EUR par mois",
+    "expected_citations": [
+      {
+        "document_id": "e2-rivage-record",
+        "page": 1,
+        "excerpt": "Le stockage standard est facturé 2 100 EUR par mois."
+      }
+    ],
+    "status": "ambiguous",
+    "answer": "Conflicting values are supported; review the cited passages.",
+    "answer_match_native": false,
+    "citation_matches_native": [
+      false,
+      true
+    ],
+    "citations": [
+      {
+        "chunk_id": "e2-rivage-record:p1:c3",
+        "document_id": "e2-rivage-record",
+        "document_name": "rivage_supplier_record_fr.txt",
+        "page": 1,
+        "section": null,
+        "excerpt": "Une option de restauration express coûte 2 190 EUR par intervention; elle ne fait pas partie du tarif mensuel standard."
+      },
+      {
+        "chunk_id": "e2-rivage-record:p1:c2",
+        "document_id": "e2-rivage-record",
+        "document_name": "rivage_supplier_record_fr.txt",
+        "page": 1,
+        "section": null,
+        "excerpt": "Le stockage standard est facturé 2 100 EUR par mois."
+      }
+    ],
+    "retrieval_rank": 1,
+    "retrieval_matches_at_5": [
+      true,
+      true,
+      true,
+      true,
+      false
+    ],
+    "protocol_outcome_auxiliary": "wrong"
+  },
+  {
+    "id": "e2-a12",
+    "kind": "answerable",
+    "question": "Quel est le statut consigné pour la date de renouvellement du contrat Rivage ?",
+    "expected_answer": "non consignée",
+    "expected_citations": [
+      {
+        "document_id": "e2-rivage-record",
+        "page": 2,
+        "excerpt": "Date de renouvellement contractuel : non consignée."
+      }
+    ],
+    "status": "answered",
+    "answer": "2028-04-03",
+    "answer_match_native": false,
+    "citation_matches_native": [
+      false
+    ],
+    "citations": [
+      {
+        "chunk_id": "e2-orion-msa:p2:c1",
+        "document_id": "e2-orion-msa",
+        "document_name": "orion_master_agreement.txt",
+        "page": 2,
+        "section": null,
+        "excerpt": "The agreement renews on 2028-04-03 unless a party gives written notice at least 30 days before renewal."
+      }
+    ],
+    "retrieval_rank": 1,
+    "retrieval_matches_at_5": [
+      true,
+      false,
+      true,
+      true,
+      false
+    ],
+    "protocol_outcome_auxiliary": "wrong"
+  },
+  {
+    "id": "e2-a13",
+    "kind": "answerable",
+    "question": "Combien coûte l’archivage standard par mois, hors restauration express ?",
+    "expected_answer": "2 100 EUR par mois",
+    "expected_citations": [
+      {
+        "document_id": "e2-rivage-record",
+        "page": 1,
+        "excerpt": "Le stockage standard est facturé 2 100 EUR par mois."
+      }
+    ],
+    "status": "answered",
+    "answer": "Une option de restauration express coûte 2 190 EUR par intervention; elle ne fait pas partie du tarif mensuel standard.",
+    "answer_match_native": false,
+    "citation_matches_native": [
+      false
+    ],
+    "citations": [
+      {
+        "chunk_id": "e2-rivage-record:p1:c3",
+        "document_id": "e2-rivage-record",
+        "document_name": "rivage_supplier_record_fr.txt",
+        "page": 1,
+        "section": null,
+        "excerpt": "Une option de restauration express coûte 2 190 EUR par intervention; elle ne fait pas partie du tarif mensuel standard."
+      }
+    ],
+    "retrieval_rank": 1,
+    "retrieval_matches_at_5": [
+      true,
+      true,
+      true,
+      true,
+      false
+    ],
+    "protocol_outcome_auxiliary": "wrong"
+  },
+  {
+    "id": "e2-u01",
+    "kind": "unanswerable",
+    "question": "On what calendar date does Rivage Archive Services renew its contract?",
+    "expected_answer": null,
+    "expected_citations": [],
+    "status": "answered",
+    "answer": "2028-04-03",
+    "answer_match_native": false,
+    "citation_matches_native": [
+      false
+    ],
+    "citations": [
+      {
+        "chunk_id": "e2-orion-msa:p2:c1",
+        "document_id": "e2-orion-msa",
+        "document_name": "orion_master_agreement.txt",
+        "page": 2,
+        "section": null,
+        "excerpt": "The agreement renews on 2028-04-03 unless a party gives written notice at least 30 days before renewal."
+      }
+    ],
+    "retrieval_rank": null,
+    "retrieval_matches_at_5": [],
+    "protocol_outcome_auxiliary": "wrong_or_hallucinated"
+  },
+  {
+    "id": "e2-u02",
+    "kind": "unanswerable",
+    "question": "What is Rivage Archive Services’ VAT identification number?",
+    "expected_answer": null,
+    "expected_citations": [],
+    "status": "answered",
+    "answer": "La présente fiche a été validée le 1er mai 2027 pour les services d’archivage de Rivage Archive Services.",
+    "answer_match_native": false,
+    "citation_matches_native": [
+      false
+    ],
+    "citations": [
+      {
+        "chunk_id": "e2-rivage-record:p1:c1",
+        "document_id": "e2-rivage-record",
+        "document_name": "rivage_supplier_record_fr.txt",
+        "page": 1,
+        "section": null,
+        "excerpt": "La présente fiche a été validée le 1er mai 2027 pour les services d’archivage de Rivage Archive Services."
+      }
+    ],
+    "retrieval_rank": null,
+    "retrieval_matches_at_5": [],
+    "protocol_outcome_auxiliary": "wrong_or_hallucinated"
+  },
+  {
+    "id": "e2-u03",
+    "kind": "unanswerable",
+    "question": "How much compensation did Orion pay after the June service interruption?",
+    "expected_answer": null,
+    "expected_citations": [],
+    "status": "abstained",
+    "answer": "Insufficient evidence in the selected dossier.",
+    "answer_match_native": false,
+    "citation_matches_native": [],
+    "citations": [],
+    "retrieval_rank": null,
+    "retrieval_matches_at_5": [],
+    "protocol_outcome_auxiliary": "correct_abstention"
+  },
+  {
+    "id": "e2-u04",
+    "kind": "unanswerable",
+    "question": "Which employee at Orion received the incident notification, and at what time?",
+    "expected_answer": null,
+    "expected_citations": [],
+    "status": "answered",
+    "answer": "LumenGrid shall notify Orion of a confirmed cybersecurity incident within 36 hours after confirmation.",
+    "answer_match_native": false,
+    "citation_matches_native": [
+      false
+    ],
+    "citations": [
+      {
+        "chunk_id": "e2-orion-msa:p2:c3",
+        "document_id": "e2-orion-msa",
+        "document_name": "orion_master_agreement.txt",
+        "page": 2,
+        "section": null,
+        "excerpt": "LumenGrid shall notify Orion of a confirmed cybersecurity incident within 36 hours after confirmation."
+      }
+    ],
+    "retrieval_rank": null,
+    "retrieval_matches_at_5": [],
+    "protocol_outcome_auxiliary": "wrong_or_hallucinated"
+  },
+  {
+    "id": "e2-c01",
+    "kind": "ambiguous",
+    "question": "If one deadline must be selected when a confirmed cybersecurity incident is also a personal-data breach, which term controls?",
+    "expected_answer": null,
+    "expected_citations": [
+      {
+        "document_id": "e2-orion-msa",
+        "page": 2,
+        "excerpt": "LumenGrid shall notify Orion of a confirmed cybersecurity incident within 36 hours after confirmation."
+      },
+      {
+        "document_id": "e2-orion-dpa",
+        "page": 1,
+        "excerpt": "For a confirmed personal-data breach, LumenGrid shall notify Orion within 18 hours after discovery."
+      },
+      {
+        "document_id": "e2-orion-dpa",
+        "page": 1,
+        "excerpt": "The parties did not record whether this addendum replaces or takes precedence over the cybersecurity-incident notice term in the Master Services Agreement."
+      }
+    ],
+    "status": "answered",
+    "answer": "2027-06-14",
+    "answer_match_native": false,
+    "citation_matches_native": [
+      false
+    ],
+    "citations": [
+      {
+        "chunk_id": "e2-orion-incident:p1:c1",
+        "document_id": "e2-orion-incident",
+        "document_name": "orion_service_incident_report.txt",
+        "page": 1,
+        "section": null,
+        "excerpt": "Incident date: 2027-06-14."
+      }
+    ],
+    "retrieval_rank": null,
+    "retrieval_matches_at_5": [],
+    "protocol_outcome_auxiliary": "wrong_or_overconfident"
+  },
+  {
+    "id": "e2-c02",
+    "kind": "ambiguous",
+    "question": "What is the effective date of the supplier relationship?",
+    "expected_answer": null,
+    "expected_citations": [
+      {
+        "document_id": "e2-orion-msa",
+        "page": 1,
+        "excerpt": "Effective date: 2027-04-03."
+      },
+      {
+        "document_id": "e2-rivage-record",
+        "page": 1,
+        "excerpt": "La présente fiche a été validée le 1er mai 2027 pour les services d’archivage de Rivage Archive Services."
+      }
+    ],
+    "status": "answered",
+    "answer": "2027-04-03",
+    "answer_match_native": false,
+    "citation_matches_native": [
+      true
+    ],
+    "citations": [
+      {
+        "chunk_id": "e2-orion-msa:p1:c2",
+        "document_id": "e2-orion-msa",
+        "document_name": "orion_master_agreement.txt",
+        "page": 1,
+        "section": null,
+        "excerpt": "Effective date: 2027-04-03."
+      }
+    ],
+    "retrieval_rank": null,
+    "retrieval_matches_at_5": [],
+    "protocol_outcome_auxiliary": "wrong_or_overconfident"
+  }
+]

@@ -1,0 +1,778 @@
+[
+  {
+    "id": "ind23-a01",
+    "kind": "answerable",
+    "baseline_status": "answered",
+    "candidate_status": "answered",
+    "baseline_machine_correct": false,
+    "candidate_machine_correct": false,
+    "baseline_answer_match": false,
+    "candidate_answer_match": false,
+    "baseline_citation_matches": [
+      false
+    ],
+    "candidate_citation_matches": [
+      false
+    ],
+    "baseline_answer": "2027-03-01",
+    "candidate_answer": "2027-03-01",
+    "baseline_citations": [
+      {
+        "chunk_id": "ind23-cobalt-register:p1:c2",
+        "document_id": "ind23-cobalt-register",
+        "document_name": "cobalt_supplier_register.txt",
+        "page": 1,
+        "section": null,
+        "excerpt": "Effective date: 2027-03-01."
+      }
+    ],
+    "candidate_citations": [
+      {
+        "chunk_id": "ind23-cobalt-register:p1:c2",
+        "document_id": "ind23-cobalt-register",
+        "document_name": "cobalt_supplier_register.txt",
+        "page": 1,
+        "section": null,
+        "excerpt": "Effective date: 2027-03-01."
+      }
+    ],
+    "answer_changed": false,
+    "status_changed": false,
+    "citations_changed": false
+  },
+  {
+    "id": "ind23-a02",
+    "kind": "answerable",
+    "baseline_status": "answered",
+    "candidate_status": "answered",
+    "baseline_machine_correct": false,
+    "candidate_machine_correct": false,
+    "baseline_answer_match": false,
+    "candidate_answer_match": false,
+    "baseline_citation_matches": [
+      false
+    ],
+    "candidate_citation_matches": [
+      false
+    ],
+    "baseline_answer": "2028-02-10",
+    "candidate_answer": "2028-02-10",
+    "baseline_citations": [
+      {
+        "chunk_id": "ind23-aster-msa:p2:c1",
+        "document_id": "ind23-aster-msa",
+        "document_name": "aster_fleet_agreement.txt",
+        "page": 2,
+        "section": null,
+        "excerpt": "The agreement renews on 2028-02-10 unless either party gives 45 days' written notice."
+      }
+    ],
+    "candidate_citations": [
+      {
+        "chunk_id": "ind23-aster-msa:p2:c1",
+        "document_id": "ind23-aster-msa",
+        "document_name": "aster_fleet_agreement.txt",
+        "page": 2,
+        "section": null,
+        "excerpt": "The agreement renews on 2028-02-10 unless either party gives 45 days' written notice."
+      }
+    ],
+    "answer_changed": false,
+    "status_changed": false,
+    "citations_changed": false
+  },
+  {
+    "id": "ind23-a03",
+    "kind": "answerable",
+    "baseline_status": "answered",
+    "candidate_status": "answered",
+    "baseline_machine_correct": true,
+    "candidate_machine_correct": true,
+    "baseline_answer_match": true,
+    "candidate_answer_match": true,
+    "baseline_citation_matches": [
+      true
+    ],
+    "candidate_citation_matches": [
+      true
+    ],
+    "baseline_answer": "2028-02-10",
+    "candidate_answer": "2028-02-10",
+    "baseline_citations": [
+      {
+        "chunk_id": "ind23-aster-msa:p2:c1",
+        "document_id": "ind23-aster-msa",
+        "document_name": "aster_fleet_agreement.txt",
+        "page": 2,
+        "section": null,
+        "excerpt": "The agreement renews on 2028-02-10 unless either party gives 45 days' written notice."
+      }
+    ],
+    "candidate_citations": [
+      {
+        "chunk_id": "ind23-aster-msa:p2:c1",
+        "document_id": "ind23-aster-msa",
+        "document_name": "aster_fleet_agreement.txt",
+        "page": 2,
+        "section": null,
+        "excerpt": "The agreement renews on 2028-02-10 unless either party gives 45 days' written notice."
+      }
+    ],
+    "answer_changed": false,
+    "status_changed": false,
+    "citations_changed": false
+  },
+  {
+    "id": "ind23-a04",
+    "kind": "answerable",
+    "baseline_status": "answered",
+    "candidate_status": "answered",
+    "baseline_machine_correct": true,
+    "candidate_machine_correct": true,
+    "baseline_answer_match": true,
+    "candidate_answer_match": true,
+    "baseline_citation_matches": [
+      true
+    ],
+    "candidate_citation_matches": [
+      true
+    ],
+    "baseline_answer": "2028-02-10",
+    "candidate_answer": "2028-02-10",
+    "baseline_citations": [
+      {
+        "chunk_id": "ind23-aster-msa:p2:c1",
+        "document_id": "ind23-aster-msa",
+        "document_name": "aster_fleet_agreement.txt",
+        "page": 2,
+        "section": null,
+        "excerpt": "The agreement renews on 2028-02-10 unless either party gives 45 days' written notice."
+      }
+    ],
+    "candidate_citations": [
+      {
+        "chunk_id": "ind23-aster-msa:p2:c1",
+        "document_id": "ind23-aster-msa",
+        "document_name": "aster_fleet_agreement.txt",
+        "page": 2,
+        "section": null,
+        "excerpt": "The agreement renews on 2028-02-10 unless either party gives 45 days' written notice."
+      }
+    ],
+    "answer_changed": false,
+    "status_changed": false,
+    "citations_changed": false
+  },
+  {
+    "id": "ind23-a05",
+    "kind": "answerable",
+    "baseline_status": "answered",
+    "candidate_status": "answered",
+    "baseline_machine_correct": true,
+    "candidate_machine_correct": true,
+    "baseline_answer_match": true,
+    "candidate_answer_match": true,
+    "baseline_citation_matches": [
+      true
+    ],
+    "candidate_citation_matches": [
+      true
+    ],
+    "baseline_answer": "Annual platform charge: EUR 42,800.",
+    "candidate_answer": "Annual platform charge: EUR 42,800.",
+    "baseline_citations": [
+      {
+        "chunk_id": "ind23-aster-msa:p1:c4",
+        "document_id": "ind23-aster-msa",
+        "document_name": "aster_fleet_agreement.txt",
+        "page": 1,
+        "section": null,
+        "excerpt": "Annual platform charge: EUR 42,800."
+      }
+    ],
+    "candidate_citations": [
+      {
+        "chunk_id": "ind23-aster-msa:p1:c4",
+        "document_id": "ind23-aster-msa",
+        "document_name": "aster_fleet_agreement.txt",
+        "page": 1,
+        "section": null,
+        "excerpt": "Annual platform charge: EUR 42,800."
+      }
+    ],
+    "answer_changed": false,
+    "status_changed": false,
+    "citations_changed": false
+  },
+  {
+    "id": "ind23-a06",
+    "kind": "answerable",
+    "baseline_status": "answered",
+    "candidate_status": "answered",
+    "baseline_machine_correct": true,
+    "candidate_machine_correct": true,
+    "baseline_answer_match": true,
+    "candidate_answer_match": true,
+    "baseline_citation_matches": [
+      true
+    ],
+    "candidate_citation_matches": [
+      true
+    ],
+    "baseline_answer": "Monthly storage charge: EUR 1,250.",
+    "candidate_answer": "Monthly storage charge: EUR 1,250.",
+    "baseline_citations": [
+      {
+        "chunk_id": "ind23-cobalt-register:p1:c3",
+        "document_id": "ind23-cobalt-register",
+        "document_name": "cobalt_supplier_register.txt",
+        "page": 1,
+        "section": null,
+        "excerpt": "Monthly storage charge: EUR 1,250."
+      }
+    ],
+    "candidate_citations": [
+      {
+        "chunk_id": "ind23-cobalt-register:p1:c3",
+        "document_id": "ind23-cobalt-register",
+        "document_name": "cobalt_supplier_register.txt",
+        "page": 1,
+        "section": null,
+        "excerpt": "Monthly storage charge: EUR 1,250."
+      }
+    ],
+    "answer_changed": false,
+    "status_changed": false,
+    "citations_changed": false
+  },
+  {
+    "id": "ind23-a07",
+    "kind": "answerable",
+    "baseline_status": "answered",
+    "candidate_status": "answered",
+    "baseline_machine_correct": true,
+    "candidate_machine_correct": true,
+    "baseline_answer_match": true,
+    "candidate_answer_match": true,
+    "baseline_citation_matches": [
+      true
+    ],
+    "candidate_citation_matches": [
+      true
+    ],
+    "baseline_answer": "17 minutes",
+    "candidate_answer": "17 minutes",
+    "baseline_citations": [
+      {
+        "chunk_id": "ind23-routing-incident:p1:c2",
+        "document_id": "ind23-routing-incident",
+        "document_name": "routing_incident_note.txt",
+        "page": 1,
+        "section": null,
+        "excerpt": "Quill Harbor's dispatch feed was delayed from 08:06 to 08:23 UTC, a total of 17 minutes."
+      }
+    ],
+    "candidate_citations": [
+      {
+        "chunk_id": "ind23-routing-incident:p1:c2",
+        "document_id": "ind23-routing-incident",
+        "document_name": "routing_incident_note.txt",
+        "page": 1,
+        "section": null,
+        "excerpt": "Quill Harbor's dispatch feed was delayed from 08:06 to 08:23 UTC, a total of 17 minutes."
+      }
+    ],
+    "answer_changed": false,
+    "status_changed": false,
+    "citations_changed": false
+  },
+  {
+    "id": "ind23-a08",
+    "kind": "answerable",
+    "baseline_status": "answered",
+    "candidate_status": "answered",
+    "baseline_machine_correct": true,
+    "candidate_machine_correct": true,
+    "baseline_answer_match": true,
+    "candidate_answer_match": true,
+    "baseline_citation_matches": [
+      true
+    ],
+    "candidate_citation_matches": [
+      true
+    ],
+    "baseline_answer": "17 minutes",
+    "candidate_answer": "17 minutes",
+    "baseline_citations": [
+      {
+        "chunk_id": "ind23-routing-incident:p1:c2",
+        "document_id": "ind23-routing-incident",
+        "document_name": "routing_incident_note.txt",
+        "page": 1,
+        "section": null,
+        "excerpt": "Quill Harbor's dispatch feed was delayed from 08:06 to 08:23 UTC, a total of 17 minutes."
+      }
+    ],
+    "candidate_citations": [
+      {
+        "chunk_id": "ind23-routing-incident:p1:c2",
+        "document_id": "ind23-routing-incident",
+        "document_name": "routing_incident_note.txt",
+        "page": 1,
+        "section": null,
+        "excerpt": "Quill Harbor's dispatch feed was delayed from 08:06 to 08:23 UTC, a total of 17 minutes."
+      }
+    ],
+    "answer_changed": false,
+    "status_changed": false,
+    "citations_changed": false
+  },
+  {
+    "id": "ind23-a09",
+    "kind": "answerable",
+    "baseline_status": "answered",
+    "candidate_status": "answered",
+    "baseline_machine_correct": false,
+    "candidate_machine_correct": false,
+    "baseline_answer_match": false,
+    "candidate_answer_match": false,
+    "baseline_citation_matches": [
+      true
+    ],
+    "candidate_citation_matches": [
+      true
+    ],
+    "baseline_answer": "No subcontractor may access production data without prior written approval from Quill Harbor.",
+    "candidate_answer": "No subcontractor may access production data without prior written approval from Quill Harbor.",
+    "baseline_citations": [
+      {
+        "chunk_id": "ind23-aster-msa:p2:c5",
+        "document_id": "ind23-aster-msa",
+        "document_name": "aster_fleet_agreement.txt",
+        "page": 2,
+        "section": null,
+        "excerpt": "No subcontractor may access production data without prior written approval from Quill Harbor."
+      }
+    ],
+    "candidate_citations": [
+      {
+        "chunk_id": "ind23-aster-msa:p2:c5",
+        "document_id": "ind23-aster-msa",
+        "document_name": "aster_fleet_agreement.txt",
+        "page": 2,
+        "section": null,
+        "excerpt": "No subcontractor may access production data without prior written approval from Quill Harbor."
+      }
+    ],
+    "answer_changed": false,
+    "status_changed": false,
+    "citations_changed": false
+  },
+  {
+    "id": "ind23-a10",
+    "kind": "answerable",
+    "baseline_status": "answered",
+    "candidate_status": "answered",
+    "baseline_machine_correct": false,
+    "candidate_machine_correct": false,
+    "baseline_answer_match": false,
+    "candidate_answer_match": false,
+    "baseline_citation_matches": [
+      false
+    ],
+    "candidate_citation_matches": [
+      false
+    ],
+    "baseline_answer": "This addendum does not state whether it replaces or takes precedence over the security-incident notice term in the Aster Fleet Services Agreement.",
+    "candidate_answer": "This addendum does not state whether it replaces or takes precedence over the security-incident notice term in the Aster Fleet Services Agreement.",
+    "baseline_citations": [
+      {
+        "chunk_id": "ind23-aster-dpa:p1:c7",
+        "document_id": "ind23-aster-dpa",
+        "document_name": "aster_data_processing_addendum.txt",
+        "page": 1,
+        "section": null,
+        "excerpt": "This addendum does not state whether it replaces or takes precedence over the security-incident notice term in the Aster Fleet Services Agreement."
+      }
+    ],
+    "candidate_citations": [
+      {
+        "chunk_id": "ind23-aster-dpa:p1:c7",
+        "document_id": "ind23-aster-dpa",
+        "document_name": "aster_data_processing_addendum.txt",
+        "page": 1,
+        "section": null,
+        "excerpt": "This addendum does not state whether it replaces or takes precedence over the security-incident notice term in the Aster Fleet Services Agreement."
+      }
+    ],
+    "answer_changed": false,
+    "status_changed": false,
+    "citations_changed": false
+  },
+  {
+    "id": "ind23-a11",
+    "kind": "answerable",
+    "baseline_status": "answered",
+    "candidate_status": "answered",
+    "baseline_machine_correct": false,
+    "candidate_machine_correct": false,
+    "baseline_answer_match": false,
+    "candidate_answer_match": false,
+    "baseline_citation_matches": [
+      false
+    ],
+    "candidate_citation_matches": [
+      false
+    ],
+    "baseline_answer": "This addendum does not state whether it replaces or takes precedence over the security-incident notice term in the Aster Fleet Services Agreement.",
+    "candidate_answer": "This addendum does not state whether it replaces or takes precedence over the security-incident notice term in the Aster Fleet Services Agreement.",
+    "baseline_citations": [
+      {
+        "chunk_id": "ind23-aster-dpa:p1:c7",
+        "document_id": "ind23-aster-dpa",
+        "document_name": "aster_data_processing_addendum.txt",
+        "page": 1,
+        "section": null,
+        "excerpt": "This addendum does not state whether it replaces or takes precedence over the security-incident notice term in the Aster Fleet Services Agreement."
+      }
+    ],
+    "candidate_citations": [
+      {
+        "chunk_id": "ind23-aster-dpa:p1:c7",
+        "document_id": "ind23-aster-dpa",
+        "document_name": "aster_data_processing_addendum.txt",
+        "page": 1,
+        "section": null,
+        "excerpt": "This addendum does not state whether it replaces or takes precedence over the security-incident notice term in the Aster Fleet Services Agreement."
+      }
+    ],
+    "answer_changed": false,
+    "status_changed": false,
+    "citations_changed": false
+  },
+  {
+    "id": "ind23-a12",
+    "kind": "answerable",
+    "baseline_status": "answered",
+    "candidate_status": "answered",
+    "baseline_machine_correct": true,
+    "candidate_machine_correct": true,
+    "baseline_answer_match": true,
+    "candidate_answer_match": true,
+    "baseline_citation_matches": [
+      true
+    ],
+    "candidate_citation_matches": [
+      true
+    ],
+    "baseline_answer": "Quill Harbor's dispatch feed was delayed from 08:06 to 08:23 UTC, a total of 17 minutes.",
+    "candidate_answer": "Quill Harbor's dispatch feed was delayed from 08:06 to 08:23 UTC, a total of 17 minutes.",
+    "baseline_citations": [
+      {
+        "chunk_id": "ind23-routing-incident:p1:c2",
+        "document_id": "ind23-routing-incident",
+        "document_name": "routing_incident_note.txt",
+        "page": 1,
+        "section": null,
+        "excerpt": "Quill Harbor's dispatch feed was delayed from 08:06 to 08:23 UTC, a total of 17 minutes."
+      }
+    ],
+    "candidate_citations": [
+      {
+        "chunk_id": "ind23-routing-incident:p1:c2",
+        "document_id": "ind23-routing-incident",
+        "document_name": "routing_incident_note.txt",
+        "page": 1,
+        "section": null,
+        "excerpt": "Quill Harbor's dispatch feed was delayed from 08:06 to 08:23 UTC, a total of 17 minutes."
+      }
+    ],
+    "answer_changed": false,
+    "status_changed": false,
+    "citations_changed": false
+  },
+  {
+    "id": "ind23-a13",
+    "kind": "answerable",
+    "baseline_status": "answered",
+    "candidate_status": "answered",
+    "baseline_machine_correct": false,
+    "candidate_machine_correct": false,
+    "baseline_answer_match": false,
+    "candidate_answer_match": false,
+    "baseline_citation_matches": [
+      false
+    ],
+    "candidate_citation_matches": [
+      false
+    ],
+    "baseline_answer": "2028-02-10",
+    "candidate_answer": "2028-02-10",
+    "baseline_citations": [
+      {
+        "chunk_id": "ind23-aster-msa:p2:c1",
+        "document_id": "ind23-aster-msa",
+        "document_name": "aster_fleet_agreement.txt",
+        "page": 2,
+        "section": null,
+        "excerpt": "The agreement renews on 2028-02-10 unless either party gives 45 days' written notice."
+      }
+    ],
+    "candidate_citations": [
+      {
+        "chunk_id": "ind23-aster-msa:p2:c1",
+        "document_id": "ind23-aster-msa",
+        "document_name": "aster_fleet_agreement.txt",
+        "page": 2,
+        "section": null,
+        "excerpt": "The agreement renews on 2028-02-10 unless either party gives 45 days' written notice."
+      }
+    ],
+    "answer_changed": false,
+    "status_changed": false,
+    "citations_changed": false
+  },
+  {
+    "id": "ind23-u01",
+    "kind": "unanswerable",
+    "baseline_status": "answered",
+    "candidate_status": "answered",
+    "baseline_machine_correct": false,
+    "candidate_machine_correct": false,
+    "baseline_answer_match": false,
+    "candidate_answer_match": false,
+    "baseline_citation_matches": [
+      false
+    ],
+    "candidate_citation_matches": [
+      false
+    ],
+    "baseline_answer": "2028-02-10",
+    "candidate_answer": "2028-02-10",
+    "baseline_citations": [
+      {
+        "chunk_id": "ind23-aster-msa:p2:c1",
+        "document_id": "ind23-aster-msa",
+        "document_name": "aster_fleet_agreement.txt",
+        "page": 2,
+        "section": null,
+        "excerpt": "The agreement renews on 2028-02-10 unless either party gives 45 days' written notice."
+      }
+    ],
+    "candidate_citations": [
+      {
+        "chunk_id": "ind23-aster-msa:p2:c1",
+        "document_id": "ind23-aster-msa",
+        "document_name": "aster_fleet_agreement.txt",
+        "page": 2,
+        "section": null,
+        "excerpt": "The agreement renews on 2028-02-10 unless either party gives 45 days' written notice."
+      }
+    ],
+    "answer_changed": false,
+    "status_changed": false,
+    "citations_changed": false
+  },
+  {
+    "id": "ind23-u02",
+    "kind": "unanswerable",
+    "baseline_status": "answered",
+    "candidate_status": "answered",
+    "baseline_machine_correct": false,
+    "candidate_machine_correct": false,
+    "baseline_answer_match": false,
+    "candidate_answer_match": false,
+    "baseline_citation_matches": [
+      false
+    ],
+    "candidate_citation_matches": [
+      false
+    ],
+    "baseline_answer": "Monthly storage charge: EUR 1,250.",
+    "candidate_answer": "Monthly storage charge: EUR 1,250.",
+    "baseline_citations": [
+      {
+        "chunk_id": "ind23-cobalt-register:p1:c3",
+        "document_id": "ind23-cobalt-register",
+        "document_name": "cobalt_supplier_register.txt",
+        "page": 1,
+        "section": null,
+        "excerpt": "Monthly storage charge: EUR 1,250."
+      }
+    ],
+    "candidate_citations": [
+      {
+        "chunk_id": "ind23-cobalt-register:p1:c3",
+        "document_id": "ind23-cobalt-register",
+        "document_name": "cobalt_supplier_register.txt",
+        "page": 1,
+        "section": null,
+        "excerpt": "Monthly storage charge: EUR 1,250."
+      }
+    ],
+    "answer_changed": false,
+    "status_changed": false,
+    "citations_changed": false
+  },
+  {
+    "id": "ind23-u03",
+    "kind": "unanswerable",
+    "baseline_status": "answered",
+    "candidate_status": "answered",
+    "baseline_machine_correct": false,
+    "candidate_machine_correct": false,
+    "baseline_answer_match": false,
+    "candidate_answer_match": false,
+    "baseline_citation_matches": [
+      false
+    ],
+    "candidate_citation_matches": [
+      false
+    ],
+    "baseline_answer": "Tax/VAT registration number: not provided.",
+    "candidate_answer": "Tax/VAT registration number: not provided.",
+    "baseline_citations": [
+      {
+        "chunk_id": "ind23-cobalt-register:p2:c1",
+        "document_id": "ind23-cobalt-register",
+        "document_name": "cobalt_supplier_register.txt",
+        "page": 2,
+        "section": null,
+        "excerpt": "Tax/VAT registration number: not provided."
+      }
+    ],
+    "candidate_citations": [
+      {
+        "chunk_id": "ind23-cobalt-register:p2:c1",
+        "document_id": "ind23-cobalt-register",
+        "document_name": "cobalt_supplier_register.txt",
+        "page": 2,
+        "section": null,
+        "excerpt": "Tax/VAT registration number: not provided."
+      }
+    ],
+    "answer_changed": false,
+    "status_changed": false,
+    "citations_changed": false
+  },
+  {
+    "id": "ind23-u04",
+    "kind": "unanswerable",
+    "baseline_status": "partially_supported",
+    "candidate_status": "partially_supported",
+    "baseline_machine_correct": false,
+    "candidate_machine_correct": false,
+    "baseline_answer_match": false,
+    "candidate_answer_match": false,
+    "baseline_citation_matches": [
+      false
+    ],
+    "candidate_citation_matches": [
+      false
+    ],
+    "baseline_answer": "The retrieved evidence does not state the requested value.",
+    "candidate_answer": "The retrieved evidence does not state the requested value.",
+    "baseline_citations": [
+      {
+        "chunk_id": "ind23-aster-msa:p2:c3",
+        "document_id": "ind23-aster-msa",
+        "document_name": "aster_fleet_agreement.txt",
+        "page": 2,
+        "section": null,
+        "excerpt": "Aster shall notify Quill Harbor of a confirmed cybersecurity incident within 24 hours."
+      }
+    ],
+    "candidate_citations": [
+      {
+        "chunk_id": "ind23-aster-msa:p2:c3",
+        "document_id": "ind23-aster-msa",
+        "document_name": "aster_fleet_agreement.txt",
+        "page": 2,
+        "section": null,
+        "excerpt": "Aster shall notify Quill Harbor of a confirmed cybersecurity incident within 24 hours."
+      }
+    ],
+    "answer_changed": false,
+    "status_changed": false,
+    "citations_changed": false
+  },
+  {
+    "id": "ind23-u05",
+    "kind": "unanswerable",
+    "baseline_status": "abstained",
+    "candidate_status": "abstained",
+    "baseline_machine_correct": true,
+    "candidate_machine_correct": true,
+    "baseline_answer_match": false,
+    "candidate_answer_match": false,
+    "baseline_citation_matches": [],
+    "candidate_citation_matches": [],
+    "baseline_answer": "Insufficient evidence in the selected dossier.",
+    "candidate_answer": "Insufficient evidence in the selected dossier.",
+    "baseline_citations": [],
+    "candidate_citations": [],
+    "answer_changed": false,
+    "status_changed": false,
+    "citations_changed": false
+  },
+  {
+    "id": "ind23-c01",
+    "kind": "ambiguous",
+    "baseline_status": "abstained",
+    "candidate_status": "abstained",
+    "baseline_machine_correct": false,
+    "candidate_machine_correct": false,
+    "baseline_answer_match": false,
+    "candidate_answer_match": false,
+    "baseline_citation_matches": [],
+    "candidate_citation_matches": [],
+    "baseline_answer": "Insufficient evidence in the selected dossier.",
+    "candidate_answer": "Insufficient evidence in the selected dossier.",
+    "baseline_citations": [],
+    "candidate_citations": [],
+    "answer_changed": false,
+    "status_changed": false,
+    "citations_changed": false
+  },
+  {
+    "id": "ind23-c02",
+    "kind": "ambiguous",
+    "baseline_status": "answered",
+    "candidate_status": "answered",
+    "baseline_machine_correct": false,
+    "candidate_machine_correct": false,
+    "baseline_answer_match": false,
+    "candidate_answer_match": false,
+    "baseline_citation_matches": [
+      true
+    ],
+    "candidate_citation_matches": [
+      true
+    ],
+    "baseline_answer": "2027-03-01",
+    "candidate_answer": "2027-03-01",
+    "baseline_citations": [
+      {
+        "chunk_id": "ind23-cobalt-register:p1:c2",
+        "document_id": "ind23-cobalt-register",
+        "document_name": "cobalt_supplier_register.txt",
+        "page": 1,
+        "section": null,
+        "excerpt": "Effective date: 2027-03-01."
+      }
+    ],
+    "candidate_citations": [
+      {
+        "chunk_id": "ind23-cobalt-register:p1:c2",
+        "document_id": "ind23-cobalt-register",
+        "document_name": "cobalt_supplier_register.txt",
+        "page": 1,
+        "section": null,
+        "excerpt": "Effective date: 2027-03-01."
+      }
+    ],
+    "answer_changed": false,
+    "status_changed": false,
+    "citations_changed": false
+  }
+]

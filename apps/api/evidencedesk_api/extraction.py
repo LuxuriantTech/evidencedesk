@@ -79,6 +79,14 @@ _OBLIGATION = re.compile(
     r"\bs'engage à\b|\best tenu de\b|^No\s+.+\bmay\b)",
     re.IGNORECASE,
 )
+_NEGATED_OBLIGATION = re.compile(
+    r"\b(?:must|shall|will|do|does|did|is|are|was|were)\s+not\b|"
+    r"\bnot\s+(?:required|obligated|bound)\b|"
+    r"\bn(?:\u2019|')?est\s+pas\s+tenu\b|"
+    r"\bne\s+(?:doit|doivent|devra|devront|peut|peuvent|pourra|pourront)\s+pas\b|"
+    r"\bne\s+\w+\s+pas\s+(?:doit|est\s+tenu)\b",
+    re.IGNORECASE,
+)
 
 
 def _line_entries(chunks: list[EvidenceChunk]) -> list[tuple[EvidenceChunk, str]]:
@@ -298,7 +306,7 @@ _DATE_V3 = re.compile(
 _AMOUNT_V3 = re.compile(
     r"(?:\b(?:EUR|USD|GBP)\s*[$€£]?\s*\d[\d ,.]*\d(?:[.,]\d+)?k?\b|"
     r"[$€£]\s*\d[\d ,.]*\d(?:[.,]\d+)?k?(?:\s*(?:EUR|USD|GBP))?\b|"
-    r"\b\d[\d ,.]*\d(?:[.,]\d+)?k?\s*(?:EUR|USD|GBP|€|£|\$)\b|"
+    r"\b\d[\d ,.]*\d(?:[.,]\d+)?k?\s*(?:EUR|USD|GBP|€|£|\$)(?=$|[^\w])|"
     r"\b(?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|"
     r"thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|"
     r"thirty|forty|fifty|sixty|seventy|eighty|ninety)(?:[- ](?:one|two|three|"
@@ -316,9 +324,11 @@ _ROLE_VERBS_V3 = re.compile(
     re.IGNORECASE,
 )
 _OBLIGATION_VERBS_V3 = re.compile(
-    r"\b(?:keep|keeps|preserve|preserves|archive|archives|distribute|distributes|"
+    r"\b(?:keep|keeps|preserve|preserves|archives|archived|distribute|distributes|"
     r"circulate|circulates|send|sends|reopen|reopens|photograph|photographs|"
-    r"transmit|transmits|conserve|conservent|informe|informent|adresse|adressent)\b",
+    r"transmit|transmits|conserve|conservent|informe|informent|adresse|adressent|"
+    r"photographie|photographient|photographions|transmet|transmettent|"
+    r"entretient|entretiennent)\b",
     re.IGNORECASE,
 )
 _RISK_V3 = re.compile(
@@ -367,7 +377,8 @@ def _organization_v3(
     if labelled[0] is not None:
         return labelled
     patterns = (
-        r"(?:operator named for .+?|custodian covered .+?|beneficiary operationnel)"
+        r"(?:operator named for .+?|custodian covered .+?|beneficiary operationnel|"
+        r"bénéficiaire opérationnel)"
         r"\s+(?:is|est)\s+([^.;]+)",
         r"\b(?:dossier concerne|issued by)\s+([^.;]+?)(?=\s+(?:et non|for)\b|[.;])",
         r"\bconfirme que\s+([^,.;]+?)\s+(?:porte|gère|gere)\b",
@@ -503,7 +514,10 @@ def extract_supplier_fields_v3(
                     _append_unique(people, people_citations, match.group(1), citation)
         modal_obligation = _OBLIGATION.search(line)
         lexical_obligation = _OBLIGATION_VERBS_V3.search(line)
-        if modal_obligation or (lexical_obligation and not _RISK_V3.search(line)):
+        negated_obligation = _NEGATED_OBLIGATION.search(line) is not None
+        if not negated_obligation and (
+            modal_obligation or (lexical_obligation and not _RISK_V3.search(line))
+        ):
             clauses = [line] if modal_obligation else _obligation_clauses_v3(line)
             for clause in clauses:
                 _append_unique(obligations, obligation_citations, clause, citation)

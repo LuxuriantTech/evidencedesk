@@ -541,7 +541,9 @@ export function App() {
                             ? "Preuves ambiguës ou contradictoires"
                             : "Abstention explicite"}
                       </strong>
-                      <span>Confiance {Math.round(answer.confidence * 100)} %</span>
+                      <span title="Indice calculé à partir des passages retenus, pas une probabilité de réponse correcte.">
+                        Appui des sources : {Math.round(answer.confidence * 100)}/100
+                      </span>
                     </div>
                     <p className="answer-text">{answer.answer}</p>
                     {answer.ambiguity_reason ? (

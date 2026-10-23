@@ -1,0 +1,20 @@
+{
+  "registration_sha256": "24ec1c048e914b7ccbea9419e505a29b3d51508a1d52fcc20fc8b28bb4931a81",
+  "baseline_source_root": "[baseline run root]",
+  "candidate_source_root": "[candidate run root]",
+  "baseline_finish_receipt_sha256": "f92367e09a7f2eb5ee5e29fcdc31b114be819e4216e012525fd883a24760c385",
+  "candidate_finish_receipt_sha256": "b8710a16ade97f427b7d0755144432c4a7eff2da5075465b7b64d023a3330acc",
+  "baseline_start_receipt_sha256": "77066a17db85d3dbbb37981f4467325af09843d39af9aed62e8c1636acf31b4b",
+  "candidate_start_receipt_sha256": "cee29ff2fa4de59e4c0751b2d4c4c4e372333844a58de1a72551d01c24ca780b",
+  "baseline_stdout_sha256": "b4e07d906124b126de239a10b1c7fb8486c7a00faad3be4181083483cbf9e80b",
+  "candidate_stdout_sha256": "40a811fe37deec0571cf1a21a6da34f7410d9d362f902f65e47d91672bce2793",
+  "baseline_raw_results_sha256": "4b0cb2130aa7bf13eda158d2d70cfcf549431eaaf3691085dd48ad299a421f22",
+  "candidate_raw_results_sha256": "5bff3758538ae10fe47907826de9a945b13b3cc50cb12beb91a02b2dae6ca2a1",
+  "suite_sha256": "d8492380fd91ab058de0c05eb773d5fe79048cdd77894b24249be9de06baa228",
+  "corpus_sha256": "7fd7b7991557515c6007cf1a6982763b74c46e99929d0575f8be1023a8220951",
+  "baseline_engine_fingerprint": "7fb30ee26e973e842539383f0a59f69c349a95fa991e4b097d10fe27d03da5ca",
+  "candidate_engine_fingerprint": "2d346470b162c245e25038b8268608b09a67dd01e7c12c5fd2adce95a76a8fe4",
+  "full_original_archives_byte_identical": true,
+  "inference_count_per_role": 1,
+  "registration_file_sha256": "24ec1c048e914b7ccbea9419e505a29b3d51508a1d52fcc20fc8b28bb4931a81"
+}
