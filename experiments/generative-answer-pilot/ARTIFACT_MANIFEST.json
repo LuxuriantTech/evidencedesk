@@ -26,6 +26,7 @@
     "max_input_tokens": 5632
   },
   "server": {
+    "alias": "Qwen3-4B-Q4_K_M.gguf",
     "host": "127.0.0.1",
     "port": 50193,
     "threads": 4,

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 from dataclasses import asdict, is_dataclass
+import base64
 import hashlib
 import json
 import os
@@ -14,7 +15,10 @@ from pathlib import Path
 from typing import Any
 from urllib.error import HTTPError, URLError
 from urllib.request import HTTPRedirectHandler, ProxyHandler, Request, build_opener
-from ci_common import GENERATION_MANIFEST, GENERATION_MANIFEST_SHA256, environment_record as common_environment_record, sha256_file as common_sha256_file, tree_hash, verify_dataset
+from ci_common import (GENERATION_MANIFEST, GENERATION_MANIFEST_SHA256,
+                       environment_record as common_environment_record,
+                       same_server_identity, server_identity_sha256,
+                       sha256_file as common_sha256_file, tree_hash, verify_dataset)
 
 HERE = Path(__file__).resolve().parent
 DATASETS = ("E4", "E5", "E6")
@@ -110,7 +114,7 @@ def git_identity(repo: Path) -> str:
     return commit
 
 
-def server_info(base_url: str, expected_model: str) -> dict[str, Any]:
+def server_info(base_url: str) -> dict[str, Any]:
     if base_url != "http://127.0.0.1:50193":
         raise RuntimeError("model endpoint must be the fixed loopback-only CI endpoint")
     class NoRedirect(HTTPRedirectHandler):
@@ -125,15 +129,25 @@ def server_info(base_url: str, expected_model: str) -> dict[str, Any]:
                 raw = response.read(1024 * 1024)
                 body = json.loads(raw.decode("utf-8"))
                 records[suffix] = {"status": response.status, "sha256": hashlib.sha256(raw).hexdigest(),
+                                   "raw_body_base64": base64.b64encode(raw).decode("ascii"),
                                    "body": body}
         except (HTTPError, URLError, TimeoutError, json.JSONDecodeError) as exc:
             raise RuntimeError(f"model server identity check failed at {suffix}: {type(exc).__name__}: {exc}") from exc
+    return records
+
+
+def validate_server_info(records: dict[str, Any], expected_model: str) -> None:
     if records["/health"]["status"] != 200 or records["/health"]["body"].get("status") != "ok":
         raise RuntimeError("model server health contract failed")
     ids = [x.get("id") for x in records["/v1/models"]["body"].get("data", []) if isinstance(x, dict)]
     if expected_model not in ids:
         raise RuntimeError("model server loaded the wrong model identity")
-    return records
+
+
+def snapshots_unchanged(pre: dict[str, Any], post: dict[str, Any]) -> bool:
+    keys = ("source", "inputs", "model", "runtime_archive", "server_binary", "minilm", "environment", "config")
+    return (all(pre.get(key) == post.get(key) for key in keys)
+            and same_server_identity(pre["server"], post["server"]))
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -167,7 +181,7 @@ def run(args: argparse.Namespace) -> None:
         if not path.exists():
             raise FileNotFoundError(path)
     artifact = json.loads((HERE / "ARTIFACT_MANIFEST.json").read_text(encoding="utf-8"))
-    if sha256_file(HERE / "ARTIFACT_MANIFEST.json") != "412a6e2e77adf95e87d1dc4a2daaaefc4f036a63911f3147289b5573480db6d2":
+    if sha256_file(HERE / "ARTIFACT_MANIFEST.json") != "94a6bec40382c308f0b445b120ee1ab108b4c640c50cc9c17921756a313f5a90":
         raise RuntimeError("reviewed artifact manifest digest mismatch")
     if sha256_file(HERE / "generative_provider.py") != PROVIDER_SHA256:
         raise RuntimeError("reviewed generative provider digest mismatch")
@@ -199,13 +213,15 @@ def run(args: argparse.Namespace) -> None:
     sys.path[:0] = [str(repo / "apps/api"), str(repo), str(HERE)]
 
     def snapshot() -> dict[str, Any]:
+        server = server_info(args.base_url)
         return {
             "source": {str(path): tree_hash(path) if path.is_dir() else sha256_file(path) for path in tracked},
             "inputs": {"evaluation_cases.json": sha256_file(cases), "corpus_manifest.json": sha256_file(corpus),
                        "input_manifest": sha256_file(GENERATION_MANIFEST)},
             "model": tree_hash(args.model_file), "runtime_archive": tree_hash(args.runtime_archive),
             "server_binary": tree_hash(args.server_binary), "minilm": tree_hash(args.minilm_model_dir),
-            "environment": environment_record(args.venv, lock), "server": server_info(args.base_url, artifact["model"]["id"]),
+            "environment": environment_record(args.venv, lock), "server": server,
+            "server_identity_sha256": server_identity_sha256(server),
             "config": {"artifact_manifest_sha256": sha256_file(HERE / "ARTIFACT_MANIFEST.json"),
                        "provider_sha256": sha256_file(HERE / "generative_provider.py"),
                        "provider_prompt": __import__("generative_provider").PROMPT_FINGERPRINT,
@@ -228,6 +244,7 @@ def run(args: argparse.Namespace) -> None:
     try:
         started["pre"] = snapshot()
         receipt_path.write_text(json.dumps(started, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        validate_server_info(started["pre"]["server"], artifact["model"]["id"])
         from evidencedesk_api.extraction import extract_supplier_fields_v3
         from evidencedesk_api.providers import LocalSemanticEmbeddingProvider
         from evidencedesk_api.retrieval import RetrievalMethod
@@ -285,9 +302,8 @@ def run(args: argparse.Namespace) -> None:
         try:
             started["post"] = snapshot()
             pre, post = started.get("pre") or {}, started["post"] or {}
-            started["unchanged"] = all(pre.get(key) == post.get(key) for key in
-                                        ("source", "inputs", "model", "runtime_archive", "server_binary",
-                                         "minilm", "environment", "config"))
+            validate_server_info(post["server"], artifact["model"]["id"])
+            started["unchanged"] = snapshots_unchanged(pre, post)
             if not started["unchanged"]:
                 raise RuntimeError("generation source/model/environment/input snapshot changed during run")
         except BaseException as exc:

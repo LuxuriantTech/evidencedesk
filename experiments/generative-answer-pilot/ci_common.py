@@ -30,6 +30,33 @@ def tree_hash(root: Path) -> dict[str, str]:
             if p.is_file() and ".git" not in p.parts and "__pycache__" not in p.parts}
 
 
+def static_server_identity(server: dict[str, Any]) -> dict[str, Any]:
+    """Copy raw endpoint records and omit only /v1/models data[].created and its raw hashes."""
+    stable = json.loads(json.dumps(server))
+    models = stable.get("/v1/models")
+    if isinstance(models, dict):
+        body = models.get("body")
+        if isinstance(body, dict) and isinstance(body.get("data"), list):
+            for item in body["data"]:
+                if isinstance(item, dict):
+                    item.pop("created", None)
+        # Keep raw server bytes and hashes in the receipt, but don't treat the
+        # corresponding /v1/models hashes as identity: they include `created`.
+        for key in ("body_sha256", "sha256", "raw_body_base64", "raw_body"):
+            models.pop(key, None)
+    return stable
+
+
+def server_identity_sha256(server: dict[str, Any]) -> str:
+    blob = json.dumps(static_server_identity(server), sort_keys=True, separators=(",", ":"),
+                      ensure_ascii=False).encode("utf-8")
+    return hashlib.sha256(blob).hexdigest()
+
+
+def same_server_identity(before: dict[str, Any], after: dict[str, Any]) -> bool:
+    return server_identity_sha256(before) == server_identity_sha256(after)
+
+
 def verify_dataset(dataset: str, root: Path) -> dict[str, str]:
     if dataset not in DATASETS:
         raise RuntimeError("only exposed development datasets E4/E5/E6 are permitted")

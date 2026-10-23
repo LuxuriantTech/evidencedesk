@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import run_ci_pair as pair
+import run_generation_case as generation
 from run_generation_case import DurableAnswerProvider
 
 
@@ -78,6 +79,48 @@ class PrepOnlyTests(unittest.TestCase):
 
     def test_artifact_manifest_pin_matches_preparation_sha(self) -> None:
         self.assertEqual(pair.sha256_file(pair.HERE / "ARTIFACT_MANIFEST.json"), pair.ARTIFACT_SHA256)
+
+    def test_server_identity_ignores_only_model_created_timestamp(self) -> None:
+        import hashlib
+        import json
+
+        def sample(created: int, *, model: str = "Qwen3-4B-Q4_K_M.gguf", size: int = 123,
+                   context: int = 6144) -> dict[str, object]:
+            body = {"object": "list", "data": [{"id": model, "object": "model", "created": created,
+                                                   "owned_by": "llama.cpp", "meta": {"size": size,
+                                                                                       "context_length": context}}]}
+            raw = json.dumps(body, separators=(",", ":")).encode("utf-8")
+            return {"/health": {"body": {"status": "ok"}},
+                    "/v1/models": {"body": body, "body_sha256": hashlib.sha256(raw).hexdigest(),
+                                    "raw_body_base64": __import__("base64").b64encode(raw).decode("ascii")},
+                    "/props": {"body": {"model_alias": model}}}
+
+        before, after = sample(100), sample(200)
+        self.assertNotEqual(before["/v1/models"]["body_sha256"], after["/v1/models"]["body_sha256"])
+        self.assertNotEqual(before["/v1/models"]["raw_body_base64"], after["/v1/models"]["raw_body_base64"])
+        self.assertEqual(pair.static_server_identity_sha256(before), pair.static_server_identity_sha256(after))
+        self.assertTrue(pair.same_static_server_identity(before, after))
+        changed_model = sample(100, model="wrong-model")
+        changed_size = sample(100, size=124)
+        changed_config = sample(100, context=8192)
+        self.assertFalse(pair.same_static_server_identity(before, changed_model))
+        self.assertFalse(pair.same_static_server_identity(before, changed_size))
+        self.assertFalse(pair.same_static_server_identity(before, changed_config))
+        with self.assertRaisesRegex(RuntimeError, "model ID differs"):
+            pair.validate_server_identity(changed_model, "Qwen3-4B-Q4_K_M.gguf")
+
+        base_snapshot = {key: {"fixed": key} for key in
+                         ("source", "inputs", "model", "runtime_archive", "server_binary",
+                          "minilm", "environment", "config")}
+        pre = {**base_snapshot, "server": before,
+               "server_identity_sha256": pair.static_server_identity_sha256(before)}
+        post_timestamp = {**base_snapshot, "server": after,
+                          "server_identity_sha256": pair.static_server_identity_sha256(after)}
+        self.assertTrue(generation.snapshots_unchanged(pre, post_timestamp))
+        for changed in (changed_model, changed_size, changed_config):
+            post_changed = {**base_snapshot, "server": changed,
+                            "server_identity_sha256": pair.static_server_identity_sha256(changed)}
+            self.assertFalse(generation.snapshots_unchanged(pre, post_changed))
 
     def test_provider_runtime_validation_errors_block_pair_success(self) -> None:
         good = {"status": "completed_exposed_development", "model_validation_error_count": 0,

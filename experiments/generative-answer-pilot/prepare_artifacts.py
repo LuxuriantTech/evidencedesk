@@ -361,6 +361,8 @@ def main() -> int:
         for section, values in expected.items():
             if not isinstance(pinned.get(section), dict) or any(pinned[section].get(k) != v for k, v in values.items()):
                 raise PreparationError(f"artifact_manifest_pin_mismatch:{section}")
+        if pinned.get("server", {}).get("alias") != pinned["model"]["id"]:
+            raise PreparationError("artifact_manifest_server_alias_mismatch")
         state["artifact_manifest_sha256"] = artifact_sha
         state["server_config"] = pinned.get("server", {})
         state["resource_scope"].update(pinned.get("resource_scope", {}))
@@ -449,7 +451,7 @@ def main() -> int:
         env["LD_LIBRARY_PATH"] = str(runtime_root) + (":" + env["LD_LIBRARY_PATH"] if env.get("LD_LIBRARY_PATH") else "")
         version_text = run_checked([str(binary_path), "--version"], cwd=runtime_root, env=env)
         help_text = run_checked([str(binary_path), "--help"], cwd=runtime_root, env=env)
-        required_flags = ("--parallel", "--n-gpu-layers", "--jinja", "--no-context-shift", "--n-predict",
+        required_flags = ("--alias", "--parallel", "--n-gpu-layers", "--jinja", "--no-context-shift", "--n-predict",
                           "--threads", "--threads-batch", "--ctx-size", "--batch-size", "--ubatch-size",
                           "--reasoning")
         missing = [flag for flag in required_flags if flag not in help_text]

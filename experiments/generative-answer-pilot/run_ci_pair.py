@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import base64
 import hashlib
 import json
 import os
@@ -15,7 +16,11 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 from typing import Any
-from ci_common import DATASETS, GENERATION_MANIFEST, GENERATION_MANIFEST_SHA256, environment_record as common_environment_record, sha256_file as common_sha256_file, tree_hash, verify_dataset
+from ci_common import (DATASETS, GENERATION_MANIFEST, GENERATION_MANIFEST_SHA256,
+                       environment_record as common_environment_record,
+                       same_server_identity as same_static_server_identity,
+                       server_identity_sha256 as static_server_identity_sha256,
+                       sha256_file as common_sha256_file, tree_hash, verify_dataset)
 
 HERE = Path(__file__).resolve().parent
 BASELINE_COMMIT = "ffeba12c4d4d64a1e1f003f211dfa1781c64515d"
@@ -26,12 +31,13 @@ COMMON_BLOBS = (
     "infra/models/paraphrase-multilingual-minilm-l12-v2-text-onnx.json",
 )
 DATA_MANIFEST_SHA256 = GENERATION_MANIFEST_SHA256
-ARTIFACT_SHA256 = "412a6e2e77adf95e87d1dc4a2daaaefc4f036a63911f3147289b5573480db6d2"
+ARTIFACT_SHA256 = "94a6bec40382c308f0b445b120ee1ab108b4c640c50cc9c17921756a313f5a90"
 URL = "http://127.0.0.1:50193"
 SERVER_CONFIG = {
     "host": "127.0.0.1", "port": 50193, "threads": 4,
     "threads_batch": 4, "batch_size": 128, "ubatch_size": 128, "parallel": 1,
     "n_gpu_layers": 0, "reasoning": "off", "no_context_shift": True,
+    "alias": "Qwen3-4B-Q4_K_M.gguf",
 }
 GENERATION_CONFIG = {"seed": 20261023, "temperature": 0.0, "enable_thinking": False,
                      "max_tokens": 512, "context_tokens": 6144, "max_input_tokens": 5632}
@@ -40,7 +46,8 @@ RESOURCE = {"memory_max_bytes": 6442450944, "memory_swap_max_bytes": 0,
 MIN_HOST_MEM_AVAILABLE_BYTES = 8 * 1024 * 1024 * 1024
 CI_CODE_FILES = ("ci_common.py", "run_ci_pair.py", "run_generation_case.py", "remote_baseline.py",
                  "run_smoke_cases.py", "run_ci_pair.sh", "prepare_artifacts.py", "generative_provider.py",
-                 "ARTIFACT_MANIFEST.json", "GENERATION_DATASET_MANIFEST.json", "README.md")
+                 "ARTIFACT_MANIFEST.json", "GENERATION_DATASET_MANIFEST.json", "README.md",
+                 "test_gen_ci_preparation.py")
 PROVIDER_SHA256 = "e77beaedc9f18b58a4c8287161fb516603c7bb39679668d05a1f3cc8a76447f9"
 SMOKE_CASES = 4
 
@@ -232,20 +239,24 @@ def environment_record(venv: Path, lock_path: Path) -> dict[str, Any]:
     return common_environment_record(venv, lock_path)
 
 
-def _health(url: str, expected_id: str) -> dict[str, Any]:
+def _health(url: str) -> dict[str, Any]:
     result: dict[str, Any] = {}
     for suffix in ("/health", "/v1/models", "/props"):
         request = urllib.request.Request(url + suffix, headers={"Accept": "application/json"})
         with urllib.request.build_opener(urllib.request.ProxyHandler({})).open(request, timeout=5) as response:
             raw = response.read(1024 * 1024)
             result[suffix] = {"status": response.status, "body_sha256": hashlib.sha256(raw).hexdigest(),
+                              "raw_body_base64": base64.b64encode(raw).decode("ascii"),
                               "body": json.loads(raw.decode("utf-8"))}
-    if result["/health"]["body"].get("status") != "ok":
+    return result
+
+
+def validate_server_identity(identity: dict[str, Any], expected_id: str) -> None:
+    if identity["/health"]["body"].get("status") != "ok":
         raise RuntimeError("llama-server health did not return ok")
-    ids = [item.get("id") for item in result["/v1/models"]["body"].get("data", []) if isinstance(item, dict)]
+    ids = [item.get("id") for item in identity["/v1/models"]["body"].get("data", []) if isinstance(item, dict)]
     if expected_id not in ids:
         raise RuntimeError("llama-server model ID differs from frozen model")
-    return result
 
 
 def _write_new(path: Path, value: Any) -> None:
@@ -354,7 +365,7 @@ def run(args: argparse.Namespace) -> None:
 
         model_id = artifact["model"]["id"]
         command = [str(paths["server_binary"]), "--model", str(paths["model"]), "--host", "127.0.0.1",
-                   "--port", "50193", "--ctx-size", "6144", "--threads", "4", "--threads-batch", "4",
+                   "--alias", SERVER_CONFIG["alias"], "--port", "50193", "--ctx-size", "6144", "--threads", "4", "--threads-batch", "4",
                    "--batch-size", "128", "--ubatch-size", "128", "--parallel", "1",
                    "--n-gpu-layers", "0", "--reasoning", "off", "--n-predict", "512",
                    "--seed", "20261023", "--jinja", "--no-context-shift"]
@@ -369,12 +380,19 @@ def run(args: argparse.Namespace) -> None:
             if server.poll() is not None:
                 raise RuntimeError(f"llama-server exited during startup: {server.returncode}")
             try:
-                receipt["server_identity"] = _health(URL, model_id)
-                break
+                identity_before = _health(URL)
             except (OSError, urllib.error.URLError, TimeoutError, ValueError, json.JSONDecodeError):
                 if time.monotonic() >= deadline:
                     raise TimeoutError("llama-server readiness timeout")
                 time.sleep(0.5)
+                continue
+            # Persist raw endpoint bodies before validating the alias so a wrong
+            # operational model ID remains inspectable in the failed receipt.
+            receipt["server_identity_before"] = identity_before
+            receipt["server_identity_static_sha256_before"] = static_server_identity_sha256(identity_before)
+            (args.output / "run_receipt.json").write_text(json.dumps(receipt, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+            validate_server_identity(identity_before, model_id)
+            break
         (args.output / "run_receipt.json").write_text(json.dumps(receipt, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         smoke_out = args.output / "smoke" / args.dataset
         smoke_cmd = [sys.executable, str(HERE / "run_smoke_cases.py"), "--repo120e", str(candidate),
@@ -415,6 +433,13 @@ def run(args: argparse.Namespace) -> None:
         validate_generation_receipt(generation_receipt)
         if sha256_file(HERE / "generative_provider.py") != PROVIDER_SHA256:
             raise RuntimeError("generative provider changed from the reviewed snapshot")
+        identity_after = _health(URL)
+        receipt["server_identity_after"] = identity_after
+        receipt["server_identity_static_sha256_after"] = static_server_identity_sha256(identity_after)
+        receipt["server_identity_unchanged"] = same_static_server_identity(identity_before, identity_after)
+        validate_server_identity(identity_after, model_id)
+        if not receipt["server_identity_unchanged"]:
+            raise RuntimeError("llama-server static model identity changed during the pair")
         receipt["native_verdicts"] = {
             "baseline": json.loads(baseline_result.read_text(encoding="utf-8")).get("verdict"),
             "generation": json.loads(gen_result.read_text(encoding="utf-8")).get("verdict"),
