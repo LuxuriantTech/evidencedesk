@@ -1,0 +1,5 @@
+# ID-selector cohort amendment
+
+This is a new selector-mode cohort, not a repair or rerun of prior V7 answer-generation measurements. It is not a same-mode comparison, fresh set, holdout, or release evaluation. Model selection IDs are recorded separately from the native answer text/citations derived from source chunks. The pinned V2 prompt applies this order: an unresolved conflict within the requested source/scope for the same fact requires ambiguity; otherwise supported evidence answers, and insufficient evidence abstains. A question naming a source is answered only from that source. A conflict within a single chunk cannot use the two-ID ambiguity branch and must abstain. Each request uses its own ID-restricted JSON schema; the runner verifies the schema fingerprint against that exact request payload and pins the schema-construction algorithm source.
+
+Output generation limit is 256 tokens. The 6144 context and 5632 exact input-token ceiling remain fixed. Service/job limits are 90/105 minutes, with 10 GiB RAM, no swap, 4 CPUs, nice 10, and cache-ram 0. No model, workflow, benchmark, commit, or push is run by this staging operation.

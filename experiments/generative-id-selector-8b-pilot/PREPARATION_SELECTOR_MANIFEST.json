@@ -1,0 +1,118 @@
+{
+  "status": "native_compatibility_passed",
+  "version": "prompt-v2",
+  "adoption_status": "experimental_preparation_only",
+  "provider": {
+    "file": "generative_provider.py",
+    "sha256": "48d41efaf6aee247e30da0d6a3f86988003190813ecfcce8fd1743ab5d558149",
+    "v1_file": "history/v1/generative_provider.py",
+    "v1_sha256": "f1cac6231e10af0a5a025816c376e9e630fb78b1d0156351b0bd634fe557aeb5",
+    "only_v1_v2_ast_difference": "SYSTEM_PROMPT top-level assignment",
+    "v1_prompt_fingerprint": "e0202bd0dd2766e929547c805c252499db3ac984bcec392587167b016b89e56f",
+    "v2_prompt_fingerprint": "1b84d8689e4b2c2de9e45a831e54b78db0616f1d9f86ca03f47634223aadb152",
+    "mode": "local-qwen3-8b-id-selector-experiment",
+    "protocol_version": "id-selector-v1",
+    "max_tokens": 256,
+    "baseline_max_tokens": 512,
+    "input_preflight_tokens": 5632,
+    "context_window_tokens": 6144
+  },
+  "historical_v1_manifest": {
+    "file": "history/v1/SELECTOR_COMPATIBILITY_MANIFEST.json",
+    "sha256": "6a8c54cbe5b4aab8141178dd09c53d6cc2690ff9aab8894967c24e7d726ac725",
+    "root_v1_copy_sha256": "6a8c54cbe5b4aab8141178dd09c53d6cc2690ff9aab8894967c24e7d726ac725"
+  },
+  "source_baseline": {
+    "file": "generative_provider.baseline.py",
+    "sha256": "4a782199bf3c80273dc4c8975e1020253151f6c18ee7ed4f61b69c0cbdef7570",
+    "baseline_sha_file": "BASELINE_SHA256.txt",
+    "baseline_sha_file_sha256": "2b1f074a0b70a13e4e1668087377f38e26c38b66745a95acb091e9cebcaa378b"
+  },
+  "schema_fingerprint": {
+    "algorithm": "sha256-canonical-json-v1",
+    "spec": "id-selector-v1|sha256-canonical-json-v1|json.dumps(ensure_ascii=False,sort_keys=True,separators=(',',':')).encode('utf-8')|sha256.hexdigest()",
+    "spec_sha256": "0e6cab7bb2a37d4dbecc0b5bfa2454139ed37e7935416d349eef4aaa80ba9a25",
+    "scope": "exact per-request response_format.json_schema.schema in diagnostic request_payload"
+  },
+  "runtime_evidence": {
+    "local": {
+      "platform": "WSL Ubuntu",
+      "python": "3.12.15",
+      "mako": "1.4.1",
+      "test_count": 10,
+      "tests_passed": true,
+      "native_types_and_validator": "real frozen API GroundedAnswer, Citation, EvidenceChunk, RankedChunk, validate_grounded_answer",
+      "transport": "mocked; no model or llama.cpp binary/server executed"
+    },
+    "github_ci": {
+      "python": "3.12.14",
+      "status": "not yet verified; pinned schema check must run on GitHub"
+    }
+  },
+  "tests": {
+    "file": "test_id_selector_provider.py",
+    "sha256": "d6a51cfba9280a0e59ca98d5511bb4e98057f2ee923103c89d39005aaad38450",
+    "input_5632": "accepted",
+    "input_5633": "rejected_over_context_budget",
+    "preflight_and_generation_transport_errors": "raised_with_diagnostics",
+    "unknown_and_duplicate_ids": "fail_closed_to_native_abstention",
+    "schema_fingerprint": "matches exact per-request schema in request payload",
+    "single_chunk_internal_conflict": "unsupported by two-ID protocol; ambiguous branch absent and abstention instructed"
+  },
+  "guard_ast_report": {
+    "file": "verify_source_guards.py",
+    "sha256": "3520f9f5ea1be4e2eacd0f625e757e823a9a051e2ff5c78e3534e3bd7bc2a624",
+    "unchanged_from_source_baseline": [
+      "_require_str",
+      "_context",
+      "_local_endpoint",
+      "_http_post",
+      "_parse_http_content",
+      "_validate_generation_envelope",
+      "_native_answer"
+    ],
+    "v1_v2_diff": "SYSTEM_PROMPT only"
+  },
+  "report": {
+    "file": "PREPARATION_REPORT_V2.md",
+    "sha256": "a39539acb611b12f1186c7a7145cf9461019fcb8dcc4d2312f33c6551498a3c4"
+  },
+  "required_files": [
+    {
+      "path": "generative_provider.py",
+      "sha256": "48d41efaf6aee247e30da0d6a3f86988003190813ecfcce8fd1743ab5d558149"
+    },
+    {
+      "path": "history/v1/generative_provider.py",
+      "sha256": "f1cac6231e10af0a5a025816c376e9e630fb78b1d0156351b0bd634fe557aeb5"
+    },
+    {
+      "path": "history/v1/SELECTOR_COMPATIBILITY_MANIFEST.json",
+      "sha256": "6a8c54cbe5b4aab8141178dd09c53d6cc2690ff9aab8894967c24e7d726ac725"
+    },
+    {
+      "path": "generative_provider.baseline.py",
+      "sha256": "4a782199bf3c80273dc4c8975e1020253151f6c18ee7ed4f61b69c0cbdef7570"
+    },
+    {
+      "path": "test_id_selector_provider.py",
+      "sha256": "d6a51cfba9280a0e59ca98d5511bb4e98057f2ee923103c89d39005aaad38450"
+    },
+    {
+      "path": "verify_source_guards.py",
+      "sha256": "3520f9f5ea1be4e2eacd0f625e757e823a9a051e2ff5c78e3534e3bd7bc2a624"
+    },
+    {
+      "path": "PREPARATION_REPORT_V2.md",
+      "sha256": "a39539acb611b12f1186c7a7145cf9461019fcb8dcc4d2312f33c6551498a3c4"
+    },
+    {
+      "path": "ID_SELECTOR_POLICY.md",
+      "sha256": "6d720fdbc5a3bf210bd1a5d700630736e0187d4e8fa9d8c0681002171bd407ed"
+    },
+    {
+      "path": "BASELINE_SHA256.txt",
+      "sha256": "2b1f074a0b70a13e4e1668087377f38e26c38b66745a95acb091e9cebcaa378b"
+    }
+  ]
+}

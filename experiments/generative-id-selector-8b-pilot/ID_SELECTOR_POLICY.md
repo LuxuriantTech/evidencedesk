@@ -1,0 +1,9 @@
+# Gen8 ID selector preparation
+
+This is an isolated experimental alternative. It has not been adopted or evaluated against any benchmark. The model receives the same question, six chunk fields, and native retrieval order as the existing provider, then selects a status and chunk IDs. The adapter constructs displayed text and citation excerpts directly from the selected original chunk strings. This is a variant with `max_tokens=256`, down from 512 in the baseline; it is not an exact reproduction of that configuration.
+
+`answered` selects exactly one primary chunk and may select corroborating chunks. `ambiguous` is offered only when at least two chunks exist and selects exactly two different chunks; the adapter emits a fixed ambiguity prefix followed by their exact full text. A conflict represented within one chunk cannot be expressed by this two-ID protocol; the prompt directs the model to abstain. `abstained` selects no chunks. Unknown IDs, duplicate IDs, malformed selections, response-envelope failures, and other model-output violations fail closed to the existing fixed abstention. Native transport, endpoint restrictions, exact server token preflight, response envelope checks, context limits, diagnostics, and native grounding validation are retained. Input preflight remains fixed at 5632 tokens within the 6144-token context window, despite the output-token change.
+
+Confidence remains 0 and uncalibrated. Full chunk text may be verbose and may expose unrelated content from a selected chunk; this trades concise UX for eliminating model-authored or normalized answer text. No quality improvement is claimed. No case-specific test strings are used; component tests use invented examples from unrelated generic domains.
+
+`generative_provider.baseline.py` is a byte-exact copy of the designated source provider. Its SHA-256 is recorded in `BASELINE_SHA256.txt`.

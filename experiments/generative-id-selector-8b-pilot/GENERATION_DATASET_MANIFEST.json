@@ -1,0 +1,40 @@
+{
+  "format": "generative-qa-public-datasets-v1",
+  "status": "reviewed-public-safe-for-experimental-ci",
+  "scope": "exposed development only; never fresh or holdout evidence",
+  "datasets": [
+    {
+      "id": "E4",
+      "version": "independent-synthetic-corpus-2026.10.23-v4",
+      "classification": "exposed-development",
+      "license": "CC0-1.0",
+      "synthetic_only": true,
+      "files": [
+        {"path": "datasets/E4/corpus_manifest.json", "bytes": 5595, "sha256": "7fd7b7991557515c6007cf1a6982763b74c46e99929d0575f8be1023a8220951", "exact_match_to_retained_original": true},
+        {"path": "datasets/E4/evaluation_cases.json", "bytes": 10679, "sha256": "d8492380fd91ab058de0c05eb773d5fe79048cdd77894b24249be9de06baa228", "exact_match_to_retained_original": true}
+      ]
+    },
+    {
+      "id": "E5",
+      "version": "evidencedesk-fresh-e5-20261023-v1",
+      "classification": "exposed-development",
+      "license": "CC0-1.0",
+      "synthetic_only": true,
+      "files": [
+        {"path": "datasets/E5/corpus_manifest.json", "bytes": 8395, "sha256": "40b446b42516bd0840b69fc669f3bedd2d7f050849b41b55c3907bd7d0fa2329", "exact_match_to_retained_original": true},
+        {"path": "datasets/E5/evaluation_cases.json", "bytes": 16414, "sha256": "5185fbf6a621176e735fc8291383db2db2e7f340c269c0452fcbb5273c28a57e", "exact_match_to_retained_original": true}
+      ]
+    },
+    {
+      "id": "E6",
+      "version": "e6-unrelated-urban-ecology-v2-20261023",
+      "classification": "exposed-development",
+      "license": "CC0-1.0",
+      "synthetic_only": true,
+      "files": [
+        {"path": "datasets/E6/corpus_manifest.json", "bytes": 7003, "sha256": "b64a0a8e310967b6825c5ec9340ae3e8081d1d6e53287f3cda4bf7fa31272029", "exact_match_to_retained_original": true},
+        {"path": "datasets/E6/evaluation_cases.json", "bytes": 12658, "sha256": "1c7de141d65795fec156a3c64cd20c25a17f977e1ddb2028e8749525839a1f3a", "exact_match_to_retained_original": true}
+      ]
+    }
+  ]
+}

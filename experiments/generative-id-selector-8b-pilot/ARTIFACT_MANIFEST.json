@@ -1,0 +1,49 @@
+{
+  "classification": "separate 8B ID-selector exposed-development cohort; not fresh/holdout or release-qualified",
+  "model": {
+    "id": "Qwen3-8B-Q4_K_M.gguf",
+    "revision": "7c41481f57cb95916b40956ab2f0b139b296d974",
+    "url": "https://huggingface.co/Qwen/Qwen3-8B-GGUF/resolve/7c41481f57cb95916b40956ab2f0b139b296d974/Qwen3-8B-Q4_K_M.gguf",
+    "bytes": 5027783488,
+    "sha256": "d98cdcbd03e17ce47681435b5150e34c1417f50b5c0019dd560e4882c5745785",
+    "license": "Apache-2.0"
+  },
+  "runtime": {
+    "version": "b11798",
+    "commit": "9febe63d5a379f8568bae7116a5b2ba844a4a4a6",
+    "url": "https://github.com/ggml-org/llama.cpp/releases/download/b11798/llama-b11798-bin-ubuntu-x64.tar.gz",
+    "archive_bytes": 22300188,
+    "archive_sha256": "9342761b01a8d82e0567c9673d3dd8f6264964e0ccb27a008193853c757cf563",
+    "server_binary": "llama-b11798/llama-server",
+    "server_binary_sha256": "64f041152a12b82e223654c424de37861af7a059ee084c6664fa8dd623a2e1d2"
+  },
+  "generation": {
+    "seed": 20261023,
+    "temperature": 0.0,
+    "enable_thinking": false,
+    "max_tokens": 256,
+    "context_tokens": 6144,
+    "max_input_tokens": 5632
+  },
+  "server": {
+    "alias": "Qwen3-8B-Q4_K_M.gguf",
+    "host": "127.0.0.1",
+    "port": 50193,
+    "threads": 4,
+    "threads_batch": 4,
+    "batch_size": 128,
+    "ubatch_size": 128,
+    "parallel": 1,
+    "n_gpu_layers": 0,
+    "reasoning": "off",
+    "no_context_shift": true,
+    "cache_ram_mib": 0
+  },
+  "resource_scope": {
+    "memory_max_bytes": 10737418240,
+    "memory_swap_max_bytes": 0,
+    "cpu_quota": "400%",
+    "nice": 10,
+    "disk_free_before_download_bytes": 6442450944
+  }
+}

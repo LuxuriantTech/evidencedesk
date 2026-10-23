@@ -1,0 +1,58 @@
+{
+  "dataset_version": "e6-unrelated-urban-ecology-v2-20261023",
+  "license": "CC0-1.0",
+  "synthetic_only": true,
+  "generation_seed": 905231,
+  "documents": [
+    {
+      "id": "e6v2-doc-01",
+      "filename": "bracken_supplier_record.txt",
+      "format": "txt",
+      "source_path": "datasets/sources/bracken_supplier_record.txt",
+      "pages": [
+        "BRACKEN VALE INSTRUMENTS — SUPPLIER PROFILE\nRecord: Supplier file BV-417\nIssued: 14 March 2025\n\nBracken Vale Instruments Ltd. supplies calibrated temperature probes and stainless mounting clips to North Quay Laboratory Services. The supplier account code is BV-417. The registered office is 18 Alder Quay, Bristol BS1 4NT, United Kingdom.\n\nThe account manager is Leona Price. Routine order questions go to orders@brackenvale.example. The supplier's standard dispatch window is two working days after confirmed payment. This profile does not state a warranty duration.",
+        "BV-417 — ACCOUNT APPENDIX\n\nApproved items on this account are probe model BV-T9 and clip set BV-C2. The T9 probe range is -40 °C to 125 °C. The C2 clip set is supplied in cartons of 12.\n\nPayment terms recorded for account BV-417: net 30 days from invoice date. Preferred currency: GBP. The account profile lists no bank account number and no named delivery driver.\n\nDocument control: supplier file BV-417, page 2 of 2. Prepared by M. Ellery, procurement coordinator."
+      ]
+    },
+    {
+      "id": "e6v2-doc-02",
+      "filename": "quality_review_qr52.txt",
+      "format": "txt",
+      "source_path": "datasets/sources/quality_review_qr52.txt",
+      "pages": [
+        "NORTH QUAY LABORATORY SERVICES\nQUALITY REVIEW QR-52\nReview date: 8 April 2025\n\nSubject: Incoming probe lot BV-L2403, supplied under order NQ-881. The inspection covered 24 BV-T9 probes. All 24 passed the temperature-response check at 0 °C and 80 °C.\n\nThe recorded reference bath was model AquaCal 6, asset AC-19. The review team was Priya Sen and Tomas Reed. This review does not record the probes' manufacturing country.\n\nFinding: Two outer cartons had damp corners. Inner protective sleeves were dry, and no corrosion was observed.",
+        "QR-52 — REVIEW WORKSHEET CONTINUATION\n\nThe team recommends keeping the lot in ordinary dry storage. No special humidity threshold was entered. The inspection used procedure QP-14 revision 3.\n\nUnresolved worksheet entries, both referring to the total number of probes in lot BV-L2403 inspected under NQ-881 on 8 April 2025:\n• Field “sample count” on the signed table: 24 probes.\n• Field “sample count” in the handwritten margin: 26 probes.\n\nNo correction, explanation, or later decision is attached to either entry. QR-52 pages 1 and 2 form one review packet.\n\nAdditional unresolved entries for this same 8 April inspection of BV-L2403:\n• “Inspection date” in the cover summary: 8 April 2025.\n• “Inspection date” in the worksheet header: 9 April 2025.\nNo note reconciles the two dates.\n\nBath asset reference for the same inspection:\n• Signed equipment field: AC-19.\n• Handwritten equipment field: AC-91.\nNeither asset entry is marked corrected."
+      ]
+    },
+    {
+      "id": "e6v2-doc-03",
+      "filename": "account_service_terms_st88.txt",
+      "format": "txt",
+      "source_path": "datasets/sources/account_service_terms_st88.txt",
+      "pages": [
+        "SERVICE TERMS ST-88\nBracken Vale Instruments Ltd. | issued 2 May 2025\n\nFor account BV-417, routine calibration service is offered at the Bristol workshop. Standard service turnaround is five working days after receipt of a probe. The service contact is calibration@brackenvale.example.\n\nFor BV-T9 probes, the included calibration interval stated in this terms sheet is 12 months. This sheet gives no field-repair price and no weekend opening hours.",
+        "ST-88 — SCHEDULE A\n\nWorkshop address: Unit 4, Redfern Estate, Bristol BS2 0LA. Customers must request a service reference before shipping instruments. The reference desk is open Monday to Friday, 09:00–16:00 local time.\n\nThe schedule does not specify the name of the workshop supervisor. Schedule A is part of service terms ST-88."
+      ]
+    },
+    {
+      "id": "e6v2-doc-04",
+      "filename": "phenology_field_log_fl88.txt",
+      "format": "txt",
+      "source_path": "datasets/sources/phenology_field_log_fl88.txt",
+      "pages": [
+        "RIVERSIDE COMMONS ARBORETUM — PHENOLOGY FIELD LOG FL-88\nUrban Ecology Unit | 6 May 2025\n\nStudy: spring flowering observations in the Lower Vale grove. Plot code LV-3. The field team surveyed the grove on 6 May 2025. Observer: Anika Bell.\n\nThis field log explicitly accompanies accession register AR-12: “Field log FL-88 accompanies accession register AR-12 for the Lower Vale grove observations recorded here.” The register identifies the tagged trees referenced in this log.\n\nField tally: 17 tagged trees were flowering during the morning survey. The count includes only trees with at least one open flower.",
+        "FL-88 — WEATHER AND CANOPY SHEET\n\nCloud cover at 08:00: overcast. Rain gauge total for the observation period: 3 mm. The grove is on the north bank of the River Wren, within Riverside Commons Arboretum.\n\nUnresolved entries for the mean canopy temperature during the FL-88 survey of plot LV-3 on 6 May 2025:\n• Digital logger summary: 14 °C.\n• Field notebook transcription: 16 °C.\nNeither value is annotated as corrected or preferred.\n\nUnresolved entries for rainfall during that same observation period:\n• Gauge worksheet: 3 mm.\n• Observer's notebook: 5 mm.\nNo reconciliation is attached."
+      ]
+    },
+    {
+      "id": "e6v2-doc-05",
+      "filename": "arboretum_accession_register_ar12.txt",
+      "format": "txt",
+      "source_path": "datasets/sources/arboretum_accession_register_ar12.txt",
+      "pages": [
+        "RIVERSIDE COMMONS ARBORETUM — ACCESSION REGISTER AR-12\n\nCross-reference: FL-88 states, “Field log FL-88 accompanies accession register AR-12 for the Lower Vale grove observations recorded here.” AR-12 applies to the tagged trees in that observation set.\n\nTag LV3-04 is assigned to the European beech, Fagus sylvatica. Accession number: RC-204. The tree stands at grid point C7 in plot LV-3.\n\nTag LV3-09 is assigned to the small-leaved lime, Tilia cordata. Accession number: RC-219. Grid point D2, plot LV-3.",
+        "AR-12 — REGISTER CONTINUATION\n\nTag LV3-12 is assigned to the English oak, Quercus robur. Accession number: RC-233. Grid point E5, plot LV-3.\n\nFor tagged tree LV3-04, the seed-capsule count recorded after the FL-88 observation is unresolved:\n• Register table: 8 capsules.\n• Margin note: 11 capsules.\nBoth entries refer to the same LV3-04 tree and the same 6 May 2025 observation; neither is marked corrected.\n\nAR-12 is maintained by the Riverside Commons Arboretum Urban Ecology Unit. It does not state the planting year of LV3-04."
+      ]
+    }
+  ]
+}
