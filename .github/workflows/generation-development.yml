@@ -52,7 +52,7 @@ jobs:
           set -Eeuo pipefail
           git worktree add --detach "$RUNNER_TEMP/baseline" ffeba12c4d4d64a1e1f003f211dfa1781c64515d
           git worktree add --detach "$RUNNER_TEMP/candidate" 120e233bb8ff09cabc1bd3c5004a8545039459aa
-          mkdir -p "$GITHUB_WORKSPACE/artifacts"
+          mkdir "$GITHUB_WORKSPACE/generation-diagnostics"
           df -h "$RUNNER_TEMP"
 
       - name: Rebuild native environment from unchanged lock
@@ -89,7 +89,7 @@ jobs:
             --venv "$RUNNER_TEMP/native-env" \
             --model-manifest "$RUNNER_TEMP/gen-assets/PREPARATION_MANIFEST.json" \
             --data-root "$GITHUB_WORKSPACE/$PILOT/datasets" \
-            --output "$GITHUB_WORKSPACE/artifacts/${{ matrix.dataset }}" \
+            --output "$GITHUB_WORKSPACE/generation-diagnostics/${{ matrix.dataset }}" \
             --go
 
       - name: Retain preparation evidence
@@ -98,7 +98,7 @@ jobs:
         shell: bash
         run: |
           set -Eeuo pipefail
-          destination="$GITHUB_WORKSPACE/artifacts/preparation-${{ matrix.dataset }}"
+          destination="$GITHUB_WORKSPACE/generation-diagnostics/preparation-${{ matrix.dataset }}"
           mkdir -p "$destination"
           if [[ -f "$RUNNER_TEMP/gen-assets/PREPARATION_MANIFEST.json" ]]; then
             cp -- "$RUNNER_TEMP/gen-assets/PREPARATION_MANIFEST.json" "$destination/"
@@ -110,7 +110,7 @@ jobs:
           import hashlib
           import json
           from pathlib import Path
-          root = Path('artifacts')
+          root = Path('generation-diagnostics')
           files = []
           total = 0
           for path in sorted(root.rglob('*')):
@@ -134,14 +134,14 @@ jobs:
             'This workflow measures exposed development data in a new CI environment.' \
             'A completed workflow is not quality qualification or release approval.' \
             'No merge, deployment, model weights, environments or user data are included.' >> "$GITHUB_STEP_SUMMARY"
-          du -sh "$GITHUB_WORKSPACE/artifacts"
+          du -sh "$GITHUB_WORKSPACE/generation-diagnostics"
 
       - name: Preserve small public diagnostic files
         if: ${{ always() && steps.evidence.outcome == 'success' }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: generative-development-${{ matrix.dataset }}-${{ github.sha }}
-          path: artifacts/
+          path: generation-diagnostics/
           retention-days: 1
           if-no-files-found: warn
           include-hidden-files: false

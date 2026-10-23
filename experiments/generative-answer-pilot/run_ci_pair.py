@@ -40,7 +40,7 @@ RESOURCE = {"memory_max_bytes": 6442450944, "memory_swap_max_bytes": 0,
 MIN_HOST_MEM_AVAILABLE_BYTES = 8 * 1024 * 1024 * 1024
 CI_CODE_FILES = ("ci_common.py", "run_ci_pair.py", "run_generation_case.py", "remote_baseline.py",
                  "run_smoke_cases.py", "run_ci_pair.sh", "prepare_artifacts.py", "generative_provider.py",
-                 "ARTIFACT_MANIFEST.json", "GENERATION_DATASET_MANIFEST.json", "README_CI.md")
+                 "ARTIFACT_MANIFEST.json", "GENERATION_DATASET_MANIFEST.json", "README.md")
 PROVIDER_SHA256 = "e77beaedc9f18b58a4c8287161fb516603c7bb39679668d05a1f3cc8a76447f9"
 SMOKE_CASES = 4
 
@@ -267,7 +267,7 @@ def _run_child(command: list[str], cwd: Path, output: Path, env: dict[str, str])
     return completed.returncode
 
 
-def _preflight(args: argparse.Namespace) -> tuple[dict[str, Any], int, Path, Path, str, str, dict[str, str], dict[str, Any], dict[str, str], dict[str, Any], dict[str, Path]]:
+def _preflight(args: argparse.Namespace) -> tuple[dict[str, Any], int, Path, Path, str, str, dict[str, str], dict[str, Any], dict[str, str], dict[str, Any], dict[str, Path], dict[str, str]]:
     if shutil.disk_usage(args.output.parent.resolve()).free < 1024 * 1024 * 1024:
         raise RuntimeError("less than 1 GiB free disk before model run")
     scope = validate_cgroup()
@@ -283,7 +283,9 @@ def _preflight(args: argparse.Namespace) -> tuple[dict[str, Any], int, Path, Pat
     artifact, paths = load_artifact_manifest(args.model_manifest, candidate)
     if sha256_file(paths["minilm_manifest"]) != sha256_file(candidate / COMMON_BLOBS[-1]):
         raise RuntimeError("prepared MiniLM manifest differs from both source worktrees")
-    return scope, memory_available_before_model, baseline, candidate, bcommit, ccommit, common, env_before, input_hashes, artifact, paths
+    ci_code_hashes = {name: sha256_file(HERE / name) for name in CI_CODE_FILES}
+    return (scope, memory_available_before_model, baseline, candidate, bcommit, ccommit, common,
+            env_before, input_hashes, artifact, paths, ci_code_hashes)
 
 
 def run(args: argparse.Namespace) -> None:
@@ -304,7 +306,7 @@ def run(args: argparse.Namespace) -> None:
     _write_new(receipt_path, receipt)
     try:
         (scope, memory_available_before_model, baseline, candidate, bcommit, ccommit, common, env_before, input_hashes,
-         artifact, paths) = _preflight(args)
+         artifact, paths, ci_code_hashes) = _preflight(args)
     except BaseException as exc:
         receipt.update({"status": "preflight_failed", "fatal_error": {
             "type": type(exc).__name__, "message": str(exc), "traceback": traceback.format_exc()},
@@ -324,7 +326,7 @@ def run(args: argparse.Namespace) -> None:
         "runtime_binary_sha256": sha256_file(paths["server_binary"]),
         "runtime_tree_hash_before": hash_tree(paths["runtime_root"]),
         "minilm_hashes_before": hash_tree(paths["minilm_dir"]),
-        "ci_code_hashes_before": {name: sha256_file(HERE / name) for name in CI_CODE_FILES},
+        "ci_code_hashes_before": ci_code_hashes,
         "preparation_manifest_sha256_before": sha256_file(args.model_manifest),
     })
     receipt_path.write_text(json.dumps(receipt, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

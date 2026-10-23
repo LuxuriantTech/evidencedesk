@@ -28,6 +28,10 @@ class FakeProvider:
 
 
 class PrepOnlyTests(unittest.TestCase):
+    def test_all_declared_ci_code_files_exist(self) -> None:
+        missing = [name for name in pair.CI_CODE_FILES if not (pair.HERE / name).is_file()]
+        self.assertEqual(missing, [])
+
     def test_no_go_refuses_before_paths_or_processes(self) -> None:
         args = pair.parse_args(["--dataset", "E4", "--repo-baseline", "missing-b",
                                "--repo-candidate", "missing-c", "--venv", "missing-v",
