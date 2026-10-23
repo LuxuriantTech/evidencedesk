@@ -2422,8 +2422,9 @@ def _value_for(
         # complete assertion only when the record constraints and ordinary
         # relation checks both match; this avoids guessing a scalar from a
         # neighboring field or another record.
-        if _prose_field_fallback_supported(question, segment, constraint_context):
-            return segment
+        assertion = _prose_field_fallback_assertion(question, segment, constraint_context)
+        if assertion is not None:
+            return assertion
         return None
     if kind == "time":
         if not _constraints_present(question, segment, constraint_context):
@@ -3126,12 +3127,7 @@ def _text_relation_supported(question: str, segment: str) -> bool:
     # This fallback returns prose, so keep the slot and its value inside one
     # assertion. Treat punctuation and conjunctions as hard boundaries; a
     # conservative abstention is safer than joining a neighboring field.
-    clauses = re.split(
-        r";|\r?\n|(?<=[.!?])\s+|\b(?:and|while|whereas|but|however|"
-        r"alors\s+que|tandis\s+que)\b",
-        segment,
-        flags=re.IGNORECASE,
-    )
+    clauses = _prose_assertion_clauses(segment)
     slot_present = any(
         head_terms
         and all(
@@ -3147,31 +3143,56 @@ def _text_relation_supported(question: str, segment: str) -> bool:
     )
 
 
-def _prose_field_fallback_supported(
+def _prose_assertion_clauses(segment: str) -> list[str]:
+    return [
+        clause.strip()
+        for clause in re.split(
+            r";|\r?\n|(?<=[.!?])\s+|\b(?:and|while|whereas|but|however|"
+            r"alors\s+que|tandis\s+que)\b",
+            segment,
+            flags=re.IGNORECASE,
+        )
+        if clause.strip()
+    ]
+
+
+def _prose_field_fallback_assertion(
     question: str, segment: str, constraint_context: str | None
-) -> bool:
+) -> str | None:
     if (
         not _constraints_present(question, segment, constraint_context)
         or _unknown_measurement_for_relation(question, segment)
         or not _text_relation_supported(question, segment)
     ):
-        return False
+        return None
+    assertions = [
+        clause.strip(" ,;")
+        for clause in _prose_assertion_clauses(segment)
+        if _text_relation_supported(question, clause)
+    ]
+    # Keep competing assertions visible to the normal answer path by refusing
+    # the prose fallback; it cannot safely choose between repeated field claims.
+    if len(assertions) != 1:
+        return None
+    assertion = assertions[0]
     conditions = _requested_conditions(question)
     if not conditions:
-        return True
-    if len(list(_MEASUREMENT.finditer(segment))) > 1:
-        return False
+        return assertion
+    if len(list(_MEASUREMENT.finditer(assertion))) > 1:
+        return None
     field_head = _requested_field_words(question)
     head_matches = [
         match
         for token in field_head
-        for match in re.finditer(rf"(?<![a-z0-9]){re.escape(token)}(?![a-z0-9])", _fold(segment))
+        for match in re.finditer(
+            rf"(?<![a-z0-9]){re.escape(token)}(?![a-z0-9])", _fold(assertion)
+        )
     ]
     if not head_matches:
-        return False
-    start, end = _assertion_bounds(segment, head_matches[-1].start(), head_matches[-1].end())
-    local_clause = _fold(segment[start:end])
-    return all(condition in local_clause for condition in conditions)
+        return None
+    start, end = _assertion_bounds(assertion, head_matches[-1].start(), head_matches[-1].end())
+    local_clause = _fold(assertion[start:end])
+    return assertion if all(condition in local_clause for condition in conditions) else None
 
 
 def _support_score(

@@ -618,6 +618,36 @@ def test_similar_concurrent_record_ids_do_not_join_to_one_field_value() -> None:
     assert "0.92 mg/L" not in result.answer
 
 
+@pytest.mark.parametrize(
+    "separator",
+    (";", ", while", ", and"),
+)
+def test_prose_field_fallback_does_not_combine_repeated_conflicting_assertions(
+    separator: str,
+) -> None:
+    question = "What reference bath model was used in check QR-71?"
+    passage = (
+        "For check QR-71, the reference bath model was TB-46"
+        f"{separator} the reference bath model was TB-47."
+    )
+
+    result = _answerer().answer(question, [_ranked("two-models", passage)])
+
+    assert result.status != "answered"
+    assert "TB-46" not in result.answer or "TB-47" not in result.answer
+
+
+def test_prose_field_fallback_returns_one_supported_assertion_with_distractor() -> None:
+    question = "What reference bath model was used in check QR-71?"
+    supported = "The recorded reference bath was model ThermoBath Zeta for check QR-71"
+    passage = f"{supported}, while the asset model is TB-46."
+
+    result = _answerer().answer(question, [_ranked("one-model", passage)])
+
+    assert result.status == "answered"
+    assert result.answer == supported
+
+
 def test_unique_record_header_and_linked_batch_scope_a_later_measurement() -> None:
     header = _ranked(
         "sensor-log:p1:c0",
