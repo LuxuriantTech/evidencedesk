@@ -448,6 +448,11 @@ def _requested_document_type(question: str) -> str | None:
         return None
     if len({kind for _, _, kind, _ in eligible_occurrences}) == 1:
         start, end, kind, _ = eligible_occurrences[0]
+        # "Report" is also a common verb (for example, "what temperature did
+        # record X report?"). Treat it as a source document only when the
+        # question marks it as a source noun through a cue or source predicate.
+        if kind == "report":
+            return None
         if kind in {"permit", "plan"}:
             return None
         suffix = folded[end : end + 32]
@@ -581,7 +586,12 @@ def _document_type(item: RankedChunk, contents: str) -> str | None:
 def _named_subject_tokens(question: str) -> set[str]:
     tokens: set[str] = set()
     requested_field = _requested_field_words(question)
-    for match in re.finditer(r"\b[A-ZÀ-ÖØ-Þ][A-Za-zÀ-ÖØ-öø-ÿ']*(?:-[A-Za-z0-9]+)*\b", question):
+    # Keep a slash-separated identifier intact so its base cannot also match
+    # a competing record with a different suffix.
+    for match in re.finditer(
+        r"\b[A-ZÀ-ÖØ-Þ][A-Za-zÀ-ÖØ-öø-ÿ']*(?:-[A-Za-z0-9]+)*(?:/[A-Za-z0-9-]+)*\b",
+        question,
+    ):
         raw = match.group(0)
         token = re.sub(r"(?:'s|s')$", "", _fold(raw))
         expanded = _camel_words(raw)
@@ -722,8 +732,8 @@ def _record_constraint_values(question: str) -> set[str]:
     """Prefer IDs explicitly attached to record types over product/model codes."""
     typed_prefix = re.compile(
         r"(?:agreement|contract|receipt|invoice|work\s*order|change\s*request|"
-        r"service\s*order|sensor(?:\s*id)?|record\s*id|batch\s*id|"
-        r"permit(?:\s*id)?|plan\s*id|report\s*id)\s*(?:id\s*)?$",
+        r"service\s*order|sensor(?:\s*id)?|record(?:\s*id)?|batch\s*id|"
+        r"permit(?:\s*id)?|plan\s*id|report\s*id|under)\s*(?:id\s*)?$",
         re.IGNORECASE,
     )
     typed_values: set[str] = set()
@@ -786,7 +796,8 @@ def _provisional_amount_status(evidence: str, document_context: str) -> str | No
         sentence_ids = {_fold(match.group(1)) for match in _EXPLICIT_ID.finditer(sentence)}
         same_record_reference = bool(
             re.search(
-                r"\b(?:same\s+(?:note|record|report|reconciliation)|its\s+author)\b",
+                r"\b(?:same\s+(?:note|record|report|reconciliation)|its\s+author|"
+                r"it\s+(?:does\s+not|doesn't)|this\s+note)\b",
                 _fold(sentence),
             )
         )
@@ -802,7 +813,9 @@ def _provisional_amount_status(evidence: str, document_context: str) -> str | No
             active_ids = set()
         if not re.search(
             r"\b(?:to\s+confirm|pending\s+confirmation|awaiting\s+confirmation|"
-            r"unconfirmed|provisional|not\s+final|a\s+confirmer|a\s+valider|non\s+confirme)\b",
+            r"unconfirmed|provisional|not\s+final|a\s+confirmer|a\s+valider|non\s+confirme|"
+            r"does\s+not\s+explain\s+the\s+difference|doesn't\s+explain\s+the\s+difference|"
+            r"n'explique\s+pas\s+la\s+difference)\b",
             _fold(sentence),
         ):
             continue
@@ -827,9 +840,9 @@ def _related_amount_proof(
     document_contexts: dict[str, str],
 ) -> tuple[RankedChunk, str] | None:
     """Find a different amount for the same typed record and requested role."""
-    role_terms = _question_relation_tokens(question, "amount")
+    requested_role = _amount_role(question)
     requested_ids = _requested_identifier_values(question)
-    if not role_terms or not requested_ids:
+    if requested_role is None or not requested_ids:
         return None
     for candidate in ranked:
         if candidate.chunk.document_id == provisional_item.chunk.document_id:
@@ -837,17 +850,40 @@ def _related_amount_proof(
         context = document_contexts.get(candidate.chunk.id, candidate.chunk.text)
         for segment in _segments(candidate.chunk.text):
             matches = list(_AMOUNT.finditer(segment))
-            if len(matches) != 1 or not _constraints_present(question, segment, context):
+            if (
+                len(matches) != 1
+                or _amount_role(segment) != requested_role
+                or not _constraints_present(question, segment, context)
+            ):
                 continue
             value = matches[0].group(0).strip()
             if _fold(value) == _fold(provisional_value):
                 continue
-            related_terms = _relation_tokens(segment + " " + context)
-            if len(role_terms & related_terms) / len(role_terms) < 0.4:
-                continue
             excerpt = _local_value_clause(segment, matches[0].start(), matches[0].end())
             if excerpt:
                 return candidate, excerpt
+    return None
+
+
+def _amount_role(text: str) -> str | None:
+    """Classify the economic role of a monetary value from local wording."""
+    folded = _fold(text)
+    if re.search(
+        r"\b(?:unit\s+price|price\s+per|cost\s+per|per\s+unit|per\s+item|"
+        r"per\s+component|prix\s+unitaire|cout\s+par\s+unite)\b",
+        folded,
+    ):
+        return "unit_price"
+    if re.search(
+        r"\b(?:invoice|facture)\b.{0,90}\b(?:bill(?:s|ed)?|total|amount\s+due|"
+        r"pre[- ]?(?:tax|vat)|before\s+(?:tax|vat))\b|"
+        r"\b(?:total\s+(?:value|amount)|pre[- ]?(?:tax|vat)\s+total|"
+        r"invoice\s+total|amount\s+due|(?:amount\s+)?(?:billed|invoiced|charged)\s+"
+        r"(?:to|for)?|total\s+billed|billed\s+amount|"
+        r"valeur\s+totale|montant\s+total)\b",
+        folded,
+    ):
+        return "invoice_total"
     return None
 
 
@@ -988,6 +1024,36 @@ def _field_value(
                 re.IGNORECASE,
             )
         )
+    if not field_matches and set(canonical_parts) & {"temperature", "temp"}:
+        # A temperature reading can be directly identified by its physical
+        # unit even when the source uses the verb "read" instead of repeating
+        # the field label.
+        temperature_values = list(
+            re.finditer(
+                r"(?<![\w/.-])(\d+(?:[.,]\d+)?)\s*(°\s*[CF]|degrees?\s+"
+                r"(?:Celsius|Fahrenheit)|deg(?:rees?)?\s*[CF])(?![\w])",
+                segment,
+                re.IGNORECASE,
+            )
+        )
+        if (
+            len(temperature_values) == 1
+            and re.search(
+                r"\b(?:read|reads|recorded|measured|measurement|reading)\b",
+                segment,
+                re.I,
+            )
+            and (
+                not _requested_clock_values(question)
+                or _requested_clock_values(question)
+                & {
+                    _normalize_clock(match.group(1), match.group(2))
+                    for match in _CLOCK.finditer(segment)
+                }
+            )
+        ):
+            measured = temperature_values[0]
+            return measured.group(0).strip(), segment.strip()
     field_matches = list({(match.start(), match.end()): match for match in field_matches}.values())
     if len(field_matches) != 1:
         return None
@@ -1248,10 +1314,10 @@ def _directed_field_relation(question: str, segment: str, value: str) -> bool:
 def _subject_matches(subject: str, contents: str) -> bool:
     folded_subject = _fold(subject)
     folded_contents = _fold(contents)
-    if re.fullmatch(r"[a-z]{1,8}-\d+[a-z0-9-]*", folded_subject):
+    if re.fullmatch(r"[a-z]{1,8}-\d+[a-z0-9/-]*", folded_subject):
         return (
             re.search(
-                rf"(?<![a-z0-9]){re.escape(folded_subject)}(?![a-z0-9])",
+                rf"(?<![a-z0-9]){re.escape(folded_subject)}(?![a-z0-9/-])",
                 folded_contents,
             )
             is not None
@@ -2121,7 +2187,9 @@ def _value_for(
     if kind == "time":
         if not _constraints_present(question, segment, constraint_context):
             return None
-        selected = _time_value_context(question, segment)
+        selected = _time_value_context(
+            question, segment, constraint_context=constraint_context
+        )
         return selected[0] if selected else None
     if kind == "count":
         if not _constraints_present(question, segment, constraint_context):
@@ -2274,11 +2342,14 @@ def _value_for(
         matches = list(_AMOUNT.finditer(segment))
         if not matches:
             return None
+        requested_role = _amount_role(question)
         query_terms = _question_relation_tokens(question, kind)
         excluded = _question_excluded_terms(question)
         scored = []
         for match in matches:
             context = _local_value_clause(segment, match.start(), match.end())
+            if requested_role is not None and _amount_role(context) != requested_role:
+                continue
             context_terms = _relation_tokens(context)
             if excluded & context_terms:
                 continue
@@ -2345,7 +2416,83 @@ def _unknown_measurement_for_relation(question: str, segment: str) -> bool:
     return bool(_question_relation_tokens(question, "text") & _relation_tokens(measurement_context))
 
 
-def _time_value_context(question: str, segment: str) -> tuple[str, str] | None:
+def _normalize_clock(hour: str, suffix: str | None) -> str:
+    return f"{hour} {suffix}".casefold().strip() if suffix else hour.casefold().strip()
+
+
+def _normalize_clock_text(value: str) -> str:
+    match = _CLOCK.search(value)
+    return _normalize_clock(match.group(1), match.group(2)) if match else value.casefold().strip()
+
+
+def _confirmed_cross_sentence_time(
+    question: str, context: str
+) -> tuple[str, str, str] | None:
+    """Resolve a prior reading only when an adjacent signed correction names it."""
+    requested_ids = _record_constraint_values(question)
+    event_terms = _question_relation_tokens(question, "time") - {
+        "time", "record", "recorded", "list", "listed", "indicate", "indicated",
+        "show", "shown", "date", "morning", "start", "end",
+    }
+    segments = _segments(context)
+    for index, correction in enumerate(segments):
+        folded = _fold(correction)
+        correction_clocks = list(_CLOCK.finditer(correction))
+        if (
+            len(correction_clocks) != 2
+            or not re.search(
+                r"\b(?:signed\s+correction|corrected\s+and\s+confirmed|"
+                r"confirmed\s+correction)\b.{0,100}\b(?:confirms?|corrects?|"
+                r"same\s+(?:morning\s+)?reading)\b",
+                folded,
+            )
+            or not re.search(r"\b(?:same\s+.+\s+as|rather\s+than|instead\s+of)\b", folded)
+            or re.search(
+                r"\b(?:not\s+confirmed|unconfirmed|no\s+signed\s+correction|"
+                r"without\s+(?:a\s+)?signed\s+correction|pending\s+confirmation)\b",
+                folded,
+            )
+            or "[unverified source gap]" in folded
+            or index == 0
+        ):
+            continue
+        anchor = segments[index - 1]
+        if "[unverified source gap]" in _fold(anchor):
+            continue
+        anchor_ids = {_fold(match.group(1)) for match in _EXPLICIT_ID.finditer(anchor)}
+        if requested_ids and not requested_ids <= anchor_ids:
+            continue
+        anchor_clocks = list(_CLOCK.finditer(anchor))
+        if len(anchor_clocks) != 1:
+            continue
+        anchor_terms = _relation_tokens(anchor)
+        correction_terms = _relation_tokens(correction)
+        if event_terms and not (event_terms & anchor_terms and event_terms & correction_terms):
+            continue
+        if requested_ids and not _constraints_present(question, anchor, context):
+            continue
+        corrected, replaced = correction_clocks
+        corrected_value = (
+            f"{corrected.group(1)} {corrected.group(2)}"
+            if corrected.group(2)
+            else corrected.group(1)
+        )
+        replaced_value = (
+            f"{replaced.group(1)} {replaced.group(2)}"
+            if replaced.group(2)
+            else replaced.group(1)
+        )
+        if _normalize_clock(anchor_clocks[0].group(1), anchor_clocks[0].group(2)) != (
+            _normalize_clock(replaced.group(1), replaced.group(2))
+        ):
+            continue
+        return corrected_value, correction, replaced_value
+    return None
+
+
+def _time_value_context(
+    question: str, segment: str, *, constraint_context: str | None = None
+) -> tuple[str, str] | None:
     requested = _requested_clock_values(question)
     candidates: list[tuple[int, int, str, str]] = []
     query_terms = _question_relation_tokens(question, "time")
@@ -2402,13 +2549,35 @@ def _time_value_context(question: str, segment: str) -> tuple[str, str] | None:
         clause = _local_value_clause(segment, match.start(), match.end())
         overlap = len(query_terms & _relation_tokens(clause))
         candidates.append((overlap, match.start(), value, clause))
+    resolved_correction = _confirmed_cross_sentence_time(
+        question, constraint_context or segment
+    )
+    if resolved_correction is not None:
+        corrected_value, correction_excerpt, replaced_value = resolved_correction
+        segment_clocks = {
+            _normalize_clock(match.group(1), match.group(2))
+            for match in _CLOCK.finditer(segment)
+        }
+        if (
+            correction_excerpt not in segment
+            and _normalize_clock_text(replaced_value) in segment_clocks
+        ):
+            return None
+        if correction_excerpt in segment:
+            correction_values = _explicit_time_alternatives(
+                question, segment, constraint_context=constraint_context
+            )
+            if correction_values:
+                return corrected_value, correction_values[0][1]
     if not candidates:
         return None
     if requested:
         if len(candidates) != 1 or not event_is_supported(candidates[0][3]):
             return None
         return candidates[0][2], candidates[0][3]
-    alternatives = _explicit_time_alternatives(question, segment)
+    alternatives = _explicit_time_alternatives(
+        question, segment, constraint_context=constraint_context
+    )
     if alternatives:
         return alternatives[0]
     if len(candidates) == 1:
@@ -2425,7 +2594,9 @@ def _time_value_context(question: str, segment: str) -> tuple[str, str] | None:
     return best[0][2], best[0][3]
 
 
-def _explicit_time_alternatives(question: str, segment: str) -> list[tuple[str, str]]:
+def _explicit_time_alternatives(
+    question: str, segment: str, *, constraint_context: str | None = None
+) -> list[tuple[str, str]]:
     """Return clock values explicitly contrasted for the same requested event."""
     if _requested_clock_values(question):
         return []
@@ -2449,11 +2620,13 @@ def _explicit_time_alternatives(question: str, segment: str) -> list[tuple[str, 
         clause = left_clause
         resolved_prefix = _fold(segment[: left.start()])
         if re.search(
-            r"\b(?:corrected|confirmed|approved|validated|signed\s+off|"
+            r"\b(?:corrected|confirmed|confirms?|approved|validated|signed\s+(?:off|correction)|"
             r"rectifie|confirme|approuve|valide)\b",
             resolved_prefix,
         ) and not re.search(
-            r"\b(?:not\s+confirmed|unconfirmed|not\s+approved|pending\s+confirmation|"
+            r"\b(?:not\s+confirmed|unconfirmed|not\s+approved|not\s+corrected|"
+            r"no\s+signed\s+correction|without\s+(?:a\s+)?signed\s+correction|"
+            r"pending\s+confirmation|"
             r"non\s+confirme|pas\s+confirme)\b",
             resolved_prefix,
         ):
@@ -2464,7 +2637,7 @@ def _explicit_time_alternatives(question: str, segment: str) -> list[tuple[str, 
             continue
         if named_subjects and not named_subjects <= clause_terms:
             continue
-        if not _constraints_present(question, clause, segment):
+        if not _constraints_present(question, clause, constraint_context or segment):
             continue
         values = []
         for match in (left, right):
@@ -2570,6 +2743,11 @@ def _relation_supported(
         return (
             _value_for(kind, segment, question, constraint_context=constraint_context) is not None
         )
+    if kind == "amount":
+        requested_role = _amount_role(question)
+        if requested_role is not None:
+            value = _value_for(kind, segment, question, constraint_context=constraint_context)
+            return value is not None
     noise_by_kind = {
         "date": {"date", "effective", "deadline"},
         "amount": {
@@ -3154,8 +3332,21 @@ class DeterministicGroundedAnswerProvider:
                             (0.0, evidence_text, None, False)
                         )
                         continue
-                    if kind not in {"boolean", "status"} and _has_negated_relation(
-                        question, evidence_text, kind
+                    explicit_time_conflict = (
+                        kind == "time"
+                        and len(
+                            _explicit_time_alternatives(
+                                question,
+                                evidence_text,
+                                constraint_context=constraint_context,
+                            )
+                        )
+                        > 1
+                    )
+                    if (
+                        kind not in {"boolean", "status"}
+                        and _has_negated_relation(question, evidence_text, kind)
+                        and not explicit_time_conflict
                     ):
                         evaluated.setdefault(item.chunk.id, []).append(
                             (0.0, evidence_text, None, False)
@@ -3212,7 +3403,9 @@ class DeterministicGroundedAnswerProvider:
                     if value is not None and relation:
                         if kind == "time":
                             alternatives = _explicit_time_alternatives(
-                                question, evidence_text
+                                question,
+                                evidence_text,
+                                constraint_context=constraint_context,
                             )
                             if len(alternatives) > 1:
                                 candidates.extend(

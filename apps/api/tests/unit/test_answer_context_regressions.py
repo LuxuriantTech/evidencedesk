@@ -137,6 +137,55 @@ def test_french_source_reference_matches_equivalent_english_title() -> None:
     assert [item.chunk.document_id for item in scoped] == ["authorization-doc"]
 
 
+def test_report_verb_and_slash_id_do_not_filter_out_the_requested_record() -> None:
+    requested = _ranked(
+        "opaque-requested-p2",
+        "At 06:25 on 9 September 2031, auxiliary sensor AA-7 read 6.4 degrees Celsius.",
+        document_id="requested-record",
+        document_name="qc-58-t_service_record.pdf",
+        page=2,
+        ordinal=1,
+    )
+    competitor = _ranked(
+        "opaque-other-p2",
+        "At 06:25 on 9 September 2031, auxiliary sensor AA-7 read 8.1 degrees Celsius.",
+        document_id="other-record",
+        document_name="qc-58-u_service_record.txt",
+        page=1,
+        ordinal=1,
+    )
+    requested_header = _ranked(
+        "opaque-requested-p1",
+        "Record QC-58/T applies to auxiliary sensor AA-7 at the north archive intake.",
+        document_id="requested-record",
+        document_name="qc-58-t_service_record.pdf",
+        page=1,
+        ordinal=0,
+    )
+    competitor_header = _ranked(
+        "opaque-other-p1",
+        "Record QC-58/U applies to auxiliary sensor AA-7 at the south archive intake.",
+        document_id="other-record",
+        document_name="qc-58-u_service_record.txt",
+        page=1,
+        ordinal=0,
+    )
+    question = (
+        "What temperature did record QC-58/T report for auxiliary sensor AA-7 at 06:25?"
+    )
+
+    result = _answerer().answer(
+        question, [requested_header, requested, competitor_header, competitor]
+    )
+
+    assert result.status == "answered"
+    assert result.answer == "6.4 degrees Celsius"
+    assert result.supporting_document == "requested-record"
+    assert result.supporting_excerpt == (
+        "At 06:25 on 9 September 2031, auxiliary sensor AA-7 read 6.4 degrees Celsius."
+    )
+
+
 def test_unique_header_context_scopes_date_and_time_in_later_chunks() -> None:
     header = _ranked(
         "field-log:p1:c0",
@@ -670,6 +719,55 @@ def test_explicitly_confirmed_time_correction_resolves_the_earlier_value() -> No
     assert unlinked_result.status == "abstained"
 
 
+def test_signed_correction_in_adjacent_sentence_resolves_same_record_time() -> None:
+    initial = _ranked(
+        "log:p1:c0",
+        "LogID LG-71 records its morning reading at 07:35.",
+        document_id="log",
+        ordinal=0,
+    )
+    correction = _ranked(
+        "log:p1:c1",
+        "The signed correction confirms the same morning reading as 07:50 rather than 07:35.",
+        document_id="log",
+        ordinal=1,
+    )
+    result = _answerer().answer(
+        "At what time was the morning reading from LogID LG-71 recorded?",
+        [initial, correction],
+    )
+
+    assert result.status == "answered"
+    assert result.answer == "07:50"
+    assert result.supporting_excerpt == correction.chunk.text.removesuffix(".")
+
+
+def test_unsigned_cross_sentence_time_disagreement_remains_ambiguous() -> None:
+    initial = _ranked(
+        "reading:p1:c0",
+        "ReadingID RD-91 records its morning reading at 06:40.",
+        document_id="reading-log",
+        ordinal=0,
+    )
+    correction = _ranked(
+        "reading:p1:c1",
+        "The reading was not corrected; the recorded reading is 06:55 rather than 06:40.",
+        document_id="reading-log",
+        ordinal=1,
+    )
+    result = _answerer().answer(
+        "At what time was the morning reading from ReadingID RD-91 recorded?",
+        [initial, correction],
+    )
+
+    assert result.status == "ambiguous"
+    assert result.answerable is False
+    assert {citation.chunk_id for citation in result.citations} == {
+        "reading:p1:c0",
+        "reading:p1:c1",
+    }
+
+
 def test_count_skips_date_numbers_and_binds_the_quantity_to_its_object() -> None:
     receipt = _ranked(
         "receipt:p1:c0",
@@ -876,6 +974,63 @@ def test_invoice_total_value_is_full_amount_and_unresolved_conflict_is_ambiguous
     }
     assert any("EUR 8,400" in citation.excerpt for citation in result.citations)
     assert any("EUR 8,600" in citation.excerpt for citation in result.citations)
+
+
+def test_unexplained_unit_price_difference_is_ambiguous_with_signed_value() -> None:
+    note_amount = _ranked(
+        "review-note:p1:c0",
+        "ReviewID RV-21 for AgreementID AG-71 lists the LX-9 unit price as EUR 19.40.",
+        document_id="review-note",
+        document_name="review_note.txt",
+        ordinal=0,
+    )
+    note_status = _ranked(
+        "review-note:p1:c1",
+        "It does not explain the difference from the signed agreement.",
+        document_id="review-note",
+        document_name="review_note.txt",
+        ordinal=1,
+    )
+    signed_amount = _ranked(
+        "signed-agreement:p2:c0",
+        "The agreed unit price is EUR 18.90 per pump.",
+        document_id="signed-agreement",
+        document_name="signed_agreement.txt",
+        ordinal=1,
+    )
+    signed_anchor = _ranked(
+        "signed-agreement:p1:c0",
+        "AgreementID AG-71 covers the LX-9 pump.",
+        document_id="signed-agreement",
+        document_name="signed_agreement.txt",
+        ordinal=0,
+    )
+    result = _answerer().answer(
+        "What unit price for the LX-9 pump was recorded under AgreementID AG-71?",
+        [note_amount, note_status, signed_amount, signed_anchor],
+    )
+
+    assert result.status == "ambiguous"
+    assert result.answerable is False
+    assert any("EUR 19.40" in citation.excerpt for citation in result.citations)
+    assert any("EUR 18.90" in citation.excerpt for citation in result.citations)
+
+
+def test_unit_price_cannot_answer_a_question_about_invoice_total() -> None:
+    unit_price = _ranked(
+        "invoice:p1:c0",
+        "InvoiceID IV-72 lists a unit price of EUR 37.50 per component.",
+        document_id="invoice",
+        document_name="invoice.txt",
+    )
+    result = _answerer().answer(
+        "What was the total value of InvoiceID IV-72 before tax?", [unit_price]
+    )
+
+    assert result.status == "abstained"
+    assert result.answerable is False
+    assert result.citations == ()
+    assert "EUR 37.50" not in result.answer
 
 
 def test_labeled_currency_field_keeps_thousands_separator() -> None:
