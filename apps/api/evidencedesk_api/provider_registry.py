@@ -8,6 +8,7 @@ from evidencedesk_api.answering import (
     DeterministicGroundedAnswerProvider,
     GroundedAnswer,
 )
+from evidencedesk_api.local_generation import build_local_generation_answer_provider
 from evidencedesk_api.providers import (
     CURRENT_EMBEDDING_MANIFEST,
     DeterministicEmbeddingProvider,
@@ -50,10 +51,15 @@ def build_provider_bundle(
     embedding_factory: Callable[[], EmbeddingProvider] | None = None,
     model_path: Path = Path("models/paraphrase-multilingual-minilm-l12-v2"),
     manifest_path: Path = CURRENT_EMBEDDING_MANIFEST,
+    local_generation_base_url: str = "http://127.0.0.1:50193",
 ) -> ProviderBundle:
     if mode == "extractive-local-hash":
         embedding: EmbeddingProvider = DeterministicEmbeddingProvider(dimension=384)
-    elif mode in {"extractive-local-onnx", "grounded-local-v3"}:
+    elif mode in {
+        "extractive-local-onnx",
+        "grounded-local-v3",
+        "local-qwen8b-extractive-pilot",
+    }:
         embedding = (
             embedding_factory()
             if embedding_factory is not None
@@ -78,5 +84,10 @@ def build_provider_bundle(
                     ),
                 ),
             ),
+        )
+    if mode == "local-qwen8b-extractive-pilot":
+        return ProviderBundle(
+            embedding=embedding,
+            answer=build_local_generation_answer_provider(mode, base_url=local_generation_base_url),
         )
     return ProviderBundle(embedding=embedding, answer=ExtractiveAnswerProvider(mode=mode))

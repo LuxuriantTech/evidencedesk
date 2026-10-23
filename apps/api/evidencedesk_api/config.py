@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 
-from pydantic import Field
+from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -35,8 +37,12 @@ class Settings(BaseSettings):
         le=4 * 1024 * 1024 * 1024,
     )
     answer_mode: Literal[
-        "extractive-local-hash", "extractive-local-onnx", "grounded-local-v3"
+        "extractive-local-hash",
+        "extractive-local-onnx",
+        "grounded-local-v3",
+        "local-qwen8b-extractive-pilot",
     ] = "grounded-local-v3"
+    local_generation_base_url: str = "http://127.0.0.1:50193"
     embedding_model_path: Path = Path("models/paraphrase-multilingual-minilm-l12-v2")
     embedding_manifest_path: Path = Path(
         "infra/models/paraphrase-multilingual-minilm-l12-v2-text-onnx.json"
@@ -50,6 +56,12 @@ class Settings(BaseSettings):
     demo_analyst_password: str
     demo_reader_password: str
     demo_reader_enabled: bool = True
+
+    @model_validator(mode="after")
+    def keep_local_generation_out_of_public_demo(self) -> Settings:
+        if self.public_demo_mode and self.answer_mode.startswith("local-qwen"):
+            raise ValueError("local generation pilot is unavailable in public demo mode")
+        return self
 
 
 @lru_cache

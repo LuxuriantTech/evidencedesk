@@ -32,6 +32,12 @@ from evidencedesk_api.answering import GroundedAnswer
 from evidencedesk_api.auth import Action, UserPrincipal, role_allows
 from evidencedesk_api.config import Settings, get_settings
 from evidencedesk_api.db import build_engine, build_session_factory, get_session
+from evidencedesk_api.local_generation import (
+    LocalGenerationAnswerProvider,
+    LocalGenerationBusy,
+    LocalGenerationUnavailable,
+    answer_local_in_threadpool,
+)
 from evidencedesk_api.models import (
     AuditEvent,
     Chunk,
@@ -196,6 +202,7 @@ def create_app(*, settings: Settings | None = None, task_queue: TaskQueue | None
             active_settings.answer_mode,
             model_path=active_settings.embedding_model_path,
             manifest_path=active_settings.embedding_manifest_path,
+            local_generation_base_url=active_settings.local_generation_base_url,
         )
         app.state.public_demo_hashes = public_demo_hashes
         try:
@@ -607,7 +614,27 @@ def create_app(*, settings: Settings | None = None, task_queue: TaskQueue | None
                 embedding_model_id=chunk.embedding_model_id,
             )
         ranked = hybrid_rank(body.question, list(candidates.values()), provider=providers.embedding)
-        result = providers.answer.answer(body.question, ranked)
+        result: AnswerResult | GroundedAnswer
+        try:
+            if isinstance(providers.answer, LocalGenerationAnswerProvider):
+                result = await answer_local_in_threadpool(
+                    providers.answer,
+                    body.question,
+                    ranked,
+                )
+            else:
+                result = await run_in_threadpool(
+                    providers.answer.answer,
+                    body.question,
+                    ranked,
+                )
+        except LocalGenerationBusy:
+            raise HTTPException(status_code=503, detail={"code": "local_model_busy"}) from None
+        except LocalGenerationUnavailable:
+            raise HTTPException(
+                status_code=503,
+                detail={"code": "local_model_unavailable"},
+            ) from None
         latency_ms = round((perf_counter() - started) * 1_000, 3)
         SEARCH_LATENCY.labels(providers.answer.mode, result.status).observe(latency_ms / 1_000)
         correlation_id = _correlation_id(request)

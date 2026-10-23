@@ -1,0 +1,40 @@
+# Opt-in only. Start with: docker compose -f compose.yaml -f compose.local-8b.yaml --profile local-8b-pilot up api local-8b
+services:
+  api:
+    profiles: [local-8b-pilot]
+    environment:
+      PUBLIC_DEMO_MODE: "false"
+      ANSWER_MODE: local-qwen8b-extractive-pilot
+      LOCAL_GENERATION_BASE_URL: http://127.0.0.1:50193
+
+  local-8b:
+    profiles: [local-8b-pilot]
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: scripts/local_generation/Dockerfile
+    image: evidencedesk-local-8b:opt-in
+    environment:
+      EVIDENCEDESK_8B_BUNDLE: /bundle
+    volumes:
+      - type: bind
+        source: ${EVIDENCEDESK_8B_BUNDLE:?Set this to the validated bundle directory}
+        target: /bundle
+        read_only: true
+        bind:
+          create_host_path: false
+    network_mode: service:api
+    depends_on:
+      - api
+    user: "65532:65532"
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=16m,mode=1777
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 10g
+    memswap_limit: 10g
+    cpus: 4.0
+    pids_limit: 128
+    restart: "no"

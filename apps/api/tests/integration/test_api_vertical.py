@@ -11,6 +11,7 @@ from evidencedesk_api import main as api_main
 from evidencedesk_api.answering import DeterministicGroundedAnswerProvider
 from evidencedesk_api.config import Settings
 from evidencedesk_api.db import build_engine, build_session_factory
+from evidencedesk_api.local_generation import LocalGenerationAnswerProvider
 from evidencedesk_api.main import create_app
 from evidencedesk_api.models import (
     Chunk,
@@ -671,6 +672,72 @@ def test_evaluation_endpoint_persists_only_calculated_results(
     listed = client.get("/api/v1/evaluations", headers=_headers(reader))
     assert listed.status_code == 200
     assert listed.json()[0]["id"] == result["id"]
+
+
+@pytest.mark.integration
+def test_local_generation_busy_is_a_sanitized_http_503(
+    api: tuple[TestClient, RecordingQueue, Settings],
+) -> None:
+    client, _queue, _settings = api
+    embedding = DeterministicEmbeddingProvider(dimension=384)
+    provider = LocalGenerationAnswerProvider(
+        "local-qwen8b-extractive-pilot",
+        base_url="http://127.0.0.1:50193",
+        identity_checker=lambda _base, _model: None,
+    )
+    provider.reserve()
+    cast(Any, client).app.state.providers = ProviderBundle(embedding=embedding, answer=provider)
+    try:
+        reader = _token(client, "demo.reader", "EvidenceDemo-Reader-2026!")
+        dossier_id = client.get("/api/v1/dossiers", headers=_headers(reader)).json()[0]["id"]
+        response = client.post(
+            f"/api/v1/dossiers/{dossier_id}/ask",
+            headers=_headers(reader),
+            json={"question": "a question"},
+        )
+    finally:
+        provider.release_reserved()
+
+    assert response.status_code == 503
+    assert response.json() == {"detail": {"code": "local_model_busy"}}
+
+
+@pytest.mark.integration
+def test_local_generation_unavailable_is_sanitized_and_auth_remains_required(
+    api: tuple[TestClient, RecordingQueue, Settings],
+) -> None:
+    client, _queue, _settings = api
+    embedding = DeterministicEmbeddingProvider(dimension=384)
+    identity_checks: list[str] = []
+
+    def private_backend_error(_base: str, _model: str) -> None:
+        identity_checks.append("called")
+        raise RuntimeError("PRIVATE DOCUMENT TEXT and prompt")
+
+    provider = LocalGenerationAnswerProvider(
+        "local-qwen8b-extractive-pilot",
+        base_url="http://127.0.0.1:50193",
+        identity_checker=private_backend_error,
+    )
+    cast(Any, client).app.state.providers = ProviderBundle(embedding=embedding, answer=provider)
+    reader = _token(client, "demo.reader", "EvidenceDemo-Reader-2026!")
+    dossier_id = client.get("/api/v1/dossiers", headers=_headers(reader)).json()[0]["id"]
+    unauthenticated = client.post(
+        f"/api/v1/dossiers/{dossier_id}/ask", json={"question": "private question"}
+    )
+    assert unauthenticated.status_code == 401
+    assert identity_checks == []
+
+    response = client.post(
+        f"/api/v1/dossiers/{dossier_id}/ask",
+        headers=_headers(reader),
+        json={"question": "private question"},
+    )
+    assert response.status_code == 503
+    assert response.json() == {"detail": {"code": "local_model_unavailable"}}
+    assert "PRIVATE DOCUMENT TEXT" not in response.text
+    assert "private question" not in response.text
+    assert identity_checks == ["called"]
 
 
 @pytest.mark.integration

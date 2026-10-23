@@ -1,0 +1,168 @@
+name: EvidenceDesk local 8B integration CI (draft)
+
+on:
+  push:
+    branches:
+      - codex/evidencedesk-local8b-integration-20261023
+    paths:
+      - "**"
+      - ".github/workflows/integration-local8b-ci.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: evidencedesk-local8b-integration-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  integration-no-inference:
+    name: Locked Python, API/mock, assets, sidecar build (no inference)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16@sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b
+        env:
+          POSTGRES_DB: evidencedesk
+          POSTGRES_USER: evidencedesk
+          POSTGRES_PASSWORD: ci-only-postgres-password
+        ports:
+          - 55432:5432
+        options: >-
+          --health-cmd "pg_isready -U evidencedesk -d evidencedesk"
+          --health-interval 5s --health-timeout 3s --health-retries 20
+      redis:
+        image: redis:7.4-alpine@sha256:ff02b58f971e7d7d156a1267e283fcbbeee91773b6aa36c49dac28ecfe28eadf
+        ports:
+          - 56379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s --health-timeout 3s --health-retries 20
+    env:
+      DATABASE_URL: postgresql+asyncpg://evidencedesk:ci-only-postgres-password@127.0.0.1:55432/evidencedesk
+      REDIS_URL: redis://127.0.0.1:56379/0
+      STORAGE_ROOT: /tmp/evidencedesk-storage
+      JWT_SECRET: ci-only-jwt-secret-at-least-32-characters-long
+      DEMO_ADMIN_PASSWORD: EvidenceDemo-Admin-2026!
+      DEMO_ANALYST_PASSWORD: EvidenceDemo-Analyst-2026!
+      DEMO_READER_PASSWORD: EvidenceDemo-Reader-2026!
+      PYTHONDONTWRITEBYTECODE: "1"
+      UV_CACHE_DIR: ${{ runner.temp }}/uv-cache
+      RUNTIME_ONLY_DIR: ${{ runner.temp }}/runtime-only
+      SIDECAR_IMAGE: evidencedesk-local-8b:integration-ci
+    steps:
+      - name: Checkout the experimental source only
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Set up exact Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12.14"
+
+      - name: Set up exact uv
+        uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
+        with:
+          version: "0.11.7"
+          enable-cache: false
+
+      - name: Verify lock and rebuild the exact development environment
+        timeout-minutes: 12
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          uv lock --check
+          uv sync --frozen --all-groups --python 3.12.14
+          uv run python - <<'PY'
+          import importlib.metadata
+          import sys
+          assert sys.version_info[:3] == (3, 12, 14), sys.version
+          assert importlib.metadata.version("Mako") == "1.4.3"
+          print("Python 3.12.14; locked Mako 1.4.3 verified")
+          PY
+
+      - name: Ruff and strict mypy
+        timeout-minutes: 8
+        run: |
+          uv run ruff check apps/api apps/worker evals scripts
+          uv run mypy
+
+      - name: API, worker, evaluation and mocked tests
+        timeout-minutes: 20
+        run: uv run pytest --cov --cov-report=term-missing
+
+      - name: Bundle safety component tests (synthetic fixtures only)
+        timeout-minutes: 5
+        run: uv run python -m unittest scripts.local_generation.test_bundle -v
+
+      - name: Supply-chain references and Python dependency audit
+        timeout-minutes: 8
+        run: |
+          uv run python scripts/check_supply_chain_refs.py
+          uv run pip-audit --strict
+
+      - name: Fetch and safely stage the pinned runtime only (no GGUF)
+        timeout-minutes: 8
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          test ! -e "$RUNTIME_ONLY_DIR"
+          uv run python -m scripts.local_generation.verify_runtime_archive \
+            --prepare-dir "$RUNTIME_ONLY_DIR"
+          test -x "$RUNTIME_ONLY_DIR/runtime/llama-b11798/llama-server"
+          test "$(stat -c %s "$RUNTIME_ONLY_DIR/llama-runtime.tar.gz")" -eq 22300188
+          staged_bytes="$(du -sb "$RUNTIME_ONLY_DIR" | cut -f1)"
+          test "$staged_bytes" -lt 125829120
+
+      - name: Build the opt-in Ubuntu 24.04 sidecar image locally
+        timeout-minutes: 12
+        run: >-
+          docker build --platform linux/amd64
+          --file scripts/local_generation/Dockerfile
+          --tag "$SIDECAR_IMAGE" .
+
+      - name: Parse the local pilot Compose overlay without starting services
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          EVIDENCEDESK_8B_BUNDLE="$RUNTIME_ONLY_DIR" \
+            docker compose -f compose.yaml -f compose.local-8b.yaml \
+            --profile local-8b-pilot config --quiet
+
+      - name: Check llama-server binary compatibility inside the built image
+        timeout-minutes: 3
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          docker run --rm --network none --read-only --user 65532:65532 \
+            --env LD_LIBRARY_PATH=/bundle/runtime/llama-b11798 \
+            --mount "type=bind,src=$RUNTIME_ONLY_DIR,dst=/bundle,readonly" \
+            --entrypoint /bundle/runtime/llama-b11798/llama-server \
+            "$SIDECAR_IMAGE" --version
+
+      - name: Write a minimal non-sensitive CI receipt
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p integration-ci-diagnostics
+          printf 'workflow=local-8b-integration-no-inference\n' > integration-ci-diagnostics/summary.txt
+          printf 'commit=%s\n' "$GITHUB_SHA" >> integration-ci-diagnostics/summary.txt
+          printf 'result=%s\n' '${{ job.status }}' >> integration-ci-diagnostics/summary.txt
+          printf 'qwen_gguf_downloaded=false\n' >> integration-ci-diagnostics/summary.txt
+          printf 'qwen_inference_started=false\n' >> integration-ci-diagnostics/summary.txt
+          printf 'production_secrets_used=false\n' >> integration-ci-diagnostics/summary.txt
+          printf 'scope=locked-environment-tests-runtime-assets-sidecar-build\n' >> integration-ci-diagnostics/summary.txt
+          cat integration-ci-diagnostics/summary.txt >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Retain only the small safe receipt
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: local-8b-integration-no-inference-${{ github.sha }}
+          path: integration-ci-diagnostics/summary.txt
+          retention-days: 1
+          if-no-files-found: error
+          include-hidden-files: false
