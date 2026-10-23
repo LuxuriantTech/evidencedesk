@@ -456,12 +456,23 @@ def _requested_document_type(question: str) -> str | None:
         return None
     if len({kind for _, _, kind, _ in eligible_occurrences}) == 1:
         start, end, kind, _ = eligible_occurrences[0]
-        # "Report" is also a common verb (for example, "what temperature did
-        # record X report?"). Treat it as a source document only when the
-        # question marks it as a source noun through a cue or source predicate.
-        if kind == "report":
+        prefix = folded[:start]
+        # In "Which register does the field log accompany?", register is the
+        # requested answer type, not a source restriction. Keep other implicit
+        # source modifiers such as "the contract operator" or "invoice total".
+        answer_type_head = re.match(
+            r"^\s*(?:which|what|quel|quelle|quels|quelles)\s+"
+            r"(?:(?:the|le|la|les|l)\s+)?(?:[a-z0-9-]+\s+){0,2}$",
+            prefix,
+        ) and not re.match(
+            r"^\s*(?:what|quel|quelle|quels|quelles)\s+"
+            r"(?:is|are|was|were|est|sont|etait|etaient)\b",
+            prefix,
+        )
+        if answer_type_head:
             return None
-        if kind in {"permit", "plan"}:
+        if kind == "report":
+            # "Report" is also a common verb; a bare verb does not set source scope.
             return None
         suffix = folded[end : end + 32]
         if re.match(r"\s+(?:renewal|effective|start|end|expiry)\s+(?:date|day|term)\b", suffix):
@@ -543,7 +554,11 @@ def _requested_source_terms(question: str) -> set[str]:
 def _requested_source_ids(question: str) -> set[str]:
     folded = _fold(question)
     match = re.search(
-        r"\b(?:according\s+to|per|selon|d['\u2019]apres|in\s+the|from\s+the|under\s+the)\s+"
+        r"\b(?:according\s+to|per|selon|d['\u2019]apres|"
+        r"in\s+(?:the\s+)?(?:agreement|contract|invoice|handover|report|register|"
+        r"permit|plan|shipment|delivery\s+record|field\s+log)|"
+        r"in|from|under)\s+"
+        r"(?:(?:the|le|la|les|l['\u2019])\s+)?"
         r"(?:the\s+|le\s+|la\s+|l['\u2019])?([a-z0-9 _/-]{1,48})",
         folded,
     )
@@ -558,6 +573,27 @@ def _requested_source_ids(question: str) -> set[str]:
         phrase_ids = {
             _fold(identifier.group(1)) for identifier in _EXPLICIT_ID.finditer(phrase)
         }
+        if match.group(0).startswith(("in ", "from ", "under ")) and not re.match(
+            r"\s*(?:the\s+)?(?:agreement|contract|invoice|handover|report|register|"
+            r"permit|plan|shipment|delivery\s+record|field\s+log)\b",
+            phrase,
+        ):
+            # Bare prepositions often introduce a record constraint rather
+            # than a source document ("under WorkOrderID ...", "in lot ...").
+            # Promote them to source scope only when a source-type noun makes
+            # that reading explicit, or when the ID follows the preposition
+            # directly. Explicit markers such as "according to" remain valid.
+            first_id = _EXPLICIT_ID.search(phrase)
+            prefix = phrase[: first_id.start()] if first_id is not None else phrase
+            local_record_noun = re.search(
+                r"\b(?:record|lot|batch|sample|sensor|work\s*order|check|account|asset)\b",
+                prefix,
+            )
+            if local_record_noun or (
+                prefix.strip()
+                and _SOURCE_IDENTITY_NOUNS.search(prefix) is None
+            ):
+                phrase_ids.clear()
     if phrase_ids:
         return phrase_ids
     # A named source can be the grammatical subject of a reporting verb:
@@ -673,7 +709,33 @@ def _camel_words(value: str) -> str:
 
 def _requested_field_words(question: str) -> set[str]:
     """Identify the requested field label, separate from its record constraints."""
-    return set(_relation_tokens(" ".join(_requested_field_parts(question))))
+    return set(_relation_tokens(" ".join(_requested_field_head(question))))
+
+
+def _requested_field_head(question: str) -> list[str]:
+    """Remove predicate words from the requested field phrase."""
+    parts = _requested_field_parts(question)
+    predicate_words = {
+        "applies",
+        "apply",
+        "used",
+        "use",
+        "reported",
+        "reports",
+        "recorded",
+        "records",
+        "listed",
+        "lists",
+        "entered",
+        "issued",
+        "given",
+        "assigned",
+        "accompany",
+        "accompanies",
+    }
+    while parts and parts[-1] in predicate_words:
+        parts.pop()
+    return parts
 
 
 def _requested_field_parts(question: str) -> list[str]:
@@ -1074,6 +1136,22 @@ def _field_value(
     field_parts = _requested_field_parts(question)
     if not field_parts or not _constraints_present(question, segment, constraint_context):
         return None
+    # A colon assignment may contain a linking noun omitted from the query
+    # (supplier account code for supplier code). Require every requested slot
+    # term in order and an explicit assignment before extracting an ID.
+    requested_head = _requested_field_head(question)
+    if requested_head and requested_head[-1] in {"code", "tag", "ref", "reference", "number"}:
+        label = r"\s+".join(
+            re.escape(part) + r"(?:\s+[a-z][a-z-]*){0,2}" for part in requested_head
+        )
+        assignment = re.search(
+            rf"(?i)(?<![A-Za-z0-9]){label}\s*:\s*({_EXPLICIT_ID.pattern})",
+            segment,
+        )
+        if assignment:
+            value_match = _EXPLICIT_ID.fullmatch(assignment.group(1))
+            if value_match:
+                return value_match.group(1), segment.strip()
     aliases = {
         "modele": "model",
         "turbidite": "turbidity",
@@ -1196,15 +1274,26 @@ def _field_value(
     measurement, unknown_measurement_precedes = _measurement_after_label(tail)
     if unknown_measurement_precedes:
         return None
-    identifier = _EXPLICIT_ID.search(tail)
+    requested_head = _requested_field_head(question)
+    identifier_field = bool(
+        re.match(
+            r"^\s*(?:what|which|quel|quelle|quels|quelles)\s+"
+            r"(?:(?:is|are|was|were|est|etait|etaient)\s+)?"
+            r"(?:(?:the|le|la|les|l)\s+)?[A-Z][A-Za-z0-9]*ID\b",
+            question,
+            re.IGNORECASE,
+        )
+        or (requested_head and requested_head[-1] in {"code", "tag", "ref", "reference", "number"})
+    )
+    identifier_match = _EXPLICIT_ID.search(tail) if identifier_field else None
     if measurement:
         value = measurement.group(0).strip()
     elif amount := _AMOUNT.match(tail):
         # Keep a currency amount together, including thousands separators,
         # when it appears as a labeled text-field value.
         value = amount.group(0).strip()
-    elif identifier:
-        value = identifier.group(1)
+    elif identifier_match:
+        value = identifier_match.group(1)
     else:
         number = re.match(r"\s*(\d+(?:[.,]\d+)?)\b", tail)
         if number and set(field_parts) & {"ph", "score", "rating"}:
@@ -2139,6 +2228,21 @@ def _measurement_after_label(text: str) -> tuple[re.Match[str] | None, bool]:
     return recognized, False
 
 
+def _explicit_labeled_field_value(question: str, segment: str, value: str) -> bool:
+    parts = _requested_field_head(question)
+    if not parts:
+        return False
+    label = r"[\s_-]*".join(re.escape(part) for part in parts)
+    pattern = (
+        r"(?<![A-Za-z0-9])"
+        + label
+        + r"(?:[\s_-]*id)?(?![A-Za-z0-9])\s*[:=]\s*"
+        + re.escape(value)
+        + r"(?=$|[\s,.;])"
+    )
+    return re.search(pattern, segment, re.IGNORECASE) is not None
+
+
 def _question_kind(question: str) -> str:
     folded = _fold(question)
     interrogative_slots = re.findall(
@@ -2201,6 +2305,16 @@ def _question_kind(question: str) -> str:
         question,
         re.IGNORECASE,
     ):
+        return "field_value"
+    field_parts = _requested_field_parts(question)
+    if field_parts and field_parts[-1] in {
+        "code",
+        "tag",
+        "ref",
+        "reference",
+        "number",
+        "id",
+    }:
         return "field_value"
     if (
         re.search(
@@ -2297,9 +2411,20 @@ def _value_for(
 ) -> str | None:
     if kind == "field_value":
         extracted = _field_value(question, segment, constraint_context)
-        if extracted is None or not _directed_field_relation(question, segment, extracted[0]):
-            return None
-        return extracted[0]
+        if extracted is not None:
+            if not _directed_field_relation(question, segment, extracted[0]) and not (
+                _explicit_labeled_field_value(question, segment, extracted[0])
+            ):
+                return None
+            return extracted[0]
+        # Some factual questions have a clear requested value in prose, but
+        # no locally labeled field for the structured extractor. Preserve the
+        # complete assertion only when the record constraints and ordinary
+        # relation checks both match; this avoids guessing a scalar from a
+        # neighboring field or another record.
+        if _prose_field_fallback_supported(question, segment, constraint_context):
+            return segment
+        return None
     if kind == "time":
         if not _constraints_present(question, segment, constraint_context):
             return None
@@ -2528,6 +2653,38 @@ def _unknown_measurement_for_relation(question: str, segment: str) -> bool:
     unknown_measurement = _UNRECOGNIZED_MEASUREMENT.search(segment)
     if unknown_measurement is None:
         return False
+    unit = re.search(
+        r"\d+(?:[.,]\d+)?\s+([A-Za-zµμ°%][A-Za-z0-9µμ°/%]*)",
+        unknown_measurement.group(0),
+    )
+    if unit is not None:
+        unit_text = unit.group(1)
+        if (unit_text[:1].isupper() and not unit_text.isupper()) or unit_text.casefold() in {
+            "a",
+            "an",
+            "and",
+            "as",
+            "day",
+            "days",
+            "week",
+            "weeks",
+            "month",
+            "months",
+            "year",
+            "years",
+            "hour",
+            "hours",
+            "for",
+            "of",
+            "on",
+            "in",
+            "to",
+            "per",
+            "is",
+            "was",
+            "were",
+        }:
+            return False
     measurement_context = segment[: unknown_measurement.start()]
     return bool(_question_relation_tokens(question, "text") & _relation_tokens(measurement_context))
 
@@ -2952,17 +3109,69 @@ def _relation_supported(
     if kind == "multi_slot":
         return False
     if kind == "text":
-        ordered: list[str] = []
-        for raw in re.findall(r"[a-z0-9]+", _fold(question)):
-            for token in lexical_tokens(raw):
-                if token not in _QUESTION_NOISE and token not in ordered:
-                    ordered.append(token)
-        return len(overlap) >= 2 and bool(set(ordered[:2]) & segment_tokens)
+        return _text_relation_supported(question, segment)
     if kind == "duration" and re.search(r"\b(?:duration|duree)\b", _fold(segment)):
         return True
     if kind == "severity" and _SEVERITY.search(segment):
         return True
     return bool(overlap)
+
+
+def _text_relation_supported(question: str, segment: str) -> bool:
+    """Require lexical support for a complete prose assertion."""
+    question_tokens = _question_relation_tokens(question, "text")
+    segment_tokens = _relation_tokens(segment)
+    requested_head = _requested_field_head(question)
+    head_terms = [word for word in requested_head if word not in _QUESTION_NOISE]
+    # This fallback returns prose, so keep the slot and its value inside one
+    # assertion. Treat punctuation and conjunctions as hard boundaries; a
+    # conservative abstention is safer than joining a neighboring field.
+    clauses = re.split(
+        r";|\r?\n|(?<=[.!?])\s+|\b(?:and|while|whereas|but|however|"
+        r"alors\s+que|tandis\s+que)\b",
+        segment,
+        flags=re.IGNORECASE,
+    )
+    slot_present = any(
+        head_terms
+        and all(
+            re.search(rf"(?<![a-z0-9]){re.escape(term)}s?(?![a-z0-9])", _fold(clause))
+            for term in head_terms
+        )
+        for clause in clauses
+    )
+    return (
+        len(question_tokens & segment_tokens) >= 2
+        and slot_present
+        and bool(_requested_field_words(question) & segment_tokens)
+    )
+
+
+def _prose_field_fallback_supported(
+    question: str, segment: str, constraint_context: str | None
+) -> bool:
+    if (
+        not _constraints_present(question, segment, constraint_context)
+        or _unknown_measurement_for_relation(question, segment)
+        or not _text_relation_supported(question, segment)
+    ):
+        return False
+    conditions = _requested_conditions(question)
+    if not conditions:
+        return True
+    if len(list(_MEASUREMENT.finditer(segment))) > 1:
+        return False
+    field_head = _requested_field_words(question)
+    head_matches = [
+        match
+        for token in field_head
+        for match in re.finditer(rf"(?<![a-z0-9]){re.escape(token)}(?![a-z0-9])", _fold(segment))
+    ]
+    if not head_matches:
+        return False
+    start, end = _assertion_bounds(segment, head_matches[-1].start(), head_matches[-1].end())
+    local_clause = _fold(segment[start:end])
+    return all(condition in local_clause for condition in conditions)
 
 
 def _support_score(
@@ -3530,6 +3739,12 @@ class DeterministicGroundedAnswerProvider:
                             citation_text = extracted[1]
                             proofs = _context_citations(
                                 question, citation_text, constraint_context, item, ranked
+                            )
+                            if proofs:
+                                context_headers[item.chunk.id] = proofs
+                        elif value is not None:
+                            proofs = _context_citations(
+                                question, evidence_text, constraint_context, item, ranked
                             )
                             if proofs:
                                 context_headers[item.chunk.id] = proofs

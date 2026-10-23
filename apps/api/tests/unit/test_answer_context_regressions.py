@@ -1,8 +1,11 @@
+import pytest
 from evidencedesk_api.answering import (
     DecisionConfig,
     DeterministicGroundedAnswerProvider,
     _field_value,
     _principal_identity,
+    _question_kind,
+    _requested_document_type,
     _requested_source_ids,
     _scope_ranked,
 )
@@ -100,6 +103,133 @@ def test_multiword_field_label_does_not_select_neighboring_status() -> None:
     assert result.supporting_excerpt == point
     assert "approved" not in result.answer
     assert all("status" not in citation.excerpt.casefold() for citation in result.citations)
+
+
+def test_prose_field_fallback_keeps_the_complete_supported_assertion() -> None:
+    cases = (
+        (
+            "What payment term applies to account AC-83?",
+            "Payment terms recorded for account AC-83 are net 45 days from invoice date.",
+        ),
+        (
+            "What reference bath model was used in check QR-71?",
+            "The recorded reference bath was model ThermoBath Zeta for check QR-71, asset TB-46.",
+        ),
+        (
+            "What procedure revision did the inspection use for check QR-71?",
+            "The inspection used procedure QP-28 revision 5 for check QR-71.",
+        ),
+    )
+
+    for index, (question, assertion) in enumerate(cases):
+        assert _question_kind(question) == "field_value"
+        result = _answerer().answer(
+            question, [_ranked(f"prose-{index}", assertion)]
+        )
+        assert result.status == "answered"
+        assert result.answer == assertion
+        assert result.supporting_excerpt == assertion
+
+
+def test_prose_field_fallback_requires_the_requested_slot() -> None:
+    passage = "The reference bath serial is RB-46; its model is not recorded."
+    result = _answerer().answer(
+        "What reference bath model was used in check QR-71?",
+        [_ranked("reference-bath", passage)],
+    )
+
+    assert result.status == "abstained"
+    assert result.answerable is False
+    assert "RB-46" not in result.answer
+
+
+def test_model_label_prefers_model_value_over_a_later_asset_identifier() -> None:
+    passage = "Model: Vela 4, asset MT-83."
+    result = _answerer().answer("What model?", [_ranked("model-label", passage)])
+
+    assert result.status == "answered"
+    assert result.answer == "Vela 4"
+    assert "MT-83" not in result.answer
+
+
+def test_supplier_account_code_remains_a_typed_field_request() -> None:
+    question = "What is the supplier account code for the Bracken Vale profile?"
+    passage = "Bracken Vale profile. Supplier account code: SV-638."
+
+    assert _question_kind(question) == "field_value"
+    result = _answerer().answer(question, [_ranked("supplier-profile", passage)])
+
+    assert result.status == "answered"
+    assert result.answer == "SV-638"
+
+
+@pytest.mark.parametrize(
+    "passage",
+    (
+        "The reference bath serial is RB-46, while the asset model is TB-46.",
+        "The reference bath serial is RB-46; the asset model is TB-46.",
+        "The reference bath serial is RB-46. The asset model is TB-46.",
+        "The reference bath serial is RB-46 and the asset model is TB-46.",
+    ),
+)
+def test_prose_field_does_not_join_slot_terms_across_competing_clauses(
+    passage: str,
+) -> None:
+    question = "What reference bath model was used in check QR-71?"
+
+    result = _answerer().answer(question, [_ranked("wrong-slot", passage)])
+
+    assert result.status == "abstained"
+    assert result.citations == ()
+
+
+def test_prose_field_does_not_take_a_neighboring_records_value() -> None:
+    passage = (
+        "RecordID RR-40 lists model MX-3. "
+        "RecordID RR-41 lists model MX-8."
+    )
+    result = _answerer().answer(
+        "What model was used by RecordID RR-40?",
+        [_ranked("two-records", passage)],
+    )
+
+    assert result.status == "answered"
+    assert "MX-3" in result.answer
+    assert "MX-8" not in result.answer
+    assert all("MX-8" not in citation.excerpt for citation in result.citations)
+
+
+def test_conflicting_prose_values_remain_ambiguous() -> None:
+    left = "The north depot address is 18 Cedar Lane."
+    right = "The north depot address is 42 Birch Road."
+    result = _answerer().answer(
+        "What address is recorded for the north depot?",
+        [_ranked("address-a", left), _ranked("address-b", right)],
+    )
+
+    assert result.status == "ambiguous"
+    assert {citation.excerpt for citation in result.citations} == {left, right}
+
+
+def test_answer_document_type_is_not_mistaken_for_source_scope() -> None:
+    question = "Which accession register does field log FL-94 explicitly accompany?"
+    assertion = "Field log FL-94 explicitly accompanies accession register AR-12."
+
+    assert _requested_document_type(question) is None
+    assert _requested_document_type("What is the contract operator?") == "agreement"
+    result = _answerer().answer(question, [_ranked("register-link", assertion)])
+
+    assert result.status == "answered"
+    assert "AR-12" in result.answer
+    assert result.supporting_excerpt == assertion
+
+    what_question = "What register does field log FL-94 accompany?"
+    assert _requested_document_type(what_question) is None
+    what_result = _answerer().answer(
+        what_question, [_ranked("what-register-link", assertion)]
+    )
+    assert what_result.status == "answered"
+    assert "AR-12" in what_result.answer
 
 
 def test_unknown_measurement_unit_does_not_fall_through_to_neighboring_measure() -> None:
