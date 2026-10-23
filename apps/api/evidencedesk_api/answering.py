@@ -89,7 +89,10 @@ _CLOCK = re.compile(
     r"\b(?:at|a|à)?\s*(\d{1,2}:\d{2})(?:\s*(CET|CEST|UTC|GMT|[AP]M))?\b",
     re.IGNORECASE,
 )
-_EXPLICIT_ID = re.compile(r"(?<![A-Z0-9])([A-Z]{1,8}(?:[-/][A-Z0-9]+)+)(?![A-Z0-9])")
+_EXPLICIT_ID = re.compile(
+    r"(?<![A-Z0-9])(?=[A-Z0-9/-]*\d)([A-Z]{1,8}(?:[-/][A-Z0-9]+)+)(?![A-Z0-9])",
+    re.IGNORECASE,
+)
 _UNIT = (
     r"°\s*[CF]|(?:k|M)?(?:Pa|bar)|psi|NTU|(?:mg|µg|μg|g|kg)/(?:mL|L|dL)|"
     r"(?:km|m|cm|mm)/h|m/s|"
@@ -283,7 +286,11 @@ def _requested_document_type(question: str) -> str | None:
         # A type word modifying a field is not a source-document request.
         if re.match(r"\s+(?:renewal|effective|start|end|expiry)\s+(?:date|day|term)\b", suffix):
             continue
-        if re.search(r"\b(?:in|under|from|within|of)\s+(?:the\s+)?$", prefix):
+        if re.search(
+            r"\b(?:in|under|from|within|of|according\s+to|per|selon|d['\u2019]apres)"
+            r"\s+(?:the\s+|le\s+|la\s+|l['\u2019])?$",
+            prefix,
+        ):
             source_cues.append((start, kind))
     if source_cues:
         return min(source_cues)[1]
@@ -309,6 +316,44 @@ def _requested_document_type(question: str) -> str | None:
         )
         return first
     return None
+
+
+def _requested_source_terms(question: str) -> set[str]:
+    """Resolve a direct source phrase such as 'according to the plan'."""
+    folded = _fold(question)
+    match = re.search(
+        r"\b(?:according\s+to|per|selon|d['\u2019]apres|in\s+the|from\s+the|under\s+the)\s+"
+        r"(?:the\s+|le\s+|la\s+|l['\u2019])?([a-z][a-z0-9 _-]{1,38})",
+        folded,
+    )
+    if match is None:
+        return set()
+    phrase = re.split(
+        r"\b(?:itself|directly|explicitly|states?|says?|lists?|indique|mentionne|"
+        r"what|which|who|whose|is|are|was|were|does|do|did|has|have|that|the)\b",
+        match.group(1),
+        maxsplit=1,
+    )[0]
+    terms = set(re.findall(r"[a-z0-9]+", phrase))
+    return terms - {"document", "source", "itself"}
+
+
+def _requested_source_ids(question: str) -> set[str]:
+    folded = _fold(question)
+    match = re.search(
+        r"\b(?:according\s+to|per|selon|d['\u2019]apres|in\s+the|from\s+the|under\s+the)\s+"
+        r"(?:the\s+|le\s+|la\s+|l['\u2019])?([a-z0-9 _/-]{1,48})",
+        folded,
+    )
+    if match is None:
+        return set()
+    phrase = re.split(
+        r"\b(?:itself|directly|explicitly|states?|says?|lists?|indique|mentionne|"
+        r"what|which|who|whose|is|are|was|were|does|do|did|has|have|that|the)\b",
+        match.group(1),
+        maxsplit=1,
+    )[0]
+    return {_fold(identifier.group(1)) for identifier in _EXPLICIT_ID.finditer(phrase)}
 
 
 def _document_type(item: RankedChunk, contents: str) -> str | None:
@@ -401,7 +446,7 @@ def _requested_field_parts(question: str) -> list[str]:
             "is", "are", "was", "were", "does", "do", "did", "has", "have",
             "est", "sont", "ont", "il", "elle", "ils", "elles", "lequel",
             "laquelle", "printed", "listed", "recorded", "indicated", "begins",
-            "commence", "names", "name", "reported", "donne", "indique", "indiquee",
+            "commence", "reported", "donne", "indique", "indiquee",
             "indiquees", "note", "notee", "explicitly", "directly", "is-il", "est-il",
         }
         words = re.findall(r"[a-z0-9]+", match.group(1))
@@ -410,7 +455,7 @@ def _requested_field_parts(question: str) -> list[str]:
             if word in stops or re.fullmatch(r"[a-z]{1,8}-\d+[a-z0-9-]*", word):
                 break
             selected.append(word)
-            if len(selected) == 3:
+            if len(selected) == 5:
                 break
         return [word for word in selected if word not in _QUESTION_NOISE]
     return []
@@ -501,7 +546,6 @@ def _field_value(
     field_parts = _requested_field_parts(question)
     if not field_parts or not _constraints_present(question, segment, constraint_context):
         return None
-    expanded = _camel_words(segment)
     aliases = {
         "modele": "model",
         "turbidite": "turbidity",
@@ -518,31 +562,48 @@ def _field_value(
     target_options = [field_parts]
     canonical_parts = [aliases.get(part, part) for part in field_parts]
     canonical_parts = [part for part in canonical_parts if part]
+    camel_id_label = bool(
+        re.match(
+            r"^\s*(?:what|which|quel|quelle|quels|quelles)\s+"
+            r"(?:(?:is|are|est)\s+)?(?:(?:the|le|la|les|l)\s+)?"
+            r"[A-Z][A-Za-z0-9]*ID\b",
+            question,
+            re.IGNORECASE,
+        )
+    )
+
+    def label_pattern(parts: list[str]) -> str:
+        suffix = r"[\s_-]*id" if camel_id_label else ""
+        return (
+            r"(?<![A-Za-z0-9])"
+            + r"[\s_-]*".join(re.escape(part) for part in parts)
+            + suffix
+            + r"(?![A-Za-z0-9])"
+        )
+
     field_matches: list[re.Match[str]] = []
     for parts in target_options:
-        pattern = r"\b" + r"\s+".join(re.escape(part) for part in parts) + r"\b"
-        field_matches.extend(re.finditer(pattern, expanded, re.IGNORECASE))
+        field_matches.extend(re.finditer(label_pattern(parts), segment, re.IGNORECASE))
     if not field_matches and canonical_parts != field_parts:
         target_options = [canonical_parts]
-        pattern = r"\b" + r"\s+".join(re.escape(part) for part in canonical_parts) + r"\b"
-        field_matches.extend(re.finditer(pattern, expanded, re.IGNORECASE))
+        field_matches.extend(
+            re.finditer(label_pattern(canonical_parts), segment, re.IGNORECASE)
+        )
     # A measurement may be stated in a different word order, such as
     # "Peak turbidity" for a question about maximum turbidity.
     if not field_matches and "peak" in canonical_parts and "turbidity" in canonical_parts:
-        field_matches.extend(re.finditer(r"\bpeak\s+turbidity\b", expanded, re.IGNORECASE))
-    if not field_matches:
-        relation_terms = set(canonical_parts)
-        target_options = [[term] for term in relation_terms]
         field_matches.extend(
-            match
-            for term in relation_terms
-            for match in re.finditer(rf"\b{re.escape(term)}\b", expanded, re.IGNORECASE)
+            re.finditer(
+                r"(?<![A-Za-z0-9])peak[\s_-]*turbidity(?![A-Za-z0-9])",
+                segment,
+                re.IGNORECASE,
+            )
         )
     field_matches = list({(match.start(), match.end()): match for match in field_matches}.values())
     if len(field_matches) != 1:
         return None
     match = field_matches[0]
-    tail = expanded[match.end() :]
+    tail = segment[match.end() :]
     tail = re.split(r"[|;\n!?]|(?<!\d)\.(?!\d)", tail, maxsplit=1)[0]
     tail = re.sub(
         r"^\s*(?::|=|-)?\s*(?:(?:is|are|was|were|listed|recorded|entered|printed|"
@@ -571,22 +632,9 @@ def _field_value(
             )
             if text_match is None:
                 return None
-            value = text_match.group(0).strip()
+            value = text_match.group(0).strip(" .,:;!?\t")
     original = segment
-    # Camel expansion adds spaces, so translate the selected span back to the
-    # source by locating the label and value directly in the original text.
-    original_labels = [
-        r"\b" + r"[\s_-]*".join(re.escape(part) for part in parts) + r"\b"
-        for parts in target_options
-    ]
-    if re.search(
-        r"^\s*(?:what|which|quel|quelle|quels|quelles)\s+"
-        r"(?:(?:is|are|est)\s+)?(?:(?:the|le|la|les|l)\s+)?"
-        r"[A-Z][A-Za-z0-9]*(?:ID|Code|Tag|Ref|Number)\b",
-        question,
-        re.IGNORECASE,
-    ):
-        original_labels = [label[:-2] + r"(?:[\s_-]*id)?\b" for label in original_labels]
+    original_labels = [label_pattern(parts) for parts in target_options]
     if "peak" in canonical_parts and "turbidity" in canonical_parts:
         original_labels.append(r"\bpeak\s+turbidity\b")
     if not original_labels:
@@ -623,10 +671,21 @@ def _field_value(
     assertion_folded = _fold(assertion)
     assertion_ids = _requested_identifier_values(assertion)
     requested_ids = _requested_identifier_values(question)
-    context_header = _has_unique_context_header(
+    context_header = _unique_context_header(
         question, segment, constraint_context
     )
-    if not requested_ids <= assertion_ids and not context_header:
+    row_ids = _requested_identifier_values(original)
+    row_link = "|" in original and requested_ids <= row_ids and all(
+        len(
+            {
+                identifier
+                for identifier in row_ids
+                if _identifier_prefix(identifier) == _identifier_prefix(requested_id)
+            }
+        ) == 1
+        for requested_id in requested_ids
+    )
+    if not requested_ids <= assertion_ids and not context_header and not row_link:
         return None
     if not _requested_conditions(question) <= {
         condition
@@ -649,16 +708,8 @@ def _field_value(
         {_fold(match.group(0)) for match in _DATE.finditer(question)} & assertion_dates
     ):
         return None
-    using_context = bool(constraint_context and segment in constraint_context)
-    source = (
-        constraint_context
-        if using_context and constraint_context is not None
-        else original
-    )
-    offset = source.find(segment) if using_context else 0
-    if offset < 0:
-        source = original
-        offset = 0
+    source = original
+    offset = 0
     start = offset + original_match.start()
     end = offset + original_match.end() + original_value.end()
     assertion_source_start = offset + assertion_start
@@ -671,7 +722,7 @@ def _field_value(
         )
         if id_match and (
             assertion_source_start <= id_match.start() < assertion_source_end
-            or _has_unique_context_header(question, segment, constraint_context)
+            or row_link
         ):
             clause = _local_value_clause(source, id_match.start(), id_match.end())
             clause_start = source.find(clause)
@@ -768,8 +819,15 @@ def _requested_link_type(question: str) -> str | None:
 
 def _scope_ranked(question: str, ranked: list[RankedChunk]) -> list[RankedChunk]:
     requested_type = _requested_document_type(question)
+    source_terms = _requested_source_terms(question)
     subject_tokens = _named_subject_tokens(question)
-    if requested_type is None and not subject_tokens:
+    requested_source_ids = _requested_source_ids(question)
+    if (
+        requested_type is None
+        and not source_terms
+        and not requested_source_ids
+        and not subject_tokens
+    ):
         return ranked
 
     grouped: dict[str, list[RankedChunk]] = {}
@@ -789,6 +847,20 @@ def _scope_ranked(question: str, ranked: list[RankedChunk]) -> list[RankedChunk]
     link_keys_by_document: dict[str, set[tuple[str, str]]] = {}
     for document_id, items in grouped.items():
         contents = context_by_document[document_id]
+        identity_lines = [items[0].chunk.document_name]
+        title = contents.splitlines()[1] if len(contents.splitlines()) > 1 else ""
+        if title and not re.search(
+            r"\b(?:references?|cites?|quotes?|states?|says?|provides?|authorizes?|"
+            r"mentions?|lists?|reports?|indique|mentionne|cite|renvoie)\b",
+            _fold(title),
+        ):
+            identity_lines.append(title)
+        identity_text = _fold(" ".join(identity_lines))
+        if source_terms and not source_terms <= set(re.findall(r"[a-z0-9]+", identity_text)):
+            continue
+        identity_ids = {_fold(match.group(1)) for match in _EXPLICIT_ID.finditer(identity_text)}
+        if requested_source_ids and not requested_source_ids <= identity_ids:
+            continue
         if requested_type is not None and _document_type(items[0], contents) != requested_type:
             continue
         if subject_tokens:
@@ -851,15 +923,57 @@ def _has_explicit_absence(segment: str) -> bool:
     return _ABSENCE.search(_fold(segment)) is not None
 
 
+def _has_requested_field_absence(question: str, segment: str) -> bool:
+    """Recognize a stated absence only when it names the whole requested field."""
+    parts = _requested_field_parts(question)
+    if not parts:
+        return False
+    alternatives = [parts]
+    aliases = {
+        "modele": "model",
+        "turbidite": "turbidity",
+        "maximum": "peak",
+        "maximale": "peak",
+        "maximal": "peak",
+    }
+    canonical = [aliases.get(part, part) for part in parts]
+    if canonical != parts:
+        alternatives.append(canonical)
+    absence_action = re.compile(
+        r"\b(?:does\s+not|do\s+not|did\s+not|never|not)\s+"
+        r"(?:name|give|state|provide|list|record|mention|specify|identify)\b|"
+        r"\b(?:no|without)\s+(?:known\s+)?(?:record|entry|value|address)\b",
+        re.IGNORECASE,
+    )
+    for candidate in _assertion_clauses(segment):
+        for label in alternatives:
+            pattern = (
+                r"(?<![A-Za-z0-9])"
+                + r"[\s_-]*".join(re.escape(part) for part in label)
+                + r"(?![A-Za-z0-9])"
+            )
+            label_match = re.search(pattern, candidate, re.IGNORECASE)
+            if label_match is None:
+                continue
+            left, right = _assertion_bounds(
+                candidate, label_match.start(), label_match.end()
+            )
+            local = candidate[left:right]
+            if _has_explicit_absence(local) or absence_action.search(local):
+                return True
+    return False
+
+
 _LOCAL_PREDICATE = re.compile(
     r"\b(?:am|is|are|was|were|be|been|being|has|have|had|do|does|did|"
     r"can|could|may|might|must|shall|should|will|would|"
     r"est|sont|etaient|sera|seront|a|ont|peut|peuvent|doit|doivent|"
     r"included|provided|recorded|listed|available|specified|stated|supplied|"
     r"covered|eligible|approved|authorized|allowed|required|applies|applied|"
+    r"provides|gives|names|mentions|states|lists|records|identifies|"
     r"inclus|incluse|incluses|fourni|fournie|enregistre|enregistree|"
     r"consigne|consignee|disponible|couvert|couverte|autorise|autorisee|"
-    r"requis|requise)\b",
+    r"requis|requise|logged|measured|observed|collected|mesure|note|releve)\b",
     re.IGNORECASE,
 )
 
@@ -914,42 +1028,36 @@ def _has_negated_relation(question: str, segment: str, kind: str) -> bool:
 
 def _local_value_clause(segment: str, start: int, end: int) -> str:
     """Return the assertion clause containing a scalar, excluding adjacent facts."""
-    left = max(
-        (segment.rfind(mark, 0, start) + 1 for mark in (";", ".", "!", "?", "\n")),
-        default=0,
-    )
-    right_candidates = [
-        position
-        for mark in (";", ".", "!", "?", "\n")
-        if (position := segment.find(mark, end)) >= 0
-    ]
-    right = min(right_candidates) if right_candidates else len(segment)
-    # Coordinated clauses can separate facts with "and ... is/has/does".
-    for match in re.finditer(
-        r"\b(?:and|et|mais|but)\s+(?=(?:is|are|was|were|has|have|does|do|est|sont|a|ont|constitue|represents|costs)\b)",
-        segment[left:right],
-        re.IGNORECASE,
-    ):
-        boundary = left + match.start()
-        if boundary < start:
-            left += match.end()
-        elif boundary > end:
-            right = boundary
-            break
+    left, right = _assertion_bounds(segment, start, end)
     return segment[left:right].strip(" ,;:")
 
 
 def _assertion_bounds(segment: str, start: int, end: int) -> tuple[int, int]:
     left = max(
-        (segment.rfind(mark, 0, start) + 1 for mark in (";", ".", "!", "?", "\n")),
+        (segment.rfind(mark, 0, start) + 1 for mark in (";", "|", ".", "!", "?", "\n")),
         default=0,
     )
     right_candidates = [
         position
-        for mark in (";", ".", "!", "?", "\n")
+        for mark in (";", "|", ".", "!", "?", "\n")
         if (position := segment.find(mark, end)) >= 0
     ]
-    return left, min(right_candidates) if right_candidates else len(segment)
+    right = min(right_candidates) if right_candidates else len(segment)
+    base_left, base_right = left, right
+    for match in re.finditer(
+        r"\b(?:and|et|but|mais)\b", segment[base_left:base_right], re.IGNORECASE
+    ):
+        boundary = base_left + match.start()
+        connector_end = base_left + match.end()
+        left_clause = segment[base_left:boundary]
+        right_clause = segment[connector_end:base_right]
+        if _LOCAL_PREDICATE.search(left_clause) and _LOCAL_PREDICATE.search(right_clause):
+            if boundary < start:
+                left = connector_end
+            elif boundary >= end:
+                right = boundary
+                break
+    return left, right
 
 
 def _is_identifier_header(text: str) -> bool:
@@ -965,17 +1073,37 @@ def _is_identifier_header(text: str) -> bool:
 def _has_unique_context_header(
     question: str, segment: str, constraint_context: str | None
 ) -> bool:
-    if not constraint_context or segment not in constraint_context:
-        return False
+    return _unique_context_header(question, segment, constraint_context) is not None
+
+
+def _unique_context_header(
+    question: str, segment: str, constraint_context: str | None
+) -> str | None:
+    if (
+        not constraint_context
+        or constraint_context.count(segment) != 1
+    ):
+        return None
     prefix = constraint_context[: constraint_context.find(segment)]
     header = re.split(
         r"[.!?;\n]", prefix.strip().rstrip(".!?;")
     )[-1].strip()
     if not _is_identifier_header(header):
-        return False
+        return None
     requested = _requested_identifier_values(question)
     header_ids = {_fold(match.group(1)) for match in _EXPLICIT_ID.finditer(header)}
-    return bool(requested) and requested <= header_ids
+    all_context_ids = {
+        _fold(match.group(1)) for match in _EXPLICIT_ID.finditer(constraint_context)
+    }
+    for requested_id in requested:
+        same_type = {
+            value
+            for value in all_context_ids
+            if _identifier_prefix(value) == _identifier_prefix(requested_id)
+        }
+        if same_type != {requested_id}:
+            return None
+    return header if requested and requested <= header_ids else None
 
 
 def _question_excluded_terms(question: str) -> set[str]:
@@ -1128,6 +1256,14 @@ def _question_kind(question: str) -> str:
         return "amount"
     if re.search(r"\b(?:severity|severite|sev)\b", folded):
         return "severity"
+    if re.match(
+        r"^\s*(?:what|which|quel|quelle|quels|quelles)\s+"
+        r"(?:(?:is|are|est)\s+)?(?:(?:the|le|la|les|l)\s+)?"
+        r"[A-Z][A-Za-z0-9]*(?:ID|Code|Tag|Ref|Number)\b",
+        question,
+        re.IGNORECASE,
+    ):
+        return "field_value"
     if re.search(
         r"\b(?:organization|organisation|entity|entite|supplier|custodian|mutuelle|"
         r"beneficiary|beneficiaire|account holder|operator|issued)\b",
@@ -1224,18 +1360,8 @@ def _value_for(
     if kind == "time":
         if not _constraints_present(question, segment, constraint_context):
             return None
-        requested = _requested_clock_values(question)
-        matches = [
-            match
-            for match in _CLOCK.finditer(segment)
-            if not requested
-            or (
-                f"{match.group(1)} {match.group(2)}".casefold()
-                if match.group(2)
-                else match.group(1).casefold()
-            ) in requested
-        ]
-        return matches[0].group(0).strip() if len(matches) == 1 else None
+        selected = _time_value_context(question, segment)
+        return selected[0] if selected else None
     if kind == "boolean":
         if not _relation_supported(question, segment, kind):
             return None
@@ -1348,6 +1474,35 @@ def _value_for(
     if kind == "text" and not _constraints_present(question, segment, constraint_context):
         return None
     return segment
+
+
+def _time_value_context(question: str, segment: str) -> tuple[str, str] | None:
+    requested = _requested_clock_values(question)
+    candidates: list[tuple[int, int, str, str]] = []
+    query_terms = _question_relation_tokens(question, "time")
+    for match in _CLOCK.finditer(segment):
+        value = match.group(0).strip()
+        normalized = (
+            f"{match.group(1)} {match.group(2)}".casefold()
+            if match.group(2)
+            else match.group(1).casefold()
+        )
+        if requested and normalized not in requested:
+            continue
+        clause = _local_value_clause(segment, match.start(), match.end())
+        overlap = len(query_terms & _relation_tokens(clause))
+        candidates.append((overlap, match.start(), value, clause))
+    if not candidates:
+        return None
+    if requested:
+        return (candidates[0][2], candidates[0][3]) if len(candidates) == 1 else None
+    if len(candidates) == 1:
+        return candidates[0][2], candidates[0][3]
+    best_overlap = max(candidate[0] for candidate in candidates)
+    best = [candidate for candidate in candidates if candidate[0] == best_overlap]
+    if best_overlap == 0 or len(best) != 1:
+        return None
+    return best[0][2], best[0][3]
 
 
 def _boolean_polarity(value: str | None) -> str | None:
@@ -1566,6 +1721,40 @@ def _citation(item: RankedChunk, excerpt: str) -> Citation:
         section=chunk.section,
         excerpt=excerpt,
     )
+
+
+def _page_contexts(ranked: list[RankedChunk]) -> dict[str, str]:
+    grouped: dict[tuple[str, int], list[tuple[int, RankedChunk]]] = {}
+    for index, item in enumerate(ranked):
+        match = re.search(r"(?:^|:)c(\d+)$", item.chunk.id)
+        order = int(match.group(1)) if match else index
+        grouped.setdefault((item.chunk.document_id, item.chunk.page), []).append(
+            (order, item)
+        )
+    contexts: dict[str, str] = {}
+    for items in grouped.values():
+        context = "\n".join(item.chunk.text for _, item in sorted(items, key=lambda row: row[0]))
+        for _, item in items:
+            contexts[item.chunk.id] = context
+    return contexts
+
+
+def _evidence_citations(
+    item: RankedChunk,
+    excerpt: str,
+    context_headers: dict[str, tuple[RankedChunk, str]],
+) -> tuple[Citation, ...]:
+    header = context_headers.get(item.chunk.id)
+    if header is None:
+        return (_citation(item, excerpt),)
+    header_item, header_excerpt = header
+    header_citation = _citation(header_item, header_excerpt)
+    field_citation = _citation(item, excerpt)
+    if header_citation.chunk_id == field_citation.chunk_id and (
+        header_citation.excerpt == field_citation.excerpt
+    ):
+        return (field_citation,)
+    return (header_citation, field_citation)
 
 
 def _field_name(kind: str) -> str:
@@ -1849,6 +2038,9 @@ class DeterministicGroundedAnswerProvider:
         )
         candidates: list[tuple[float, str, str | None, RankedChunk]] = []
         partials: list[tuple[float, str, RankedChunk]] = []
+        context_headers: dict[str, tuple[RankedChunk, str]] = {}
+        page_contexts = _page_contexts(ranked)
+        explicit_field_absence = False
         evaluated: dict[str, list[tuple[float, str, str | None, bool]]] = {}
         documents_by_chunk = {
             document.chunk_id: document for document in trust_input.untrusted_document_content
@@ -1876,6 +2068,11 @@ class DeterministicGroundedAnswerProvider:
                     _date_evidence_segments(segment, question) if kind == "date" else [segment]
                 )
                 for evidence_segment in evidence_segments:
+                    constraint_context = (
+                        page_contexts.get(item.chunk.id, parent_content.text)
+                        if kind == "field_value"
+                        else parent_content.text
+                    )
                     if kind not in {"boolean", "status"} and _has_negated_relation(
                         question, evidence_segment, kind
                     ):
@@ -1894,18 +2091,26 @@ class DeterministicGroundedAnswerProvider:
                     if admitted is None:
                         continue
                     evidence_text = admitted.text
+                    if kind == "field_value" and _has_requested_field_absence(
+                        question, evidence_text
+                    ):
+                        explicit_field_absence = True
+                        evaluated.setdefault(item.chunk.id, []).append(
+                            (0.0, evidence_text, None, False)
+                        )
+                        continue
                     score = _support_score(
                         question,
                         evidence_text,
                         kind,
                         self.embeddings,
-                        constraint_context=parent_content.text,
+                        constraint_context=constraint_context,
                     )
                     value = _value_for(
                         kind,
                         evidence_text,
                         question,
-                        constraint_context=parent_content.text,
+                        constraint_context=constraint_context,
                     )
                     relation = _relation_supported(
                         question,
@@ -1913,15 +2118,35 @@ class DeterministicGroundedAnswerProvider:
                         kind,
                         provider=self.embeddings,
                         semantic_threshold=self.config.support_threshold,
-                        constraint_context=parent_content.text,
+                        constraint_context=constraint_context,
                     )
                     citation_text = evidence_text
                     if kind == "field_value":
                         extracted = _field_value(
-                            question, evidence_text, parent_content.text
+                            question, evidence_text, constraint_context
                         )
                         if extracted is not None:
                             citation_text = extracted[1]
+                            header = _unique_context_header(
+                                question, evidence_text, constraint_context
+                            )
+                            if header:
+                                header_item = next(
+                                    (
+                                        candidate
+                                        for candidate in ranked
+                                        if candidate.chunk.document_id == item.chunk.document_id
+                                        and candidate.chunk.page == item.chunk.page
+                                        and header in candidate.chunk.text
+                                    ),
+                                    None,
+                                )
+                                if header_item is not None:
+                                    context_headers[item.chunk.id] = (header_item, header)
+                    elif kind == "time":
+                        time_context = _time_value_context(question, evidence_text)
+                        if time_context is not None:
+                            citation_text = time_context[1]
                     evaluated.setdefault(item.chunk.id, []).append(
                         (score, citation_text, value, relation)
                     )
@@ -1934,6 +2159,8 @@ class DeterministicGroundedAnswerProvider:
                     ):
                         partials.append((score, evidence_text, item))
         assessments = self._candidate_assessments(kind, ranked, evaluated)
+        if explicit_field_absence:
+            return _abstained(candidate_assessments=assessments)
         candidates.sort(key=lambda value: (-value[0], -value[3].score, value[3].chunk.id))
         supported = [item for item in candidates if item[0] >= self.config.support_threshold]
         if not supported:
@@ -1979,7 +2206,14 @@ class DeterministicGroundedAnswerProvider:
             "time",
         }:
             other = distinct[0]
-            citations = (_citation(best[3], best[1]), _citation(other[3], other[1]))
+            citations = tuple(
+                dict.fromkeys(
+                    (
+                        *_evidence_citations(best[3], best[1], context_headers),
+                        *_evidence_citations(other[3], other[1], context_headers),
+                    )
+                )
+            )
             result = GroundedAnswer(
                 status="ambiguous",
                 answerable=False,
@@ -1990,7 +2224,9 @@ class DeterministicGroundedAnswerProvider:
                 supporting_excerpt=best[1],
                 ambiguity_reason="Conflicting values are supported by comparable evidence.",
                 extracted_fields={},
-                supporting_chunk_ids=(best[3].chunk.id, other[3].chunk.id),
+                supporting_chunk_ids=tuple(
+                    dict.fromkeys(citation.chunk_id for citation in citations)
+                ),
                 citations=citations,
                 candidate_assessments=assessments,
             )
@@ -2010,8 +2246,15 @@ class DeterministicGroundedAnswerProvider:
             extracted_fields=(
                 {field_name: best[2] or best[1]} if kind != "boolean" else {}
             ),
-            supporting_chunk_ids=(best[3].chunk.id,),
-            citations=(_citation(best[3], best[1]),),
+            supporting_chunk_ids=tuple(
+                dict.fromkeys(
+                    citation.chunk_id
+                    for citation in _evidence_citations(
+                        best[3], best[1], context_headers
+                    )
+                )
+            ),
+            citations=_evidence_citations(best[3], best[1], context_headers),
             candidate_assessments=assessments,
         )
         validate_grounded_answer(result, ranked)
