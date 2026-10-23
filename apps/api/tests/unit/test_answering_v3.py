@@ -242,6 +242,36 @@ def test_unrelated_clause_negation_does_not_invert_positive_boolean_fact() -> No
     assert result.answer.startswith("Yes. ")
 
 
+def test_unrelated_absence_clause_does_not_invert_positive_boolean_fact() -> None:
+    result = _provider().answer(
+        "Is coverage included?",
+        [
+            _ranked(
+                "coverage",
+                "The renewal date is not provided, and coverage is included.",
+            )
+        ],
+    )
+
+    assert result.status == "answered"
+    assert result.answer.startswith("Yes. ")
+
+
+def test_unrelated_absence_after_positive_boolean_clause_does_not_invert_it() -> None:
+    result = _provider().answer(
+        "Is coverage provided?",
+        [
+            _ranked(
+                "coverage",
+                "Coverage is provided and the renewal date is not recorded.",
+            )
+        ],
+    )
+
+    assert result.status == "answered"
+    assert result.answer.startswith("Yes. ")
+
+
 @pytest.mark.parametrize("absence", ["unavailable", "absent", "missing"])
 def test_common_absence_adjectives_support_negative_availability(absence: str) -> None:
     result = _provider().answer(

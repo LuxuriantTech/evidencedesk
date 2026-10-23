@@ -288,6 +288,19 @@ def _has_explicit_absence(segment: str) -> bool:
     return _ABSENCE.search(_fold(segment)) is not None
 
 
+def _has_related_absence(question: str, segment: str, kind: str) -> bool:
+    relation_tokens = _question_relation_tokens(question, kind)
+    clauses = re.split(
+        r"[;,]|\b(?:and|et|but|however|whereas|while|mais|cependant|tandis que)\b",
+        _fold(segment),
+    )
+    return any(
+        relation_tokens & set(re.findall(r"[a-z0-9']+", clause))
+        and _has_explicit_absence(clause)
+        for clause in clauses
+    )
+
+
 def _has_negated_relation(question: str, segment: str, kind: str) -> bool:
     """Reject a value when its nearby relation is explicitly negated."""
     folded_segment = _fold(segment)
@@ -301,7 +314,7 @@ def _has_negated_relation(question: str, segment: str, kind: str) -> bool:
     if not relation_tokens:
         return False
     clauses = re.split(
-        r"[;,]|\b(?:but|however|whereas|while|mais|cependant|tandis que)\b",
+        r"[;,]|\b(?:and|et|but|however|whereas|while|mais|cependant|tandis que)\b",
         folded_segment,
     )
     negation = r"\b(?:not|never|no|without|cannot|can't|mustn't|pas|jamais|aucun)\b"
@@ -488,7 +501,9 @@ def _value_for(kind: str, segment: str, question: str) -> str | None:
     if kind == "boolean":
         if not _relation_supported(question, segment, kind):
             return None
-        if _has_explicit_absence(segment) or _has_negated_relation(question, segment, kind):
+        if _has_related_absence(question, segment, kind) or _has_negated_relation(
+            question, segment, kind
+        ):
             return f"No. {segment}"
         question_amounts = list(_AMOUNT.finditer(question))
         question_dates = list(_DATE.finditer(question))
@@ -631,8 +646,10 @@ def _relation_supported(question: str, segment: str, kind: str) -> bool:
     if kind == "date" and requested_role is None:
         return bool(relation_tokens) and len(overlap) >= min(2, len(relation_tokens))
     if kind == "boolean":
-        return len(overlap) >= 2 or _has_explicit_absence(segment) or _has_negated_relation(
-            question, segment, kind
+        return (
+            len(overlap) >= 2
+            or _has_related_absence(question, segment, kind)
+            or _has_negated_relation(question, segment, kind)
         )
     if kind == "text":
         ordered: list[str] = []
