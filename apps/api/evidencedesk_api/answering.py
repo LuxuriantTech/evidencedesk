@@ -1273,8 +1273,14 @@ def _question_relation_tokens(question: str, kind: str) -> set[str]:
         },
         "text": set(),
     }
+    relation_question = _EXPLICIT_ID.sub(" ", question)
+    relation_question = re.sub(
+        r"\b[A-Z][A-Za-z0-9]*(?:ID|Code|Tag|Ref|Number)\b",
+        " ",
+        relation_question,
+    )
     tokens = (
-        _relation_tokens(question)
+        _relation_tokens(relation_question)
         - _QUESTION_NOISE
         - noise_by_kind.get(kind, set())
         - _question_excluded_terms(question)
@@ -1649,6 +1655,14 @@ def _time_value_context(question: str, segment: str) -> tuple[str, str] | None:
     requested = _requested_clock_values(question)
     candidates: list[tuple[int, int, str, str]] = []
     query_terms = _question_relation_tokens(question, "time")
+    event_terms = query_terms - {
+        "time", "record", "recorded", "list", "listed", "enter", "entered",
+        "indicate", "indicated", "show", "shown", "date", "start", "end",
+    }
+
+    def event_is_supported(clause: str) -> bool:
+        return not event_terms or bool(event_terms & _relation_tokens(clause))
+
     for match in _CLOCK.finditer(segment):
         value = f"{match.group(1)} {match.group(2)}".strip()
         normalized = (
@@ -1664,12 +1678,19 @@ def _time_value_context(question: str, segment: str) -> tuple[str, str] | None:
     if not candidates:
         return None
     if requested:
-        return (candidates[0][2], candidates[0][3]) if len(candidates) == 1 else None
-    if len(candidates) == 1:
+        if len(candidates) != 1 or not event_is_supported(candidates[0][3]):
+            return None
         return candidates[0][2], candidates[0][3]
+    if len(candidates) == 1:
+        candidate = candidates[0]
+        if not event_is_supported(candidate[3]):
+            return None
+        return candidate[2], candidate[3]
     best_overlap = max(candidate[0] for candidate in candidates)
     best = [candidate for candidate in candidates if candidate[0] == best_overlap]
     if best_overlap == 0 or len(best) != 1:
+        return None
+    if not event_is_supported(best[0][3]):
         return None
     return best[0][2], best[0][3]
 

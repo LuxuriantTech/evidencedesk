@@ -222,13 +222,18 @@ def parse_document(
 def _sentences(text: str) -> Iterator[str]:
     boundary = re.compile(r"(?<=[.!?])\s+")
     for line in io.StringIO(text):
+        protected_line = re.sub(
+            r"\b([A-ZÀ-ÖØ-Þ])\.(?=\s+[A-ZÀ-ÖØ-Þ])",
+            lambda match: match.group(1) + "\ue000",
+            line,
+        )
         start = 0
-        for match in boundary.finditer(line):
-            sentence = line[start : match.start()].strip()
+        for match in boundary.finditer(protected_line):
+            sentence = protected_line[start : match.start()].replace("\ue000", ".").strip()
             if sentence:
                 yield sentence
             start = match.end()
-        sentence = line[start:].strip()
+        sentence = protected_line[start:].replace("\ue000", ".").strip()
         if sentence:
             yield sentence
 

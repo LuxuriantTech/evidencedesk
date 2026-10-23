@@ -192,3 +192,49 @@ def test_similar_concurrent_record_ids_do_not_join_to_one_field_value() -> None:
     assert result.answerable is False
     assert result.citations == ()
     assert "0.92 mg/L" not in result.answer
+
+
+def test_identifier_link_alone_does_not_establish_equipment_malfunction() -> None:
+    passage = (
+        "IncidentID IN-32 references AssetTag HX-9 and EventID EV-4. "
+        "A technician reported intermittent interruptions; the cause is unconfirmed "
+        "and no final finding is recorded."
+    )
+    result = _answerer().answer(
+        "Did AssetTag HX-9 malfunction during EventID EV-4?",
+        [_ranked("incident", passage)],
+    )
+
+    assert result.status in {"abstained", "ambiguous", "partially_supported"}
+    assert result.answerable is False
+    assert not result.answer.casefold().startswith("yes")
+
+
+def test_unrelated_timestamp_does_not_answer_when_completion_is_unrecorded() -> None:
+    header = _ranked(
+        "pump-log:p1:c0",
+        "InspectionRecordID IR-62 | PumpID P-8",
+        document_id="pump-log",
+        document_name="pump_log.txt",
+    )
+    arrival = _ranked(
+        "pump-log:p1:c1",
+        "A technician arrived at 14:20 CEST.",
+        document_id="pump-log",
+        document_name="pump_log.txt",
+    )
+    completion = _ranked(
+        "pump-log:p1:c2",
+        "The pump inspection remains in progress; completion time is not recorded.",
+        document_id="pump-log",
+        document_name="pump_log.txt",
+    )
+    result = _answerer().answer(
+        "At what time was inspection completion recorded for PumpID P-8?",
+        [header, arrival, completion],
+    )
+
+    assert result.status != "answered"
+    assert result.answerable is False
+    assert "14:20" not in result.answer
+    assert all("14:20" not in citation.excerpt for citation in result.citations)

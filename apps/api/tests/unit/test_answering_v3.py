@@ -16,6 +16,7 @@ from evidencedesk_api.answering import (
     _subject_matches,
     validate_grounded_answer,
 )
+from evidencedesk_api.processing import ParsedPage, chunk_pages
 from evidencedesk_api.providers import DeterministicEmbeddingProvider
 from evidencedesk_api.retrieval import Citation, EvidenceChunk, RankedChunk
 
@@ -1555,6 +1556,40 @@ def test_person_initial_does_not_split_event_from_clock_evidence() -> None:
     assert result.answer == "13:15 UTC"
     assert result.supporting_excerpt is not None
     assert "replaced the valve" in result.supporting_excerpt
+
+
+def test_time_requires_the_requested_action_and_chunking_preserves_name_initials() -> None:
+    question = "What time was the pump replaced for WorkOrderID WO-84?"
+    timestamp_only = _provider().answer(
+        question,
+        [_ranked("timestamp-only", "On 2032-05-08 at 09:35 UTC, technician A.")],
+    )
+    assert timestamp_only.status != "answered"
+    assert timestamp_only.answerable is False
+
+    source = (
+        "WorkOrderID WO-84. On 2032-05-08 at 09:35 UTC, "
+        "technician A. Martin replaced the pump."
+    )
+    chunks = chunk_pages(
+        [ParsedPage(page=1, blocks=(("Work order", source),))], max_chars=900
+    )
+    assert len(chunks) == 2
+    assert chunks[1].text == (
+        "On 2032-05-08 at 09:35 UTC, technician A. Martin replaced the pump."
+    )
+
+    result = _provider().answer(
+        question,
+        [
+            _ranked("work-order:p1:c0", "WorkOrderID WO-84."),
+            _ranked("work-order:p1:c1", chunks[1].text),
+        ],
+    )
+    assert result.status == "answered"
+    assert result.answer == "09:35 UTC"
+    assert result.supporting_excerpt is not None
+    assert "A. Martin replaced the pump" in result.supporting_excerpt
 
 
 def test_multiple_conditioned_values_in_one_sentence_are_not_guessed() -> None:
