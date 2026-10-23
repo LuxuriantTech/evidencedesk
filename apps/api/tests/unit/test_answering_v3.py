@@ -3,6 +3,7 @@ from dataclasses import asdict, replace
 
 import pytest
 from evidencedesk_api.answering import (
+    _MEASUREMENT,
     DecisionConfig,
     DeterministicGroundedAnswerProvider,
     GroundedAnswer,
@@ -10,6 +11,7 @@ from evidencedesk_api.answering import (
     PassageCandidateAssessment,
     _has_negated_relation,
     _named_subject_tokens,
+    _question_kind,
     _scope_ranked,
     _subject_matches,
     validate_grounded_answer,
@@ -1178,3 +1180,137 @@ def test_grounding_validator_requires_supporting_chunk_and_consistent_citation_m
             replace(valid, extracted_fields={"effective_date": "9 May 2099"}),
             ranked,
         )
+
+
+def test_direct_field_value_binds_record_identifier_and_cites_local_assertion() -> None:
+    passage = "WorkOrderID WO-31 links to ServiceRecordID SR-82."
+    result = _provider().answer(
+        "Which ServiceRecordID belongs to WorkOrderID WO-31?",
+        [_ranked("field", passage)],
+    )
+
+    assert _question_kind("Which ServiceRecordID belongs to WorkOrderID WO-31?") == "field_value"
+    assert result.status == "answered"
+    assert result.answer == "SR-82"
+    assert result.supporting_excerpt == passage
+    assert result.extracted_fields == {"answer": "SR-82"}
+
+
+def test_measurement_selection_uses_exact_time_and_ignores_unrelated_absence() -> None:
+    first = "At 08:15, pressure at station QX-42/6 was 42 kPa."
+    second = "At 08:45, pressure at station QX-42/6 was 57 kPa."
+    result = _provider().answer(
+        "What pressure was recorded at 08:15 for station QX-42/6?",
+        [
+            _ranked("first", first),
+            _ranked("second", second),
+            _ranked("other-field", "Maintenance contact: not recorded."),
+        ],
+    )
+
+    assert result.status == "answered"
+    assert result.answer == "42 kPa"
+    assert result.supporting_excerpt == first
+    assert "57 kPa" not in result.answer
+
+
+def test_repeated_unscoped_measurement_values_are_reported_as_ambiguous() -> None:
+    first = "Pressure at station QX-42/6 was 42 kPa."
+    second = "Pressure at station QX-42/6 was 57 kPa."
+    result = _provider().answer(
+        "What pressure readings are recorded for station QX-42/6?",
+        [_ranked("first", first), _ranked("second", second)],
+    )
+
+    assert result.status == "ambiguous"
+    assert len(result.citations) == 2
+    assert {citation.excerpt for citation in result.citations} == {first, second}
+
+
+def test_field_query_uses_interrogative_label_before_a_later_camelcase_constraint() -> None:
+    passage = "SampleBatchID XX-7; Nitrate concentration: 0.84 mg/L."
+    question = "What nitrate concentration is reported for SampleBatchID XX-7?"
+    result = _provider().answer(question, [_ranked("batch", passage)])
+
+    assert result.status == "answered"
+    assert result.answer == "0.84 mg/L"
+    assert result.supporting_excerpt == passage
+
+
+def test_decimal_measurement_with_condition_is_bound_and_cited() -> None:
+    high = "Pressure was 42.6 kPa under high load."
+    low = "Pressure was 38.2 kPa under low load."
+    result = _provider().answer(
+        "What pressure was recorded under high load?",
+        [_ranked("high", high), _ranked("low", low)],
+    )
+
+    assert result.status == "answered"
+    assert result.answer == "42.6 kPa"
+    assert result.supporting_excerpt == high
+
+
+def test_requested_condition_is_required_when_selecting_labeled_values() -> None:
+    result = _provider().answer(
+        "What pressure was recorded under high load?",
+        [_ranked("low", "Pressure was 38.2 kPa under low load.")],
+    )
+
+    assert result.status == "abstained"
+
+
+def test_similar_record_identifiers_do_not_allow_cross_record_field_join() -> None:
+    passage = (
+        "SampleBatchID XX-7; SampleBatchID XX-8; "
+        "Nitrate concentration: 0.84 mg/L."
+    )
+    result = _provider().answer(
+        "What nitrate concentration is reported for SampleBatchID XX-7?",
+        [_ranked("batches", passage)],
+    )
+
+    assert result.status == "abstained"
+
+
+def test_unique_header_record_identifier_can_scope_following_fact() -> None:
+    passage = "SampleBatchID SA-4.\nNitrate concentration: 3.27 mg/L."
+    result = _provider().answer(
+        "What nitrate concentration is reported for SampleBatchID SA-4?",
+        [_ranked("header", passage)],
+    )
+
+    assert result.status == "answered"
+    assert result.answer == "3.27 mg/L"
+    assert result.supporting_excerpt == passage
+
+
+def test_competing_header_identifiers_prevent_cross_record_join() -> None:
+    passage = "SampleBatchID SA-4. SampleBatchID SA-5.\nNitrate concentration: 3.27 mg/L."
+    result = _provider().answer(
+        "What nitrate concentration is reported for SampleBatchID SA-4?",
+        [_ranked("headers", passage)],
+    )
+
+    assert result.status == "abstained"
+
+
+def test_measurement_parser_keeps_percent_and_rejects_plain_words_as_units() -> None:
+    percent = _MEASUREMENT.search("Completion rate: 72%.")
+    false_unit = _MEASUREMENT.search("The status is 2 is not recorded.")
+
+    assert percent is not None and percent.group(0) == "72%"
+    assert false_unit is None
+
+
+def test_multiple_conditioned_values_in_one_sentence_are_not_guessed() -> None:
+    result = _provider().answer(
+        "What pressure was recorded under high load?",
+        [
+            _ranked(
+                "conditions",
+                "Pressure was 42.6 kPa under low load and 49.2 kPa under high load.",
+            )
+        ],
+    )
+
+    assert result.status == "abstained"

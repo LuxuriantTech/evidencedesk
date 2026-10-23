@@ -85,6 +85,26 @@ _DATE = re.compile(
     rf"(?:{_MONTHS})\s+\d{{1,2}},?\s+\d{{4}})\b",
     re.IGNORECASE,
 )
+_CLOCK = re.compile(
+    r"\b(?:at|a|à)?\s*(\d{1,2}:\d{2})(?:\s*(CET|CEST|UTC|GMT|[AP]M))?\b",
+    re.IGNORECASE,
+)
+_EXPLICIT_ID = re.compile(r"(?<![A-Z0-9])([A-Z]{1,8}(?:[-/][A-Z0-9]+)+)(?![A-Z0-9])")
+_UNIT = (
+    r"°\s*[CF]|(?:k|M)?(?:Pa|bar)|psi|NTU|(?:mg|µg|μg|g|kg)/(?:mL|L|dL)|"
+    r"(?:km|m|cm|mm)/h|m/s|"
+    r"(?:m|cm|mm|km|in|ft|mi)|(?:mL|L|dL|kg|g|mg|µg|μg)|"
+    r"(?:ms|s|min|h|Hz|kHz|MHz|GHz|rpm|W|kW|MW|V|mV|A|mA|kWh|Mbps|Gbps)|%"
+)
+_MEASUREMENT = re.compile(
+    rf"(?<![\w/.-])(\d+(?:[.,]\d+)?)\s*({_UNIT})(?![\w])",
+    re.IGNORECASE,
+)
+_CONDITION = re.compile(
+    r"\b(?:under|during|if|sous|pendant|si)\s+(?:the\s+|la\s+|le\s+)?"
+    r"([a-z0-9][a-z0-9 -]{0,35})",
+    re.IGNORECASE,
+)
 _AMOUNT = re.compile(
     r"(?:\b(?:EUR|USD|GBP)\s*[$€£]?\s*\d[\d ,.]*\d(?:[.,]\d+)?k?(?=$|[^\w])|"
     r"[$€£]\s*\d[\d ,.]*\d(?:[.,]\d+)?k?(?:\s*(?:EUR|USD|GBP))?(?=$|[^\w])|"
@@ -152,6 +172,10 @@ _QUESTION_NOISE = {
     "and",
     "or",
     "also",
+    "selon",
+    "according",
+    "accordingto",
+    "dapres",
 }
 
 _CAPITALIZED_QUERY_STOPWORDS = {
@@ -314,21 +338,348 @@ def _document_type(item: RankedChunk, contents: str) -> str | None:
 
 def _named_subject_tokens(question: str) -> set[str]:
     tokens: set[str] = set()
+    requested_field = _requested_field_words(question)
     for match in re.finditer(
         r"\b[A-ZÀ-ÖØ-Þ][A-Za-zÀ-ÖØ-öø-ÿ']*(?:-[A-Za-z0-9]+)*\b", question
     ):
         raw = match.group(0)
         token = re.sub(r"(?:'s|s')$", "", _fold(raw))
+        expanded = _camel_words(raw)
+        field_word = bool(
+            re.search(r"(?:ID|Code|Tag|Ref|Number)$", raw)
+            and requested_field
+            and set(_relation_tokens(expanded)) & requested_field
+        )
         if (
             (raw.isupper() and len(raw) < 2)
             or token in _CAPITALIZED_QUERY_STOPWORDS
             or token in _QUESTION_NOISE
+            or field_word
         ):
             continue
         if token in set.union(*_DOCUMENT_TYPE_TERMS.values()):
             continue
         tokens.add(token)
     return tokens
+
+
+def _camel_words(value: str) -> str:
+    separated = re.sub(r"(?<=[a-z])(?=[A-Z])", " ", value)
+    separated = re.sub(r"(?<=[A-Z])(?=[A-Z][a-z])", " ", separated)
+    return separated
+
+
+def _requested_field_words(question: str) -> set[str]:
+    """Identify the requested field label, separate from its record constraints."""
+    return set(_relation_tokens(" ".join(_requested_field_parts(question))))
+
+
+def _requested_field_parts(question: str) -> list[str]:
+    camel_label = re.search(
+        r"^\s*(?:what|which|quel|quelle|quels|quelles)\s+"
+        r"(?:(?:is|are|est)\s+)?(?:(?:the|le|la|les|l)\s+)?"
+        r"([A-Z][A-Za-z0-9]*(?:ID|Code|Tag|Ref|Number))\b",
+        question,
+        re.IGNORECASE,
+    )
+    if camel_label:
+        words = _camel_words(camel_label.group(1)).split()
+        if words and words[-1].casefold() == "id":
+            words.pop()
+        return [_fold(word) for word in words if word.casefold() not in {"id"}]
+
+    folded = _fold(question)
+    match = re.search(
+        r"\b(?:what|which|quel|quelle|quels|quelles)\s+"
+        r"(?:(?:is|are|est)\s+)?(?:(?:the|le|la|les|l)\s+)?(.+)",
+        folded,
+    )
+    if match:
+        stops = {
+            "a", "an", "the", "le", "la", "les", "de", "du", "des", "d",
+            "for", "in", "on", "at", "to", "under", "from", "by", "with",
+            "is", "are", "was", "were", "does", "do", "did", "has", "have",
+            "est", "sont", "ont", "il", "elle", "ils", "elles", "lequel",
+            "laquelle", "printed", "listed", "recorded", "indicated", "begins",
+            "commence", "names", "name", "reported", "donne", "indique", "indiquee",
+            "indiquees", "note", "notee", "explicitly", "directly", "is-il", "est-il",
+        }
+        words = re.findall(r"[a-z0-9]+", match.group(1))
+        selected: list[str] = []
+        for word in words:
+            if word in stops or re.fullmatch(r"[a-z]{1,8}-\d+[a-z0-9-]*", word):
+                break
+            selected.append(word)
+            if len(selected) == 3:
+                break
+        return [word for word in selected if word not in _QUESTION_NOISE]
+    return []
+
+
+def _requested_identifier_values(question: str) -> set[str]:
+    return {_fold(match.group(1)) for match in _EXPLICIT_ID.finditer(question)}
+
+
+def _requested_clock_values(question: str) -> set[str]:
+    values: set[str] = set()
+    for match in _CLOCK.finditer(question):
+        value = match.group(1)
+        zone = match.group(2)
+        values.add(f"{value} {zone}".casefold() if zone else value.casefold())
+    return values
+
+
+def _requested_conditions(question: str) -> set[str]:
+    conditions = {
+        re.sub(r"\s+", " ", _fold(match.group(1))).strip()
+        for match in _CONDITION.finditer(question)
+    }
+    return {
+        condition
+        for condition in conditions
+        if not re.search(
+            r"\b(?:agreement|contract|addendum|policy|accord|contrat|avenant)\b",
+            condition,
+        )
+        and not re.search(
+            r"\b(?:one|must|selected|controls|which|deadline|delai)\b", condition
+        )
+    }
+
+
+def _identifier_prefix(value: str) -> str:
+    return re.split(r"[-/]", value, maxsplit=1)[0]
+
+
+def _constraints_present(
+    question: str, evidence: str, constraint_context: str | None = None
+) -> bool:
+    requested_ids = _requested_identifier_values(question)
+    evidence_ids = {
+        _fold(match.group(1)) for match in _EXPLICIT_ID.finditer(evidence)
+    }
+    context = constraint_context or evidence
+    context_ids = {
+        _fold(match.group(1)) for match in _EXPLICIT_ID.finditer(context)
+    }
+    for requested_id in requested_ids:
+        local_matches = {
+            value
+            for value in evidence_ids
+            if _identifier_prefix(value) == _identifier_prefix(requested_id)
+        }
+        context_matches = {
+            value
+            for value in context_ids
+            if _identifier_prefix(value) == _identifier_prefix(requested_id)
+        }
+        if requested_id in local_matches:
+            if local_matches != {requested_id}:
+                return False
+        elif context_matches != {requested_id}:
+            return False
+    evidence_clocks = {
+        f"{match.group(1)} {match.group(2)}".casefold()
+        if match.group(2)
+        else match.group(1).casefold()
+        for match in _CLOCK.finditer(evidence)
+    }
+    requested_clocks = _requested_clock_values(question)
+    if requested_clocks and not requested_clocks & evidence_clocks:
+        return False
+    requested_dates = {_fold(match.group(0)) for match in _DATE.finditer(question)}
+    evidence_dates = {_fold(match.group(0)) for match in _DATE.finditer(evidence)}
+    if requested_dates and not requested_dates & evidence_dates:
+        return False
+    return all(condition in _fold(evidence) for condition in _requested_conditions(question))
+
+
+def _field_value(
+    question: str, segment: str, constraint_context: str | None = None
+) -> tuple[str, str] | None:
+    """Extract one explicitly labeled value with all query constraints present."""
+    field_parts = _requested_field_parts(question)
+    if not field_parts or not _constraints_present(question, segment, constraint_context):
+        return None
+    expanded = _camel_words(segment)
+    aliases = {
+        "modele": "model",
+        "turbidite": "turbidity",
+        "maximum": "peak",
+        "maximale": "peak",
+        "maximal": "peak",
+        "laboratoire": "laboratory",
+        "concentration": "",
+        "level": "",
+        "reading": "",
+        "readings": "",
+        "value": "",
+    }
+    target_options = [field_parts]
+    canonical_parts = [aliases.get(part, part) for part in field_parts]
+    canonical_parts = [part for part in canonical_parts if part]
+    field_matches: list[re.Match[str]] = []
+    for parts in target_options:
+        pattern = r"\b" + r"\s+".join(re.escape(part) for part in parts) + r"\b"
+        field_matches.extend(re.finditer(pattern, expanded, re.IGNORECASE))
+    if not field_matches and canonical_parts != field_parts:
+        target_options = [canonical_parts]
+        pattern = r"\b" + r"\s+".join(re.escape(part) for part in canonical_parts) + r"\b"
+        field_matches.extend(re.finditer(pattern, expanded, re.IGNORECASE))
+    # A measurement may be stated in a different word order, such as
+    # "Peak turbidity" for a question about maximum turbidity.
+    if not field_matches and "peak" in canonical_parts and "turbidity" in canonical_parts:
+        field_matches.extend(re.finditer(r"\bpeak\s+turbidity\b", expanded, re.IGNORECASE))
+    if not field_matches:
+        relation_terms = set(canonical_parts)
+        target_options = [[term] for term in relation_terms]
+        field_matches.extend(
+            match
+            for term in relation_terms
+            for match in re.finditer(rf"\b{re.escape(term)}\b", expanded, re.IGNORECASE)
+        )
+    field_matches = list({(match.start(), match.end()): match for match in field_matches}.values())
+    if len(field_matches) != 1:
+        return None
+    match = field_matches[0]
+    tail = expanded[match.end() :]
+    tail = re.split(r"[|;\n!?]|(?<!\d)\.(?!\d)", tail, maxsplit=1)[0]
+    tail = re.sub(
+        r"^\s*(?::|=|-)?\s*(?:(?:is|are|was|were|listed|recorded|entered|printed|"
+        r"indicated|begins|names|explicitly\s+names|explicitly\s+references|"
+        r"references|associates|assigned|assigns|noted|reported|maximum|peak|"
+        r"reading|value|concentration)\b\s*)?[:=]?\s*",
+        "",
+        tail,
+        flags=re.IGNORECASE,
+    ).strip(" ,:")
+    if not tail:
+        return None
+    measurement = _MEASUREMENT.search(tail)
+    identifier = _EXPLICIT_ID.search(tail)
+    if measurement:
+        value = measurement.group(0).strip()
+    elif identifier:
+        value = identifier.group(1)
+    else:
+        number = re.match(r"\s*(\d+(?:[.,]\d+)?)\b", tail)
+        if number and set(field_parts) & {"ph", "score", "rating"}:
+            value = number.group(1)
+        else:
+            text_match = re.match(
+                r"[A-Za-zÀ-ÖØ-öø-ÿ0-9][A-Za-zÀ-ÖØ-öø-ÿ0-9 .'\u2019/-]*", tail
+            )
+            if text_match is None:
+                return None
+            value = text_match.group(0).strip()
+    original = segment
+    # Camel expansion adds spaces, so translate the selected span back to the
+    # source by locating the label and value directly in the original text.
+    original_labels = [
+        r"\b" + r"[\s_-]*".join(re.escape(part) for part in parts) + r"\b"
+        for parts in target_options
+    ]
+    if re.search(
+        r"^\s*(?:what|which|quel|quelle|quels|quelles)\s+"
+        r"(?:(?:is|are|est)\s+)?(?:(?:the|le|la|les|l)\s+)?"
+        r"[A-Z][A-Za-z0-9]*(?:ID|Code|Tag|Ref|Number)\b",
+        question,
+        re.IGNORECASE,
+    ):
+        original_labels = [label[:-2] + r"(?:[\s_-]*id)?\b" for label in original_labels]
+    if "peak" in canonical_parts and "turbidity" in canonical_parts:
+        original_labels.append(r"\bpeak\s+turbidity\b")
+    if not original_labels:
+        return None
+    original_match = next(
+        (
+            found
+            for label in original_labels
+            if (found := re.search(label, original, re.IGNORECASE))
+        ),
+        None,
+    )
+    if original_match is None:
+        return None
+    original_tail = original[original_match.end() :]
+    if _requested_conditions(question) and len(list(_MEASUREMENT.finditer(original_tail))) > 1:
+        # Without a parsed condition-to-measurement link, multiple readings in
+        # one sentence cannot be safely assigned to the requested condition.
+        return None
+    source_measurement = _MEASUREMENT.search(original_tail)
+    if source_measurement:
+        value = source_measurement.group(0).strip()
+    original_value = re.search(
+        re.escape(value), original[original_match.end() :], re.IGNORECASE
+    )
+    if original_value is None:
+        return None
+    local_clause = _local_value_clause(
+        segment,
+        original_match.start(),
+        original_match.end() + original_value.end(),
+    )
+    if not _constraints_present(question, local_clause):
+        # A comma can separate a time/condition from its single field assertion;
+        # allow it only when the segment contains one unambiguous value label.
+        if len(field_matches) != 1 or not _constraints_present(
+            question, segment, constraint_context
+        ):
+            return None
+    using_context = bool(constraint_context and segment in constraint_context)
+    source = (
+        constraint_context
+        if using_context and constraint_context is not None
+        else original
+    )
+    offset = source.find(segment) if using_context else 0
+    if offset < 0:
+        source = original
+        offset = 0
+    start = offset + original_match.start()
+    end = offset + original_match.end() + original_value.end()
+    for requested_id in _requested_identifier_values(question):
+        id_match = re.search(
+            rf"(?<![A-Z0-9]){re.escape(requested_id)}(?![A-Z0-9])",
+            source,
+            re.IGNORECASE,
+        )
+        if id_match:
+            clause = _local_value_clause(source, id_match.start(), id_match.end())
+            clause_start = source.find(clause)
+            start = min(
+                start, clause_start if clause_start >= 0 else id_match.start()
+            )
+            end = max(
+                end,
+                clause_start + len(clause)
+                if clause_start >= 0
+                else id_match.end(),
+            )
+    for clock in _CLOCK.finditer(source):
+        clock_value = (
+            f"{clock.group(1)} {clock.group(2)}".casefold()
+            if clock.group(2)
+            else clock.group(1).casefold()
+        )
+        if clock_value in _requested_clock_values(question):
+            start = min(start, clock.start())
+            end = max(end, clock.end())
+    for date_match in _DATE.finditer(source):
+        if _fold(date_match.group(0)) in {
+            _fold(match.group(0)) for match in _DATE.finditer(question)
+        }:
+            start = min(start, date_match.start())
+            end = max(end, date_match.end())
+    for condition_match in _CONDITION.finditer(source):
+        condition = re.sub(r"\s+", " ", _fold(condition_match.group(1))).strip()
+        if condition in _requested_conditions(question):
+            start = min(start, condition_match.start())
+            end = max(end, condition_match.end())
+    if end < len(source) and source[end] in ".!?":
+        end += 1
+    source_excerpt = source[start:end].strip()
+    return value, source_excerpt
 
 
 def _subject_matches(subject: str, contents: str) -> bool:
@@ -666,6 +1017,11 @@ def _question_kind(question: str) -> str:
     )
     if len(interrogative_slots) > 1:
         return "multi_slot"
+    if re.search(
+        r"\b(?:what\s+time|at\s+what\s+time|quelle\s+heure|a\s+quelle\s+heure)\b",
+        folded,
+    ):
+        return "time"
     if re.search(r"\b(?:status|statut)\b", folded) and re.search(
         r"\b(?:date|renewal|renouvellement|value|champ|field)\b", folded
     ):
@@ -707,6 +1063,8 @@ def _question_kind(question: str) -> str:
         return "organization_name"
     if re.search(r"\b(?:who|qui|whose)\b", folded):
         return "responsible_people"
+    if _requested_field_parts(question):
+        return "field_value"
     return "text"
 
 
@@ -780,7 +1138,31 @@ def _date_evidence_segments(segment: str, question: str) -> list[str]:
     return clauses or [segment]
 
 
-def _value_for(kind: str, segment: str, question: str) -> str | None:
+def _value_for(
+    kind: str,
+    segment: str,
+    question: str,
+    *,
+    constraint_context: str | None = None,
+) -> str | None:
+    if kind == "field_value":
+        extracted = _field_value(question, segment, constraint_context)
+        return extracted[0] if extracted else None
+    if kind == "time":
+        if not _constraints_present(question, segment, constraint_context):
+            return None
+        requested = _requested_clock_values(question)
+        matches = [
+            match
+            for match in _CLOCK.finditer(segment)
+            if not requested
+            or (
+                f"{match.group(1)} {match.group(2)}".casefold()
+                if match.group(2)
+                else match.group(1).casefold()
+            ) in requested
+        ]
+        return matches[0].group(0).strip() if len(matches) == 1 else None
     if kind == "boolean":
         if not _relation_supported(question, segment, kind):
             return None
@@ -791,18 +1173,24 @@ def _value_for(kind: str, segment: str, question: str) -> str | None:
         question_amounts = list(_AMOUNT.finditer(question))
         question_dates = list(_DATE.finditer(question))
         question_durations = list(_DURATION.finditer(question))
-        for requested, observed in (
+        for requested_matches, observed_matches in (
             (question_amounts, list(_AMOUNT.finditer(segment))),
             (question_dates, list(_DATE.finditer(segment))),
             (question_durations, list(_DURATION.finditer(segment))),
         ):
-            if requested:
-                requested_values = {_fold(match.group(0)) for match in requested}
-                observed_values = {_fold(match.group(0)) for match in observed}
+            if requested_matches:
+                requested_values = {
+                    _fold(match.group(0)) for match in requested_matches
+                }
+                observed_values = {
+                    _fold(match.group(0)) for match in observed_matches
+                }
                 if observed_values and not requested_values & observed_values:
                     return f"No. {segment}"
         return f"Yes. {segment}"
     if kind == "date":
+        if not _constraints_present(question, segment, constraint_context):
+            return None
         match = _date_match_for_question(segment, question)
         if match is None:
             return None
@@ -824,6 +1212,8 @@ def _value_for(kind: str, segment: str, question: str) -> str | None:
                 value = context[start:end].strip()
         return value
     if kind == "amount":
+        if not _constraints_present(question, segment, constraint_context):
+            return None
         matches = list(_AMOUNT.finditer(segment))
         if not matches:
             return None
@@ -841,6 +1231,8 @@ def _value_for(kind: str, segment: str, question: str) -> str | None:
             return None
         return max(scored, key=lambda row: (row[0], -row[1]))[2]
     if kind == "duration":
+        if not _constraints_present(question, segment, constraint_context):
+            return None
         match = _DURATION.search(segment)
         return match.group(0) if match else None
     if kind == "status":
@@ -879,6 +1271,8 @@ def _value_for(kind: str, segment: str, question: str) -> str | None:
             match = re.search(pattern, segment)
             if match:
                 return match.group(1).strip().removesuffix(".")
+        return None
+    if kind == "text" and not _constraints_present(question, segment, constraint_context):
         return None
     return segment
 
@@ -941,6 +1335,7 @@ def _relation_supported(
     *,
     provider: EmbeddingProvider | None = None,
     semantic_threshold: float = 0.48,
+    constraint_context: str | None = None,
 ) -> bool:
     question_tokens = _question_relation_tokens(question, kind)
     segment_tokens = _relation_tokens(segment)
@@ -950,7 +1345,10 @@ def _relation_supported(
         if requested_events and not requested_events & evidence_events:
             return False
         if requested_events:
-            return _value_for(kind, segment, question) is not None
+            return (
+                _value_for(kind, segment, question, constraint_context=constraint_context)
+                is not None
+            )
     if kind == "boolean":
         action_anchors = {"access", "amend"} & question_tokens
         if action_anchors and not action_anchors & segment_tokens:
@@ -969,6 +1367,10 @@ def _relation_supported(
         return bool(
             re.search(r"\b(?:organization|organisation|entity|entite|name|nom)\b", _fold(question))
         )
+    if kind in {"field_value", "time"}:
+        return _value_for(
+            kind, segment, question, constraint_context=constraint_context
+        ) is not None
     noise_by_kind = {
         "date": {"date", "effective", "deadline"},
         "amount": {
@@ -985,7 +1387,9 @@ def _relation_supported(
     relation_tokens = question_tokens - noise_by_kind.get(kind, set())
     overlap = relation_tokens & segment_tokens
     if kind in {"amount", "duration", "status"}:
-        value = _value_for(kind, segment, question)
+        value = _value_for(
+            kind, segment, question, constraint_context=constraint_context
+        )
         if value is None:
             return False
         pattern = _AMOUNT if kind == "amount" else _DURATION if kind == "duration" else _ABSENCE
@@ -1029,7 +1433,9 @@ def _relation_supported(
             or _has_negated_relation(question, segment, kind)
         )
     if kind == "status":
-        return bool(overlap) and _value_for(kind, segment, question) is not None
+        return bool(overlap) and _value_for(
+            kind, segment, question, constraint_context=constraint_context
+        ) is not None
     if kind == "multi_slot":
         return False
     if kind == "text":
@@ -1046,13 +1452,30 @@ def _relation_supported(
     return bool(overlap)
 
 
-def _support_score(question: str, segment: str, kind: str, provider: EmbeddingProvider) -> float:
+def _support_score(
+    question: str,
+    segment: str,
+    kind: str,
+    provider: EmbeddingProvider,
+    *,
+    constraint_context: str | None = None,
+) -> float:
     query_tokens = lexical_tokens(question) - _QUESTION_NOISE
     segment_tokens = lexical_tokens(segment)
     lexical = len(query_tokens & segment_tokens) / max(1, len(query_tokens))
     semantic = _semantic_similarity(question, segment, provider)
-    has_value = _value_for(kind, segment, question) is not None
-    relation = float(_relation_supported(question, segment, kind, provider=provider))
+    has_value = (
+        _value_for(kind, segment, question, constraint_context=constraint_context) is not None
+    )
+    relation = float(
+        _relation_supported(
+            question,
+            segment,
+            kind,
+            provider=provider,
+            constraint_context=constraint_context,
+        )
+    )
     return min(1.0, 0.30 * lexical + 0.20 * semantic + 0.35 * float(has_value) + 0.15 * relation)
 
 
@@ -1075,6 +1498,8 @@ def _citation(item: RankedChunk, excerpt: str) -> Citation:
 def _field_name(kind: str) -> str:
     return {
         "boolean": "answer",
+        "field_value": "answer",
+        "time": "time",
         "date": "date",
         "amount": "important_amounts",
         "duration": "duration",
@@ -1378,9 +1803,8 @@ class DeterministicGroundedAnswerProvider:
                     _date_evidence_segments(segment, question) if kind == "date" else [segment]
                 )
                 for evidence_segment in evidence_segments:
-                    if kind not in {"boolean", "status"} and (
-                        _has_explicit_absence(evidence_segment)
-                        or _has_negated_relation(question, evidence_segment, kind)
+                    if kind not in {"boolean", "status"} and _has_negated_relation(
+                        question, evidence_segment, kind
                     ):
                         evaluated.setdefault(item.chunk.id, []).append(
                             (0.0, evidence_segment, None, False)
@@ -1397,20 +1821,39 @@ class DeterministicGroundedAnswerProvider:
                     if admitted is None:
                         continue
                     evidence_text = admitted.text
-                    score = _support_score(question, evidence_text, kind, self.embeddings)
-                    value = _value_for(kind, evidence_text, question)
+                    score = _support_score(
+                        question,
+                        evidence_text,
+                        kind,
+                        self.embeddings,
+                        constraint_context=parent_content.text,
+                    )
+                    value = _value_for(
+                        kind,
+                        evidence_text,
+                        question,
+                        constraint_context=parent_content.text,
+                    )
                     relation = _relation_supported(
                         question,
                         evidence_text,
                         kind,
                         provider=self.embeddings,
                         semantic_threshold=self.config.support_threshold,
+                        constraint_context=parent_content.text,
                     )
+                    citation_text = evidence_text
+                    if kind == "field_value":
+                        extracted = _field_value(
+                            question, evidence_text, parent_content.text
+                        )
+                        if extracted is not None:
+                            citation_text = extracted[1]
                     evaluated.setdefault(item.chunk.id, []).append(
-                        (score, evidence_text, value, relation)
+                        (score, citation_text, value, relation)
                     )
                     if value is not None and relation:
-                        candidates.append((score, evidence_text, value, item))
+                        candidates.append((score, citation_text, value, item))
                     elif (
                         score >= self.config.partial_support_threshold
                         and _has_explicit_relation(question, evidence_text)
@@ -1453,7 +1896,15 @@ class DeterministicGroundedAnswerProvider:
                 else _fold(other[2] or "") != _fold(best[2] or "")
             )
         ]
-        if distinct and kind in {"boolean", "date", "amount", "duration", "severity"}:
+        if distinct and kind in {
+            "boolean",
+            "date",
+            "amount",
+            "duration",
+            "severity",
+            "field_value",
+            "time",
+        }:
             other = distinct[0]
             citations = (_citation(best[3], best[1]), _citation(other[3], other[1]))
             result = GroundedAnswer(

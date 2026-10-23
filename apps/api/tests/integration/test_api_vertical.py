@@ -635,6 +635,110 @@ def test_grounded_api_provider_abstains_on_negation_and_cites_explicit_absence(
 
 
 @pytest.mark.integration
+def test_grounded_api_binds_measurements_to_time_and_preserves_same_role_ambiguity(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    settings = Settings(
+        database_url=DATABASE_URL,
+        redis_url="redis://127.0.0.1:56379/0",
+        storage_root=tmp_path,
+        jwt_secret="integration-secret-at-least-32-characters",
+        public_demo_mode=False,
+        answer_mode="grounded-local-v3",
+        demo_admin_password="EvidenceDemo-Admin-2026!",
+        demo_analyst_password="EvidenceDemo-Analyst-2026!",
+        demo_reader_password="EvidenceDemo-Reader-2026!",
+    )
+    asyncio.run(_reset_and_seed(settings))
+    queue = RecordingQueue()
+    original_builder = cast(Any, api_main).build_provider_bundle
+    embedding = DeterministicEmbeddingProvider(dimension=384)
+
+    def build_with_local_test_embedding(mode: str, **kwargs: Any) -> ProviderBundle:
+        return cast(
+            ProviderBundle,
+            original_builder(mode, embedding_factory=lambda: embedding, **kwargs),
+        )
+
+    monkeypatch.setattr(api_main, "build_provider_bundle", build_with_local_test_embedding)
+    with TestClient(create_app(settings=settings, task_queue=queue)) as client:
+        assert isinstance(
+            cast(Any, client).app.state.providers.answer,
+            DeterministicGroundedAnswerProvider,
+        )
+        analyst = _token(client, "demo.analyst", "EvidenceDemo-Analyst-2026!")
+        reader = _token(client, "demo.reader", "EvidenceDemo-Reader-2026!")
+        dossier_id = client.get("/api/v1/dossiers", headers=_headers(reader)).json()[0]["id"]
+        source = (
+            b"Station RQ-19/7 uses sensor series VTX-3/B.\n"
+            b"At 08:15, pressure at station RQ-19/7 was 42 kPa.\n"
+            b"At 08:45, pressure at station RQ-19/7 was 57 kPa.\n"
+            b"Maintenance contact: not recorded."
+        )
+        uploaded = client.post(
+            f"/api/v1/dossiers/{dossier_id}/documents",
+            headers=_headers(analyst),
+            files={"file": ("station_rq-19-7_monitoring.txt", source, "text/plain")},
+            data={"is_synthetic": "true"},
+        )
+        assert uploaded.status_code == 202, uploaded.text
+        document_id, task_id, correlation_id = queue.jobs[0]
+
+        async def run_worker() -> None:
+            engine = build_engine(settings)
+            worker = WorkerContext(
+                settings=settings,
+                engine=engine,
+                session_factory=build_session_factory(engine),
+                storage=LocalDocumentStorage(settings.storage_root),
+                embeddings=embedding,
+            )
+            try:
+                result = await process_document(
+                    {"worker": worker}, str(document_id), str(task_id), str(correlation_id)
+                )
+                assert result["status"] == "completed"
+            finally:
+                await engine.dispose()
+
+        asyncio.run(run_worker())
+
+        scoped = client.post(
+            f"/api/v1/dossiers/{dossier_id}/ask",
+            headers=_headers(reader),
+            json={"question": "What pressure was recorded at 08:15 for station RQ-19/7?"},
+        )
+        assert scoped.status_code == 200, scoped.text
+        scoped_payload = scoped.json()
+        assert scoped_payload["status"] == "answered"
+        assert "42 kPa" in scoped_payload["answer"]
+        assert "57 kPa" not in scoped_payload["answer"]
+        assert scoped_payload["citations"][0]["document_id"] == str(document_id)
+        assert scoped_payload["citations"][0]["page"] == 1
+        assert scoped_payload["citations"][0]["excerpt"] == (
+            "At 08:15, pressure at station RQ-19/7 was 42 kPa."
+        )
+        assert "Maintenance contact" not in scoped_payload["answer"]
+
+        unscoped = client.post(
+            f"/api/v1/dossiers/{dossier_id}/ask",
+            headers=_headers(reader),
+            json={"question": "What pressure readings are recorded for station RQ-19/7?"},
+        )
+        assert unscoped.status_code == 200, unscoped.text
+        ambiguous_payload = unscoped.json()
+        assert ambiguous_payload["status"] == "ambiguous"
+        assert len(ambiguous_payload["citations"]) == 2
+        assert {item["document_id"] for item in ambiguous_payload["citations"]} == {
+            str(document_id)
+        }
+        assert {item["page"] for item in ambiguous_payload["citations"]} == {1}
+        cited_values = " ".join(item["excerpt"] for item in ambiguous_payload["citations"])
+        assert "42 kPa" in cited_values
+        assert "57 kPa" in cited_values
+
+
+@pytest.mark.integration
 def test_evaluation_endpoint_persists_only_calculated_results(
     api: tuple[TestClient, RecordingQueue, Settings],
 ) -> None:
