@@ -28,7 +28,7 @@
     "seed": 20261023,
     "temperature": 0.0,
     "enable_thinking": false,
-    "max_tokens": 512,
+    "max_tokens": 256,
     "context_tokens": 6144,
     "max_input_tokens": 5632
   },

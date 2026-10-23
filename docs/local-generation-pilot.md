@@ -6,10 +6,22 @@ The regular configuration keeps `grounded-local-v3`. The new mode is explicitly
 opt-in and is rejected when public demo mode is enabled.
 
 The pilot uses the official Qwen3-8B Q4_K_M model and a pinned llama.cpp runtime.
-The model selects exact source passages; the API reconstructs the answer from
-those passages and validates their provenance. This prevents invented answer
-text from being displayed, but does not prove that a selected passage answers
-the question correctly. Semantic quality needs separate evaluation.
+The ID-selector protocol gives the model only a request-specific list of chunk
+IDs to choose from. It cannot submit quote text or answer prose. The API rebuilds
+citations from those IDs and uses the complete selected primary chunk as the
+answer; an ambiguous result concatenates the two selected chunk texts. This
+prevents the model from inventing displayed text, but does not prove a selected
+chunk answers the question correctly. The existing opt-in mode name
+`local-qwen8b-extractive-pilot` is retained for compatibility; its answer
+protocol in this candidate is ID selection, not free-form quote selection.
+Semantic quality needs separate evaluation.
+
+The request schema constrains selected IDs to the ranked chunks supplied for
+that request. A primary ID is mandatory for an answer; corroborating IDs are
+optional. Ambiguity requires two distinct chunk IDs; a conflict stated only
+inside one chunk cannot be represented and fails closed as abstention. The
+configured output budget is 256 tokens; context, input budget, model, runtime,
+and other launch limits remain pinned as before.
 
 The pinned launcher sets `--cache-ram 0` from the manifest. This disables the
 server's RAM prompt-cache pool and idle-slot snapshots, while active-slot

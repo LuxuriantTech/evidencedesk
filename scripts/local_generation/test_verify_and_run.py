@@ -29,6 +29,10 @@ class VerifyAndRunTests(unittest.TestCase):
         cache_flag_index = command.index("--cache-ram")
         self.assertEqual(command[cache_flag_index + 1], str(server["cache_ram_mib"]))
         self.assertEqual(command.count("--cache-ram"), 1)
+        generation = bundle.MANIFEST["generation"]
+        token_flag_index = command.index("--n-predict")
+        self.assertEqual(command[token_flag_index + 1], str(generation["max_tokens"]))
+        self.assertEqual(generation["max_tokens"], 256)
 
 
 if __name__ == "__main__":
