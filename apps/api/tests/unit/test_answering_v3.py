@@ -704,6 +704,26 @@ def test_named_subject_scope_does_not_join_distinct_shipments_by_coincidence() -
     assert _scope_ranked(question, ranked) == []
 
 
+def test_named_subject_scope_does_not_join_shipments_through_a_shared_contract() -> None:
+    question = "What reference identifies the Meadowrun shipment received in Dijon?"
+    ranked = [
+        _ranked(
+            "manifest",
+            "Meadowrun shipment SH-2841, contract C-100.",
+            document_id="manifest",
+            document_name="meadowrun_manifest.txt",
+        ),
+        _ranked(
+            "delivery",
+            "Shipment SH-9999 was received in Dijon under contract C-100.",
+            document_id="delivery",
+            document_name="delivery_note.txt",
+        ),
+    ]
+
+    assert _scope_ranked(question, ranked) == []
+
+
 def test_named_subject_scope_preserves_complete_hyphenated_identifiers() -> None:
     subjects = _named_subject_tokens("Quand l\u2019échantillon du lot AP-73 a-t-il été prélevé ?")
 

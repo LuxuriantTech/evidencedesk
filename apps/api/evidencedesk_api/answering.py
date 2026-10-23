@@ -359,6 +359,28 @@ def _typed_link_keys(contents: str) -> set[tuple[str, str]]:
     }
 
 
+def _requested_link_type(question: str) -> str | None:
+    folded = _fold(question)
+    type_terms = (
+        ("purchase order", ("purchase order", "bon de commande", "commande")),
+        ("shipment", ("shipment", "shipping", "expedition", "livraison")),
+        ("dispatch", ("dispatch", "envoi")),
+        ("consignment", ("consignment",)),
+        ("contract", ("contract", "contrat")),
+        ("agreement", ("agreement", "accord")),
+        ("invoice", ("invoice", "facture")),
+        ("case", ("case", "dossier")),
+        ("claim", ("claim", "reclamation")),
+        ("batch", ("batch", "lot")),
+        ("container", ("container", "conteneur")),
+        ("order", ("order", "commande")),
+    )
+    for link_type, terms in type_terms:
+        if any(re.search(rf"\b{re.escape(term)}\b", folded) for term in terms):
+            return link_type
+    return None
+
+
 def _scope_ranked(question: str, ranked: list[RankedChunk]) -> list[RankedChunk]:
     requested_type = _requested_document_type(question)
     subject_tokens = _named_subject_tokens(question)
@@ -410,8 +432,19 @@ def _scope_ranked(question: str, ranked: list[RankedChunk]) -> list[RankedChunk]
             for key in link_keys_by_document.get(document_id, set()):
                 documents_by_key.setdefault(key, set()).add(document_id)
         linked_documents: set[str] = set()
-        for document_ids in documents_by_key.values():
+        requested_link_type = _requested_link_type(question)
+        for key, document_ids in documents_by_key.items():
             if len(document_ids) < 2:
+                continue
+            if requested_link_type is None or key[0] != requested_link_type:
+                continue
+            linked_values = {
+                value
+                for document_id in document_ids
+                for link_type, value in link_keys_by_document.get(document_id, set())
+                if link_type == requested_link_type
+            }
+            if len(linked_values) != 1:
                 continue
             linked_subjects = {
                 subject
