@@ -48,8 +48,8 @@ MIN_HOST_MEM_AVAILABLE_BYTES = 12 * 1024 * 1024 * 1024
 CI_CODE_FILES = ("ci_common.py", "run_ci_pair.py", "run_generation_case.py", "remote_baseline.py",
                  "run_smoke_cases.py", "run_ci_pair.sh", "prepare_artifacts.py", "generative_provider.py",
                  "ARTIFACT_MANIFEST.json", "GENERATION_DATASET_MANIFEST.json", "README.md",
-                 "test_gen_ci_preparation.py", "test_generative_provider.py", "PROVIDER_V5_POLICY.md")
-PROVIDER_SHA256 = "32c4b86c800df8b4b6e25205404d6fac1d5e6f77fbcca6781b444f956f0a4225"
+                 "test_gen_ci_preparation.py", "test_generative_provider.py", "PROVIDER_V5_POLICY.md", "PROVIDER_V6_POLICY.md")
+PROVIDER_SHA256 = "4a782199bf3c80273dc4c8975e1020253151f6c18ee7ed4f61b69c0cbdef7570"
 SMOKE_CASES = 4
 
 

@@ -22,7 +22,7 @@ from urllib.parse import urlparse
 
 HERE = Path(__file__).resolve().parent
 CANDIDATE_COMMIT = "120e233bb8ff09cabc1bd3c5004a8545039459aa"
-PROVIDER_SHA256 = "32c4b86c800df8b4b6e25205404d6fac1d5e6f77fbcca6781b444f956f0a4225"
+PROVIDER_SHA256 = "4a782199bf3c80273dc4c8975e1020253151f6c18ee7ed4f61b69c0cbdef7570"
 CASES = (
     {
         "name": "person",

@@ -1,0 +1,152 @@
+{
+  "format": "generative-answer-pilot-snapshot-8b-v3-policy-v6",
+  "classification": "exposed development; not release qualified",
+  "native_candidate_commit": "120e233bb8ff09cabc1bd3c5004a8545039459aa",
+  "published_baseline_commit": "ffeba12c4d4d64a1e1f003f211dfa1781c64515d",
+  "previous_snapshot_sha256": "e6163b83e1d7c58d0fa3d1d5921d1bd82d8adbc501e7c83d942bb4bc49f0dfbd",
+  "previous_ci_run": "https://github.com/LuxuriantTech/evidencedesk/actions/runs/40025810416",
+  "previous_ci_state_at_preparation": "in progress; no candidate results yet available locally",
+  "prior_model_component_inference_occurred": true,
+  "this_v6_policy_model_inference_before_snapshot": false,
+  "answer_policy_change": "Stable chunk_id-sorted evidence blocks, explicit native relevance order, question last; generic representation guidance only",
+  "measured_speed_or_quality_gain_before_this_snapshot": false,
+  "all_release_gates_unchanged": true,
+  "workflow_sha256": "1e690546577e7dbc1c8d1ee361344119213ec100e5f05078796e8242b6efbd7f",
+  "files": [
+    {
+      "path": ".gitattributes",
+      "bytes": 8,
+      "sha256": "705fd4d6451a31d36b3df7de96f83f30ac976c9b4a6d1e51671d8e2f33e2d0da"
+    },
+    {
+      "path": "ARTIFACT_MANIFEST.json",
+      "bytes": 1648,
+      "sha256": "5f479dcee63118ed3f72691511a640165dad06a1261a40a4ae2d9d29274a0047"
+    },
+    {
+      "path": "ci_common.py",
+      "bytes": 5982,
+      "sha256": "4c66105e05bb08cb3cd3e4752b0509941ada2466c2747e917550022592ffea34"
+    },
+    {
+      "path": "datasets/E4/corpus_manifest.json",
+      "bytes": 5595,
+      "sha256": "7fd7b7991557515c6007cf1a6982763b74c46e99929d0575f8be1023a8220951"
+    },
+    {
+      "path": "datasets/E4/evaluation_cases.json",
+      "bytes": 10679,
+      "sha256": "d8492380fd91ab058de0c05eb773d5fe79048cdd77894b24249be9de06baa228"
+    },
+    {
+      "path": "datasets/E5/corpus_manifest.json",
+      "bytes": 8395,
+      "sha256": "40b446b42516bd0840b69fc669f3bedd2d7f050849b41b55c3907bd7d0fa2329"
+    },
+    {
+      "path": "datasets/E5/evaluation_cases.json",
+      "bytes": 16414,
+      "sha256": "5185fbf6a621176e735fc8291383db2db2e7f340c269c0452fcbb5273c28a57e"
+    },
+    {
+      "path": "datasets/E6/corpus_manifest.json",
+      "bytes": 7003,
+      "sha256": "b64a0a8e310967b6825c5ec9340ae3e8081d1d6e53287f3cda4bf7fa31272029"
+    },
+    {
+      "path": "datasets/E6/evaluation_cases.json",
+      "bytes": 12658,
+      "sha256": "1c7de141d65795fec156a3c64cd20c25a17f977e1ddb2028e8749525839a1f3a"
+    },
+    {
+      "path": "GENERATION_DATASET_MANIFEST.json",
+      "bytes": 1995,
+      "sha256": "30225ca0f193c7983949628e0a33b748b63402d8b092d16242493b9fb6f70a65"
+    },
+    {
+      "path": "generative_provider.py",
+      "bytes": 33642,
+      "sha256": "4a782199bf3c80273dc4c8975e1020253151f6c18ee7ed4f61b69c0cbdef7570"
+    },
+    {
+      "path": "prepare_artifacts.py",
+      "bytes": 27476,
+      "sha256": "58da9f2b505a540c00b788d75bd31e97d167d1c4f0947e5a2698c72da7611178"
+    },
+    {
+      "path": "PROVIDER_V5_POLICY.md",
+      "bytes": 1352,
+      "sha256": "91ee2a2c3aa780bd001d84ec14ab5f438903d212de1838c69cbeaf14195ee953"
+    },
+    {
+      "path": "PUBLIC_SAFE_REVIEW.md",
+      "bytes": 1278,
+      "sha256": "630fac747db0ff00c7a94c4d58b01344aabae471cd721fa60203dcd8a2a15f3d"
+    },
+    {
+      "path": "README.md",
+      "bytes": 1671,
+      "sha256": "2877197e697792cbc2556f0a3d826c61178d2140273a0eefdefcdde6e9a72f79"
+    },
+    {
+      "path": "RELEASE_CRITERIA.md",
+      "bytes": 4344,
+      "sha256": "21adf6dd50df9f470b52c8a0dbd6f982e22357b7c611917608b84881cd1871ad"
+    },
+    {
+      "path": "remote_baseline.py",
+      "bytes": 9747,
+      "sha256": "e8abdb64b4a84197cb5c0475434e61f7bfb6688f71e0a913b1fe0a817073eaa6"
+    },
+    {
+      "path": "run_ci_pair.py",
+      "bytes": 31824,
+      "sha256": "4707920409ba64198ebb36f861fd2dd25151f3f45827c0e9cfddef1b165b3ddb"
+    },
+    {
+      "path": "run_ci_pair.sh",
+      "bytes": 1716,
+      "sha256": "70b2f1ab892adcc8d34ef39eae3104b756412e9d4f4803aaa3d2e1fe687894b3"
+    },
+    {
+      "path": "run_generation_case.py",
+      "bytes": 18442,
+      "sha256": "8b259f8445c515125e3beb80776d3dafaf4297ad373668c07c8d8ce26cd14fb7"
+    },
+    {
+      "path": "run_smoke_cases.py",
+      "bytes": 13306,
+      "sha256": "f48bd1fc76065995eb3815cf1e40ccbe155ab110ed6759860afe6f3db3894901"
+    },
+    {
+      "path": "test_gen_ci_preparation.py",
+      "bytes": 11201,
+      "sha256": "0441face2f9d395ac86990cd12cd34fd1d9d4bbf4a6b25adc69e2e91732075ae"
+    },
+    {
+      "path": "test_generative_provider.py",
+      "bytes": 19461,
+      "sha256": "9dae120b7f2abc494d775d96ffbb377db671d4e90bc164f9882871380026b050"
+    },
+    {
+      "path": "PILOT_SNAPSHOT_V1.json",
+      "bytes": 4521,
+      "sha256": "06f91e637d3764a8be3e90b825d25a721974e85e89b7553e7d9b26ab69898982"
+    },
+    {
+      "path": "V1_EXECUTION_NOTE.md",
+      "bytes": 1188,
+      "sha256": "6ca5f729202892b9d21ccf5247604e3306956b296d02edeb6782fc8a98a60d64"
+    },
+    {
+      "path": "PILOT_SNAPSHOT_V2.json",
+      "bytes": 4919,
+      "sha256": "e6163b83e1d7c58d0fa3d1d5921d1bd82d8adbc501e7c83d942bb4bc49f0dfbd"
+    },
+    {
+      "path": "PROVIDER_V6_POLICY.md",
+      "bytes": 1957,
+      "sha256": "715c8b640f2484ca55b503a80de3def09a9ccd60eb583b8aede9cc8c27648f04"
+    }
+  ]
+}

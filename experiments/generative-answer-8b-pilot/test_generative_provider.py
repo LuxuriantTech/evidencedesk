@@ -24,6 +24,8 @@ from generative_provider import (  # noqa: E402
     ProviderInputError,
     BackendRequestError,
     GenerativeAnswerProvider,
+    _context,
+    _user_payload,
     _validate_model_json,
 )
 
@@ -79,6 +81,40 @@ class GenerativeProviderTests(unittest.TestCase):
         with patch("generative_provider._http_post", side_effect=fake_local_post(content)) as post:
             result = self.provider.answer("What is the serial?", ranked or [c("c1", "Serial is SN-73.")])
         return result, post
+
+    def test_payload_preserves_each_chunk_field_and_records_native_rank(self):
+        ranked = [
+            Ranked(Chunk("z-last", "doc-z", "Zeta.pdf", 7, "Final", "Exact Z text.")),
+            Ranked(Chunk("a-first", "doc-a", "Alpha.pdf", 2, "Intro", "Exact A text.")),
+        ]
+        payload = json.loads(_user_payload("question one", _context("question one", ranked)))
+        self.assertEqual(list(payload), ["retrieved_chunks", "retrieval_order", "question"])
+        self.assertEqual(payload["retrieval_order"], ["z-last", "a-first"])
+        self.assertEqual(payload["question"], "question one")
+        self.assertEqual(payload["retrieved_chunks"], [
+            {"chunk_id": "a-first", "document_id": "doc-a", "document_name": "Alpha.pdf",
+             "page": 2, "section": "Intro", "text": "Exact A text."},
+            {"chunk_id": "z-last", "document_id": "doc-z", "document_name": "Zeta.pdf",
+             "page": 7, "section": "Final", "text": "Exact Z text."},
+        ])
+
+    def test_same_chunk_pool_has_identical_payload_prefix_across_questions(self):
+        ranked = [c("z-last", "Exact Z text."), c("a-first", "Exact A text.")]
+        first = _user_payload("question one", _context("question one", ranked))
+        second = _user_payload("a different question", _context("a different question", ranked))
+        marker = ',"question":'
+        self.assertIn(marker, first)
+        self.assertIn(marker, second)
+        self.assertEqual(first.split(marker, 1)[0], second.split(marker, 1)[0])
+
+    def test_rank_permutation_keeps_chunk_blocks_but_updates_retrieval_order(self):
+        first_rank = [c("z-last", "Exact Z text."), c("a-first", "Exact A text.")]
+        second_rank = list(reversed(first_rank))
+        first = json.loads(_user_payload("same question", _context("same question", first_rank)))
+        second = json.loads(_user_payload("same question", _context("same question", second_rank)))
+        self.assertEqual(first["retrieved_chunks"], second["retrieved_chunks"])
+        self.assertEqual(first["retrieval_order"], ["z-last", "a-first"])
+        self.assertEqual(second["retrieval_order"], ["a-first", "z-last"])
 
     def test_answer_is_exact_validated_span_and_native_type(self):
         result, post = self.call_with_content(decision())
