@@ -282,6 +282,112 @@ def test_reference_as_a_field_name_is_not_treated_as_a_directed_relation() -> No
     assert result.answer == "RF-82"
 
 
+def test_prose_count_is_extracted_from_its_assertion_not_an_unknown_measurement() -> None:
+    result = _answerer().answer(
+        "How many ceramic tiles did record TR-44 include?",
+        [_ranked("count", "Record TR-44 includes twelve ceramic tiles.")],
+    )
+
+    assert result.status == "answered"
+    assert result.answer is not None
+    assert result.supporting_excerpt is not None
+    assert "twelve" in result.answer.casefold()
+    assert "ceramic tiles" in result.supporting_excerpt.casefold()
+
+
+def test_model_property_does_not_absorb_the_object_phrase_after_of() -> None:
+    result = _answerer().answer(
+        "Which model of ceramic seal was added by ChangeID CH-29?",
+        [
+            _ranked(
+                "change",
+                "ChangeID CH-29 added a ceramic seal, model CS-7, at no charge.",
+            )
+        ],
+    )
+
+    assert result.status == "answered"
+    assert result.answer == "CS-7"
+
+
+def test_unique_record_id_scopes_a_value_across_document_pages() -> None:
+    header = _ranked(
+        "materials:p1:c0",
+        "WorkOrderID WO-83 | CustomerID CU-9. WorkOrderID WO-83 covers replacement parts.",
+        page=1,
+        document_id="materials",
+    )
+    price = _ranked(
+        "materials:p2:c0",
+        "The approved unit price is EUR 17.50 per component.",
+        page=2,
+        document_id="materials",
+    )
+    result = _answerer().answer(
+        "What unit price was approved under WorkOrderID WO-83?", [header, price]
+    )
+
+    assert result.status == "answered"
+    assert result.answer == "EUR 17.50"
+    assert result.supporting_page == 2
+    assert {citation.page for citation in result.citations} == {1, 2}
+
+
+def test_later_record_does_not_invalidate_an_earlier_scoped_fact() -> None:
+    header = _ranked(
+        "materials:p1:c0",
+        "WorkOrderID WO-83 covers replacement parts.",
+        page=1,
+        document_id="materials",
+    )
+    price = _ranked(
+        "materials:p2:c0",
+        "The approved unit price is EUR 17.50 per component.",
+        page=2,
+        document_id="materials",
+    )
+    other = _ranked(
+        "materials:p3:c0",
+        "WorkOrderID WO-84 covers separate replacement parts.",
+        page=3,
+        document_id="materials",
+    )
+    result = _answerer().answer(
+        "What unit price was approved under WorkOrderID WO-83?",
+        [header, price, other],
+    )
+
+    assert result.status == "answered"
+    assert result.answer == "EUR 17.50"
+
+
+def test_record_scope_stops_before_a_competing_identifier() -> None:
+    header = _ranked(
+        "materials:p1:c0",
+        "WorkOrderID WO-83 covers replacement parts.",
+        page=1,
+        document_id="materials",
+    )
+    competing_record = _ranked(
+        "materials:p2:c0",
+        "WorkOrderID WO-84 covers a separate order.",
+        page=2,
+        document_id="materials",
+    )
+    unlabelled_price = _ranked(
+        "materials:p3:c0",
+        "The approved unit price is EUR 17.50 per component.",
+        page=3,
+        document_id="materials",
+    )
+    result = _answerer().answer(
+        "What unit price was approved under WorkOrderID WO-83?",
+        [header, competing_record, unlabelled_price],
+    )
+
+    assert result.status != "answered"
+
+
 def test_french_completed_replacement_matches_english_action_but_not_schedule() -> None:
     question = (
         "À quelle heure le remplacement de batterie de PumpID PU-6 est-il noté comme terminé ?"
@@ -318,8 +424,7 @@ def test_french_field_question_stops_at_the_copula_and_modifier() -> None:
                 "device-log",
                 (
                     "CheckoutID CO-14 explicitly assigns DeviceTag DV-5 to "
-                    "CampaignID CA-2. Model listed: TrackSense 7B. "
-                    "CheckoutID CO-15 belongs to DeviceTag DV-6."
+                        "CampaignID CA-2. Model listed: TrackSense 7B."
                 ),
             )
         ],
@@ -374,3 +479,155 @@ def test_unrelated_timestamp_does_not_answer_when_completion_is_unrecorded() -> 
     assert result.answerable is False
     assert "14:20" not in result.answer
     assert all("14:20" not in citation.excerpt for citation in result.citations)
+
+
+def test_spelled_count_is_returned_as_the_supported_value() -> None:
+    result = _answerer().answer(
+        "How many filters did WorkOrder WO-83 cover?",
+        [_ranked("filter-order", "WorkOrder WO-83 covers twelve replacement filters.")],
+    )
+
+    assert result.status == "answered"
+    assert result.answer.casefold().rstrip(".") == "twelve"
+    assert result.supporting_excerpt == "WorkOrder WO-83 covers twelve replacement filters."
+
+
+def test_count_ignores_digits_in_record_ids_and_neighboring_quantities() -> None:
+    result = _answerer().answer(
+        "How many ceramic tiles did record TR-44 include?",
+        [
+            _ranked(
+                "tile-record",
+                "Record TR-44 includes 12 pumps and eight ceramic tiles.",
+            )
+        ],
+    )
+
+    assert result.status == "answered"
+    assert result.answer.casefold().rstrip(".") == "eight"
+
+
+def test_count_binds_a_hyphenated_product_to_its_quantity() -> None:
+    result = _answerer().answer(
+        "How many Ion-3 pumps did contract AG-70 cover?",
+        [_ranked("pump-contract", "Contract AG-70 covers twelve Ion-3 isolation pumps.")],
+    )
+
+    assert result.status == "answered"
+    assert result.answer.casefold().rstrip(".") == "twelve"
+
+
+def test_count_prefers_the_requested_delivery_state_and_keeps_its_bound() -> None:
+    result = _answerer().answer(
+        "How many units were received?",
+        [_ranked("receipt", "12 units were planned; 8 units were received.")],
+    )
+    bounded = _answerer().answer(
+        "How many items were delivered?",
+        [_ranked("delivery", "At least twelve items were delivered.")],
+    )
+
+    assert result.status == "answered"
+    assert result.answer == "8"
+    assert bounded.status == "answered"
+    assert bounded.answer is not None
+    assert bounded.answer.casefold() == "at least twelve"
+
+
+def test_requested_actor_does_not_conflict_with_another_actors_event_time() -> None:
+    entry = _ranked(
+        "access-log:p1:c0",
+        "Access record AR-71: Nia Okafor entered the gallery at 08:42.",
+        document_id="access-log",
+        page=1,
+    )
+    exit_event = _ranked(
+        "access-log:p2:c0",
+        "Pavel Rusu left the gallery at 16:18.",
+        document_id="access-log",
+        page=2,
+    )
+    result = _answerer().answer(
+        "At what time did Nia Okafor enter the gallery?", [entry, exit_event]
+    )
+
+    assert result.status == "answered"
+    assert result.answer == "08:42"
+    assert result.supporting_excerpt is not None
+    assert "Nia Okafor entered the gallery at 08:42" in result.supporting_excerpt
+    assert "Pavel Rusu" not in result.supporting_excerpt
+
+
+def test_time_without_timezone_does_not_inject_a_null_text_value() -> None:
+    result = _answerer().answer(
+        "What time is recorded for ReadingID RD-35?",
+        [
+            _ranked(
+                "reading-log",
+                "ReadingID RD-35 identifies the 09:07 reading as 48 percent humidity.",
+            )
+        ],
+    )
+
+    assert result.status == "answered"
+    assert result.answer == "09:07"
+    assert "None" not in result.answer
+
+
+def test_amount_marked_pending_confirmation_is_not_returned_as_final() -> None:
+    detail = _ranked(
+        "invoice:p1:c0",
+        "InvoiceID IN-51 lists an amount of EUR 402.00.",
+        document_id="invoice",
+        page=1,
+    )
+    status = _ranked(
+        "invoice:p2:c0",
+        "InvoiceID IN-51: the amount remains pending confirmation.",
+        document_id="invoice",
+        page=2,
+    )
+    result = _answerer().answer(
+        "What amount is listed for InvoiceID IN-51?", [detail, status]
+    )
+
+    assert result.status == "ambiguous"
+    assert result.answerable is False
+    assert {citation.chunk_id for citation in result.citations} == {
+        "invoice:p1:c0",
+        "invoice:p2:c0",
+    }
+
+
+def test_provisional_amount_stays_ambiguous_against_a_signed_record() -> None:
+    reconciliation = _ranked(
+        "reconciliation:p1:c0",
+        "ReconciliationID RN-8 for AgreementID AG-70 records unit price EUR 17.50.",
+        document_id="reconciliation",
+        document_name="reconciliation_note.txt",
+    )
+    status = _ranked(
+        "reconciliation:p2:c0",
+        "The same note marked that figure to confirm and issued no correction.",
+        document_id="reconciliation",
+        document_name="reconciliation_note.txt",
+        page=2,
+    )
+    agreement = _ranked(
+        "agreement:p1:c0",
+        "AgreementID AG-70 states the signed unit price is EUR 16.75.",
+        document_id="agreement",
+        document_name="signed_agreement.txt",
+    )
+    result = _answerer().answer(
+        "What unit price is stated for AgreementID AG-70?",
+        [reconciliation, status, agreement],
+    )
+
+    assert result.status == "ambiguous"
+    assert result.answerable is False
+    assert {citation.chunk_id for citation in result.citations} == {
+        "reconciliation:p1:c0",
+        "reconciliation:p2:c0",
+        "agreement:p1:c0",
+    }

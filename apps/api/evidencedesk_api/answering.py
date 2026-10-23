@@ -381,6 +381,16 @@ def _relation_tokens(text: str) -> set[str]:
     return tokens
 
 
+def _has_relation_token_overlap(left: set[str], right: set[str]) -> bool:
+    return any(
+        first == second
+        or (len(first) >= 5 and second.startswith(first))
+        or (len(second) >= 5 and first.startswith(second))
+        for first in left
+        for second in right
+    )
+
+
 def _fold(text: str) -> str:
     return unicodedata.normalize("NFKD", text.casefold()).encode("ascii", "ignore").decode()
 
@@ -643,6 +653,7 @@ def _requested_field_parts(question: str) -> list[str]:
             "from",
             "by",
             "with",
+            "of",
             "is",
             "are",
             "was",
@@ -709,10 +720,14 @@ def _requested_clock_values(question: str) -> set[str]:
 
 
 def _requested_conditions(question: str) -> set[str]:
-    conditions = {
-        re.sub(r"\s+", " ", _fold(match.group(1))).strip()
-        for match in _CONDITION.finditer(question)
-    }
+    requested_ids = _requested_identifier_values(question)
+    conditions = set()
+    for match in _CONDITION.finditer(question):
+        if requested_ids & {
+            _fold(identifier.group(1)) for identifier in _EXPLICIT_ID.finditer(match.group(0))
+        }:
+            continue
+        conditions.add(re.sub(r"\s+", " ", _fold(match.group(1))).strip())
     return {
         condition
         for condition in conditions
@@ -722,6 +737,62 @@ def _requested_conditions(question: str) -> set[str]:
         )
         and not re.search(r"\b(?:one|must|selected|controls|which|deadline|delai)\b", condition)
     }
+
+
+def _requested_person_terms(question: str) -> set[str]:
+    """Return named people asked about, excluding typed record identifiers."""
+    terms = set()
+    for match in _PERSON.finditer(question):
+        name = match.group(1)
+        if re.search(r"(?:ID|Code|Tag|Ref|Number)\b", name, re.IGNORECASE):
+            continue
+        if _EXPLICIT_ID.search(name):
+            continue
+        terms.update(_relation_tokens(name))
+    return terms
+
+
+def _provisional_amount_status(evidence: str, document_context: str) -> str | None:
+    """Find a same-record source statement that explicitly leaves an amount open."""
+    evidence_ids = {_fold(match.group(1)) for match in _EXPLICIT_ID.finditer(evidence)}
+    if not evidence_ids or not _AMOUNT.search(evidence):
+        return None
+    active_ids: set[str] = set()
+    for sentence in _segments(document_context):
+        sentence_ids = {_fold(match.group(1)) for match in _EXPLICIT_ID.finditer(sentence)}
+        same_record_reference = bool(
+            re.search(
+                r"\b(?:same\s+(?:note|record|report|reconciliation)|its\s+author)\b",
+                _fold(sentence),
+            )
+        )
+        if sentence_ids:
+            if same_record_reference:
+                active_ids.update(sentence_ids)
+            else:
+                active_ids = sentence_ids
+        elif not same_record_reference and not re.match(
+            r"\s*(?:it|its|the author|this note|both figures|both amounts)\b",
+            _fold(sentence),
+        ):
+            active_ids = set()
+        if not re.search(
+            r"\b(?:to\s+confirm|pending\s+confirmation|awaiting\s+confirmation|"
+            r"unconfirmed|provisional|not\s+final|a\s+confirmer|a\s+valider|non\s+confirme)\b",
+            _fold(sentence),
+        ):
+            continue
+        if re.search(
+            r"\b(?:both\s+(?:figures|amounts)|les\s+deux\s+(?:chiffres|montants))\b",
+            _fold(sentence),
+        ):
+            if evidence_ids & active_ids:
+                return sentence
+        elif evidence_ids & (
+            sentence_ids if sentence_ids else active_ids if same_record_reference else set()
+        ):
+            return sentence
+    return None
 
 
 def _identifier_prefix(value: str) -> str:
@@ -1549,6 +1620,7 @@ def _question_relation_tokens(question: str, kind: str) -> set[str]:
             "sauf",
         },
         "duration": {"duration", "deadline", "period", "long", "soon", "quickly", "many"},
+        "count": {"how", "many", "number", "combien"},
         "status": {"status", "statut", "recorded", "record", "consigne"},
         "severity": {"severity"},
         "responsible_people": {"owner"},
@@ -1704,6 +1776,12 @@ def _question_kind(question: str) -> str:
     ):
         return "duration"
     if re.search(
+        r"\b(?:how\s+many\s+(?!minutes?\b|hours?\b|days?\b|weeks?\b|months?\b|years?\b)|"
+        r"what\s+number\s+of|combien\s+de\s+(?!temps\b))",
+        folded,
+    ):
+        return "count"
+    if re.search(
         r"\b(?:when|quand|date|milestone|effect|applicable|commence|start|ouvre)\b",
         folded,
     ):
@@ -1827,6 +1905,91 @@ def _value_for(
             return None
         selected = _time_value_context(question, segment)
         return selected[0] if selected else None
+    if kind == "count":
+        if not _constraints_present(question, segment, constraint_context):
+            return None
+        object_match = re.search(
+            r"\b(?:how\s+many|what\s+number\s+of|combien\s+de)\s+(.+?)"
+            r"(?=\s+(?:did|do|does|has|have|had|is|are|was|were|will|can|could|"
+            r"arrived|arrive|remain|remained|include|included|cover|covered|"
+            r"sont|est|ont|a|ont|arrive|arrives|restent|reste|contient|contiennent)\b|[?]|$)",
+            _fold(question),
+        )
+        if object_match is None:
+            return None
+        object_terms = _relation_tokens(object_match.group(1)) - {
+            "of",
+            "de",
+            "the",
+            "a",
+            "an",
+            "le",
+            "la",
+            "les",
+            "des",
+            "du",
+        }
+        if not object_terms:
+            return None
+        relation_terms = _question_relation_tokens(question, "count") - object_terms
+        relation_terms -= _relation_tokens("how many what number did do does has have had "
+                                           "is are was were will can could")
+        relation_terms -= _relation_tokens("record workorder agreement contract")
+        for requested_id in _requested_identifier_values(question):
+            relation_terms -= _relation_tokens(requested_id)
+        number_pattern = re.compile(
+            r"\b(?:zero|one|two|three|four|five|six|seven|eight|nine|ten|"
+            r"eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|"
+            r"eighteen|nineteen|twenty|dozen|un|une|deux|trois|quatre|cinq|"
+            r"six|sept|huit|neuf|dix|onze|douze|treize|quatorze|quinze|"
+            r"seize|dix-sept|dix-huit|dix-neuf|vingt|\d+)\b",
+            re.IGNORECASE,
+        )
+        identifiers = [match.span() for match in _EXPLICIT_ID.finditer(segment)]
+        candidates: list[tuple[str, bool]] = []
+        for number in number_pattern.finditer(segment):
+            if any(start <= number.start() < end for start, end in identifiers):
+                continue
+            left = max(
+                (
+                    segment.rfind(mark, 0, number.start()) + 1
+                    for mark in (";", "|", ",", " and ", " et ")
+                ),
+                default=0,
+            )
+            right_candidates = [
+                position
+                for mark in (";", "|", ",", " and ", " et ", ".", "!", "?", "\n")
+                if (position := segment.find(mark, number.end())) >= 0
+            ]
+            right = min(right_candidates) if right_candidates else len(segment)
+            local_terms = _relation_tokens(segment[left:right])
+            if object_terms <= local_terms:
+                relation_clause = _local_value_clause(segment, number.start(), number.end())
+                relation_clause_terms = _relation_tokens(relation_clause)
+                value_prefix = re.search(
+                    r"(?:at\s+least|no\s+fewer\s+than|minimum\s+of|at\s+most|"
+                    r"no\s+more\s+than|up\s+to|about|approximately|around|"
+                    r"au\s+moins|au\s+plus|environ)\s+$",
+                    segment[max(0, number.start() - 32) : number.start()],
+                    re.IGNORECASE,
+                )
+                value = (
+                    f"{value_prefix.group(0).strip()} {number.group(0)}"
+                    if value_prefix
+                    else number.group(0)
+                )
+                candidates.append(
+                    (
+                        value,
+                        _has_relation_token_overlap(relation_terms, relation_clause_terms),
+                    )
+                )
+        if relation_terms:
+            candidates = [candidate for candidate in candidates if candidate[1]]
+        if len(candidates) != 1:
+            return None
+        return candidates[0][0]
     if kind == "boolean":
         if not _relation_supported(question, segment, kind):
             return None
@@ -1970,6 +2133,9 @@ def _time_value_context(question: str, segment: str) -> tuple[str, str] | None:
     }
 
     def event_is_supported(clause: str) -> bool:
+        requested_subjects = _requested_person_terms(question)
+        if requested_subjects and not requested_subjects <= _relation_tokens(clause):
+            return False
         if event_terms and not event_terms & _relation_tokens(clause):
             return False
         if re.search(
@@ -1987,7 +2153,11 @@ def _time_value_context(question: str, segment: str) -> tuple[str, str] | None:
         return True
 
     for match in _CLOCK.finditer(segment):
-        value = f"{match.group(1)} {match.group(2)}".strip()
+        value = (
+            f"{match.group(1)} {match.group(2)}"
+            if match.group(2)
+            else match.group(1)
+        )
         normalized = (
             f"{match.group(1)} {match.group(2)}".casefold()
             if match.group(2)
@@ -2166,6 +2336,13 @@ def _relation_supported(
             provider=provider,
             threshold=semantic_threshold,
         )
+    if kind == "count":
+        value = _value_for(kind, segment, question, constraint_context=constraint_context)
+        if value is None:
+            return False
+        return _has_relation_token_overlap(
+            _question_relation_tokens(question, kind), _relation_tokens(segment)
+        )
     if kind == "date" and requested_role is None:
         if bool(relation_tokens) and len(overlap) >= min(2, len(relation_tokens)):
             return True
@@ -2263,6 +2440,25 @@ def _page_contexts(ranked: list[RankedChunk]) -> dict[str, str]:
     return contexts
 
 
+def _document_contexts(ranked: list[RankedChunk]) -> dict[str, str]:
+    """Build a same-document context while preserving source page/chunk order."""
+    grouped: dict[str, list[tuple[int, int, RankedChunk]]] = {}
+    for index, item in enumerate(ranked):
+        match = re.search(r"(?:^|:)c(\d+)$", item.chunk.id)
+        order = int(match.group(1)) if match else index
+        grouped.setdefault(item.chunk.document_id, []).append(
+            (item.chunk.page, order, item)
+        )
+    contexts: dict[str, str] = {}
+    for items in grouped.values():
+        context = "\n".join(
+            item.chunk.text for _, _, item in sorted(items, key=lambda row: (row[0], row[1]))
+        )
+        for _, _, item in items:
+            contexts[item.chunk.id] = context
+    return contexts
+
+
 def _evidence_citations(
     item: RankedChunk,
     excerpt: str,
@@ -2293,7 +2489,6 @@ def _context_citations(
                 candidate
                 for candidate in ranked
                 if candidate.chunk.document_id == item.chunk.document_id
-                and candidate.chunk.page == item.chunk.page
                 and proof in candidate.chunk.text
             ),
             None,
@@ -2325,6 +2520,7 @@ def _field_name(kind: str) -> str:
         "status": "status",
         "multi_slot": "answer",
         "text": "answer",
+        "count": "count",
     }[kind]
 
 
@@ -2582,9 +2778,12 @@ class DeterministicGroundedAnswerProvider:
         )
         candidates: list[tuple[float, str, str | None, RankedChunk]] = []
         partials: list[tuple[float, str, RankedChunk]] = []
+        provisional_amounts: list[
+            tuple[float, str, str, RankedChunk, str, RankedChunk | None]
+        ] = []
         context_headers: dict[str, tuple[tuple[RankedChunk, str], ...]] = {}
         field_absences: list[tuple[str, RankedChunk, float]] = []
-        page_contexts = _page_contexts(ranked)
+        document_contexts = _document_contexts(ranked)
         evaluated: dict[str, list[tuple[float, str, str | None, bool]]] = {}
         documents_by_chunk = {
             document.chunk_id: document for document in trust_input.untrusted_document_content
@@ -2613,8 +2812,8 @@ class DeterministicGroundedAnswerProvider:
                 )
                 for evidence_segment in evidence_segments:
                     constraint_context = (
-                        page_contexts.get(item.chunk.id, parent_content.text)
-                        if kind in {"field_value", "date", "time"}
+                        document_contexts.get(item.chunk.id, parent_content.text)
+                        if kind in {"field_value", "date", "time", "amount", "duration", "count"}
                         else parent_content.text
                     )
                     admitted = admit_evidence_excerpt(
@@ -2680,7 +2879,7 @@ class DeterministicGroundedAnswerProvider:
                             )
                             if proofs:
                                 context_headers[item.chunk.id] = proofs
-                    elif kind in {"time", "date"}:
+                    elif kind in {"time", "date", "amount", "duration", "count"}:
                         if kind == "time":
                             time_context = _time_value_context(question, evidence_text)
                             if time_context is not None:
@@ -2698,6 +2897,32 @@ class DeterministicGroundedAnswerProvider:
                         (score, citation_text, value, relation)
                     )
                     if value is not None and relation:
+                        provisional_status = (
+                            _provisional_amount_status(evidence_text, constraint_context)
+                            if kind == "amount"
+                            else None
+                        )
+                        if provisional_status is not None:
+                            status_item = next(
+                                (
+                                    candidate
+                                    for candidate in ranked
+                                    if candidate.chunk.document_id == item.chunk.document_id
+                                    and provisional_status in candidate.chunk.text
+                                ),
+                                None,
+                            )
+                            provisional_amounts.append(
+                                (
+                                    score,
+                                    citation_text,
+                                    value,
+                                    item,
+                                    provisional_status,
+                                    status_item,
+                                )
+                            )
+                            continue
                         candidates.append((score, citation_text, value, item))
                     elif (
                         score >= self.config.partial_support_threshold
@@ -2745,6 +2970,50 @@ class DeterministicGroundedAnswerProvider:
                 validate_grounded_answer(result, ranked)
                 return result
             return _abstained(candidate_assessments=assessments)
+        if provisional_amounts:
+            provisional_amounts.sort(key=lambda row: (-row[0], row[3].chunk.id))
+            score, excerpt, _, item, status_excerpt, status_item = provisional_amounts[0]
+            provisional_citations: list[Citation] = list(
+                _evidence_citations(item, excerpt, context_headers)
+            )
+            if status_item is not None:
+                provisional_citations.append(_citation(status_item, status_excerpt))
+            competing = next(
+                (candidate for candidate in supported if candidate[2] != provisional_amounts[0][2]),
+                None,
+            )
+            if competing is not None:
+                provisional_citations.extend(
+                    _evidence_citations(competing[3], competing[1], context_headers)
+                )
+            unique_citations: list[Citation] = []
+            seen_citations: set[tuple[str, str]] = set()
+            for citation in provisional_citations:
+                key = (citation.chunk_id, citation.excerpt)
+                if key not in seen_citations:
+                    seen_citations.add(key)
+                    unique_citations.append(citation)
+            result = GroundedAnswer(
+                status="ambiguous",
+                answerable=False,
+                answer="The cited amount is marked provisional or awaiting confirmation.",
+                confidence=score,
+                supporting_document=item.chunk.document_id,
+                supporting_page=item.chunk.page,
+                supporting_excerpt=excerpt,
+                ambiguity_reason=(
+                    "The source explicitly leaves this amount unresolved, "
+                    "so it cannot be returned as final."
+                ),
+                extracted_fields={},
+                supporting_chunk_ids=tuple(
+                    dict.fromkeys(citation.chunk_id for citation in unique_citations)
+                ),
+                citations=tuple(unique_citations),
+                candidate_assessments=assessments,
+            )
+            validate_grounded_answer(result, ranked)
+            return result
         if not supported:
             if partials:
                 score, excerpt, item = max(partials, key=lambda value: value[0])
@@ -2786,6 +3055,7 @@ class DeterministicGroundedAnswerProvider:
             "severity",
             "field_value",
             "time",
+            "count",
         }:
             other = distinct[0]
             citations = tuple(

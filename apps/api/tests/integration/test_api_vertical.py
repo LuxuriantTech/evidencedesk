@@ -1,5 +1,6 @@
 import asyncio
 import hashlib
+import io
 import json
 from collections.abc import Generator
 from pathlib import Path
@@ -29,6 +30,7 @@ from evidencedesk_api.security import verify_password
 from evidencedesk_api.seed import seed_demo_data
 from evidencedesk_api.storage import LocalDocumentStorage
 from evidencedesk_worker.jobs import WorkerContext, process_document
+from reportlab.pdfgen import canvas
 from sqlalchemy import func, select, text
 from sqlalchemy.ext.asyncio import create_async_engine
 from starlette.testclient import TestClient
@@ -736,6 +738,152 @@ def test_grounded_api_binds_measurements_to_time_and_preserves_same_role_ambigui
         cited_values = " ".join(item["excerpt"] for item in ambiguous_payload["citations"])
         assert "42 kPa" in cited_values
         assert "57 kPa" in cited_values
+
+
+@pytest.mark.integration
+def test_grounded_api_keeps_same_record_context_across_pdf_pages(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    settings = Settings(
+        database_url=DATABASE_URL,
+        redis_url="redis://127.0.0.1:56379/0",
+        storage_root=tmp_path,
+        jwt_secret="integration-secret-at-least-32-characters",
+        public_demo_mode=False,
+        answer_mode="grounded-local-v3",
+        demo_admin_password="EvidenceDemo-Admin-2026!",
+        demo_analyst_password="EvidenceDemo-Analyst-2026!",
+        demo_reader_password="EvidenceDemo-Reader-2026!",
+    )
+    asyncio.run(_reset_and_seed(settings))
+    queue = RecordingQueue()
+    original_builder = cast(Any, api_main).build_provider_bundle
+    embedding = DeterministicEmbeddingProvider(dimension=384)
+
+    def build_with_local_test_embedding(mode: str, **kwargs: Any) -> ProviderBundle:
+        return cast(
+            ProviderBundle,
+            original_builder(mode, embedding_factory=lambda: embedding, **kwargs),
+        )
+
+    monkeypatch.setattr(api_main, "build_provider_bundle", build_with_local_test_embedding)
+
+    pdf_buffer = io.BytesIO()
+    pdf = canvas.Canvas(pdf_buffer)
+    pdf.drawString(
+        72,
+        720,
+        "Record XN-31/R applies to auxiliary sensor AUX-5 at the north archive intake.",
+    )
+    pdf.showPage()
+    pdf.drawString(
+        72,
+        720,
+        "At 07:35 on 18 June 2026, auxiliary sensor AUX-5 read 7.2 degrees Celsius.",
+    )
+    pdf.save()
+    primary_pdf = pdf_buffer.getvalue()
+
+    with TestClient(create_app(settings=settings, task_queue=queue)) as client:
+        assert isinstance(
+            cast(Any, client).app.state.providers.answer,
+            DeterministicGroundedAnswerProvider,
+        )
+        analyst = _token(client, "demo.analyst", "EvidenceDemo-Analyst-2026!")
+        reader = _token(client, "demo.reader", "EvidenceDemo-Reader-2026!")
+        dossier_id = client.get("/api/v1/dossiers", headers=_headers(reader)).json()[0]["id"]
+
+        primary_upload = client.post(
+            f"/api/v1/dossiers/{dossier_id}/documents",
+            headers=_headers(analyst),
+            files={"file": ("xn-31-r_service_record.pdf", primary_pdf, "application/pdf")},
+            data={"is_synthetic": "true"},
+        )
+        assert primary_upload.status_code == 202, primary_upload.text
+        primary_document_id = primary_upload.json()["id"]
+
+        competing_source = (
+            b"Record XN-31/S applies to auxiliary sensor AUX-5 at the south archive intake.\n"
+            b"At 07:35 on 18 June 2026, auxiliary sensor AUX-5 read 9.6 degrees Celsius.\n"
+            b"Calibration date: 19 June 2026."
+        )
+        competing_upload = client.post(
+            f"/api/v1/dossiers/{dossier_id}/documents",
+            headers=_headers(analyst),
+            files={
+                "file": (
+                    "xn-31-s_service_record.txt",
+                    competing_source,
+                    "text/plain",
+                )
+            },
+            data={"is_synthetic": "true"},
+        )
+        assert competing_upload.status_code == 202, competing_upload.text
+        competing_document_id = competing_upload.json()["id"]
+
+        async def process_queued_documents() -> None:
+            engine = build_engine(settings)
+            worker = WorkerContext(
+                settings=settings,
+                engine=engine,
+                session_factory=build_session_factory(engine),
+                storage=LocalDocumentStorage(settings.storage_root),
+                embeddings=embedding,
+            )
+            try:
+                for document_id, task_id, correlation_id in queue.jobs:
+                    result = await process_document(
+                        {"worker": worker},
+                        str(document_id),
+                        str(task_id),
+                        str(correlation_id),
+                    )
+                    assert result["status"] == "completed"
+            finally:
+                await engine.dispose()
+
+        asyncio.run(process_queued_documents())
+
+        answer = client.post(
+            f"/api/v1/dossiers/{dossier_id}/ask",
+            headers=_headers(reader),
+            json={
+                "question": (
+                    "What temperature did record XN-31/R report for auxiliary sensor AUX-5 "
+                    "at 07:35?"
+                )
+            },
+        )
+        assert answer.status_code == 200, answer.text
+        answer_payload = answer.json()
+        assert answer_payload["status"] == "answered"
+        assert "7.2" in answer_payload["answer"]
+        assert "9.6" not in answer_payload["answer"]
+        assert {item["document_id"] for item in answer_payload["citations"]} == {
+            str(primary_document_id)
+        }
+        assert {item["page"] for item in answer_payload["citations"]} == {1, 2}
+        excerpts = {item["excerpt"] for item in answer_payload["citations"]}
+        assert (
+            "Record XN-31/R applies to auxiliary sensor AUX-5 at the north archive intake."
+            in excerpts
+        )
+        assert (
+            "At 07:35 on 18 June 2026, auxiliary sensor AUX-5 read 7.2 degrees Celsius."
+            in excerpts
+        )
+        assert "9.6" not in " ".join(excerpts)
+
+        absent = client.post(
+            f"/api/v1/dossiers/{dossier_id}/ask",
+            headers=_headers(reader),
+            json={"question": "What calibration date does record XN-31/R state?"},
+        )
+        assert absent.status_code == 200, absent.text
+        assert absent.json()["status"] == "abstained"
+        assert absent.json()["citations"] == []
+        assert str(competing_document_id) != str(primary_document_id)
 
 
 @pytest.mark.integration
