@@ -17,6 +17,7 @@ import urllib.request
 from pathlib import Path
 from typing import Any
 from ci_common import (DATASETS, GENERATION_MANIFEST, GENERATION_MANIFEST_SHA256,
+                       ARTIFACT_MANIFEST_SHA256, reviewed_artifact_manifest,
                        environment_record as common_environment_record,
                        same_server_identity as same_static_server_identity,
                        server_identity_sha256 as static_server_identity_sha256,
@@ -31,7 +32,7 @@ COMMON_BLOBS = (
     "infra/models/paraphrase-multilingual-minilm-l12-v2-text-onnx.json",
 )
 DATA_MANIFEST_SHA256 = GENERATION_MANIFEST_SHA256
-ARTIFACT_SHA256 = "5f479dcee63118ed3f72691511a640165dad06a1261a40a4ae2d9d29274a0047"
+ARTIFACT_SHA256 = ARTIFACT_MANIFEST_SHA256
 URL = "http://127.0.0.1:50193"
 SERVER_CONFIG = {
     "host": "127.0.0.1", "port": 50193, "threads": 4,
@@ -205,9 +206,7 @@ def load_artifact_manifest(path: Path, candidate_repo: Path) -> tuple[dict[str, 
     paths["minilm_manifest"] = (candidate_repo / minilm_rel).resolve(strict=True)
     if not paths["minilm_manifest"].is_relative_to(candidate_repo.resolve(strict=True)):
         raise RuntimeError("MiniLM source manifest resolves outside candidate checkout")
-    artifact_spec = json.loads((HERE / "ARTIFACT_MANIFEST.json").read_text(encoding="utf-8"))
-    if sha256_file(HERE / "ARTIFACT_MANIFEST.json") != ARTIFACT_SHA256:
-        raise RuntimeError("reviewed artifact manifest digest mismatch")
+    artifact_spec = reviewed_artifact_manifest()
     if (model.get("id") != artifact_spec["model"]["id"]
             or model.get("revision") != artifact_spec["model"]["revision"]
             or model.get("bytes") != artifact_spec["model"]["bytes"]

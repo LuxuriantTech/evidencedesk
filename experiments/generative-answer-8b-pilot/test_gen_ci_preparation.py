@@ -80,6 +80,16 @@ class PrepOnlyTests(unittest.TestCase):
     def test_artifact_manifest_pin_matches_preparation_sha(self) -> None:
         self.assertEqual(pair.sha256_file(pair.HERE / "ARTIFACT_MANIFEST.json"), pair.ARTIFACT_SHA256)
 
+    def test_both_entrypoints_share_artifact_pin_and_reject_modified_bytes(self) -> None:
+        self.assertIs(pair.reviewed_artifact_manifest, generation.reviewed_artifact_manifest)
+        for loader in (pair.reviewed_artifact_manifest, generation.reviewed_artifact_manifest):
+            self.assertEqual(loader()["model"]["id"], "Qwen3-8B-Q4_K_M.gguf")
+            with tempfile.TemporaryDirectory() as temporary:
+                changed = Path(temporary) / "manifest.json"
+                changed.write_bytes((pair.HERE / "ARTIFACT_MANIFEST.json").read_bytes() + b"\n")
+                with self.assertRaisesRegex(RuntimeError, "manifest digest mismatch"):
+                    loader(changed)
+
 
     def test_8b_manifest_and_runner_pins_are_coherent(self) -> None:
         import json

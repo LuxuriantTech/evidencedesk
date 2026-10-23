@@ -13,6 +13,7 @@ HERE = Path(__file__).resolve().parent
 DATASETS = ("E4", "E5", "E6")
 GENERATION_MANIFEST = HERE / "GENERATION_DATASET_MANIFEST.json"
 GENERATION_MANIFEST_SHA256 = "30225ca0f193c7983949628e0a33b748b63402d8b092d16242493b9fb6f70a65"
+ARTIFACT_MANIFEST_SHA256 = "5f479dcee63118ed3f72691511a640165dad06a1261a40a4ae2d9d29274a0047"
 
 
 def sha256_file(path: Path) -> str:
@@ -21,6 +22,16 @@ def sha256_file(path: Path) -> str:
         for block in iter(lambda: stream.read(1024 * 1024), b""):
             digest.update(block)
     return digest.hexdigest()
+
+
+def reviewed_artifact_manifest(path: Path | None = None) -> dict[str, Any]:
+    source = path if path is not None else HERE / "ARTIFACT_MANIFEST.json"
+    if sha256_file(source) != ARTIFACT_MANIFEST_SHA256:
+        raise RuntimeError("reviewed artifact manifest digest mismatch")
+    value = json.loads(source.read_text(encoding="utf-8"))
+    if not isinstance(value, dict):
+        raise RuntimeError("reviewed artifact manifest must be an object")
+    return value
 
 
 def tree_hash(root: Path) -> dict[str, str]:

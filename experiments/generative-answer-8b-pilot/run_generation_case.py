@@ -16,6 +16,7 @@ from typing import Any
 from urllib.error import HTTPError, URLError
 from urllib.request import HTTPRedirectHandler, ProxyHandler, Request, build_opener
 from ci_common import (GENERATION_MANIFEST, GENERATION_MANIFEST_SHA256,
+                       reviewed_artifact_manifest,
                        environment_record as common_environment_record,
                        same_server_identity, server_identity_sha256,
                        sha256_file as common_sha256_file, tree_hash, verify_dataset)
@@ -180,9 +181,7 @@ def run(args: argparse.Namespace) -> None:
     for path in (args.minilm_model_dir, args.model_file, args.runtime_archive, args.server_binary):
         if not path.exists():
             raise FileNotFoundError(path)
-    artifact = json.loads((HERE / "ARTIFACT_MANIFEST.json").read_text(encoding="utf-8"))
-    if sha256_file(HERE / "ARTIFACT_MANIFEST.json") != "74af9d55c218840fc3471ab59dcf641133123bea46a417e0cd6e8838d9abb795":
-        raise RuntimeError("reviewed artifact manifest digest mismatch")
+    artifact = reviewed_artifact_manifest()
     if sha256_file(HERE / "generative_provider.py") != PROVIDER_SHA256:
         raise RuntimeError("reviewed generative provider digest mismatch")
     if (sha256_file(args.model_file) != artifact["model"]["sha256"]

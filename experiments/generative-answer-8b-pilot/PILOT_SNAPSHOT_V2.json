@@ -1,0 +1,141 @@
+{
+  "format": "generative-answer-pilot-snapshot-8b-v2",
+  "classification": "exposed development; not release qualified",
+  "native_candidate_commit": "120e233bb8ff09cabc1bd3c5004a8545039459aa",
+  "published_baseline_commit": "ffeba12c4d4d64a1e1f003f211dfa1781c64515d",
+  "previous_snapshot_sha256": "06f91e637d3764a8be3e90b825d25a721974e85e89b7553e7d9b26ab69898982",
+  "previous_ci_run": "https://github.com/LuxuriantTech/evidencedesk/actions/runs/40024842158",
+  "previous_observed_outcome": "E4 passed 4/4 component smoke; candidate child failed manifest digest preflight before dataset calls",
+  "model_loaded_and_component_inference_before_this_revision": true,
+  "candidate_dataset_inference_before_this_revision": false,
+  "answer_policy_unchanged_from_v1": true,
+  "repair": "One shared artifact-manifest loader and digest, with tamper regression test",
+  "workflow_sha256": "a35559cd42be31588c3583e04d5eec6e76ea06183b5d95e5277599d39209ed54",
+  "files": [
+    {
+      "path": ".gitattributes",
+      "bytes": 8,
+      "sha256": "705fd4d6451a31d36b3df7de96f83f30ac976c9b4a6d1e51671d8e2f33e2d0da"
+    },
+    {
+      "path": "ARTIFACT_MANIFEST.json",
+      "bytes": 1648,
+      "sha256": "5f479dcee63118ed3f72691511a640165dad06a1261a40a4ae2d9d29274a0047"
+    },
+    {
+      "path": "ci_common.py",
+      "bytes": 5982,
+      "sha256": "4c66105e05bb08cb3cd3e4752b0509941ada2466c2747e917550022592ffea34"
+    },
+    {
+      "path": "datasets/E4/corpus_manifest.json",
+      "bytes": 5595,
+      "sha256": "7fd7b7991557515c6007cf1a6982763b74c46e99929d0575f8be1023a8220951"
+    },
+    {
+      "path": "datasets/E4/evaluation_cases.json",
+      "bytes": 10679,
+      "sha256": "d8492380fd91ab058de0c05eb773d5fe79048cdd77894b24249be9de06baa228"
+    },
+    {
+      "path": "datasets/E5/corpus_manifest.json",
+      "bytes": 8395,
+      "sha256": "40b446b42516bd0840b69fc669f3bedd2d7f050849b41b55c3907bd7d0fa2329"
+    },
+    {
+      "path": "datasets/E5/evaluation_cases.json",
+      "bytes": 16414,
+      "sha256": "5185fbf6a621176e735fc8291383db2db2e7f340c269c0452fcbb5273c28a57e"
+    },
+    {
+      "path": "datasets/E6/corpus_manifest.json",
+      "bytes": 7003,
+      "sha256": "b64a0a8e310967b6825c5ec9340ae3e8081d1d6e53287f3cda4bf7fa31272029"
+    },
+    {
+      "path": "datasets/E6/evaluation_cases.json",
+      "bytes": 12658,
+      "sha256": "1c7de141d65795fec156a3c64cd20c25a17f977e1ddb2028e8749525839a1f3a"
+    },
+    {
+      "path": "GENERATION_DATASET_MANIFEST.json",
+      "bytes": 1995,
+      "sha256": "30225ca0f193c7983949628e0a33b748b63402d8b092d16242493b9fb6f70a65"
+    },
+    {
+      "path": "generative_provider.py",
+      "bytes": 33150,
+      "sha256": "32c4b86c800df8b4b6e25205404d6fac1d5e6f77fbcca6781b444f956f0a4225"
+    },
+    {
+      "path": "prepare_artifacts.py",
+      "bytes": 27476,
+      "sha256": "58da9f2b505a540c00b788d75bd31e97d167d1c4f0947e5a2698c72da7611178"
+    },
+    {
+      "path": "PROVIDER_V5_POLICY.md",
+      "bytes": 1352,
+      "sha256": "91ee2a2c3aa780bd001d84ec14ab5f438903d212de1838c69cbeaf14195ee953"
+    },
+    {
+      "path": "PUBLIC_SAFE_REVIEW.md",
+      "bytes": 1278,
+      "sha256": "630fac747db0ff00c7a94c4d58b01344aabae471cd721fa60203dcd8a2a15f3d"
+    },
+    {
+      "path": "README.md",
+      "bytes": 1579,
+      "sha256": "b01a6596d29ff29532567f7105b590dde9654bc0577f7f71ac0d2c41009b36f7"
+    },
+    {
+      "path": "RELEASE_CRITERIA.md",
+      "bytes": 4344,
+      "sha256": "21adf6dd50df9f470b52c8a0dbd6f982e22357b7c611917608b84881cd1871ad"
+    },
+    {
+      "path": "remote_baseline.py",
+      "bytes": 9747,
+      "sha256": "e8abdb64b4a84197cb5c0475434e61f7bfb6688f71e0a913b1fe0a817073eaa6"
+    },
+    {
+      "path": "run_ci_pair.py",
+      "bytes": 31799,
+      "sha256": "4c60100d41e31ccf3f3b71b5366d6099510de4bdb9ab658bdeb00dcb05dd0e58"
+    },
+    {
+      "path": "run_ci_pair.sh",
+      "bytes": 1716,
+      "sha256": "70b2f1ab892adcc8d34ef39eae3104b756412e9d4f4803aaa3d2e1fe687894b3"
+    },
+    {
+      "path": "run_generation_case.py",
+      "bytes": 18442,
+      "sha256": "5f8a43eba8378aa2ead864f4e13cc61f040bb5aa11e5918ebf2cdbb761a9cf62"
+    },
+    {
+      "path": "run_smoke_cases.py",
+      "bytes": 13306,
+      "sha256": "876e395ad9c8928eec32264f5eaf8d78ace25fedc0f0315a57d2be1054195afb"
+    },
+    {
+      "path": "test_gen_ci_preparation.py",
+      "bytes": 11201,
+      "sha256": "0441face2f9d395ac86990cd12cd34fd1d9d4bbf4a6b25adc69e2e91732075ae"
+    },
+    {
+      "path": "test_generative_provider.py",
+      "bytes": 17263,
+      "sha256": "4d70008c25b0175b8235eea50acaa612dd5e98e8be6312256aa0329cd47f962f"
+    },
+    {
+      "path": "PILOT_SNAPSHOT_V1.json",
+      "bytes": 4521,
+      "sha256": "06f91e637d3764a8be3e90b825d25a721974e85e89b7553e7d9b26ab69898982"
+    },
+    {
+      "path": "V1_EXECUTION_NOTE.md",
+      "bytes": 1188,
+      "sha256": "6ca5f729202892b9d21ccf5247604e3306956b296d02edeb6782fc8a98a60d64"
+    }
+  ]
+}
