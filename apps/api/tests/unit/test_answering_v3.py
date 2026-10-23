@@ -1504,6 +1504,59 @@ def test_time_question_selects_the_requested_event_from_multiple_hours() -> None
     assert result.supporting_excerpt == "Entry window begins 07:30 UTC"
 
 
+def test_source_document_as_grammatical_agent_limits_field_lookup() -> None:
+    result = _provider().answer(
+        "Quel SiteCode le plan associe-t-il au secteur ?",
+        [
+            _ranked(
+                "field-plan",
+                "Field Plan PL-87\nSiteCode: RIDGE-4 for the service corridor.",
+                document_id="plan",
+                document_name="field_plan.txt",
+            ),
+            _ranked(
+                "permit-copy",
+                "The permit lists SiteCode: DELTA-2 for the service corridor.",
+                document_id="permit",
+                document_name="permit_notice.txt",
+            ),
+        ],
+    )
+
+    assert result.status == "answered"
+    assert result.answer == "RIDGE-4"
+    assert result.supporting_document == "plan"
+
+
+def test_interrogative_id_field_accepts_source_label_without_literal_id_suffix() -> None:
+    result = _provider().answer(
+        "Which FieldPlanID is listed for CampaignID CA-53?",
+        [_ranked("field-plan", "CampaignID CA-53 | Field Plan FP-82")],
+    )
+
+    assert result.status == "answered"
+    assert result.answer == "FP-82"
+    assert result.supporting_excerpt == "CampaignID CA-53 | Field Plan FP-82"
+
+
+def test_person_initial_does_not_split_event_from_clock_evidence() -> None:
+    result = _provider().answer(
+        "What time was the valve replaced for WorkOrderID WO-66?",
+        [
+            _ranked("work-order:p1:c0", "WorkOrderID WO-66."),
+            _ranked(
+                "work-order:p1:c1",
+                "On 2031-06-04 at 13:15 UTC, technician R. Vale replaced the valve.",
+            ),
+        ],
+    )
+
+    assert result.status == "answered"
+    assert result.answer == "13:15 UTC"
+    assert result.supporting_excerpt is not None
+    assert "replaced the valve" in result.supporting_excerpt
+
+
 def test_multiple_conditioned_values_in_one_sentence_are_not_guessed() -> None:
     result = _provider().answer(
         "What pressure was recorded under high load?",
