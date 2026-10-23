@@ -1,0 +1,350 @@
+{
+  "dataset_version": "independent-synthetic-corpus-2026.10.23-v4",
+  "parameters_version": "e3-fixed-runner-v1",
+  "mode": "grounded-local-v3",
+  "seed": 20261023,
+  "synthetic_only": true,
+  "extraction_targets": [],
+  "cases": [
+    {
+      "id": "e4-a01",
+      "split": "development",
+      "kind": "answerable",
+      "question": "Which FieldPlanID is listed for CampaignID C-17?",
+      "expected_answer": "FP-611",
+      "expected_citations": [
+        {
+          "document_id": "e4-plan",
+          "page": 1,
+          "excerpt": "Field Plan FP-611 | CampaignID C-17"
+        }
+      ]
+    },
+    {
+      "id": "e4-a02",
+      "split": "development",
+      "kind": "answerable",
+      "question": "Quel SiteCode le plan associe-t-il à CampaignID C-17 ?",
+      "expected_answer": "BR-4",
+      "expected_citations": [
+        {
+          "document_id": "e4-plan",
+          "page": 1,
+          "excerpt": "CampaignID C-17 | SiteCode BR-4"
+        }
+      ]
+    },
+    {
+      "id": "e4-a03",
+      "split": "development",
+      "kind": "answerable",
+      "question": "What field date is printed on FieldPlanID FP-611?",
+      "expected_answer": "2026-10-14",
+      "expected_citations": [
+        {
+          "document_id": "e4-plan",
+          "page": 1,
+          "excerpt": "Field date 2026-10-14"
+        }
+      ]
+    },
+    {
+      "id": "e4-a04",
+      "split": "development",
+      "kind": "answerable",
+      "question": "Which PermitID does FP-611 explicitly reference?",
+      "expected_answer": "PR-88",
+      "expected_citations": [
+        {
+          "document_id": "e4-plan",
+          "page": 1,
+          "excerpt": "FP-611 references PermitID PR-88 for access to BR-4"
+        }
+      ]
+    },
+    {
+      "id": "e4-a05",
+      "split": "development",
+      "kind": "answerable",
+      "question": "Selon le permis PR-88 lui-même, à quelle heure commence la fenêtre d'entrée ?",
+      "expected_answer": "07:30 CEST",
+      "expected_citations": [
+        {
+          "document_id": "e4-permit",
+          "page": 1,
+          "excerpt": "Entry window begins 07:30 CEST"
+        }
+      ]
+    },
+    {
+      "id": "e4-a06",
+      "split": "development",
+      "kind": "answerable",
+      "question": "What access point does PermitID PR-88 name?",
+      "expected_answer": "North Gate",
+      "expected_citations": [
+        {
+          "document_id": "e4-permit",
+          "page": 1,
+          "excerpt": "Access point: North Gate"
+        }
+      ]
+    },
+    {
+      "id": "e4-a07",
+      "split": "development",
+      "kind": "answerable",
+      "question": "Which AssetTag does CheckoutID CO-090 explicitly assign to CampaignID C-17?",
+      "expected_answer": "CTD-204",
+      "expected_citations": [
+        {
+          "document_id": "e4-checkout",
+          "page": 1,
+          "excerpt": "the checkout record explicitly assigns AssetTag CTD-204 to CampaignID C-17"
+        }
+      ]
+    },
+    {
+      "id": "e4-a08",
+      "split": "development",
+      "kind": "answerable",
+      "question": "Quel modèle est indiqué pour AssetTag CTD-204 dans CO-090 ?",
+      "expected_answer": "AquaScan 4X",
+      "expected_citations": [
+        {
+          "document_id": "e4-checkout",
+          "page": 1,
+          "excerpt": "Model listed: AquaScan 4X"
+        }
+      ]
+    },
+    {
+      "id": "e4-a09",
+      "split": "development",
+      "kind": "answerable",
+      "question": "Which CalibrationCertificateID is entered on the CO-090 line?",
+      "expected_answer": "CAL-204A",
+      "expected_citations": [
+        {
+          "document_id": "e4-checkout",
+          "page": 1,
+          "excerpt": "CalibrationCertificateID CAL-204A is entered on the same checkout line"
+        }
+      ]
+    },
+    {
+      "id": "e4-a10",
+      "split": "development",
+      "kind": "answerable",
+      "question": "At 10:15 CEST, what salinity does SR-901 record for SB-031?",
+      "expected_answer": "12.6 PSU",
+      "expected_citations": [
+        {
+          "document_id": "e4-station",
+          "page": 1,
+          "excerpt": "At 10:15 CEST, salinity was 12.6 PSU"
+        }
+      ]
+    },
+    {
+      "id": "e4-a11",
+      "split": "development",
+      "kind": "answerable",
+      "question": "What water temperature was recorded at 10:15 CEST in SR-901?",
+      "expected_answer": "15.8 °C",
+      "expected_citations": [
+        {
+          "document_id": "e4-station",
+          "page": 1,
+          "excerpt": "water temperature 15.8 °C"
+        }
+      ]
+    },
+    {
+      "id": "e4-a12",
+      "split": "development",
+      "kind": "answerable",
+      "question": "Quelle est la turbidité maximale indiquée pour SR-901 ?",
+      "expected_answer": "3.6 NTU",
+      "expected_citations": [
+        {
+          "document_id": "e4-station",
+          "page": 2,
+          "excerpt": "Peak turbidity for SR-901 was 3.6 NTU"
+        }
+      ]
+    },
+    {
+      "id": "e4-a13",
+      "split": "development",
+      "kind": "answerable",
+      "question": "Which sample batch does StationRecordID SR-901 explicitly bind to CampaignID C-17?",
+      "expected_answer": "SB-031",
+      "expected_citations": [
+        {
+          "document_id": "e4-station",
+          "page": 1,
+          "excerpt": "explicitly binds SampleBatchID SB-031 and AssetTag CTD-204 to CampaignID C-17"
+        }
+      ]
+    },
+    {
+      "id": "e4-a14",
+      "split": "development",
+      "kind": "answerable",
+      "question": "What nitrate concentration does LR-550 report for SampleBatchID SB-031?",
+      "expected_answer": "0.84 mg/L",
+      "expected_citations": [
+        {
+          "document_id": "e4-lab",
+          "page": 1,
+          "excerpt": "LabReportID LR-550 | SampleBatchID SB-031. Nitrate: 0.84 mg/L"
+        }
+      ]
+    },
+    {
+      "id": "e4-a15",
+      "split": "development",
+      "kind": "answerable",
+      "question": "Quel pH de laboratoire le rapport LR-550 donne-t-il pour SB-031 ?",
+      "expected_answer": "7.43",
+      "expected_citations": [
+        {
+          "document_id": "e4-lab",
+          "page": 1,
+          "excerpt": "Laboratory pH: 7.43"
+        }
+      ]
+    },
+    {
+      "id": "e4-a16",
+      "split": "development",
+      "kind": "answerable",
+      "question": "On what date was LabReportID LR-550 finalized?",
+      "expected_answer": "2026-10-16",
+      "expected_citations": [
+        {
+          "document_id": "e4-lab",
+          "page": 1,
+          "excerpt": "Finalized 2026-10-16 by M. Caron"
+        }
+      ]
+    },
+    {
+      "id": "e4-a17",
+      "split": "development",
+      "kind": "answerable",
+      "question": "Which service order explicitly names both CTD-204 and CampaignID C-17?",
+      "expected_answer": "SO-44",
+      "expected_citations": [
+        {
+          "document_id": "e4-service",
+          "page": 1,
+          "excerpt": "ServiceOrderID SO-44 explicitly references AssetTag CTD-204 and CampaignID C-17"
+        }
+      ]
+    },
+    {
+      "id": "e4-a18",
+      "split": "development",
+      "kind": "answerable",
+      "question": "À quelle heure le remplacement de batterie de CTD-204 est-il noté comme terminé ?",
+      "expected_answer": "11:20 CEST",
+      "expected_citations": [
+        {
+          "document_id": "e4-service",
+          "page": 1,
+          "excerpt": "On 2026-10-14 at 11:20 CEST, technician A. Morel replaced the battery"
+        }
+      ]
+    },
+    {
+      "id": "e4-u01",
+      "split": "development",
+      "kind": "unanswerable",
+      "question": "What is the street address of SiteCode BR-4?",
+      "expected_answer": null,
+      "expected_citations": []
+    },
+    {
+      "id": "e4-u02",
+      "split": "development",
+      "kind": "unanswerable",
+      "question": "Who was the boat operator for CampaignID C-17?",
+      "expected_answer": null,
+      "expected_citations": []
+    },
+    {
+      "id": "e4-u03",
+      "split": "development",
+      "kind": "unanswerable",
+      "question": "What phosphate concentration was measured for SampleBatchID SB-031?",
+      "expected_answer": null,
+      "expected_citations": []
+    },
+    {
+      "id": "e4-u04",
+      "split": "development",
+      "kind": "unanswerable",
+      "question": "How many visitors were at BR-4 on 2026-10-14?",
+      "expected_answer": null,
+      "expected_citations": []
+    },
+    {
+      "id": "e4-u05",
+      "split": "development",
+      "kind": "unanswerable",
+      "question": "Quel était le montant de la subvention pour CampaignID C-17 ?",
+      "expected_answer": null,
+      "expected_citations": []
+    },
+    {
+      "id": "e4-c01",
+      "split": "development",
+      "kind": "ambiguous",
+      "question": "What entry time should the team use for PermitID PR-88 on 2026-10-14?",
+      "expected_answer": null,
+      "expected_citations": []
+    },
+    {
+      "id": "e4-c02",
+      "split": "development",
+      "kind": "ambiguous",
+      "question": "What was the salinity of SB-031?",
+      "expected_answer": null,
+      "expected_citations": []
+    },
+    {
+      "id": "e4-c03",
+      "split": "development",
+      "kind": "ambiguous",
+      "question": "Quelle est la date d'expiration applicable de la calibration de CTD-204 ?",
+      "expected_answer": null,
+      "expected_citations": []
+    },
+    {
+      "id": "e4-c04",
+      "split": "development",
+      "kind": "ambiguous",
+      "question": "Which Quadrat in CampaignID C-17 was flooded after the 2026-10-14 storm?",
+      "expected_answer": null,
+      "expected_citations": []
+    },
+    {
+      "id": "e4-c05",
+      "split": "development",
+      "kind": "ambiguous",
+      "question": "Did AssetTag CTD-204 malfunction during CampaignID C-17?",
+      "expected_answer": null,
+      "expected_citations": []
+    }
+  ],
+  "metrics": {
+    "case_accuracy": "Frozen main-branch runner metric_counts.answerable_correct / answerable_total, with exact typed normalization and citation requirement.",
+    "citation_accuracy": "Frozen runner citation_precision and citation_recall.",
+    "abstention_accuracy": "Frozen runner abstention_accuracy, over unanswerable and ambiguous cases.",
+    "retrieval_accuracy": "Frozen runner retrieval_recall_at_5 and retrieval_mrr_at_5.",
+    "technical_errors": "Frozen runner errors and schema_errors counts.",
+    "no_post_run_gold_or_alias_changes": true
+  }
+}

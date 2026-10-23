@@ -1,0 +1,10 @@
+[
+  {
+    "path": "generative_provider.py",
+    "sha256": "29f6f59791b9baeb526d10b9d6e6ed36744b37caa66b1c9291587de56c74273b"
+  },
+  {
+    "path": "test_generative_provider.py",
+    "sha256": "d030827a3faac87e2ed671f53676499db53d15feede1e9773f34057b76fe8ae2"
+  }
+]

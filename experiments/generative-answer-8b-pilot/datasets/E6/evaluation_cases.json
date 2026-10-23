@@ -1,0 +1,406 @@
+{
+  "dataset_version": "e6-unrelated-urban-ecology-v2-20261023",
+  "parameters_version": "e3-fixed-runner-v1",
+  "mode": "grounded-local-v3",
+  "seed": 905231,
+  "synthetic_only": true,
+  "extraction_targets": [],
+  "cases": [
+    {
+      "id": "e6-a01",
+      "split": "development",
+      "kind": "answerable",
+      "question": "What is the supplier account code in the Bracken Vale supplier profile?",
+      "expected_answer": "BV-417",
+      "expected_citations": [
+        {
+          "document_id": "e6v2-doc-01",
+          "page": 1,
+          "excerpt": "The supplier account code is BV-417."
+        }
+      ]
+    },
+    {
+      "id": "e6-a02",
+      "split": "development",
+      "kind": "answerable",
+      "question": "What is Bracken Vale Instruments’ registered office address?",
+      "expected_answer": "18 Alder Quay, Bristol BS1 4NT, United Kingdom",
+      "expected_citations": [
+        {
+          "document_id": "e6v2-doc-01",
+          "page": 1,
+          "excerpt": "The registered office is 18 Alder Quay, Bristol BS1 4NT, United Kingdom."
+        }
+      ]
+    },
+    {
+      "id": "e6-a03",
+      "split": "development",
+      "kind": "answerable",
+      "question": "Who is the account manager?",
+      "expected_answer": "Leona Price",
+      "expected_citations": [
+        {
+          "document_id": "e6v2-doc-01",
+          "page": 1,
+          "excerpt": "The account manager is Leona Price."
+        }
+      ]
+    },
+    {
+      "id": "e6-a04",
+      "split": "development",
+      "kind": "answerable",
+      "question": "How many clips are in a BV-C2 carton?",
+      "expected_answer": "12",
+      "expected_citations": [
+        {
+          "document_id": "e6v2-doc-01",
+          "page": 2,
+          "excerpt": "The C2 clip set is supplied in cartons of 12."
+        }
+      ]
+    },
+    {
+      "id": "e6-a05",
+      "split": "development",
+      "kind": "answerable",
+      "question": "What payment term applies to account BV-417?",
+      "expected_answer": "net 30 days from invoice date",
+      "expected_citations": [
+        {
+          "document_id": "e6v2-doc-01",
+          "page": 2,
+          "excerpt": "Payment terms recorded for account BV-417: net 30 days from invoice date."
+        }
+      ]
+    },
+    {
+      "id": "e6-a06",
+      "split": "development",
+      "kind": "answerable",
+      "question": "What was the reference bath model used in QR-52?",
+      "expected_answer": "AquaCal 6",
+      "expected_citations": [
+        {
+          "document_id": "e6v2-doc-02",
+          "page": 1,
+          "excerpt": "The recorded reference bath was model AquaCal 6, asset AC-19."
+        }
+      ]
+    },
+    {
+      "id": "e6-a07",
+      "split": "development",
+      "kind": "answerable",
+      "question": "What procedure revision did the QR-52 inspection use?",
+      "expected_answer": "QP-14 revision 3",
+      "expected_citations": [
+        {
+          "document_id": "e6v2-doc-02",
+          "page": 2,
+          "excerpt": "The inspection used procedure QP-14 revision 3."
+        }
+      ]
+    },
+    {
+      "id": "e6-a08",
+      "split": "development",
+      "kind": "answerable",
+      "question": "How many BV-T9 probes passed the temperature-response check?",
+      "expected_answer": "24",
+      "expected_citations": [
+        {
+          "document_id": "e6v2-doc-02",
+          "page": 1,
+          "excerpt": "All 24 passed the temperature-response check at 0 °C and 80 °C."
+        }
+      ]
+    },
+    {
+      "id": "e6-a09",
+      "split": "development",
+      "kind": "answerable",
+      "question": "What is the plot code in field log FL-88?",
+      "expected_answer": "LV-3",
+      "expected_citations": [
+        {
+          "document_id": "e6v2-doc-04",
+          "page": 1,
+          "excerpt": "Plot code LV-3."
+        }
+      ]
+    },
+    {
+      "id": "e6-a10",
+      "split": "development",
+      "kind": "answerable",
+      "question": "On what date did the FL-88 team survey the grove?",
+      "expected_answer": "6 May 2025",
+      "expected_citations": [
+        {
+          "document_id": "e6v2-doc-04",
+          "page": 1,
+          "excerpt": "The field team surveyed the grove on 6 May 2025."
+        }
+      ]
+    },
+    {
+      "id": "e6-a11",
+      "split": "development",
+      "kind": "answerable",
+      "question": "Who is named as the FL-88 observer?",
+      "expected_answer": "Anika Bell",
+      "expected_citations": [
+        {
+          "document_id": "e6v2-doc-04",
+          "page": 1,
+          "excerpt": "Observer: Anika Bell."
+        }
+      ]
+    },
+    {
+      "id": "e6-a12",
+      "split": "development",
+      "kind": "answerable",
+      "question": "How many tagged trees were flowering in the FL-88 morning survey?",
+      "expected_answer": "17",
+      "expected_citations": [
+        {
+          "document_id": "e6v2-doc-04",
+          "page": 1,
+          "excerpt": "Field tally: 17 tagged trees were flowering during the morning survey."
+        }
+      ]
+    },
+    {
+      "id": "e6-a13",
+      "split": "development",
+      "kind": "answerable",
+      "question": "Which species is assigned to tag LV3-04 in accession register AR-12?",
+      "expected_answer": "European beech, Fagus sylvatica",
+      "expected_citations": [
+        {
+          "document_id": "e6v2-doc-05",
+          "page": 1,
+          "excerpt": "Tag LV3-04 is assigned to the European beech, Fagus sylvatica."
+        }
+      ]
+    },
+    {
+      "id": "e6-a14",
+      "split": "development",
+      "kind": "answerable",
+      "question": "What accession number does AR-12 assign to tree tag LV3-09?",
+      "expected_answer": "RC-219",
+      "expected_citations": [
+        {
+          "document_id": "e6v2-doc-05",
+          "page": 1,
+          "excerpt": "Tag LV3-09 is assigned to the small-leaved lime, Tilia cordata. Accession number: RC-219."
+        }
+      ]
+    },
+    {
+      "id": "e6-a15",
+      "split": "development",
+      "kind": "answerable",
+      "question": "What grid point is listed for tag LV3-12 in AR-12?",
+      "expected_answer": "E5",
+      "expected_citations": [
+        {
+          "document_id": "e6v2-doc-05",
+          "page": 2,
+          "excerpt": "Tag LV3-12 is assigned to the English oak, Quercus robur. Accession number: RC-233. Grid point E5, plot LV-3."
+        }
+      ]
+    },
+    {
+      "id": "e6-a16",
+      "split": "development",
+      "kind": "answerable",
+      "question": "Which register does field log FL-88 explicitly accompany?",
+      "expected_answer": "accession register AR-12",
+      "expected_citations": [
+        {
+          "document_id": "e6v2-doc-04",
+          "page": 1,
+          "excerpt": "This field log explicitly accompanies accession register AR-12: “Field log FL-88 accompanies accession register AR-12 for the Lower Vale grove observations recorded here.”"
+        }
+      ]
+    },
+    {
+      "id": "e6-a17",
+      "split": "development",
+      "kind": "answerable",
+      "question": "What is the standard calibration service turnaround under ST-88?",
+      "expected_answer": "five working days",
+      "expected_citations": [
+        {
+          "document_id": "e6v2-doc-03",
+          "page": 1,
+          "excerpt": "Standard service turnaround is five working days after receipt of a probe."
+        }
+      ]
+    },
+    {
+      "id": "e6-a18",
+      "split": "development",
+      "kind": "answerable",
+      "question": "What calibration interval does ST-88 state for BV-T9 probes?",
+      "expected_answer": "12 months",
+      "expected_citations": [
+        {
+          "document_id": "e6v2-doc-03",
+          "page": 1,
+          "excerpt": "For BV-T9 probes, the included calibration interval stated in this terms sheet is 12 months."
+        }
+      ]
+    },
+    {
+      "id": "e6-u01",
+      "split": "development",
+      "kind": "unanswerable",
+      "question": "What warranty duration is promised for BV-T9 probes?",
+      "expected_answer": null,
+      "expected_citations": []
+    },
+    {
+      "id": "e6-u02",
+      "split": "development",
+      "kind": "unanswerable",
+      "question": "What humidity percentage threshold should be used for storing the inspected lot?",
+      "expected_answer": null,
+      "expected_citations": []
+    },
+    {
+      "id": "e6-u03",
+      "split": "development",
+      "kind": "unanswerable",
+      "question": "Dans quel pays les sondes BV-L2403 ont-elles été fabriquées ?",
+      "expected_answer": null,
+      "expected_citations": []
+    },
+    {
+      "id": "e6-u04",
+      "split": "development",
+      "kind": "unanswerable",
+      "question": "What year was tree LV3-04 planted?",
+      "expected_answer": null,
+      "expected_citations": []
+    },
+    {
+      "id": "e6-u05",
+      "split": "development",
+      "kind": "unanswerable",
+      "question": "What is the field-repair price for a BV-T9 probe?",
+      "expected_answer": null,
+      "expected_citations": []
+    },
+    {
+      "id": "e6-c01",
+      "split": "development",
+      "kind": "ambiguous",
+      "question": "How many probes were recorded as the sample count for lot BV-L2403 in QR-52?",
+      "expected_answer": null,
+      "expected_citations": [
+        {
+          "document_id": "e6v2-doc-02",
+          "page": 2,
+          "excerpt": "Field “sample count” on the signed table: 24 probes."
+        },
+        {
+          "document_id": "e6v2-doc-02",
+          "page": 2,
+          "excerpt": "Field “sample count” in the handwritten margin: 26 probes."
+        }
+      ]
+    },
+    {
+      "id": "e6-c02",
+      "split": "development",
+      "kind": "ambiguous",
+      "question": "What mean canopy temperature is recorded for the FL-88 survey of plot LV-3?",
+      "expected_answer": null,
+      "expected_citations": [
+        {
+          "document_id": "e6v2-doc-04",
+          "page": 2,
+          "excerpt": "Digital logger summary: 14 °C."
+        },
+        {
+          "document_id": "e6v2-doc-04",
+          "page": 2,
+          "excerpt": "Field notebook transcription: 16 °C."
+        }
+      ]
+    },
+    {
+      "id": "e6-c03",
+      "split": "development",
+      "kind": "ambiguous",
+      "question": "What date is listed as the inspection date for lot BV-L2403 in the QR-52 worksheet?",
+      "expected_answer": null,
+      "expected_citations": [
+        {
+          "document_id": "e6v2-doc-02",
+          "page": 2,
+          "excerpt": "“Inspection date” in the cover summary: 8 April 2025."
+        },
+        {
+          "document_id": "e6v2-doc-02",
+          "page": 2,
+          "excerpt": "“Inspection date” in the worksheet header: 9 April 2025."
+        }
+      ]
+    },
+    {
+      "id": "e6-c04",
+      "split": "development",
+      "kind": "ambiguous",
+      "question": "Which reference bath asset number did QR-52 record for the BV-L2403 inspection?",
+      "expected_answer": null,
+      "expected_citations": [
+        {
+          "document_id": "e6v2-doc-02",
+          "page": 2,
+          "excerpt": "Signed equipment field: AC-19."
+        },
+        {
+          "document_id": "e6v2-doc-02",
+          "page": 2,
+          "excerpt": "Handwritten equipment field: AC-91."
+        }
+      ]
+    },
+    {
+      "id": "e6-c05",
+      "split": "development",
+      "kind": "ambiguous",
+      "question": "How many seed capsules were recorded for tree LV3-04 after the FL-88 observation?",
+      "expected_answer": null,
+      "expected_citations": [
+        {
+          "document_id": "e6v2-doc-05",
+          "page": 2,
+          "excerpt": "Register table: 8 capsules."
+        },
+        {
+          "document_id": "e6v2-doc-05",
+          "page": 2,
+          "excerpt": "Margin note: 11 capsules."
+        }
+      ]
+    }
+  ],
+  "metrics": {
+    "answerable_correct": "Native unchanged answerable_correct over answerable cases, requiring correct factual answer and citation evidence according to the frozen runner.",
+    "citation_precision": "Native unchanged citation precision over produced citations.",
+    "citation_recall": "Native unchanged citation recall against exact expected citations on answerable cases.",
+    "abstention_accuracy": "Native unchanged abstention accuracy on unanswerable and ambiguous cases; ambiguity remains separately identified by gold kind.",
+    "retrieval_metrics": "Native unchanged retrieval metrics, including retrieval recall and reciprocal rank where emitted by runner.",
+    "errors": "Native unchanged error and schema-error counts/rates where emitted.",
+    "no_post_result_gold_or_alias_changes": "Gold answers, citations, kinds, and aliases will not be changed after any inference result is observed."
+  }
+}

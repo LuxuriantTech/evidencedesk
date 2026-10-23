@@ -1,0 +1,147 @@
+name: Generative 8B answer development experiment
+
+run-name: "Generation 8B development ${{ github.sha }}"
+
+on:
+  push:
+    branches: [codex/evidencedesk-gen-ci-20261023]
+    paths:
+      - experiments/generative-answer-8b-pilot/**
+      - .github/workflows/generation-8b-development.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: generative-8b-development-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  development:
+    name: Exposed development ${{ matrix.dataset }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 55
+    strategy:
+      fail-fast: false
+      matrix:
+        dataset: [E4, E5, E6]
+    env:
+      PILOT: experiments/generative-answer-8b-pilot
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - name: Checkout experiment source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Install pinned uv
+        uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
+        with:
+          version: "0.11.7"
+          enable-cache: false
+
+      - name: Install exact Python release
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12.14"
+
+      - name: Prepare independent frozen source worktrees
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git worktree add --detach "$RUNNER_TEMP/baseline" ffeba12c4d4d64a1e1f003f211dfa1781c64515d
+          git worktree add --detach "$RUNNER_TEMP/candidate" 120e233bb8ff09cabc1bd3c5004a8545039459aa
+          mkdir "$GITHUB_WORKSPACE/generation-8b-diagnostics"
+          df -h "$RUNNER_TEMP"
+
+      - name: Rebuild native environment from unchanged lock
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          cd "$RUNNER_TEMP/candidate"
+          UV_PROJECT_ENVIRONMENT="$RUNNER_TEMP/native-env" uv sync --frozen --all-groups --python "$(command -v python)"
+
+      - name: Check portable contracts without model inference
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          export PYTHONPATH="$RUNNER_TEMP/candidate/apps/api:$RUNNER_TEMP/candidate:$GITHUB_WORKSPACE/$PILOT"
+          "$RUNNER_TEMP/native-env/bin/python" -m unittest discover -s "$PILOT" -p 'test_*.py' -v
+          bash -n "$PILOT/run_ci_pair.sh"
+
+      - name: Download and verify pinned public artifacts
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python "$PILOT/prepare_artifacts.py" \
+            --output-root "$RUNNER_TEMP/gen-assets" \
+            --source-repo "$RUNNER_TEMP/candidate"
+
+      - name: Compare baseline and generation within one bounded service
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          bash "$PILOT/run_ci_pair.sh" \
+            --dataset '${{ matrix.dataset }}' \
+            --repo-baseline "$RUNNER_TEMP/baseline" \
+            --repo-candidate "$RUNNER_TEMP/candidate" \
+            --venv "$RUNNER_TEMP/native-env" \
+            --model-manifest "$RUNNER_TEMP/gen-assets/PREPARATION_MANIFEST.json" \
+            --data-root "$GITHUB_WORKSPACE/$PILOT/datasets" \
+            --output "$GITHUB_WORKSPACE/generation-8b-diagnostics/${{ matrix.dataset }}" \
+            --go
+
+      - name: Retain preparation evidence
+        id: evidence
+        if: always()
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          destination="$GITHUB_WORKSPACE/generation-8b-diagnostics/preparation-${{ matrix.dataset }}"
+          mkdir -p "$destination"
+          if [[ -f "$RUNNER_TEMP/gen-assets/PREPARATION_MANIFEST.json" ]]; then
+            cp -- "$RUNNER_TEMP/gen-assets/PREPARATION_MANIFEST.json" "$destination/"
+          fi
+          if [[ -d "$RUNNER_TEMP/gen-assets/logs" ]]; then
+            cp -R -- "$RUNNER_TEMP/gen-assets/logs" "$destination/"
+          fi
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+          root = Path('generation-8b-diagnostics')
+          files = []
+          total = 0
+          for path in sorted(root.rglob('*')):
+              if path.is_symlink():
+                  raise SystemExit('Refuse symlink in public diagnostic output')
+              if not path.is_file():
+                  continue
+              if path.suffix not in {'.json', '.log', '.txt'} and not path.name.endswith('.json.partial'):
+                  raise SystemExit('Refuse non-diagnostic output: ' + path.name)
+              size = path.stat().st_size
+              total += size
+              files.append({'path': path.relative_to(root).as_posix(), 'bytes': size,
+                            'sha256': hashlib.sha256(path.read_bytes()).hexdigest()})
+          if total > 10 * 1024 * 1024:
+              raise SystemExit('Public diagnostic output exceeds 10 MiB')
+          (root / 'TRANSFER_MANIFEST.json').write_text(
+              json.dumps({'bytes': total, 'files': files}, indent=2) + '\n')
+          print(f'Public diagnostic output verified: {len(files)} files, {total} bytes')
+          PY
+          printf '%s\n' \
+            'This workflow measures exposed development data in a new CI environment.' \
+            'A completed workflow is not quality qualification or release approval.' \
+            'No merge, deployment, model weights, environments or user data are included.' >> "$GITHUB_STEP_SUMMARY"
+          du -sh "$GITHUB_WORKSPACE/generation-8b-diagnostics"
+
+      - name: Preserve small public diagnostic files
+        if: ${{ always() && steps.evidence.outcome == 'success' }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: generative-8b-development-${{ matrix.dataset }}-${{ github.sha }}
+          path: generation-8b-diagnostics/
+          retention-days: 1
+          if-no-files-found: warn
+          include-hidden-files: false

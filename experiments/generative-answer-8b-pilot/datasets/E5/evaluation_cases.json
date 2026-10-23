@@ -1,0 +1,401 @@
+{
+  "dataset_version": "evidencedesk-fresh-e5-20261023-v1",
+  "parameters_version": "e3-fixed-runner-v1",
+  "mode": "grounded-local-v3",
+  "seed": 2026102305,
+  "synthetic_only": true,
+  "extraction_targets": [],
+  "cases": [
+    {
+      "id": "e5-a01",
+      "split": "development",
+      "kind": "answerable",
+      "question": "How many Vela-8 valves did agreement MPW-4407 cover?",
+      "expected_answer": "Twelve.",
+      "expected_citations": [
+        {
+          "document_id": "e5-proc-01",
+          "page": 1,
+          "excerpt": "Meridian Pump Works Ltd. issued agreement MPW-4407 to North Quay Water Cooperative on 14 March 2026. The agreement covers twelve Vela-8 isolation valves for the Alder Basin refurbishment."
+        }
+      ]
+    },
+    {
+      "id": "e5-a02",
+      "split": "development",
+      "kind": "answerable",
+      "question": "Quel est le prix unitaire convenu hors TVA pour les vannes ?",
+      "expected_answer": "1 840 EUR hors TVA par vanne.",
+      "expected_citations": [
+        {
+          "document_id": "e5-proc-01",
+          "page": 1,
+          "excerpt": "Meridian Pump Works Ltd. issued agreement MPW-4407 to North Quay Water Cooperative on 14 March 2026. The agreement covers twelve Vela-8 isolation valves for the Alder Basin refurbishment."
+        },
+        {
+          "document_id": "e5-proc-01",
+          "page": 2,
+          "excerpt": "The agreed unit price is EUR 1,840 excluding VAT. Delivery is due at North Quay Stores, Gate C, by 30 April 2026. Contract contact is Elise Van Doren, procurement coordinator, at Meridian Pump Works."
+        }
+      ]
+    },
+    {
+      "id": "e5-a03",
+      "split": "development",
+      "kind": "answerable",
+      "question": "Where was shipment BH-8821 delivered?",
+      "expected_answer": "North Quay Stores, Gate C.",
+      "expected_citations": [
+        {
+          "document_id": "e5-proc-02",
+          "page": 1,
+          "excerpt": "On 29 April 2026, carrier Blue Heron Logistics delivered shipment BH-8821 to North Quay Stores, Gate C. The shipment contained twelve Vela-8 isolation valves and cited purchase agreement MPW-4407."
+        }
+      ]
+    },
+    {
+      "id": "e5-a04",
+      "split": "development",
+      "kind": "answerable",
+      "question": "Who received the pressure certificates for review?",
+      "expected_answer": "Elise Van Doren.",
+      "expected_citations": [
+        {
+          "document_id": "e5-proc-02",
+          "page": 1,
+          "excerpt": "On 29 April 2026, carrier Blue Heron Logistics delivered shipment BH-8821 to North Quay Stores, Gate C. The shipment contained twelve Vela-8 isolation valves and cited purchase agreement MPW-4407."
+        },
+        {
+          "document_id": "e5-proc-02",
+          "page": 2,
+          "excerpt": "Receiving clerk Jonas Peeters recorded twelve crates in good external condition. The inspection sheet says the pressure certificates were placed in envelope CERT-19 and handed to Elise Van Doren for review."
+        }
+      ]
+    },
+    {
+      "id": "e5-a05",
+      "split": "development",
+      "kind": "answerable",
+      "question": "What is the amount invoiced before VAT?",
+      "expected_answer": "EUR 22,080.",
+      "expected_citations": [
+        {
+          "document_id": "e5-proc-03",
+          "page": 1,
+          "excerpt": "Invoice MI-2026-771, dated 2 May 2026, bills North Quay Water Cooperative EUR 22,080 excluding VAT for twelve Vela-8 isolation valves under agreement MPW-4407."
+        }
+      ]
+    },
+    {
+      "id": "e5-a06",
+      "split": "development",
+      "kind": "answerable",
+      "question": "What is the invoice payment deadline?",
+      "expected_answer": "Within 30 calendar days of invoice receipt.",
+      "expected_citations": [
+        {
+          "document_id": "e5-proc-03",
+          "page": 1,
+          "excerpt": "Invoice MI-2026-771, dated 2 May 2026, bills North Quay Water Cooperative EUR 22,080 excluding VAT for twelve Vela-8 isolation valves under agreement MPW-4407."
+        },
+        {
+          "document_id": "e5-proc-03",
+          "page": 2,
+          "excerpt": "Payment is due within 30 calendar days of invoice receipt. The invoice names Meridian Pump Works Ltd. as payee and cites bank reference MPW-4407-771."
+        }
+      ]
+    },
+    {
+      "id": "e5-a07",
+      "split": "development",
+      "kind": "answerable",
+      "question": "Which model of mounting collars was added by CR-18?",
+      "expected_answer": "MC-2.",
+      "expected_citations": [
+        {
+          "document_id": "e5-proc-04",
+          "page": 1,
+          "excerpt": "Change request CR-18 for agreement MPW-4407 was approved by North Quay on 6 May 2026. It adds two stainless-steel mounting collars, model MC-2, at no additional charge."
+        }
+      ]
+    },
+    {
+      "id": "e5-a08",
+      "split": "development",
+      "kind": "answerable",
+      "question": "What number of MC-2 collars does maintenance handover MH-55 report remained in the workshop after installation?",
+      "expected_answer": "Maintenance handover MH-55 reports that two MC-2 collars remained in the workshop after installation.",
+      "expected_citations": [
+        {
+          "document_id": "e5-proc-05",
+          "page": 1,
+          "excerpt": "Maintenance handover MH-55 links agreement MPW-4407 and delivery BH-8821 to the Alder Basin valve installation. Technician Mara Ilic signed the handover on 8 May 2026."
+        },
+        {
+          "document_id": "e5-proc-05",
+          "page": 2,
+          "excerpt": "Mara Ilic reports that all twelve Vela-8 valves were installed and that two MC-2 collars remain in the North Quay workshop cabinet. The handover does not record a serial number for any valve."
+        }
+      ]
+    },
+    {
+      "id": "e5-a09",
+      "split": "development",
+      "kind": "answerable",
+      "question": "Who signed the maintenance handover, and on what date?",
+      "expected_answer": "Technician Mara Ilic signed it on 8 May 2026.",
+      "expected_citations": [
+        {
+          "document_id": "e5-proc-05",
+          "page": 1,
+          "excerpt": "Maintenance handover MH-55 links agreement MPW-4407 and delivery BH-8821 to the Alder Basin valve installation. Technician Mara Ilic signed the handover on 8 May 2026."
+        }
+      ]
+    },
+    {
+      "id": "e5-a10",
+      "split": "development",
+      "kind": "answerable",
+      "question": "What humidity target did work order LC-203 approve?",
+      "expected_answer": "52 percent relative humidity.",
+      "expected_citations": [
+        {
+          "document_id": "e5-archive-01",
+          "page": 1,
+          "excerpt": "The Lumen City Museum issued work order LC-203 to Aster Conservation Studio on 3 February 2026 for humidity-control work in the Harbor Glasshouse, gallery H-2."
+        },
+        {
+          "document_id": "e5-archive-01",
+          "page": 2,
+          "excerpt": "The approved work order sets the target relative humidity at 52 percent. Conservator Nia Okafor is the named site lead, and the work is scheduled for the east display case group."
+        }
+      ]
+    },
+    {
+      "id": "e5-a11",
+      "split": "development",
+      "kind": "answerable",
+      "question": "What relative humidity did instrument log HG-6-1 record at 09:00 on 12 February 2026?",
+      "expected_answer": "Instrument log HG-6-1 recorded 51 percent relative humidity at 09:00.",
+      "expected_citations": [
+        {
+          "document_id": "e5-archive-02",
+          "page": 1,
+          "excerpt": "Sensor HG-6 recorded 51 percent relative humidity at 09:00 on 12 February 2026 in gallery H-2 of the Harbor Glasshouse."
+        }
+      ]
+    },
+    {
+      "id": "e5-a12",
+      "split": "development",
+      "kind": "answerable",
+      "question": "How many rolls of barrier film arrived on receipt AST-91?",
+      "expected_answer": "Four rolls.",
+      "expected_citations": [
+        {
+          "document_id": "e5-archive-03",
+          "page": 1,
+          "excerpt": "Receipt AST-91 records delivery of four rolls of inert barrier film from Aster Conservation Studio to the Lumen City Museum on 10 February 2026 for work order LC-203."
+        }
+      ]
+    },
+    {
+      "id": "e5-a13",
+      "split": "development",
+      "kind": "answerable",
+      "question": "Dans quelle armoire les rouleaux ont-ils été rangés ?",
+      "expected_answer": "Dans l’armoire de conservation C-4.",
+      "expected_citations": [
+        {
+          "document_id": "e5-archive-03",
+          "page": 1,
+          "excerpt": "Receipt AST-91 records delivery of four rolls of inert barrier film from Aster Conservation Studio to the Lumen City Museum on 10 February 2026 for work order LC-203."
+        },
+        {
+          "document_id": "e5-archive-03",
+          "page": 2,
+          "excerpt": "Storekeeper Leila Haddad placed the rolls in conservation cupboard C-4. The receipt says the material lot code is ABF-2601 and that no adhesive was included."
+        }
+      ]
+    },
+    {
+      "id": "e5-a14",
+      "split": "development",
+      "kind": "answerable",
+      "question": "At what time did Nia Okafor enter gallery H-2?",
+      "expected_answer": "08:42 on 12 February 2026.",
+      "expected_citations": [
+        {
+          "document_id": "e5-archive-04",
+          "page": 1,
+          "excerpt": "Access register AG-12 records Nia Okafor entering gallery H-2 at 08:42 on 12 February 2026 for work order LC-203."
+        }
+      ]
+    },
+    {
+      "id": "e5-a15",
+      "split": "development",
+      "kind": "answerable",
+      "question": "Who countersigned both access-register entries?",
+      "expected_answer": "Museum guard Theo Marchand.",
+      "expected_citations": [
+        {
+          "document_id": "e5-archive-04",
+          "page": 1,
+          "excerpt": "Access register AG-12 records Nia Okafor entering gallery H-2 at 08:42 on 12 February 2026 for work order LC-203."
+        },
+        {
+          "document_id": "e5-archive-04",
+          "page": 2,
+          "excerpt": "The register records Pavel Rusu leaving gallery H-2 at 16:18 that day. Both entries were countersigned by museum guard Theo Marchand."
+        }
+      ]
+    },
+    {
+      "id": "e5-a16",
+      "split": "development",
+      "kind": "answerable",
+      "question": "How many Harbor Glasshouse case backs received barrier film?",
+      "expected_answer": "Three.",
+      "expected_citations": [
+        {
+          "document_id": "e5-archive-05",
+          "page": 1,
+          "excerpt": "Closeout note CN-8 links work order LC-203, sensor HG-6 and material lot ABF-2601 to the Harbor Glasshouse east display cases. Nia Okafor signed the note on 18 February 2026."
+        },
+        {
+          "document_id": "e5-archive-05",
+          "page": 2,
+          "excerpt": "The closeout says the barrier film was fitted to three case backs. It does not state the final room humidity after installation or identify the cases by accession number."
+        }
+      ]
+    },
+    {
+      "id": "e5-a17",
+      "split": "development",
+      "kind": "answerable",
+      "question": "Quel est le code de lot du film barrière inerte ?",
+      "expected_answer": "ABF-2601.",
+      "expected_citations": [
+        {
+          "document_id": "e5-archive-03",
+          "page": 1,
+          "excerpt": "Receipt AST-91 records delivery of four rolls of inert barrier film from Aster Conservation Studio to the Lumen City Museum on 10 February 2026 for work order LC-203."
+        },
+        {
+          "document_id": "e5-archive-03",
+          "page": 2,
+          "excerpt": "Storekeeper Leila Haddad placed the rolls in conservation cupboard C-4. The receipt says the material lot code is ABF-2601 and that no adhesive was included."
+        }
+      ]
+    },
+    {
+      "id": "e5-a18",
+      "split": "development",
+      "kind": "answerable",
+      "question": "Which gallery and case group were scheduled in the work order?",
+      "expected_answer": "Gallery H-2, east display case group.",
+      "expected_citations": [
+        {
+          "document_id": "e5-archive-01",
+          "page": 1,
+          "excerpt": "The Lumen City Museum issued work order LC-203 to Aster Conservation Studio on 3 February 2026 for humidity-control work in the Harbor Glasshouse, gallery H-2."
+        },
+        {
+          "document_id": "e5-archive-01",
+          "page": 2,
+          "excerpt": "The approved work order sets the target relative humidity at 52 percent. Conservator Nia Okafor is the named site lead, and the work is scheduled for the east display case group."
+        }
+      ]
+    },
+    {
+      "id": "e5-u01",
+      "split": "development",
+      "kind": "unanswerable",
+      "question": "What is the serial number of valve installed at Alder Basin?",
+      "expected_answer": null,
+      "expected_citations": []
+    },
+    {
+      "id": "e5-u02",
+      "split": "development",
+      "kind": "unanswerable",
+      "question": "What VAT rate was applied to invoice MI-2026-771?",
+      "expected_answer": null,
+      "expected_citations": []
+    },
+    {
+      "id": "e5-u03",
+      "split": "development",
+      "kind": "unanswerable",
+      "question": "What time was shipment BH-8821 unloaded?",
+      "expected_answer": null,
+      "expected_citations": []
+    },
+    {
+      "id": "e5-u04",
+      "split": "development",
+      "kind": "unanswerable",
+      "question": "What is Elise Van Doren’s telephone number?",
+      "expected_answer": null,
+      "expected_citations": []
+    },
+    {
+      "id": "e5-u05",
+      "split": "development",
+      "kind": "unanswerable",
+      "question": "What final relative humidity was measured after the barrier film installation?",
+      "expected_answer": null,
+      "expected_citations": []
+    },
+    {
+      "id": "e5-c01",
+      "split": "development",
+      "kind": "ambiguous",
+      "question": "What relative humidity did sensor HG-6 record at 09:00 on 12 February 2026?",
+      "expected_answer": null,
+      "expected_citations": []
+    },
+    {
+      "id": "e5-c02",
+      "split": "development",
+      "kind": "ambiguous",
+      "question": "At what time was the HG-6 morning reading in gallery H-2 on 12 February 2026 recorded?",
+      "expected_answer": null,
+      "expected_citations": []
+    },
+    {
+      "id": "e5-c03",
+      "split": "development",
+      "kind": "ambiguous",
+      "question": "What unit price did the procurement record state for a Vela-8 valve under MPW-4407?",
+      "expected_answer": null,
+      "expected_citations": []
+    },
+    {
+      "id": "e5-c04",
+      "split": "development",
+      "kind": "ambiguous",
+      "question": "What was the total value of invoice MI-2026-771 before VAT?",
+      "expected_answer": null,
+      "expected_citations": []
+    },
+    {
+      "id": "e5-c05",
+      "split": "development",
+      "kind": "ambiguous",
+      "question": "Combien de colliers MC-2 le dossier indique-t-il pour le stock après installation ?",
+      "expected_answer": null,
+      "expected_citations": []
+    }
+  ],
+  "metrics": {
+    "answerable_correct": "Native unchanged answerable_correct over answerable cases, requiring correct factual answer and citation evidence according to the frozen runner.",
+    "citation_precision": "Native unchanged citation precision over produced citations.",
+    "citation_recall": "Native unchanged citation recall against exact expected citations on answerable cases.",
+    "abstention_accuracy": "Native unchanged abstention accuracy on unanswerable and ambiguous cases; ambiguity remains separately identified by gold kind.",
+    "retrieval_metrics": "Native unchanged retrieval metrics, including retrieval recall and reciprocal rank where emitted by runner.",
+    "errors": "Native unchanged error and schema-error counts/rates where emitted.",
+    "no_post_result_gold_or_alias_changes": "Gold answers, citations, kinds, and aliases will not be changed after any inference result is observed."
+  }
+}

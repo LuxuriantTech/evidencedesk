@@ -22,7 +22,7 @@ from urllib.parse import urlparse
 
 HERE = Path(__file__).resolve().parent
 CANDIDATE_COMMIT = "120e233bb8ff09cabc1bd3c5004a8545039459aa"
-PROVIDER_SHA256 = "29f6f59791b9baeb526d10b9d6e6ed36744b37caa66b1c9291587de56c74273b"
+PROVIDER_SHA256 = "d03addcbd0074b06e543791fae932587866e159781c0f9c2a5bf2c2ce41578cc"
 CASES = (
     {
         "name": "person",
@@ -38,7 +38,7 @@ CASES = (
     },
     {
         "name": "voltage",
-        "question": "Quelle tension de sortie est indiquée après le remplacement du ventilateur de BX-27 ?",
+        "question": "Quelle tension de sortie est indiquÃ©e aprÃ¨s le remplacement du ventilateur de BX-27 ?",
         "passages": (
             ("invented-operation", "operation-note",
              "Operations note NM-62. On 18 April 2028 at 09:40 UTC, technician Rhea Moss "

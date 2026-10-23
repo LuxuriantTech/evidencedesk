@@ -101,8 +101,14 @@ class GenerativeProviderTests(unittest.TestCase):
         self.assertEqual(self.provider.diagnostics[-1]["context_preflight"], "passed_exact_server_token_count")
         self.assertEqual(post.call_args_list[0].args[1], post.call_args_list[1].args[1])
         self.assertEqual(result.mode if hasattr(result, "mode") else self.provider.mode, MODE)
-        self.assertEqual(JSON_SCHEMA["required"], ["evidence", "answer_spans", "status"])
-        self.assertEqual(list(JSON_SCHEMA["properties"]), ["evidence", "answer_spans", "status"])
+        self.assertEqual(
+            [branch["properties"]["status"]["const"] for branch in JSON_SCHEMA["oneOf"]],
+            ["answered", "ambiguous", "abstained"],
+        )
+        self.assertEqual(
+            list(JSON_SCHEMA["oneOf"][0]["properties"]),
+            ["status", "evidence", "answer_spans"],
+        )
 
     def test_ambiguous_values_require_distinct_proof_quotes(self):
         ranked = [c("c1", "The fee was EUR 40, later EUR 55."), c("c2", "Account is active.")]
