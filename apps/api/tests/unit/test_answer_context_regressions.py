@@ -2,6 +2,7 @@ from evidencedesk_api.answering import (
     DecisionConfig,
     DeterministicGroundedAnswerProvider,
     _field_value,
+    _requested_source_ids,
     _scope_ranked,
 )
 from evidencedesk_api.providers import DeterministicEmbeddingProvider
@@ -184,6 +185,90 @@ def test_report_verb_and_slash_id_do_not_filter_out_the_requested_record() -> No
     assert result.supporting_excerpt == (
         "At 06:25 on 9 September 2031, auxiliary sensor AA-7 read 6.4 degrees Celsius."
     )
+
+
+def test_source_subject_id_does_not_match_a_body_reference_in_another_document() -> None:
+    source_header = _ranked(
+        "handover:p1:c0",
+        "Equipment handover HX-24 links work order WO-72 to service job FS-18.",
+        document_id="handover",
+        document_name="equipment_handover_hx-24.txt",
+        page=1,
+        ordinal=0,
+    )
+    source_fact = _ranked(
+        "handover:p2:c0",
+        "The handover reports that two sensor collars remained in the workshop after installation.",
+        document_id="handover",
+        document_name="equipment_handover_hx-24.txt",
+        page=2,
+        ordinal=1,
+    )
+    body_reference = _ranked(
+        "tally:p1:c0",
+        "Workshop tally WT-17 states that three sensor collars remained after installation "
+        "under handover HX-24.",
+        document_id="tally",
+        document_name="workshop_tally_wt-17.txt",
+        page=1,
+        ordinal=0,
+    )
+    question = (
+        "How many sensor collars does equipment handover HX-24 report remained in the "
+        "workshop after installation?"
+    )
+
+    assert _requested_source_ids(question) == {"hx-24"}
+    result = _answerer().answer(question, [source_header, source_fact, body_reference])
+    body_only = _answerer().answer(question, [body_reference])
+
+    assert result.status == "answered"
+    assert result.answer == "two"
+    assert {citation.document_id for citation in result.citations} == {"handover"}
+    assert {citation.chunk_id for citation in result.citations} == {
+        "handover:p1:c0",
+        "handover:p2:c0",
+    }
+    assert body_only.status == "abstained"
+
+
+def test_source_identity_header_keeps_principal_id_before_linked_ids() -> None:
+    source = _ranked(
+        "handover:p1:c0",
+        "Equipment handover HX-24 links work order WO-72 to service job FS-18.",
+        document_id="handover",
+        document_name="equipment_handover_hx-24.txt",
+        page=1,
+    )
+    other = _ranked(
+        "work-order:p1:c0",
+        "Work order WO-72 links equipment handover HX-24 to service job FS-18.",
+        document_id="work-order",
+        document_name="work_order_wo-72.txt",
+        page=1,
+    )
+
+    scoped = _scope_ranked(
+        "What number does equipment handover HX-24 report?", [source, other]
+    )
+
+    assert [item.chunk.document_id for item in scoped] == ["handover"]
+
+
+def test_source_header_with_multiple_pre_predicate_ids_is_not_primary_identity() -> None:
+    ambiguous_header = _ranked(
+        "change-record:p1:c0",
+        "Change record CR-82 under agreement AG-27 states that a revision is pending.",
+        document_id="change-record",
+        document_name="change_record.txt",
+    )
+
+    scoped = _scope_ranked(
+        "According to change record CR-82, what is the revision status?",
+        [ambiguous_header],
+    )
+
+    assert scoped == []
 
 
 def test_unique_header_context_scopes_date_and_time_in_later_chunks() -> None:
@@ -1031,6 +1116,119 @@ def test_unit_price_cannot_answer_a_question_about_invoice_total() -> None:
     assert result.answerable is False
     assert result.citations == ()
     assert "EUR 37.50" not in result.answer
+
+
+def test_agreed_unit_price_uses_the_explicitly_agreed_value() -> None:
+    signed_header = _ranked(
+        "contract:p1:c0",
+        "AgreementID AG-82 covers the QZ-3 pump.",
+        document_id="agreement",
+        document_name="signed_agreement.txt",
+        page=1,
+        ordinal=0,
+    )
+    agreed = _ranked(
+        "contract:p2:c0",
+        "The agreed unit price for the QZ-3 pump is EUR 20.70.",
+        document_id="agreement",
+        document_name="signed_agreement.txt",
+        page=2,
+        ordinal=1,
+    )
+    proposal = _ranked(
+        "review:p1:c0",
+        "ReviewID RV-52 lists a proposed unit price of EUR 21.30 for the QZ-3 pump "
+        "under AgreementID AG-82; the figure is pending confirmation.",
+        document_id="review",
+        document_name="pricing_review.txt",
+        page=1,
+    )
+
+    result = _answerer().answer(
+        "What was the agreed unit price for the QZ-3 pump under AgreementID AG-82?",
+        [signed_header, agreed, proposal],
+    )
+
+    assert result.status == "answered"
+    assert result.answer == "EUR 20.70"
+    assert "EUR 21.30" not in " ".join(citation.excerpt for citation in result.citations)
+
+
+def test_actually_invoiced_amount_uses_the_billed_invoice_event() -> None:
+    invoice = _ranked(
+        "invoice:p1:c0",
+        "InvoiceID IV-93 bills North River Cooperative EUR 40.80 before tax for the QZ-3 pump.",
+        document_id="invoice",
+        document_name="invoice_iv-93.txt",
+        page=1,
+    )
+    review = _ranked(
+        "review:p1:c0",
+        "Review note RV-54 gives InvoiceID IV-93 a tentative total of EUR 41.20 "
+        "pending confirmation.",
+        document_id="review",
+        document_name="review_note.txt",
+        page=1,
+    )
+
+    result = _answerer().answer(
+        "What amount was invoiced before tax on InvoiceID IV-93?",
+        [invoice, review],
+    )
+
+    assert result.status == "answered"
+    assert result.answer == "EUR 40.80"
+    assert "EUR 41.20" not in " ".join(citation.excerpt for citation in result.citations)
+
+
+def test_invoice_mention_without_a_billing_event_is_not_actual_invoice_evidence() -> None:
+    note = _ranked(
+        "invoice-note:p1:c0",
+        "Review note RV-58 gives InvoiceID IV-96 a total of EUR 42.60 pending confirmation.",
+        document_id="invoice-note",
+        document_name="review_note.txt",
+    )
+
+    result = _answerer().answer(
+        "What amount was actually billed on InvoiceID IV-96?", [note]
+    )
+
+    assert result.status == "abstained"
+    assert result.answerable is False
+    assert result.citations == ()
+
+
+def test_denied_agreement_does_not_satisfy_agreed_price_question() -> None:
+    passage = _ranked(
+        "proposed-price:p1:c0",
+        "The unit price for the QZ-3 pump was EUR 19.80, but it was not agreed.",
+        document_id="proposed-price",
+    )
+
+    result = _answerer().answer(
+        "What was the agreed unit price for the QZ-3 pump?", [passage]
+    )
+
+    assert result.status == "abstained"
+    assert result.answerable is False
+    assert result.citations == ()
+
+
+def test_denied_billing_event_does_not_satisfy_actually_invoiced_question() -> None:
+    passage = _ranked(
+        "invoice:p1:c0",
+        "InvoiceID IV-95 lists EUR 44.10, but that amount was not billed to the client.",
+        document_id="invoice",
+        document_name="invoice_iv-95.txt",
+    )
+
+    result = _answerer().answer(
+        "What amount was actually billed on InvoiceID IV-95?", [passage]
+    )
+
+    assert result.status == "abstained"
+    assert result.answerable is False
+    assert result.citations == ()
 
 
 def test_labeled_currency_field_keeps_thousands_separator() -> None:

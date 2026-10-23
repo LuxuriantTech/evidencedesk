@@ -248,6 +248,19 @@ _DOCUMENT_TYPE_TERMS = {
     "plan": {"plan"},
 }
 
+_SOURCE_IDENTITY_NOUNS = re.compile(
+    r"\b(?:agreement|annex|case|contract|document|file|handover|invoice|log|"
+    r"plan|permit|receipt|record|register|report|service\s+record|sheet|"
+    r"tally|work\s+order)\b",
+    re.IGNORECASE,
+)
+_SOURCE_PREDICATE = re.compile(
+    r"\b(?:links?|references?|cites?|quotes?|states?|says?|provides?|authorizes?|"
+    r"mentions?|lists?|reports?|records?|indicates?|identifies?|shows?|"
+    r"relie|associe|indique|identifie|consigne|mentionne)\b",
+    re.IGNORECASE,
+)
+
 _RELATION_EQUIVALENTS = {
     "entry": {"entry", "entree", "entrance"},
     "start": {
@@ -539,15 +552,37 @@ def _requested_source_ids(question: str) -> set[str]:
         r"(?:the\s+|le\s+|la\s+|l['\u2019])?([a-z0-9 _/-]{1,48})",
         folded,
     )
-    if match is None:
+    phrase_ids: set[str] = set()
+    if match is not None:
+        phrase = re.split(
+            r"\b(?:itself|directly|explicitly|states?|says?|lists?|indique|mentionne|"
+            r"what|which|who|whose|is|are|was|were|does|do|did|has|have|that|the)\b",
+            match.group(1),
+            maxsplit=1,
+        )[0]
+        phrase_ids = {
+            _fold(identifier.group(1)) for identifier in _EXPLICIT_ID.finditer(phrase)
+        }
+    if phrase_ids:
+        return phrase_ids
+    # A named source can be the grammatical subject of a reporting verb:
+    # “what does handover HX-24 report?” In that form, the source ID is
+    # the sole typed ID in the subject, before the predicate.
+    source_subject = re.search(
+        r"\b(?:does|did|do)\s+(?P<subject>[a-z0-9 /_-]{1,100}?)\s+"
+        r"(?:reports?|states?|says?|lists?|records?|indicates?|shows?|"
+        r"confirms?|describes?|documents?)\b",
+        folded,
+    )
+    if source_subject is None or _SOURCE_IDENTITY_NOUNS.search(
+        source_subject.group("subject")
+    ) is None:
         return set()
-    phrase = re.split(
-        r"\b(?:itself|directly|explicitly|states?|says?|lists?|indique|mentionne|"
-        r"what|which|who|whose|is|are|was|were|does|do|did|has|have|that|the)\b",
-        match.group(1),
-        maxsplit=1,
-    )[0]
-    return {_fold(identifier.group(1)) for identifier in _EXPLICIT_ID.finditer(phrase)}
+    subject_ids = {
+        _fold(identifier.group(1))
+        for identifier in _EXPLICIT_ID.finditer(source_subject.group("subject"))
+    }
+    return subject_ids if len(subject_ids) == 1 else set()
 
 
 def _document_type(item: RankedChunk, contents: str) -> str | None:
@@ -581,6 +616,31 @@ def _document_type(item: RankedChunk, contents: str) -> str | None:
     if re.search(r"\bplan\b", title):
         return "plan"
     return None
+
+
+def _principal_identity(text: str) -> str:
+    """Keep a source title's identity before predicates that introduce links."""
+    saw_predicate = False
+    for match in _SOURCE_PREDICATE.finditer(text):
+        if (
+            match.group(0).casefold() in {"record", "report"}
+            and _EXPLICIT_ID.search(text[match.end() : match.end() + 48])
+        ):
+            # Here “record/report” is the source's leading noun, not a verb
+            # introducing a relation.
+            continue
+        saw_predicate = True
+        prefix = text[: match.start()]
+        # A source title can introduce related records before its predicate
+        # (for example, "Change record CR-82 under agreement AG-27 states").
+        # In that shape, the prefix is not enough to identify which ID names
+        # the source itself, so leave the identity unqualified.
+        identifiers = list(_EXPLICIT_ID.finditer(prefix))
+        if len(identifiers) == 1:
+            return prefix.strip(" \t,;:-")
+    # A title with no unique explicit source ID cannot safely establish
+    # primary identity from a sentence that merely names another document.
+    return "" if saw_predicate else text.strip()
 
 
 def _named_subject_tokens(question: str) -> set[str]:
@@ -875,7 +935,7 @@ def _amount_role(text: str) -> str | None:
     ):
         return "unit_price"
     if re.search(
-        r"\b(?:invoice|facture)\b.{0,90}\b(?:bill(?:s|ed)?|total|amount\s+due|"
+        r"\b(?:invoice|invoiceid|facture)\b.{0,90}\b(?:bill(?:s|ed)?|total|amount\s+due|"
         r"pre[- ]?(?:tax|vat)|before\s+(?:tax|vat))\b|"
         r"\b(?:total\s+(?:value|amount)|pre[- ]?(?:tax|vat)\s+total|"
         r"invoice\s+total|amount\s+due|(?:amount\s+)?(?:billed|invoiced|charged)\s+"
@@ -887,6 +947,57 @@ def _amount_role(text: str) -> str | None:
     return None
 
 
+def _amount_intent_supported(question: str, evidence: str) -> bool:
+    """Require local wording for requested contractual or transaction status."""
+    folded_question = _fold(question)
+    folded_evidence = _fold(evidence)
+    if re.search(r"\b(?:agreed|contractual|stipulated|convenu|convenue)\b", folded_question):
+        status_words = r"(?:agreed|contractual|stipulated|convenu|convenue)"
+        if re.search(
+            rf"\b(?:not|never|without|pas|non)\b.{{0,24}}\b{status_words}\b|"
+            rf"\b{status_words}\b.{{0,24}}\b(?:not|never|without|pas|non)\b",
+            folded_evidence,
+        ):
+            return False
+        return bool(
+            re.search(
+                r"\b(?:agreed|contractual|stipulated|convenu|convenue|"
+                r"price\s+was\s+set|prix\s+a\s+ete\s+fixe)\b",
+                folded_evidence,
+            )
+        )
+    if re.search(
+        r"\bactually\s+(?:invoiced|billed|charged)\b|"
+        r"\bamount\s+(?:that\s+was\s+)?(?:invoiced|billed|charged)\b|"
+        r"\b(?:amount|total)\s+(?:was|has\s+been)\s+(?:invoiced|billed|charged)\b",
+        folded_question,
+    ):
+        event_words = r"(?:bill(?:s|ed)?|invoic(?:e|ed|es)|charg(?:e|ed|es))"
+        if re.search(
+            rf"\b(?:not|never|without|pas|non)\b.{{0,24}}\b{event_words}\b|"
+            rf"\b(?:was|were|did|does|has|have)\s+not\b.{{0,16}}\b{event_words}\b",
+            folded_evidence,
+        ):
+            return False
+        event = re.search(
+            r"\bbills?\b|\b(?:was|were|has\s+been|have\s+been)\s+"
+            r"(?:billed|invoiced|charged)\b|"
+            r"\b(?:billed|invoiced|charged)\s+(?:to|for)\b|"
+            r"\b(?:amount|total)\s+(?:was\s+)?(?:billed|invoiced|charged)\b",
+            folded_evidence,
+        )
+        amount = _AMOUNT.search(evidence)
+        # A transaction verb needs a nearby monetary value; an invoice
+        # mentioned in prose or a note that merely gives a total is not proof
+        # that the amount was actually billed.
+        return bool(
+            event is not None
+            and amount is not None
+            and abs(amount.start() - event.start()) <= 100
+        )
+    return True
+
+
 def _identifier_prefix(value: str) -> str:
     return re.split(r"[-/]", value, maxsplit=1)[0]
 
@@ -894,8 +1005,12 @@ def _identifier_prefix(value: str) -> str:
 def _constraints_present(
     question: str, evidence: str, constraint_context: str | None = None
 ) -> bool:
-    requested_ids = _record_constraint_values(question)
-    all_requested_ids = _requested_identifier_values(question)
+    # Explicit source IDs are enforced by source-document scoping. Do not
+    # require them to be repeated in each fact sentence; retain other IDs as
+    # record/object constraints.
+    source_ids = _requested_source_ids(question)
+    requested_ids = _record_constraint_values(question) - source_ids
+    all_requested_ids = _requested_identifier_values(question) - source_ids
     object_ids = all_requested_ids - requested_ids
     evidence_ids = {_fold(match.group(1)) for match in _EXPLICIT_ID.finditer(evidence)}
     context = constraint_context or evidence
@@ -1396,12 +1511,10 @@ def _scope_ranked(question: str, ranked: list[RankedChunk]) -> list[RankedChunk]
         contents = context_by_document[document_id]
         identity_lines = [items[0].chunk.document_name]
         title = contents.splitlines()[1] if len(contents.splitlines()) > 1 else ""
-        if title and not re.search(
-            r"\b(?:references?|cites?|quotes?|states?|says?|provides?|authorizes?|"
-            r"mentions?|lists?|reports?|indique|mentionne|cite|renvoie)\b",
-            _fold(title),
-        ):
-            identity_lines.append(title)
+        if title:
+            principal_identity = _principal_identity(title)
+            if principal_identity:
+                identity_lines.append(principal_identity)
         identity_text = _fold(" ".join(identity_lines))
         if source_terms and not source_terms <= set(re.findall(r"[a-z0-9]+", identity_text)):
             continue
@@ -2971,10 +3084,8 @@ def _context_citations(
     ranked: list[RankedChunk],
 ) -> tuple[tuple[RankedChunk, str], ...]:
     proofs = _context_id_proofs(question, evidence, context)
-    if not proofs:
-        return ()
     citations: list[tuple[RankedChunk, str]] = []
-    for proof in proofs:
+    for proof in proofs or ():
         proof_item = next(
             (
                 candidate
@@ -2987,6 +3098,35 @@ def _context_citations(
         if proof_item is None:
             return ()
         citations.append((proof_item, proof))
+    requested_source_ids = _requested_source_ids(question)
+    evidence_ids = {
+        _fold(match.group(1)) for match in _EXPLICIT_ID.finditer(evidence)
+    }
+    missing_source_ids = requested_source_ids - evidence_ids
+    if missing_source_ids:
+        source_proof: tuple[RankedChunk, str] | None = None
+        for line in context.splitlines():
+            primary_identity = _principal_identity(line)
+            primary_ids = {
+                _fold(match.group(1))
+                for match in _EXPLICIT_ID.finditer(primary_identity)
+            }
+            if not missing_source_ids <= primary_ids:
+                continue
+            source_item = next(
+                (
+                    candidate
+                    for candidate in ranked
+                    if candidate.chunk.document_id == item.chunk.document_id
+                    and line in candidate.chunk.text
+                ),
+                None,
+            )
+            if source_item is not None:
+                source_proof = (source_item, line)
+                break
+        if source_proof is not None:
+            citations.append(source_proof)
     unique: list[tuple[RankedChunk, str]] = []
     seen: set[tuple[str, str]] = set()
     for citation_item, proof in citations:
@@ -3318,6 +3458,13 @@ class DeterministicGroundedAnswerProvider:
                     if admitted is None:
                         continue
                     evidence_text = admitted.text
+                    if kind == "amount" and not _amount_intent_supported(
+                        question, evidence_text
+                    ):
+                        evaluated.setdefault(item.chunk.id, []).append(
+                            (0.0, evidence_text, None, False)
+                        )
+                        continue
                     if kind == "field_value" and _has_requested_field_absence(
                         question, evidence_text
                     ):
