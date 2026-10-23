@@ -249,9 +249,10 @@ _DOCUMENT_TYPE_TERMS = {
 }
 
 _SOURCE_IDENTITY_NOUNS = re.compile(
-    r"\b(?:agreement|annex|case|change\s+record|contract|document|file|handover|"
-    r"invoice|log|note|order|plan|permit|purchase\s+order|receipt|record|"
-    r"register|report|service\s+record|sheet|tally|work\s+order)\b",
+    r"\b(?:agreement|annex|case|change\s+record|contract|delivery\s+record|"
+    r"delivery|document|file|handover|invoice|log|note|order|plan|permit|purchase\s+order|"
+    r"receipt|record|register|report|service\s+record|sheet|shipment|tally|"
+    r"work\s+order)\b",
     re.IGNORECASE,
 )
 
@@ -1486,13 +1487,24 @@ def _scope_ranked(question: str, ranked: list[RankedChunk]) -> list[RankedChunk]
     grouped: dict[str, list[RankedChunk]] = {}
     for item in ranked:
         grouped.setdefault(item.chunk.document_id, []).append(item)
-    context_by_document = {
-        document_id: "\n".join(
-            [items[0].chunk.document_name]
-            + [item.chunk.text for item in sorted(items, key=lambda item: item.chunk.id)]
+    context_by_document: dict[str, str] = {}
+    primary_text_by_document: dict[str, str] = {}
+    for document_id, items in grouped.items():
+        ordered, source_context = _ordered_context(items)
+        context_by_document[document_id] = "\n".join(
+            [items[0].chunk.document_name, source_context]
         )
-        for document_id, items in grouped.items()
-    }
+        # An opaque UUID is not source order. Use a text header as the
+        # document identity only when every retrieved chunk has an explicit
+        # ordinal/source chunk index, or the document has a single chunk.
+        has_source_order = len(items) == 1 or all(
+            item.chunk.ordinal is not None
+            or re.search(r"(?:^|:)c\d+$", item.chunk.id) is not None
+            for item in items
+        )
+        primary_text_by_document[document_id] = (
+            ordered[0].chunk.text if ordered and has_source_order else ""
+        )
     allowed: set[str] = set()
     subjects_found_globally: set[str] = set()
     fully_scoped_documents: set[str] = set()
@@ -1501,7 +1513,7 @@ def _scope_ranked(question: str, ranked: list[RankedChunk]) -> list[RankedChunk]
     for document_id, items in grouped.items():
         contents = context_by_document[document_id]
         identity_lines = [items[0].chunk.document_name]
-        title = contents.splitlines()[1] if len(contents.splitlines()) > 1 else ""
+        title = primary_text_by_document[document_id]
         if title:
             principal_identity = _principal_identity(title)
             if principal_identity:

@@ -274,6 +274,10 @@ def test_source_identity_head_supports_common_supplier_record_types() -> None:
             "Delivery record DR-54 was shipped under agreement AG-93.",
             "Delivery record DR-54",
         ),
+        (
+            "On 29 April, carrier Northwind Logistics delivered shipment BH-82 to Gate C.",
+            "On 29 April, carrier Northwind Logistics delivered shipment BH-82",
+        ),
         ("Agreement AG-93 states a unit price of EUR 18.40.", "Agreement AG-93"),
     )
 
@@ -301,6 +305,96 @@ def test_source_header_with_multiple_pre_predicate_ids_is_not_primary_identity()
     )
 
     assert [item.chunk.document_id for item in scoped] == ["agreement"]
+
+
+def test_shipment_identifier_is_primary_source_identity() -> None:
+    shipment = _ranked(
+        "shipment:p1:c0",
+        "On 29 April, carrier Northwind Logistics delivered shipment BH-82 to Gate C.",
+        document_id="delivery",
+        document_name="north_quay_delivery_record.txt",
+        ordinal=0,
+    )
+    agreement_reference = _ranked(
+        "agreement:p1:c0",
+        "Agreement AG-93 covers the valves shipped under shipment BH-82.",
+        document_id="agreement",
+        document_name="agreement.txt",
+        ordinal=0,
+    )
+
+    scoped = _scope_ranked(
+        "According to shipment BH-82, where were the valves delivered?",
+        [agreement_reference, shipment],
+    )
+
+    assert [item.chunk.document_id for item in scoped] == ["delivery"]
+
+
+def test_provider_uses_source_ordinals_not_opaque_uuid_order_for_identity() -> None:
+    question = (
+        "What temperature did record XN-31/R report for auxiliary sensor AUX-5 "
+        "at 07:35?"
+    )
+    pdf_header = _ranked(
+        "ffffffff-ffff-4fff-8fff-ffffffffffff",
+        "Record XN-31/R applies to auxiliary sensor AUX-5 at the north archive intake.",
+        document_id="primary-report",
+        document_name="xn-31-r_service_record.pdf",
+        page=1,
+        ordinal=0,
+    )
+    pdf_reading = _ranked(
+        "00000000-0000-4000-8000-000000000001",
+        "At 07:35 on 18 June 2026, auxiliary sensor AUX-5 read 7.2 degrees Celsius.",
+        document_id="primary-report",
+        document_name="xn-31-r_service_record.pdf",
+        page=2,
+        ordinal=1,
+    )
+    competitor_header = _ranked(
+        "00000000-0000-4000-8000-000000000002",
+        "Record XN-31/S applies to auxiliary sensor AUX-5 at the south archive intake.",
+        document_id="competing-report",
+        document_name="xn-31-s_service_record.txt",
+        page=1,
+        ordinal=0,
+    )
+    competitor_reading = _ranked(
+        "00000000-0000-4000-8000-000000000003",
+        "At 07:35 on 18 June 2026, auxiliary sensor AUX-5 read 9.6 degrees Celsius.",
+        document_id="competing-report",
+        document_name="xn-31-s_service_record.txt",
+        page=1,
+        ordinal=1,
+    )
+    competitor_date = _ranked(
+        "00000000-0000-4000-8000-000000000004",
+        "Calibration date: 19 June 2026.",
+        document_id="competing-report",
+        document_name="xn-31-s_service_record.txt",
+        page=1,
+        ordinal=2,
+    )
+
+    result = _answerer().answer(
+        question,
+        [
+            pdf_header,
+            competitor_date,
+            pdf_reading,
+            competitor_reading,
+            competitor_header,
+        ],
+    )
+
+    assert result.status == "answered"
+    assert "7.2" in result.answer
+    assert "9.6" not in result.answer
+    assert {citation.document_id for citation in result.citations} == {
+        "primary-report"
+    }
+    assert {citation.page for citation in result.citations} == {1, 2}
 
 
 def test_linked_transaction_and_shipment_ids_do_not_change_primary_source_id() -> None:
