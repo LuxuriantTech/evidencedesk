@@ -48,10 +48,14 @@ jobs:
       DEMO_ANALYST_PASSWORD: EvidenceDemo-Analyst-2026!
       DEMO_READER_PASSWORD: EvidenceDemo-Reader-2026!
       PYTHONDONTWRITEBYTECODE: "1"
-      UV_CACHE_DIR: ${{ runner.temp }}/uv-cache
-      RUNTIME_ONLY_DIR: ${{ runner.temp }}/runtime-only
       SIDECAR_IMAGE: evidencedesk-local-8b:integration-ci
     steps:
+      - name: Initialize runner-local paths
+        shell: bash
+        run: |
+          printf 'UV_CACHE_DIR=%s\n' "$RUNNER_TEMP/uv-cache" >> "$GITHUB_ENV"
+          printf 'RUNTIME_ONLY_DIR=%s\n' "$RUNNER_TEMP/runtime-only" >> "$GITHUB_ENV"
+
       - name: Checkout the experimental source only
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
