@@ -361,14 +361,37 @@ def _has_explicit_absence(segment: str) -> bool:
     return _ABSENCE.search(_fold(segment)) is not None
 
 
+_LOCAL_PREDICATE = re.compile(
+    r"\b(?:am|is|are|was|were|be|been|being|has|have|had|do|does|did|"
+    r"can|could|may|might|must|shall|should|will|would|"
+    r"est|sont|etaient|sera|seront|a|ont|peut|peuvent|doit|doivent|"
+    r"included|provided|recorded|listed|available|specified|stated|supplied|"
+    r"covered|eligible|approved|authorized|allowed|required|applies|applied|"
+    r"inclus|incluse|incluses|fourni|fournie|enregistre|enregistree|"
+    r"consigne|consignee|disponible|couvert|couverte|autorise|autorisee|"
+    r"requis|requise)\b",
+    re.IGNORECASE,
+)
+
+
+def _assertion_clauses(text: str) -> list[str]:
+    """Split coordination only when each side expresses its own predicate."""
+    for match in re.finditer(r"\b(?:and|et|but|mais|however|cependant)\b", text):
+        left, right = text[: match.start()], text[match.end() :]
+        if _LOCAL_PREDICATE.search(left) and _LOCAL_PREDICATE.search(right):
+            return _assertion_clauses(left) + _assertion_clauses(right)
+    return [text]
+
+
 def _has_related_absence(question: str, segment: str, kind: str) -> bool:
     relation_tokens = _question_relation_tokens(question, kind)
-    clauses = re.split(
-        r"[;,]|\b(?:and|et|but|however|whereas|while|mais|cependant|tandis que)\b",
-        _fold(segment),
-    )
+    clauses = [
+        clause
+        for part in re.split(r"[;,]", _fold(segment))
+        for clause in _assertion_clauses(part)
+    ]
     return any(
-        relation_tokens & set(re.findall(r"[a-z0-9']+", clause))
+        relation_tokens & _relation_tokens(clause)
         and _has_explicit_absence(clause)
         for clause in clauses
     )
@@ -386,13 +409,14 @@ def _has_negated_relation(question: str, segment: str, kind: str) -> bool:
     relation_tokens.discard("")
     if not relation_tokens:
         return False
-    clauses = re.split(
-        r"[;,]|\b(?:and|et|but|however|whereas|while|mais|cependant|tandis que)\b",
-        folded_segment,
-    )
+    clauses = [
+        clause
+        for part in re.split(r"[;,]", folded_segment)
+        for clause in _assertion_clauses(part)
+    ]
     negation = r"\b(?:not|never|no|without|cannot|can't|mustn't|pas|jamais|aucun)\b"
     for clause in clauses:
-        clause_tokens = set(re.findall(r"[a-z0-9']+", clause))
+        clause_tokens = _relation_tokens(clause)
         if relation_tokens & clause_tokens and re.search(negation, clause):
             return True
     return False

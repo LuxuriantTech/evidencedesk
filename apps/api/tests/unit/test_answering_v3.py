@@ -7,6 +7,7 @@ from evidencedesk_api.answering import (
     GroundedAnswer,
     GroundingValidationError,
     PassageCandidateAssessment,
+    _has_negated_relation,
     validate_grounded_answer,
 )
 from evidencedesk_api.providers import DeterministicEmbeddingProvider
@@ -397,6 +398,22 @@ def test_unrelated_absence_after_positive_boolean_clause_does_not_invert_it() ->
 
     assert result.status == "answered"
     assert result.answer.startswith("Yes. ")
+
+
+def test_shared_negative_predicate_applies_to_coordinated_english_subjects() -> None:
+    result = _provider().answer(
+        "Is coverage included?",
+        [_ranked("coordinated-coverage", "Coverage and maintenance are not included.")],
+    )
+
+    assert result.status == "answered"
+    assert result.answer.startswith("No. ")
+
+
+def test_shared_negative_predicate_applies_to_coordinated_french_subjects() -> None:
+    evidence = "La couverture et la maintenance ne sont pas incluses."
+
+    assert _has_negated_relation("La couverture est-elle incluse ?", evidence, "boolean")
 
 
 @pytest.mark.parametrize("absence", ["unavailable", "absent", "missing"])
