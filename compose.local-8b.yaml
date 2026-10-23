@@ -14,6 +14,7 @@ services:
       context: .
       dockerfile: scripts/local_generation/Dockerfile
     image: evidencedesk-local-8b:opt-in
+    pull_policy: build
     environment:
       EVIDENCEDESK_8B_BUNDLE: /bundle
     volumes:

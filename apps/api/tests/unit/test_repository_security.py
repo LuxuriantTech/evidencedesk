@@ -57,6 +57,65 @@ def test_supply_chain_check_requires_forced_build_for_local_image_aliases(
     )
 
 
+def test_supply_chain_check_includes_local_8b_overlay_images(tmp_path: Path) -> None:
+    overlay = tmp_path / "compose.local-8b.yaml"
+    overlay.write_text(
+        "services:\n  local-8b:\n    image: registry.example/model:latest\n",
+        encoding="utf-8",
+    )
+
+    violations = collect_violations(tmp_path)
+
+    assert any(
+        "compose.local-8b.yaml" in item and "mutable external image" in item
+        for item in violations
+    )
+
+
+def test_supply_chain_check_includes_local_generation_dockerfile_and_from_options(
+    tmp_path: Path,
+) -> None:
+    dockerfile = tmp_path / "scripts" / "local_generation" / "Dockerfile"
+    dockerfile.parent.mkdir(parents=True)
+    dockerfile.write_text(
+        "FROM --platform=linux/amd64 ubuntu:24.04 AS runtime\n",
+        encoding="utf-8",
+    )
+
+    violations = collect_violations(tmp_path)
+
+    assert any("scripts/local_generation/Dockerfile" in item for item in violations)
+    assert any("ubuntu:24.04" in item and "mutable external image" in item for item in violations)
+
+
+def test_local_overlay_alias_is_allowed_only_with_forced_build(tmp_path: Path) -> None:
+    base_compose = tmp_path / "compose.yaml"
+    base_compose.write_text(
+        "services:\n  api:\n    image: evidencedesk-api:local\n"
+        "    build: .\n    pull_policy: build\n",
+        encoding="utf-8",
+    )
+    overlay = tmp_path / "compose.local-8b.yaml"
+    overlay.write_text(
+        "services:\n  local-8b:\n    image: evidencedesk-local-8b:opt-in\n"
+        "    build: .\n    pull_policy: build\n",
+        encoding="utf-8",
+    )
+
+    assert collect_violations(tmp_path) == []
+
+    overlay.write_text(
+        "services:\n  local-8b:\n    image: evidencedesk-local-8b:opt-in\n"
+        "    build: .\n",
+        encoding="utf-8",
+    )
+    violations = collect_violations(tmp_path)
+    assert any(
+        "evidencedesk-local-8b:opt-in" in item and "forced build" in item
+        for item in violations
+    )
+
+
 def test_web_runtime_image_declares_a_non_root_user() -> None:
     dockerfile = (ROOT / "infra" / "docker" / "web.Dockerfile").read_text(
         encoding="utf-8"

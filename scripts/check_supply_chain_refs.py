@@ -11,11 +11,12 @@ def _clean_ref(raw: str) -> str:
     return raw.split("#", 1)[0].strip().strip("'\"")
 
 
-def _compose_local_images(compose_path: Path) -> tuple[set[str], set[str]]:
-    if not compose_path.exists():
-        return set(), set()
-    text = compose_path.read_text(encoding="utf-8")
-    blocks = re.split(r"(?m)^  (?=[a-zA-Z0-9_-]+:\s*$)", text)
+def _compose_local_images(compose_paths: list[Path]) -> tuple[set[str], set[str]]:
+    blocks: list[str] = []
+    for compose_path in compose_paths:
+        if compose_path.exists():
+            text = compose_path.read_text(encoding="utf-8")
+            blocks.extend(re.split(r"(?m)^  (?=[a-zA-Z0-9_-]+:\s*$)", text))
     built: set[str] = set()
     for block in blocks:
         image = re.search(r"(?m)^    image:\s*(\S+)", block)
@@ -41,6 +42,27 @@ def _compose_local_images(compose_path: Path) -> tuple[set[str], set[str]]:
     return built, forced
 
 
+def _dockerfile_from(line: str) -> tuple[str, str | None] | None:
+    """Return the image and optional stage alias from a Dockerfile FROM line."""
+    tokens = line.split()
+    if not tokens or tokens[0].upper() != "FROM":
+        return None
+    index = 1
+    while index < len(tokens) and tokens[index].startswith("--"):
+        option = tokens[index]
+        if option == "--platform":
+            index += 2
+        else:
+            index += 1
+    if index >= len(tokens):
+        return None
+    image = tokens[index]
+    alias = None
+    if index + 2 < len(tokens) and tokens[index + 1].upper() == "AS":
+        alias = tokens[index + 2]
+    return image, alias
+
+
 def _check_image_ref(
     path: Path,
     line_number: int,
@@ -60,8 +82,9 @@ def _check_image_ref(
 def collect_violations(root: Path) -> list[str]:
     root = root.resolve()
     violations: list[str] = []
-    local_images, forced_local_images = _compose_local_images(root / "compose.yaml")
-    yaml_paths = [root / "compose.yaml"]
+    compose_paths = [root / "compose.yaml", root / "compose.local-8b.yaml"]
+    local_images, forced_local_images = _compose_local_images(compose_paths)
+    yaml_paths = list(compose_paths)
     yaml_paths.extend(sorted((root / ".github" / "workflows").glob("*.y*ml")))
 
     for path in yaml_paths:
@@ -99,14 +122,17 @@ def collect_violations(root: Path) -> list[str]:
                     violations.append(issue)
 
     dockerfiles = sorted((root / "infra" / "docker").glob("*Dockerfile"))
+    local_generation_dockerfile = root / "scripts" / "local_generation" / "Dockerfile"
+    if local_generation_dockerfile.is_file():
+        dockerfiles.append(local_generation_dockerfile)
     for path in dockerfiles:
         relative = path.relative_to(root)
         stage_names: set[str] = set()
         lines = path.read_text(encoding="utf-8").splitlines()
         for line in lines:
-            match = re.match(r"FROM\s+\S+\s+AS\s+(\S+)", line, re.IGNORECASE)
-            if match:
-                stage_names.add(match.group(1))
+            parsed_from = _dockerfile_from(line)
+            if parsed_from is not None and parsed_from[1] is not None:
+                stage_names.add(parsed_from[1].lower())
         for line_number, line in enumerate(lines, start=1):
             syntax = re.match(r"#\s*syntax=(\S+)", line)
             if syntax:
@@ -116,10 +142,10 @@ def collect_violations(root: Path) -> list[str]:
                 )
                 if issue:
                     violations.append(issue)
-            from_ref = re.match(r"FROM\s+(\S+)", line, re.IGNORECASE)
-            if from_ref:
-                ref = _clean_ref(from_ref.group(1))
-                if ref not in stage_names:
+            parsed_from = _dockerfile_from(line)
+            if parsed_from is not None:
+                ref = _clean_ref(parsed_from[0])
+                if ref.lower() not in stage_names:
                     issue = _check_image_ref(
                         relative, line_number, ref, local_images, forced_local_images
                     )
@@ -128,7 +154,7 @@ def collect_violations(root: Path) -> list[str]:
             copy_ref = re.search(r"COPY\s+--from=(\S+)", line, re.IGNORECASE)
             if copy_ref:
                 ref = _clean_ref(copy_ref.group(1))
-                if ref not in stage_names:
+                if ref.lower() not in stage_names:
                     issue = _check_image_ref(
                         relative, line_number, ref, local_images, forced_local_images
                     )
