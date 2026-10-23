@@ -179,10 +179,7 @@ def test_unique_header_context_scopes_date_and_time_in_later_chunks() -> None:
 
 
 def test_similar_concurrent_record_ids_do_not_join_to_one_field_value() -> None:
-    passage = (
-        "BatchID BA-12; BatchID BA-13. "
-        "Nitrate concentration: 0.92 mg/L."
-    )
+    passage = "BatchID BA-12; BatchID BA-13. Nitrate concentration: 0.92 mg/L."
     result = _answerer().answer(
         "What nitrate concentration is reported for BatchID BA-12?",
         [_ranked("competing-batches", passage)],
@@ -192,6 +189,145 @@ def test_similar_concurrent_record_ids_do_not_join_to_one_field_value() -> None:
     assert result.answerable is False
     assert result.citations == ()
     assert "0.92 mg/L" not in result.answer
+
+
+def test_unique_record_header_and_linked_batch_scope_a_later_measurement() -> None:
+    header = _ranked(
+        "sensor-log:p1:c0",
+        (
+            "ReadingRecordID RR-71 | CampaignID CP-8. "
+            "The record binds SampleBatchID SB-6 to CampaignID CP-8."
+        ),
+        document_id="sensor-log",
+    )
+    reading = _ranked(
+        "sensor-log:p1:c1",
+        "At 08:30 CEST, nitrate concentration was 0.73 mg/L.",
+        document_id="sensor-log",
+    )
+    result = _answerer().answer(
+        (
+            "At 08:30 CEST, what nitrate concentration is recorded for "
+            "ReadingRecordID RR-71 and SampleBatchID SB-6?"
+        ),
+        [header, reading],
+    )
+
+    assert result.status == "answered"
+    assert result.answer == "0.73 mg/L"
+    assert result.supporting_excerpt == "At 08:30 CEST, nitrate concentration was 0.73 mg/L."
+    assert {citation.chunk_id for citation in result.citations} == {
+        "sensor-log:p1:c0",
+        "sensor-log:p1:c1",
+    }
+    assert any("RR-71" in citation.excerpt for citation in result.citations)
+    assert any("SB-6" in citation.excerpt for citation in result.citations)
+
+
+def test_disconnected_record_identifiers_are_not_joined_across_context_sentences() -> None:
+    header = _ranked(
+        "work-order:p1:c0",
+        "WorkOrderID WO-92 is open. ServiceRecordID SR-27 is inactive.",
+        document_id="work-order",
+    )
+    result = _answerer().answer("Which ServiceRecordID belongs to WorkOrderID WO-92?", [header])
+
+    assert result.status == "abstained"
+    assert result.answerable is False
+    assert result.citations == ()
+
+
+def test_explicit_reference_relation_keeps_its_direction() -> None:
+    reverse = _ranked(
+        "authorization",
+        "PermitID PM-71 authorizes WorkPlanID WP-58.",
+        document_id="authorization",
+    )
+    direct = _ranked(
+        "work-plan",
+        "WorkPlanID WP-58 explicitly references PermitID PM-71.",
+        document_id="work-plan",
+    )
+    question = "Which PermitID does WorkPlanID WP-58 explicitly reference?"
+    wrong_direction = _answerer().answer(question, [reverse])
+    passive_direction = _answerer().answer(
+        question,
+        [
+            _ranked(
+                "passive-work-plan",
+                "WorkPlanID WP-58 is explicitly referenced by PermitID PM-71.",
+                document_id="passive-work-plan",
+            )
+        ],
+    )
+    supported = _answerer().answer(question, [reverse, direct])
+
+    assert wrong_direction.status == "abstained"
+    assert passive_direction.status == "abstained"
+    assert supported.status == "answered"
+    assert supported.answer == "PM-71"
+    assert supported.supporting_document == "work-plan"
+    assert supported.supporting_excerpt == (
+        "WorkPlanID WP-58 explicitly references PermitID PM-71."
+    )
+
+
+def test_reference_as_a_field_name_is_not_treated_as_a_directed_relation() -> None:
+    result = _answerer().answer(
+        "What is the reference number?",
+        [_ranked("reference", "Reference number: RF-82.")],
+    )
+
+    assert result.status == "answered"
+    assert result.answer == "RF-82"
+
+
+def test_french_completed_replacement_matches_english_action_but_not_schedule() -> None:
+    question = (
+        "À quelle heure le remplacement de batterie de PumpID PU-6 est-il noté comme terminé ?"
+    )
+    scheduled = _answerer().answer(
+        question,
+        [_ranked("scheduled", "Battery replacement is scheduled for 10:50 CEST.")],
+    )
+    completed = _answerer().answer(
+        question,
+        [
+            _ranked(
+                "service",
+                (
+                    "On 2031-08-04 at 10:50 CEST, technician B. Hart "
+                    "replaced the battery for PumpID PU-6."
+                ),
+            )
+        ],
+    )
+
+    assert scheduled.status != "answered"
+    assert completed.status == "answered"
+    assert completed.answer == "10:50 CEST"
+    assert completed.supporting_excerpt is not None
+    assert "replaced the battery" in completed.supporting_excerpt
+
+
+def test_french_field_question_stops_at_the_copula_and_modifier() -> None:
+    result = _answerer().answer(
+        "Quel modèle est indiqué pour DeviceTag DV-5 dans CO-14 ?",
+        [
+            _ranked(
+                "device-log",
+                (
+                    "CheckoutID CO-14 explicitly assigns DeviceTag DV-5 to "
+                    "CampaignID CA-2. Model listed: TrackSense 7B. "
+                    "CheckoutID CO-15 belongs to DeviceTag DV-6."
+                ),
+            )
+        ],
+    )
+
+    assert result.status == "answered"
+    assert result.answer == "TrackSense 7B"
+    assert result.supporting_excerpt == "Model listed: TrackSense 7B."
 
 
 def test_identifier_link_alone_does_not_establish_equipment_malfunction() -> None:
