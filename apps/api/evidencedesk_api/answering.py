@@ -10,6 +10,7 @@ import math
 import re
 import unicodedata
 from dataclasses import dataclass
+from itertools import pairwise
 from typing import Literal
 
 from evidencedesk_api.providers import EmbeddingProvider
@@ -23,6 +24,7 @@ from evidencedesk_api.trust_boundaries import (
 )
 
 AnswerStatus = Literal["answered", "partially_supported", "ambiguous", "abstained"]
+_UNVERIFIED_SOURCE_GAP = "[unverified source gap]"
 
 
 @dataclass(frozen=True, slots=True)
@@ -97,7 +99,8 @@ _UNIT = (
     r"°\s*[CF]|(?:k|M)?(?:Pa|bar)|psi|NTU|(?:mg|µg|μg|g|kg)/(?:mL|L|dL)|"
     r"(?:km|m|cm|mm)/h|m/s|"
     r"(?:m|cm|mm|km|in|ft|mi)|(?:mL|L|dL|kg|g|mg|µg|μg)|"
-    r"(?:ms|s|min|h|Hz|kHz|MHz|GHz|rpm|W|kW|MW|V|mV|A|mA|kWh|Mbps|Gbps)|%"
+    r"(?:ms|s|min|h|Hz|kHz|MHz|GHz|rpm|W|kW|MW|V|mV|A|mA|kWh|Mbps|Gbps)|"
+    r"percent|per\s+cent|%"
 )
 _MEASUREMENT = re.compile(
     rf"(?<![\w/.-])(\d+(?:[.,]\d+)?)\s*({_UNIT})(?![\w])",
@@ -121,7 +124,7 @@ _AMOUNT = re.compile(
 _DURATION = re.compile(
     r"\b(?:\d+|one|two|three|four|five|six|seven|eight|nine|ten|un|une|deux|"
     r"trois|quatre|cinq|six|sept|huit|neuf|dix)\s+"
-    r"(?:minutes?|hours?|days?|heures?|jours?)\b",
+    r"(?:(?:calendar|business|working)\s+)?(?:minutes?|hours?|days?|heures?|jours?)\b",
     re.IGNORECASE,
 )
 _SEVERITY = re.compile(
@@ -184,6 +187,7 @@ _QUESTION_NOISE = {
 _CAPITALIZED_QUERY_STOPWORDS = {
     "a",
     "an",
+    "at",
     "can",
     "de",
     "does",
@@ -675,6 +679,10 @@ def _requested_field_parts(question: str) -> list[str]:
             "printed",
             "listed",
             "recorded",
+            "approved",
+            "approve",
+            "set",
+            "sets",
             "indicated",
             "begins",
             "commence",
@@ -708,6 +716,22 @@ def _requested_field_parts(question: str) -> list[str]:
 
 def _requested_identifier_values(question: str) -> set[str]:
     return {_fold(match.group(1)) for match in _EXPLICIT_ID.finditer(question)}
+
+
+def _record_constraint_values(question: str) -> set[str]:
+    """Prefer IDs explicitly attached to record types over product/model codes."""
+    typed_prefix = re.compile(
+        r"(?:agreement|contract|receipt|invoice|work\s*order|change\s*request|"
+        r"service\s*order|sensor(?:\s*id)?|record\s*id|batch\s*id|"
+        r"permit(?:\s*id)?|plan\s*id|report\s*id)\s*(?:id\s*)?$",
+        re.IGNORECASE,
+    )
+    typed_values: set[str] = set()
+    for match in _EXPLICIT_ID.finditer(question):
+        prefix = question[max(0, match.start() - 40) : match.start()]
+        if typed_prefix.search(prefix):
+            typed_values.add(_fold(match.group(1)))
+    return typed_values or _requested_identifier_values(question)
 
 
 def _requested_clock_values(question: str) -> set[str]:
@@ -795,6 +819,38 @@ def _provisional_amount_status(evidence: str, document_context: str) -> str | No
     return None
 
 
+def _related_amount_proof(
+    question: str,
+    provisional_value: str,
+    provisional_item: RankedChunk,
+    ranked: list[RankedChunk],
+    document_contexts: dict[str, str],
+) -> tuple[RankedChunk, str] | None:
+    """Find a different amount for the same typed record and requested role."""
+    role_terms = _question_relation_tokens(question, "amount")
+    requested_ids = _requested_identifier_values(question)
+    if not role_terms or not requested_ids:
+        return None
+    for candidate in ranked:
+        if candidate.chunk.document_id == provisional_item.chunk.document_id:
+            continue
+        context = document_contexts.get(candidate.chunk.id, candidate.chunk.text)
+        for segment in _segments(candidate.chunk.text):
+            matches = list(_AMOUNT.finditer(segment))
+            if len(matches) != 1 or not _constraints_present(question, segment, context):
+                continue
+            value = matches[0].group(0).strip()
+            if _fold(value) == _fold(provisional_value):
+                continue
+            related_terms = _relation_tokens(segment + " " + context)
+            if len(role_terms & related_terms) / len(role_terms) < 0.4:
+                continue
+            excerpt = _local_value_clause(segment, matches[0].start(), matches[0].end())
+            if excerpt:
+                return candidate, excerpt
+    return None
+
+
 def _identifier_prefix(value: str) -> str:
     return re.split(r"[-/]", value, maxsplit=1)[0]
 
@@ -802,7 +858,9 @@ def _identifier_prefix(value: str) -> str:
 def _constraints_present(
     question: str, evidence: str, constraint_context: str | None = None
 ) -> bool:
-    requested_ids = _requested_identifier_values(question)
+    requested_ids = _record_constraint_values(question)
+    all_requested_ids = _requested_identifier_values(question)
+    object_ids = all_requested_ids - requested_ids
     evidence_ids = {_fold(match.group(1)) for match in _EXPLICIT_ID.finditer(evidence)}
     context = constraint_context or evidence
     missing_local_id = False
@@ -813,10 +871,26 @@ def _constraints_present(
             if _identifier_prefix(value) == _identifier_prefix(requested_id)
         }
         if requested_id in local_matches:
-            if local_matches != {requested_id}:
+            if local_matches != {requested_id} and not _explicit_same_record_reference(
+                evidence, requested_id, local_matches - {requested_id}
+            ):
                 return False
         else:
             missing_local_id = True
+    for object_id in object_ids:
+        # Product/model IDs are object constraints, not dossier anchors. Their
+        # exact value must remain in the same record context and cannot be
+        # replaced by a neighboring product with a similar identifier.
+        context_ids = {_fold(match.group(1)) for match in _EXPLICIT_ID.finditer(context)}
+        if object_id not in evidence_ids and object_id not in context_ids:
+            return False
+        local_variants = {
+            value
+            for value in evidence_ids
+            if _identifier_prefix(value) == _identifier_prefix(object_id)
+        }
+        if local_variants and object_id not in local_variants:
+            return False
     if missing_local_id and _context_id_proofs(question, evidence, context) is None:
         return False
     evidence_clocks = {
@@ -835,6 +909,21 @@ def _constraints_present(
     return all(condition in _fold(evidence) for condition in _requested_conditions(question))
 
 
+def _explicit_same_record_reference(
+    evidence: str, requested_id: str, companion_ids: set[str]
+) -> bool:
+    """Allow companion identifiers only when the source explicitly equates records."""
+    if not companion_ids:
+        return False
+    folded = _fold(evidence)
+    if not re.search(r"\bsame\b.{0,48}\b(?:reading|record|entry|shipment|order)\b", folded):
+        return False
+    ids = {_fold(match.group(1)) for match in _EXPLICIT_ID.finditer(evidence)}
+    return requested_id in ids and companion_ids <= ids and bool(
+        re.search(r"\b(?:as|equivalent\s+to|refers\s+to)\b", folded)
+    )
+
+
 def _field_value(
     question: str, segment: str, constraint_context: str | None = None
 ) -> tuple[str, str] | None:
@@ -849,6 +938,8 @@ def _field_value(
         "maximale": "peak",
         "maximal": "peak",
         "laboratoire": "laboratory",
+        "armoire": "cupboard",
+        "humidite": "humidity",
         "concentration": "",
         "level": "",
         "reading": "",
@@ -858,6 +949,10 @@ def _field_value(
     target_options = [field_parts]
     canonical_parts = [aliases.get(part, part) for part in field_parts]
     canonical_parts = [part for part in canonical_parts if part]
+    if "humidity" in canonical_parts and "target" in canonical_parts:
+        target_options.append(["target", "relative", "humidity"])
+    if "cupboard" in canonical_parts:
+        target_options.append(["conservation", "cupboard"])
     camel_id_label = bool(
         re.match(
             r"^\s*(?:what|which|quel|quelle|quels|quelles)\s+"
@@ -931,6 +1026,10 @@ def _field_value(
     identifier = _EXPLICIT_ID.search(tail)
     if measurement:
         value = measurement.group(0).strip()
+    elif amount := _AMOUNT.match(tail):
+        # Keep a currency amount together, including thousands separators,
+        # when it appears as a labeled text-field value.
+        value = amount.group(0).strip()
     elif identifier:
         value = identifier.group(1)
     else:
@@ -1480,6 +1579,90 @@ def _unique_context_header(
     return proofs[0] if proofs else None
 
 
+_ANAPHOR_TYPED_ID = re.compile(
+    r"\b(agreement|contract|receipt|invoice|work\s*order|workorder|"
+    r"change\s*request|changerequest|service\s*order|serviceorder|"
+    r"sensor|log|record)\s*(?:id\s*)?"
+    r"([A-Z]{1,8}(?:[-/][A-Z0-9]+)+)\b",
+    re.IGNORECASE,
+)
+
+
+def _anaphoric_record_proof(
+    question: str, evidence: str, context: str, evidence_start: int
+) -> str | None:
+    """Resolve only a uniquely typed, immediately preceding record reference."""
+    target = evidence.strip()
+    definite = re.match(
+        r"(?i)^the\s+(agreement|contract|receipt|invoice|work\s*order|"
+        r"change\s*request|service\s*order|sensor|log|record)\b",
+        target,
+    )
+    pronoun = re.match(r"(?i)^it\b", target)
+    if not definite and not pronoun:
+        return None
+
+    spans: list[tuple[int, int, str]] = []
+    cursor = 0
+    for sentence in _segments(context):
+        position = context.find(sentence, cursor)
+        if position < 0:
+            return None
+        spans.append((position, position + len(sentence), sentence))
+        cursor = position + len(sentence)
+    target_index = next(
+        (
+            index
+            for index, (start, end, _) in enumerate(spans)
+            if start <= evidence_start < end
+        ),
+        None,
+    )
+    if target_index is None or target_index == 0:
+        return None
+    _, previous_end, previous = spans[target_index - 1]
+    if context[previous_end:evidence_start].strip():
+        return None
+    if _UNVERIFIED_SOURCE_GAP in previous:
+        return None
+
+    requested_ids = _record_constraint_values(question)
+    anchors = [
+        (re.sub(r"\s+", "", _fold(match.group(1))), _fold(match.group(2)))
+        for match in _ANAPHOR_TYPED_ID.finditer(previous)
+    ]
+    if not requested_ids or not anchors:
+        return None
+    canonical = {
+        "agreement": "agreement",
+        "contract": "agreement",
+        "receipt": "receipt",
+        "invoice": "invoice",
+        "workorder": "workorder",
+        "changerequest": "changerequest",
+        "serviceorder": "serviceorder",
+        "sensor": "sensor",
+        "log": "log",
+        "record": "record",
+    }
+    if pronoun is not None:
+        compatible = anchors if len(anchors) == 1 else []
+    else:
+        assert definite is not None
+        wanted_type = re.sub(r"\s+", "", _fold(definite.group(1)))
+        wanted_type = canonical.get(wanted_type, wanted_type)
+        compatible = [
+            (kind, identifier)
+            for kind, identifier in anchors
+            if canonical.get(kind, kind) == wanted_type
+        ]
+        if len(compatible) != 1:
+            return None
+    if len(compatible) != 1 or compatible[0][1] not in requested_ids:
+        return None
+    return previous
+
+
 def _context_id_proofs(
     question: str, evidence: str, constraint_context: str | None
 ) -> tuple[str, ...] | None:
@@ -1488,7 +1671,7 @@ def _context_id_proofs(
     A unique record scope may carry an ID to a later field, but identifiers in
     separate, unrelated assertions are not joined by mere co-occurrence.
     """
-    requested = _requested_identifier_values(question)
+    requested = _record_constraint_values(question)
     if not requested or requested <= {
         _fold(match.group(1)) for match in _EXPLICIT_ID.finditer(evidence)
     }:
@@ -1513,6 +1696,18 @@ def _context_id_proofs(
             if _EXPLICIT_ID.search(prefix):
                 preceding.append((containing[0], containing[0] + relative_colon, prefix))
                 preceding.sort(key=lambda row: row[0])
+    if containing is not None:
+        anaphoric_proof = _anaphoric_record_proof(
+            question, evidence, constraint_context, evidence_start
+        )
+        if anaphoric_proof is not None:
+            return (anaphoric_proof,)
+        if re.match(
+            r"(?i)^\s*(?:it\b|the\s+(?:agreement|contract|receipt|invoice|work\s*order|"
+            r"change\s*request|service\s*order|sensor|log|record)\b)",
+            evidence,
+        ):
+            return None
     anchor_indices = [
         index
         for index, (_, _, sentence) in enumerate(preceding)
@@ -1538,7 +1733,9 @@ def _context_id_proofs(
             continue
 
         context_rows = [row for row in preceding[anchor_index:]]
-        local_ids = {_fold(match.group(1)) for match in _EXPLICIT_ID.finditer(evidence)}
+        local_ids = {
+            _fold(match.group(1)) for match in _EXPLICIT_ID.finditer(evidence)
+        } - (_requested_identifier_values(question) - requested)
         nodes = [
             (sentence, clause)
             for _, _, sentence in context_rows
@@ -1584,10 +1781,17 @@ def _context_id_proofs(
 
 def _question_excluded_terms(question: str) -> set[str]:
     folded = _fold(question)
-    match = re.search(r"\b(?:except|excluding|other than|hors|sauf)\b(.*)$", folded)
-    if match is None:
-        return set()
-    return _relation_tokens(match.group(1)) - _QUESTION_NOISE
+    excluded: set[str] = set()
+    for match in re.finditer(r"\b(?:except|excluding|other than|hors|sauf)\b", folded):
+        exclusion_text = re.split(
+            r",|\b(?:under|for|with|according\s+to)\b",
+            folded[match.end() :],
+            maxsplit=1,
+        )[0]
+        excluded.update(_relation_tokens(exclusion_text) - _QUESTION_NOISE)
+    if re.search(r"\b(?:hors\s+(?:la\s+)?tva|excluding\s+vat)\b", folded):
+        excluded -= {"vat", "tva"}
+    return excluded
 
 
 def _asks_past_event_date(question: str) -> bool:
@@ -1618,6 +1822,18 @@ def _question_relation_tokens(question: str, kind: str) -> set[str]:
             "par",
             "hors",
             "sauf",
+            "record",
+            "procure",
+            "state",
+            "report",
+            "file",
+            "invoice",
+            "invoic",
+            "before",
+            "pre",
+            "tax",
+            "vat",
+            "tva",
         },
         "duration": {"duration", "deadline", "period", "long", "soon", "quickly", "many"},
         "count": {"how", "many", "number", "combien"},
@@ -1788,6 +2004,8 @@ def _question_kind(question: str) -> str:
         return "date"
     if re.search(
         r"\b(?:how much|amount|budget|cost|charge|fee|tariff|price|prix|montant|"
+        r"total\s+(?:value|amount|cost)|pre[- ]?tax\s+total|invoice\s+total|"
+        r"total\s+of\s+(?:the\s+)?invoice|"
         r"fonds|reserve|enveloppe|combien\s+(?:coute|cout|est|facture))\b",
         folded,
     ):
@@ -1946,9 +2164,24 @@ def _value_for(
             re.IGNORECASE,
         )
         identifiers = [match.span() for match in _EXPLICIT_ID.finditer(segment)]
+        date_spans = [match.span() for match in _DATE.finditer(segment)]
+        clock_spans = [match.span() for match in _CLOCK.finditer(segment)]
         candidates: list[tuple[str, bool]] = []
+        count_relation_groups = (
+            {"arriv", "deliver", "deliveri", "delivery", "receiv", "receipt"},
+            {"plan", "schedul", "expect"},
+        )
+
+        def count_relation_matches(local_clause: str) -> bool:
+            local_relation = _relation_tokens(local_clause)
+            return any(
+                bool(relation_terms & group) and bool(local_relation & group)
+                for group in count_relation_groups
+            )
+
         for number in number_pattern.finditer(segment):
-            if any(start <= number.start() < end for start, end in identifiers):
+            excluded_spans = identifiers + date_spans + clock_spans
+            if any(start <= number.start() < end for start, end in excluded_spans):
                 continue
             left = max(
                 (
@@ -1982,7 +2215,8 @@ def _value_for(
                 candidates.append(
                     (
                         value,
-                        _has_relation_token_overlap(relation_terms, relation_clause_terms),
+                        _has_relation_token_overlap(relation_terms, relation_clause_terms)
+                        or count_relation_matches(relation_clause),
                     )
                 )
         if relation_terms:
@@ -2174,6 +2408,9 @@ def _time_value_context(question: str, segment: str) -> tuple[str, str] | None:
         if len(candidates) != 1 or not event_is_supported(candidates[0][3]):
             return None
         return candidates[0][2], candidates[0][3]
+    alternatives = _explicit_time_alternatives(question, segment)
+    if alternatives:
+        return alternatives[0]
     if len(candidates) == 1:
         candidate = candidates[0]
         if not event_is_supported(candidate[3]):
@@ -2186,6 +2423,57 @@ def _time_value_context(question: str, segment: str) -> tuple[str, str] | None:
     if not event_is_supported(best[0][3]):
         return None
     return best[0][2], best[0][3]
+
+
+def _explicit_time_alternatives(question: str, segment: str) -> list[tuple[str, str]]:
+    """Return clock values explicitly contrasted for the same requested event."""
+    if _requested_clock_values(question):
+        return []
+    clocks = list(_CLOCK.finditer(segment))
+    if len(clocks) < 2:
+        return []
+    query_terms = _question_relation_tokens(question, "time")
+    event_terms = query_terms - {
+        "time", "record", "recorded", "list", "listed", "indicate", "indicated",
+        "show", "shown", "date", "morning", "start", "end",
+    }
+    named_subjects = _requested_person_terms(question)
+    for left, right in pairwise(clocks):
+        connector = _fold(segment[left.end() : right.start()])
+        if not re.search(r"\b(?:rather\s+than|instead\s+of|not\s+.*\bbut)\b", connector):
+            continue
+        left_clause = _local_value_clause(segment, left.start(), left.end())
+        right_clause = _local_value_clause(segment, right.start(), right.end())
+        if left_clause != right_clause:
+            continue
+        clause = left_clause
+        resolved_prefix = _fold(segment[: left.start()])
+        if re.search(
+            r"\b(?:corrected|confirmed|approved|validated|signed\s+off|"
+            r"rectifie|confirme|approuve|valide)\b",
+            resolved_prefix,
+        ) and not re.search(
+            r"\b(?:not\s+confirmed|unconfirmed|not\s+approved|pending\s+confirmation|"
+            r"non\s+confirme|pas\s+confirme)\b",
+            resolved_prefix,
+        ):
+            value = f"{left.group(1)} {left.group(2)}" if left.group(2) else left.group(1)
+            return [(value, clause)]
+        clause_terms = _relation_tokens(clause)
+        if event_terms and not event_terms & clause_terms:
+            continue
+        if named_subjects and not named_subjects <= clause_terms:
+            continue
+        if not _constraints_present(question, clause, segment):
+            continue
+        values = []
+        for match in (left, right):
+            value = (
+                f"{match.group(1)} {match.group(2)}" if match.group(2) else match.group(1)
+            )
+            values.append((value, clause))
+        return values
+    return []
 
 
 def _boolean_polarity(value: str | None) -> str | None:
@@ -2427,36 +2715,61 @@ def _citation(item: RankedChunk, excerpt: str) -> Citation:
 
 
 def _page_contexts(ranked: list[RankedChunk]) -> dict[str, str]:
-    grouped: dict[tuple[str, int], list[tuple[int, RankedChunk]]] = {}
-    for index, item in enumerate(ranked):
-        match = re.search(r"(?:^|:)c(\d+)$", item.chunk.id)
-        order = int(match.group(1)) if match else index
-        grouped.setdefault((item.chunk.document_id, item.chunk.page), []).append((order, item))
+    grouped: dict[tuple[str, int], list[RankedChunk]] = {}
+    for item in ranked:
+        grouped.setdefault((item.chunk.document_id, item.chunk.page), []).append(item)
     contexts: dict[str, str] = {}
     for items in grouped.values():
-        context = "\n".join(item.chunk.text for _, item in sorted(items, key=lambda row: row[0]))
-        for _, item in items:
+        ordered, context = _ordered_context(items)
+        for item in ordered:
             contexts[item.chunk.id] = context
     return contexts
 
 
 def _document_contexts(ranked: list[RankedChunk]) -> dict[str, str]:
     """Build a same-document context while preserving source page/chunk order."""
-    grouped: dict[str, list[tuple[int, int, RankedChunk]]] = {}
-    for index, item in enumerate(ranked):
-        match = re.search(r"(?:^|:)c(\d+)$", item.chunk.id)
-        order = int(match.group(1)) if match else index
-        grouped.setdefault(item.chunk.document_id, []).append(
-            (item.chunk.page, order, item)
-        )
+    grouped: dict[str, list[RankedChunk]] = {}
+    for item in ranked:
+        grouped.setdefault(item.chunk.document_id, []).append(item)
     contexts: dict[str, str] = {}
     for items in grouped.values():
-        context = "\n".join(
-            item.chunk.text for _, _, item in sorted(items, key=lambda row: (row[0], row[1]))
-        )
-        for _, _, item in items:
+        ordered, context = _ordered_context(items)
+        for item in ordered:
             contexts[item.chunk.id] = context
     return contexts
+
+
+def _ordered_context(items: list[RankedChunk]) -> tuple[list[RankedChunk], str]:
+    """Join retrieved chunks in source order and mark every unverifiable gap."""
+    def position(item: RankedChunk) -> tuple[int, int, int] | None:
+        if item.chunk.ordinal is not None:
+            return (0, item.chunk.page, item.chunk.ordinal)
+        match = re.search(r"(?:^|:)c(\d+)$", item.chunk.id)
+        if match:
+            return (1, item.chunk.page, int(match.group(1)))
+        return None
+
+    positioned = [(position(item), item) for item in items]
+    ordered = [item for _, item in sorted(
+        positioned,
+        key=lambda row: row[0] if row[0] is not None else (2, 0, 0),
+    )]
+    pieces: list[str] = []
+    prior: RankedChunk | None = None
+    for item in ordered:
+        if prior is not None:
+            left, right = position(prior), position(item)
+            contiguous = False
+            if left is not None and right is not None and left[0] == right[0]:
+                if left[0] == 0:
+                    contiguous = right[2] == left[2] + 1
+                elif prior.chunk.page == item.chunk.page:
+                    contiguous = right[2] == left[2] + 1
+            if not contiguous:
+                pieces.append(_UNVERIFIED_SOURCE_GAP)
+        pieces.append(item.chunk.text)
+        prior = item
+    return ordered, "\n".join(pieces)
 
 
 def _evidence_citations(
@@ -2897,6 +3210,16 @@ class DeterministicGroundedAnswerProvider:
                         (score, citation_text, value, relation)
                     )
                     if value is not None and relation:
+                        if kind == "time":
+                            alternatives = _explicit_time_alternatives(
+                                question, evidence_text
+                            )
+                            if len(alternatives) > 1:
+                                candidates.extend(
+                                    (score, alternative_excerpt, alternative_value, item)
+                                    for alternative_value, alternative_excerpt in alternatives
+                                )
+                                continue
                         provisional_status = (
                             _provisional_amount_status(evidence_text, constraint_context)
                             if kind == "amount"
@@ -2986,6 +3309,34 @@ class DeterministicGroundedAnswerProvider:
                 provisional_citations.extend(
                     _evidence_citations(competing[3], competing[1], context_headers)
                 )
+            else:
+                related_amount = _related_amount_proof(
+                    question,
+                    provisional_amounts[0][2],
+                    item,
+                    ranked,
+                    document_contexts,
+                )
+                if related_amount is not None:
+                    related_item, related_excerpt = related_amount
+                    related_context = document_contexts.get(
+                        related_item.chunk.id, related_item.chunk.text
+                    )
+                    provisional_citations.extend(
+                        _evidence_citations(
+                            related_item,
+                            related_excerpt,
+                            {
+                                related_item.chunk.id: _context_citations(
+                                    question,
+                                    related_excerpt,
+                                    related_context,
+                                    related_item,
+                                    ranked,
+                                )
+                            },
+                        )
+                    )
             unique_citations: list[Citation] = []
             seen_citations: set[tuple[str, str]] = set()
             for citation in provisional_citations:

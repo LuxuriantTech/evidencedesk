@@ -195,6 +195,7 @@ class EvidenceChunk:
     text: str
     embedding: list[float]
     embedding_model_id: str = "deterministic-hash-v1:384"
+    ordinal: int | None = None
 
 
 @dataclass(frozen=True, slots=True)

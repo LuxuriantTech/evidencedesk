@@ -1,6 +1,7 @@
 from evidencedesk_api.answering import (
     DecisionConfig,
     DeterministicGroundedAnswerProvider,
+    _field_value,
     _scope_ranked,
 )
 from evidencedesk_api.providers import DeterministicEmbeddingProvider
@@ -14,6 +15,7 @@ def _ranked(
     document_id: str = "synthetic-record",
     document_name: str = "field-record.txt",
     page: int = 1,
+    ordinal: int | None = None,
 ) -> RankedChunk:
     chunk = EvidenceChunk(
         id=chunk_id,
@@ -23,6 +25,7 @@ def _ranked(
         section=None,
         text=text,
         embedding=[0.0] * 384,
+        ordinal=ordinal,
     )
     return RankedChunk(
         chunk=chunk,
@@ -316,12 +319,14 @@ def test_unique_record_id_scopes_a_value_across_document_pages() -> None:
         "WorkOrderID WO-83 | CustomerID CU-9. WorkOrderID WO-83 covers replacement parts.",
         page=1,
         document_id="materials",
+        ordinal=0,
     )
     price = _ranked(
         "materials:p2:c0",
         "The approved unit price is EUR 17.50 per component.",
         page=2,
         document_id="materials",
+        ordinal=1,
     )
     result = _answerer().answer(
         "What unit price was approved under WorkOrderID WO-83?", [header, price]
@@ -339,18 +344,21 @@ def test_later_record_does_not_invalidate_an_earlier_scoped_fact() -> None:
         "WorkOrderID WO-83 covers replacement parts.",
         page=1,
         document_id="materials",
+        ordinal=0,
     )
     price = _ranked(
         "materials:p2:c0",
         "The approved unit price is EUR 17.50 per component.",
         page=2,
         document_id="materials",
+        ordinal=1,
     )
     other = _ranked(
         "materials:p3:c0",
         "WorkOrderID WO-84 covers separate replacement parts.",
         page=3,
         document_id="materials",
+        ordinal=2,
     )
     result = _answerer().answer(
         "What unit price was approved under WorkOrderID WO-83?",
@@ -367,18 +375,21 @@ def test_record_scope_stops_before_a_competing_identifier() -> None:
         "WorkOrderID WO-83 covers replacement parts.",
         page=1,
         document_id="materials",
+        ordinal=0,
     )
     competing_record = _ranked(
         "materials:p2:c0",
         "WorkOrderID WO-84 covers a separate order.",
         page=2,
         document_id="materials",
+        ordinal=1,
     )
     unlabelled_price = _ranked(
         "materials:p3:c0",
         "The approved unit price is EUR 17.50 per component.",
         page=3,
         document_id="materials",
+        ordinal=2,
     )
     result = _answerer().answer(
         "What unit price was approved under WorkOrderID WO-83?",
@@ -540,12 +551,14 @@ def test_requested_actor_does_not_conflict_with_another_actors_event_time() -> N
         "Access record AR-71: Nia Okafor entered the gallery at 08:42.",
         document_id="access-log",
         page=1,
+        ordinal=0,
     )
     exit_event = _ranked(
         "access-log:p2:c0",
         "Pavel Rusu left the gallery at 16:18.",
         document_id="access-log",
         page=2,
+        ordinal=1,
     )
     result = _answerer().answer(
         "At what time did Nia Okafor enter the gallery?", [entry, exit_event]
@@ -574,18 +587,200 @@ def test_time_without_timezone_does_not_inject_a_null_text_value() -> None:
     assert "None" not in result.answer
 
 
+def test_contrasted_record_times_are_returned_as_ambiguous() -> None:
+    observed = _ranked(
+        "sensor-log:p1:c0",
+        "SensorID SX-5 records its morning reading at 08:40 on 3 June 2026.",
+        document_id="sensor-log",
+        page=1,
+        ordinal=0,
+    )
+    transcription = _ranked(
+        "sensor-log:p2:c0",
+        "The correction sheet for SensorID SX-5 gives that same morning reading as "
+        "08:55 rather than 08:40 on 3 June 2026, with no signed correction.",
+        document_id="sensor-log",
+        page=2,
+        ordinal=1,
+    )
+    result = _answerer().answer(
+        "At what time was the morning reading from SensorID SX-5 recorded on 3 June 2026?",
+        [observed, transcription],
+    )
+
+    assert result.status == "ambiguous"
+    assert result.answerable is False
+    assert {citation.chunk_id for citation in result.citations} == {
+        "sensor-log:p1:c0",
+        "sensor-log:p2:c0",
+    }
+
+
+def test_same_reading_reference_allows_companion_id_but_not_unlinked_records() -> None:
+    linked = _ranked(
+        "log:p2:c0",
+        "LogID LG-41 covers the same morning reading as LogID LG-41-1 and transcribes "
+        "its time as 08:55 rather than 08:40 on 3 June 2026.",
+        document_id="log",
+        page=2,
+    )
+    result = _answerer().answer(
+        "At what time was the morning reading from LogID LG-41 recorded on 3 June 2026?",
+        [linked],
+    )
+
+    assert result.status == "ambiguous"
+    assert {citation.chunk_id for citation in result.citations} == {"log:p2:c0"}
+
+
+def test_explicitly_confirmed_time_correction_resolves_the_earlier_value() -> None:
+    correction = _ranked(
+        "reading-log:p2:c0",
+        "The corrected and confirmed time for ReadingID RD-82 is 09:15 rather than "
+        "09:00.",
+        document_id="reading-log",
+        page=2,
+    )
+    result = _answerer().answer(
+        "What time is recorded for ReadingID RD-82?", [correction]
+    )
+    assert result.status == "answered"
+    assert result.answer == "09:15"
+
+    unrelated = _ranked(
+        "other-log:p1:c0",
+        "SensorID SN-41 records a separate reading at 08:55.",
+        document_id="other-log",
+        page=1,
+    )
+    exact = _ranked(
+        "log:p1:c0",
+        "LogID LG-41 records 08:40.",
+        document_id="log",
+        page=1,
+    )
+    exact_result = _answerer().answer(
+        "What time is recorded for LogID LG-41?", [exact]
+    )
+    unlinked_result = _answerer().answer(
+        "What time is recorded for LogID LG-41?", [unrelated]
+    )
+    assert exact_result.status == "answered"
+    assert exact_result.answer == "08:40"
+    assert unlinked_result.status == "abstained"
+
+
+def test_count_skips_date_numbers_and_binds_the_quantity_to_its_object() -> None:
+    receipt = _ranked(
+        "receipt:p1:c0",
+        "ReceiptID RC-72 records delivery of four rolls of barrier film on "
+        "10 February 2026 for WorkOrderID WO-84.",
+        document_id="receipt",
+    )
+    result = _answerer().answer(
+        "How many rolls of barrier film arrived on ReceiptID RC-72?", [receipt]
+    )
+    assert result.status == "answered"
+    assert result.answer == "four"
+
+
+def test_record_header_and_local_product_identity_bind_cross_page_count() -> None:
+    header = _ranked(
+        "agreement:p1:c0",
+        "AgreementID AG-2 covers Valve VX-8 and Pump PX-2.",
+        document_id="agreement",
+        page=1,
+        ordinal=0,
+    )
+    valve_quantity = _ranked(
+        "agreement:p2:c0",
+        "The agreement lists twelve units of Valve VX-8.",
+        document_id="agreement",
+        page=2,
+        ordinal=1,
+    )
+    pump_quantity = _ranked(
+        "agreement:p2:c1",
+        "The agreement lists eight units of Pump PX-2.",
+        document_id="agreement",
+        page=2,
+        ordinal=2,
+    )
+    question = "How many units of Valve VX-8 are listed under AgreementID AG-2?"
+    result = _answerer().answer(question, [header, valve_quantity])
+    wrong_product = _answerer().answer(question, [header, pump_quantity])
+
+    assert result.status == "answered"
+    assert result.answer == "twelve"
+    assert {citation.chunk_id for citation in result.citations} == {
+        "agreement:p1:c0",
+        "agreement:p2:c0",
+    }
+    assert wrong_product.status == "abstained"
+
+
+def test_calendar_days_are_preserved_in_invoice_deadline() -> None:
+    invoice = _ranked(
+        "invoice:p2:c0",
+        "Payment is due within 30 calendar days of invoice receipt.",
+        document_id="invoice",
+        page=2,
+    )
+    result = _answerer().answer("What is the payment deadline?", [invoice])
+    assert result.status == "answered"
+    assert result.answer == "30 calendar days"
+
+
+def test_tax_qualifier_is_not_treated_as_an_excluded_field() -> None:
+    price = _ranked(
+        "plan:p1:c0",
+        "PlanID PL-73 lists the agreed unit price for the KX-4 pump as EUR 18.40 excluding VAT.",
+        document_id="plan",
+    )
+    result = _answerer().answer(
+        "What is the agreed unit price for the KX-4 pump, excluding VAT, under PlanID PL-73?",
+        [price],
+    )
+    assert result.status == "answered"
+    assert "EUR 18.40" in result.answer
+
+
+def test_french_cupboard_and_relative_humidity_labels_match_explicit_fields() -> None:
+    cupboard = _ranked(
+        "storage:p1:c0",
+        "L'équipement est rangé dans the conservation cupboard C-4.",
+        document_id="storage",
+    )
+    result = _answerer().answer("Dans quelle armoire se trouve l'équipement?", [cupboard])
+    assert result.status == "answered"
+    assert result.answer == "C-4"
+
+    humidity = _ranked(
+        "work-order:p1:c0",
+        "The approved work order sets the target relative humidity at 52 percent.",
+        document_id="work-order",
+    )
+    humidity_result = _answerer().answer(
+        "What humidity target is approved?", [humidity]
+    )
+    assert humidity_result.status == "answered"
+    assert humidity_result.answer == "52 percent"
+
+
 def test_amount_marked_pending_confirmation_is_not_returned_as_final() -> None:
     detail = _ranked(
         "invoice:p1:c0",
         "InvoiceID IN-51 lists an amount of EUR 402.00.",
         document_id="invoice",
         page=1,
+        ordinal=0,
     )
     status = _ranked(
         "invoice:p2:c0",
         "InvoiceID IN-51: the amount remains pending confirmation.",
         document_id="invoice",
         page=2,
+        ordinal=1,
     )
     result = _answerer().answer(
         "What amount is listed for InvoiceID IN-51?", [detail, status]
@@ -602,9 +797,11 @@ def test_amount_marked_pending_confirmation_is_not_returned_as_final() -> None:
 def test_provisional_amount_stays_ambiguous_against_a_signed_record() -> None:
     reconciliation = _ranked(
         "reconciliation:p1:c0",
-        "ReconciliationID RN-8 for AgreementID AG-70 records unit price EUR 17.50.",
+        "ReconciliationID RN-8 for AgreementID AG-70 records the LX-8 pump unit price "
+        "as EUR 17.50.",
         document_id="reconciliation",
         document_name="reconciliation_note.txt",
+        ordinal=0,
     )
     status = _ranked(
         "reconciliation:p2:c0",
@@ -612,16 +809,26 @@ def test_provisional_amount_stays_ambiguous_against_a_signed_record() -> None:
         document_id="reconciliation",
         document_name="reconciliation_note.txt",
         page=2,
+        ordinal=1,
     )
     agreement = _ranked(
         "agreement:p1:c0",
-        "AgreementID AG-70 states the signed unit price is EUR 16.75.",
+        "AgreementID AG-70 covers LX-8 pump assemblies.",
         document_id="agreement",
         document_name="signed_agreement.txt",
+        ordinal=0,
+    )
+    signed_price = _ranked(
+        "agreement:p2:c0",
+        "The agreed unit price is EUR 16.75 per pump.",
+        document_id="agreement",
+        document_name="signed_agreement.txt",
+        page=2,
+        ordinal=1,
     )
     result = _answerer().answer(
-        "What unit price is stated for AgreementID AG-70?",
-        [reconciliation, status, agreement],
+        "What unit price for the LX-8 pump was recorded under AgreementID AG-70?",
+        [reconciliation, status, agreement, signed_price],
     )
 
     assert result.status == "ambiguous"
@@ -630,4 +837,161 @@ def test_provisional_amount_stays_ambiguous_against_a_signed_record() -> None:
         "reconciliation:p1:c0",
         "reconciliation:p2:c0",
         "agreement:p1:c0",
+        "agreement:p2:c0",
     }
+
+
+def test_invoice_total_value_is_full_amount_and_unresolved_conflict_is_ambiguous() -> None:
+    invoice = _ranked(
+        "invoice:p1:c0",
+        "InvoiceID IV-35 reports a pre-tax total of EUR 8,400 for eight components.",
+        document_id="invoice",
+        document_name="invoice.txt",
+        ordinal=0,
+    )
+    note_amount = _ranked(
+        "review-note:p1:c0",
+        "ReviewID RV-7 for InvoiceID IV-35 records a pre-tax total of EUR 8,600.",
+        document_id="review-note",
+        document_name="review_note.txt",
+        ordinal=0,
+    )
+    note_status = _ranked(
+        "review-note:p2:c0",
+        "Its author marked both totals to confirm and issued no correction.",
+        document_id="review-note",
+        document_name="review_note.txt",
+        page=2,
+        ordinal=1,
+    )
+    question = "What was the total value of InvoiceID IV-35 before tax?"
+    result = _answerer().answer(question, [invoice, note_amount, note_status])
+
+    assert result.status == "ambiguous"
+    assert result.answerable is False
+    assert {citation.chunk_id for citation in result.citations} == {
+        "invoice:p1:c0",
+        "review-note:p1:c0",
+        "review-note:p2:c0",
+    }
+    assert any("EUR 8,400" in citation.excerpt for citation in result.citations)
+    assert any("EUR 8,600" in citation.excerpt for citation in result.citations)
+
+
+def test_labeled_currency_field_keeps_thousands_separator() -> None:
+    extracted = _field_value(
+        "What is the deposit for InvoiceID IV-36?",
+        "InvoiceID IV-36, deposit: EUR 12,450.",
+    )
+
+    assert extracted is not None
+    assert extracted[0] == "EUR 12,450"
+
+
+def test_unique_immediate_record_anaphora_uses_source_ordinal_not_retrieval_order() -> None:
+    fact = _ranked(
+        "opaque-fact-chunk",
+        "The agreement covers twelve ceramic valves.",
+        document_id="opaque-agreement",
+        page=1,
+        ordinal=1,
+    )
+    anchor = _ranked(
+        "opaque-anchor-chunk",
+        "AgreementID AG-73 was reviewed.",
+        document_id="opaque-agreement",
+        page=1,
+        ordinal=0,
+    )
+
+    result = _answerer().answer(
+        "How many ceramic valves are covered by AgreementID AG-73?", [fact, anchor]
+    )
+
+    assert result.status == "answered"
+    assert result.answer == "twelve"
+    assert {citation.chunk_id for citation in result.citations} == {
+        "opaque-anchor-chunk",
+        "opaque-fact-chunk",
+    }
+
+
+def test_missing_source_ordinal_gap_blocks_record_anaphora() -> None:
+    anchor = _ranked(
+        "opaque-anchor-chunk",
+        "AgreementID AG-74 was reviewed.",
+        document_id="opaque-agreement",
+        ordinal=0,
+    )
+    fact = _ranked(
+        "opaque-fact-chunk",
+        "The agreement covers twelve ceramic valves.",
+        document_id="opaque-agreement",
+        ordinal=2,
+    )
+
+    result = _answerer().answer(
+        "How many ceramic valves are covered by AgreementID AG-74?", [anchor, fact]
+    )
+
+    assert result.status == "abstained"
+    assert result.citations == ()
+
+
+def test_pronoun_anaphora_requires_one_typed_antecedent() -> None:
+    anchor = _ranked(
+        "opaque-anchor-chunk",
+        "AgreementID AG-75 was reviewed.",
+        document_id="opaque-agreement",
+        ordinal=0,
+    )
+    fact = _ranked(
+        "opaque-fact-chunk",
+        "It covers twelve ceramic valves.",
+        document_id="opaque-agreement",
+        ordinal=1,
+    )
+    result = _answerer().answer(
+        "How many ceramic valves are covered by AgreementID AG-75?", [fact, anchor]
+    )
+    assert result.status == "answered"
+    assert result.answer == "twelve"
+
+    competing_anchor = _ranked(
+        "ambiguous-anchor-chunk",
+        "AgreementID AG-75 was reviewed with InvoiceID IV-8.",
+        document_id="opaque-agreement",
+        ordinal=0,
+    )
+    ambiguous_fact = _ranked(
+        "ambiguous-fact-chunk",
+        "It covers twelve ceramic valves.",
+        document_id="opaque-agreement",
+        ordinal=1,
+    )
+    ambiguous = _answerer().answer(
+        "How many ceramic valves are covered by AgreementID AG-75?",
+        [competing_anchor, ambiguous_fact],
+    )
+    assert ambiguous.status == "abstained"
+
+
+def test_multiple_matching_typed_anchors_block_definite_anaphora() -> None:
+    anchor = _ranked(
+        "opaque-anchor-chunk",
+        "AgreementID AG-76 and AgreementID AG-77 were reviewed.",
+        document_id="opaque-agreement",
+        ordinal=0,
+    )
+    fact = _ranked(
+        "opaque-fact-chunk",
+        "The agreement covers twelve ceramic valves.",
+        document_id="opaque-agreement",
+        ordinal=1,
+    )
+
+    result = _answerer().answer(
+        "How many ceramic valves are covered by AgreementID AG-76?", [anchor, fact]
+    )
+
+    assert result.status == "abstained"

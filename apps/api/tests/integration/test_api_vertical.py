@@ -25,10 +25,11 @@ from evidencedesk_api.models import (
 from evidencedesk_api.provider_registry import ProviderBundle
 from evidencedesk_api.providers import DeterministicEmbeddingProvider
 from evidencedesk_api.queueing import TaskQueue
-from evidencedesk_api.retrieval import ExtractiveAnswerProvider
+from evidencedesk_api.retrieval import EvidenceChunk, ExtractiveAnswerProvider
 from evidencedesk_api.security import verify_password
 from evidencedesk_api.seed import seed_demo_data
 from evidencedesk_api.storage import LocalDocumentStorage
+from evidencedesk_worker import jobs as worker_jobs
 from evidencedesk_worker.jobs import WorkerContext, process_document
 from reportlab.pdfgen import canvas
 from sqlalchemy import func, select, text
@@ -751,6 +752,7 @@ def test_grounded_api_keeps_same_record_context_across_pdf_pages(
         jwt_secret="integration-secret-at-least-32-characters",
         public_demo_mode=False,
         answer_mode="grounded-local-v3",
+        pdf_parse_timeout_seconds=30.0,
         demo_admin_password="EvidenceDemo-Admin-2026!",
         demo_analyst_password="EvidenceDemo-Analyst-2026!",
         demo_reader_password="EvidenceDemo-Reader-2026!",
@@ -758,7 +760,11 @@ def test_grounded_api_keeps_same_record_context_across_pdf_pages(
     asyncio.run(_reset_and_seed(settings))
     queue = RecordingQueue()
     original_builder = cast(Any, api_main).build_provider_bundle
+    original_rank = cast(Any, api_main).hybrid_rank
+    original_extract = cast(Any, worker_jobs).extract_supplier_fields_v3
     embedding = DeterministicEmbeddingProvider(dimension=384)
+    provider_chunks: list[EvidenceChunk] = []
+    worker_chunks: list[EvidenceChunk] = []
 
     def build_with_local_test_embedding(mode: str, **kwargs: Any) -> ProviderBundle:
         return cast(
@@ -766,7 +772,21 @@ def test_grounded_api_keeps_same_record_context_across_pdf_pages(
             original_builder(mode, embedding_factory=lambda: embedding, **kwargs),
         )
 
+    def capture_provider_chunks(
+        question: str, chunks: list[EvidenceChunk], **kwargs: Any
+    ) -> Any:
+        provider_chunks.extend(chunks)
+        return original_rank(question, chunks, **kwargs)
+
+    def capture_worker_chunks(
+        chunks: list[EvidenceChunk], *, embeddings: Any
+    ) -> Any:
+        worker_chunks.extend(chunks)
+        return original_extract(chunks, embeddings=embeddings)
+
     monkeypatch.setattr(api_main, "build_provider_bundle", build_with_local_test_embedding)
+    monkeypatch.setattr(api_main, "hybrid_rank", capture_provider_chunks)
+    monkeypatch.setattr(worker_jobs, "extract_supplier_fields_v3", capture_worker_chunks)
 
     pdf_buffer = io.BytesIO()
     pdf = canvas.Canvas(pdf_buffer)
@@ -845,6 +865,13 @@ def test_grounded_api_keeps_same_record_context_across_pdf_pages(
 
         asyncio.run(process_queued_documents())
 
+        worker_source_order = [
+            (chunk.page, chunk.ordinal)
+            for chunk in worker_chunks
+            if chunk.document_id == str(primary_document_id)
+        ]
+        assert worker_source_order == [(1, 0), (2, 1)]
+
         answer = client.post(
             f"/api/v1/dossiers/{dossier_id}/ask",
             headers=_headers(reader),
@@ -857,6 +884,12 @@ def test_grounded_api_keeps_same_record_context_across_pdf_pages(
         )
         assert answer.status_code == 200, answer.text
         answer_payload = answer.json()
+        provider_source_order = [
+            (chunk.page, chunk.ordinal)
+            for chunk in provider_chunks
+            if chunk.document_id == str(primary_document_id)
+        ]
+        assert set(provider_source_order) == {(1, 0), (2, 1)}
         assert answer_payload["status"] == "answered"
         assert "7.2" in answer_payload["answer"]
         assert "9.6" not in answer_payload["answer"]
