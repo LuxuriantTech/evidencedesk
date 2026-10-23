@@ -144,13 +144,22 @@ _QUESTION_NOISE = {
     "which",
     "whose",
     "with",
+    "du",
+    "chez",
+    "par",
+    "hors",
+    "sauf",
+    "and",
+    "or",
+    "also",
 }
 
 _CAPITALIZED_QUERY_STOPWORDS = {
     "a", "an", "can", "de", "does", "how", "if", "is", "le", "la",
-    "on", "the", "was", "what", "when", "which", "whose", "who", "where",
+    "on", "the", "was", "what", "when", "which", "whose", "who", "where", "combien",
     "why", "may", "might", "will", "would", "qui", "quand", "comment", "pourquoi",
-    "ou", "les", "un",
+    "ou", "les", "un", "master", "services", "service", "incident",
+    "data", "processing", "personal", "security", "review", "platform",
     "une", "des", "du", "au", "aux", "quel", "quelle", "quels", "quelles",
 }
 
@@ -169,13 +178,27 @@ _RELATION_EQUIVALENTS = {
         "control", "controls", "govern", "governs", "prevail", "prevails",
         "precedence", "priority", "replace", "replaces", "supersede", "supersedes",
     },
+    "amend": {
+        "amend", "amends", "amended", "amendment", "change", "changes", "changed",
+        "modify", "modifies", "modified", "alter", "alters", "altered",
+    },
+    "access": {"access", "accesses", "accessed", "accessing", "acces"},
+    "storage": {"storage", "stockage", "archivage", "archiving"},
+    "restoration": {
+        "restore", "restores", "restored", "restoration", "recovery", "recover",
+        "retablissement",
+    },
+    "monthly": {
+        "monthly", "month", "months", "mois", "mensuel", "mensuelle", "mensuels",
+        "mensuelles",
+    },
 }
 
 _ABSENCE = re.compile(
     r"\b(?:not\s+(?:provided|recorded|listed|available|specified|stated|supplied)|"
     r"(?:unavailable|absent|missing|indisponible|absent|manquant)\b|"
     r"no\s+(?:date|amount|value|number|record|entry)\s+(?:is\s+)?(?:provided|recorded|listed)|"
-    r"unknown|unrecorded|n/?a|none|non\s+(?:renseigne|enregistre|indique)|"
+    r"unknown|unrecorded|n/?a|none|non\s+(?:renseigne|enregistre|indique|consigne|consign(?:ée|é|ee))|"
     r"aucun\s+(?:enregistrement|montant|numero|date))\b",
     re.IGNORECASE,
 )
@@ -191,9 +214,20 @@ _SCALAR_ALTERNATIVE = re.compile(
 
 def _relation_tokens(text: str) -> set[str]:
     tokens = set(lexical_tokens(text))
-    for equivalents in _RELATION_EQUIVALENTS.values():
-        if tokens & equivalents:
-            tokens.add(next(iter(sorted(equivalents))))
+    folded = _fold(text)
+    for term in ("fee", "fees", "budget", "budgets", "tariff", "tariffs"):
+        if re.search(rf"\b{term}\b", folded):
+            tokens.add(term.rstrip("s"))
+    known_terms = set().union(*_RELATION_EQUIVALENTS.values())
+    for token in tuple(tokens):
+        if token[:1] in {"l", "d"} and token[1:] in known_terms:
+            tokens.discard(token)
+            tokens.add(token[1:])
+    for canonical, equivalents in _RELATION_EQUIVALENTS.items():
+        matched = tokens & equivalents
+        if matched:
+            tokens.difference_update(matched)
+            tokens.add(canonical)
     return tokens
 
 
@@ -203,15 +237,54 @@ def _fold(text: str) -> str:
 
 def _requested_document_type(question: str) -> str | None:
     folded = _fold(question)
-    if re.search(r"\b(?:agreements|contracts|reports|addenda|annexes)\b", folded):
-        return None
-    occurrences = [
-        (match.start(), kind)
+    occurrences = sorted([
+        (match.start(), match.end(), kind, term)
         for kind, terms in _DOCUMENT_TYPE_TERMS.items()
         for term in terms
-        if (match := re.search(rf"\b{re.escape(term)}\b", folded)) is not None
-    ]
-    return min(occurrences)[1] if occurrences else None
+        for match in re.finditer(rf"\b{re.escape(term)}\b", folded)
+    ])
+    if not occurrences:
+        return None
+    eligible_occurrences = []
+    source_cues = []
+    for start, end, kind, term in occurrences:
+        prefix = folded[max(0, start - 32):start]
+        suffix = folded[end:end + 32]
+        if re.search(
+            r"\b(?:date|status|statut)\b.{0,32}\b(?:renewal|renouvellement)\b.{0,12}$",
+            prefix,
+        ):
+            continue
+        eligible_occurrences.append((start, end, kind, term))
+        # A type word modifying a field is not a source-document request.
+        if re.match(r"\s+(?:renewal|effective|start|end|expiry)\s+(?:date|day|term)\b", suffix):
+            continue
+        if re.search(r"\b(?:in|under|from|within|of)\s+(?:the\s+)?$", prefix):
+            source_cues.append((start, kind))
+    if source_cues:
+        return min(source_cues)[1]
+    if not eligible_occurrences:
+        return None
+    if len({kind for _, _, kind, _ in eligible_occurrences}) == 1:
+        start, end, kind, _ = eligible_occurrences[0]
+        suffix = folded[end:end + 32]
+        if re.match(r"\s+(?:renewal|effective|start|end|expiry)\s+(?:date|day|term)\b", suffix):
+            return None
+        return kind
+    # When a document is the grammatical subject of a change question, use it
+    # as the evidence source and treat the later document as its target.
+    source = re.search(
+        r"\b(?:report|register|agreement|contract|addendum|annex)\b.{0,50}"
+        r"\b(?:amend|amends|amended|change|changes|changed|modify|modifies|alter|alters)\b",
+        folded,
+    )
+    if source:
+        first = next(
+            (kind for start, _, kind, _ in eligible_occurrences if start >= source.start()),
+            None,
+        )
+        return first
+    return None
 
 
 def _document_type(item: RankedChunk, contents: str) -> str | None:
@@ -325,6 +398,41 @@ def _has_negated_relation(question: str, segment: str, kind: str) -> bool:
     return False
 
 
+def _local_value_clause(segment: str, start: int, end: int) -> str:
+    """Return the assertion clause containing a scalar, excluding adjacent facts."""
+    left = max(
+        (segment.rfind(mark, 0, start) + 1 for mark in (";", ".", "!", "?", "\n")),
+        default=0,
+    )
+    right_candidates = [
+        position
+        for mark in (";", ".", "!", "?", "\n")
+        if (position := segment.find(mark, end)) >= 0
+    ]
+    right = min(right_candidates) if right_candidates else len(segment)
+    # Coordinated clauses can separate facts with "and ... is/has/does".
+    for match in re.finditer(
+        r"\b(?:and|et|mais|but)\s+(?=(?:is|are|was|were|has|have|does|do|est|sont|a|ont|constitue|represents|costs)\b)",
+        segment[left:right],
+        re.IGNORECASE,
+    ):
+        boundary = left + match.start()
+        if boundary < start:
+            left += match.end()
+        elif boundary > end:
+            right = boundary
+            break
+    return segment[left:right].strip(" ,;:")
+
+
+def _question_excluded_terms(question: str) -> set[str]:
+    folded = _fold(question)
+    match = re.search(r"\b(?:except|excluding|other than|hors|sauf)\b(.*)$", folded)
+    if match is None:
+        return set()
+    return _relation_tokens(match.group(1)) - _QUESTION_NOISE
+
+
 def _asks_past_event_date(question: str) -> bool:
     folded = _fold(question)
     return bool(
@@ -337,8 +445,12 @@ def _asks_past_event_date(question: str) -> bool:
 def _question_relation_tokens(question: str, kind: str) -> set[str]:
     noise_by_kind = {
         "date": {"date", "effective", "deadline"},
-        "amount": {"amount", "cost", "charge", "fee", "price", "tariff", "budget", "apply"},
-        "duration": {"duration", "deadline", "period"},
+            "amount": {
+                "amount", "cost", "price", "prix", "how", "much", "apply", "charg",
+                "constitue", "combien", "coute", "cout", "par", "hors", "sauf",
+            },
+        "duration": {"duration", "deadline", "period", "long", "soon", "quickly", "many"},
+        "status": {"status", "statut", "recorded", "record", "consigne"},
         "severity": {"severity"},
         "responsible_people": {"owner"},
         "organization_name": set(),
@@ -348,12 +460,43 @@ def _question_relation_tokens(question: str, kind: str) -> set[str]:
         },
         "text": set(),
     }
-    tokens = _relation_tokens(question) - _QUESTION_NOISE - noise_by_kind.get(kind, set())
-    tokens -= _named_subject_tokens(question)
+    tokens = (
+        _relation_tokens(question)
+        - _QUESTION_NOISE
+        - noise_by_kind.get(kind, set())
+        - _question_excluded_terms(question)
+    )
+    tokens -= set(lexical_tokens(" ".join(_named_subject_tokens(question))))
+    document_terms = set.union(*_DOCUMENT_TYPE_TERMS.values()) - {"amendment"}
+    tokens -= set(lexical_tokens(" ".join(document_terms)))
+    tokens -= {"master", "servic", "service", "incident", "signed", "sign"}
+    # Numbers and units constrain a value request; they do not name its relation.
+    for pattern in (_DATE, _AMOUNT, _DURATION, _SEVERITY):
+        for match in pattern.finditer(question):
+            tokens.difference_update(lexical_tokens(match.group(0)))
     requested_type = _requested_document_type(question)
     if requested_type is not None:
         tokens -= _DOCUMENT_TYPE_TERMS[requested_type]
     return tokens
+
+
+def _event_scope_terms(text: str) -> set[str]:
+    folded = _fold(text)
+    terms: set[str] = set()
+    if re.search(r"\b(?:cybersecurity|cyber)\s+(?:security\s+)?incident\b", folded):
+        terms.update({"cybersecurity_incident", "incident"})
+    if re.search(r"\bpersonal(?:[-\s]+data)?[-\s]+breach\b", folded):
+        terms.add("personal_data_breach")
+    if re.search(r"\b(?:service\s+)?(?:interruption|outage|disruption)\b", folded):
+        terms.add("service_interruption")
+    if re.search(r"\b(?:restoration|recovery)\b", folded):
+        terms.add("restoration")
+    if (
+        re.search(r"\b(?:confirmed\s+)?incident\b", folded)
+        and "cybersecurity_incident" not in terms
+    ):
+        terms.add("incident")
+    return terms
 
 
 def _unsafe_question(question: str) -> bool:
@@ -387,6 +530,17 @@ def _segments(text: str) -> list[str]:
 
 def _question_kind(question: str) -> str:
     folded = _fold(question)
+    interrogative_slots = re.findall(
+        r"\b(?:who|which\s+(?:person|employee|time|date|amount)|whose|when|where|"
+        r"what\s+(?:time|date|amount|status)|how\s+(?:much|many|long|soon))\b",
+        folded,
+    )
+    if len(interrogative_slots) > 1:
+        return "multi_slot"
+    if re.search(r"\b(?:status|statut)\b", folded) and re.search(
+        r"\b(?:date|renewal|renouvellement|value|champ|field)\b", folded
+    ):
+        return "status"
     yes_no_prefix = bool(
         re.match(
             r"\s*(?:is|are|was|were|does|do|did|can|could|may|might|will|would|has|have|"
@@ -397,9 +551,9 @@ def _question_kind(question: str) -> str:
     if yes_no_prefix and not _SCALAR_ALTERNATIVE.search(folded):
         return "boolean"
     if re.search(
-        r"\b(?:how\s+much\s+time|how\s+long|how\s+quickly|how\s+many\s+"
-        r"(?:minutes?|hours?|days?)|duration|duree|"
-        r"combien\s+de\s+temps|delai|notification\s+period|deadline)\b",
+        r"\b(?:how\s+much\s+time|how\s+long|how\s+quickly|how\s+soon|how\s+many\s+"
+        r"(?:minutes?|hours?|days?)|duration|duree|notice\s+period|notification\s+period|"
+        r"combien\s+de\s+temps|delai(?:\s+de\s+notification)?|deadline|periode\s+de\s+preavis)\b",
         folded,
     ):
         return "duration"
@@ -410,7 +564,7 @@ def _question_kind(question: str) -> str:
         return "date"
     if re.search(
         r"\b(?:how much|amount|budget|cost|charge|fee|tariff|price|prix|montant|"
-        r"fonds|reserve|enveloppe)\b",
+        r"fonds|reserve|enveloppe|combien\s+(?:coute|cout|est|facture))\b",
         folded,
     ):
         return "amount"
@@ -544,19 +698,27 @@ def _value_for(kind: str, segment: str, question: str) -> str | None:
         matches = list(_AMOUNT.finditer(segment))
         if not matches:
             return None
-        question_relation_tokens = _relation_tokens(question)
-        if len(matches) == 1:
-            return matches[0].group(0).strip()
-        clauses = re.split(r";|,(?=\s*[A-Za-zÀ-ÖØ-öø-ÿ])", segment)
-        best = max(
-            clauses,
-            key=lambda clause: len(question_relation_tokens & _relation_tokens(clause)),
-        )
-        match = _AMOUNT.search(best)
-        return (match or matches[0]).group(0).strip()
+        query_terms = _question_relation_tokens(question, kind)
+        excluded = _question_excluded_terms(question)
+        scored = []
+        for match in matches:
+            context = _local_value_clause(segment, match.start(), match.end())
+            context_terms = _relation_tokens(context)
+            if excluded & context_terms:
+                continue
+            overlap = query_terms & context_terms
+            scored.append((len(overlap), match.start(), match.group(0).strip()))
+        if not scored:
+            return None
+        return max(scored, key=lambda row: (row[0], -row[1]))[2]
     if kind == "duration":
         match = _DURATION.search(segment)
         return match.group(0) if match else None
+    if kind == "status":
+        match = _ABSENCE.search(segment)
+        return match.group(0) if match else None
+    if kind == "multi_slot":
+        return None
     if kind == "severity":
         match = _SEVERITY.search(segment)
         return match.group(0) if match else None
@@ -592,6 +754,18 @@ def _value_for(kind: str, segment: str, question: str) -> str | None:
     return segment
 
 
+def _boolean_polarity(value: str | None) -> str | None:
+    """Return assertion polarity independent of supporting wording."""
+    if value is None:
+        return None
+    folded = _fold(value)
+    if folded.startswith("no. "):
+        return "no"
+    if folded.startswith("yes. "):
+        return "yes"
+    return None
+
+
 def _semantic_similarity(left: str, right: str, provider: EmbeddingProvider) -> float:
     left_vector, right_vector = provider.embed_many([left, right])
     value = sum(a * b for a, b in zip(left_vector, right_vector, strict=True))
@@ -616,6 +790,17 @@ def _relation_categories(text: str) -> frozenset[str]:
 def _relation_supported(question: str, segment: str, kind: str) -> bool:
     question_tokens = _question_relation_tokens(question, kind)
     segment_tokens = _relation_tokens(segment)
+    if kind == "duration":
+        requested_events = _event_scope_terms(question)
+        evidence_events = _event_scope_terms(segment)
+        if requested_events and not requested_events & evidence_events:
+            return False
+        if requested_events:
+            return _value_for(kind, segment, question) is not None
+    if kind == "boolean":
+        action_anchors = {"access", "amend"} & question_tokens
+        if action_anchors and not action_anchors & segment_tokens:
+            return False
     if kind == "date":
         requested_role = _date_role(question)
         if requested_role is not None:
@@ -632,8 +817,12 @@ def _relation_supported(question: str, segment: str, kind: str) -> bool:
         )
     noise_by_kind = {
         "date": {"date", "effective", "deadline"},
-        "amount": {"amount", "cost", "charge", "fee", "price", "tariff", "budget", "apply"},
-        "duration": {"duration", "deadline"},
+        "amount": {
+            "amount", "cost", "price", "prix", "how", "much", "apply", "charg",
+            "constitue", "combien", "coute", "cout", "par", "hors", "sauf",
+        },
+        "duration": {"duration", "deadline", "period", "long", "soon", "quickly", "many"},
+        "status": {"status", "statut", "recorded", "record", "consigne"},
         "severity": {"severity"},
         "responsible_people": {"owner"},
         "boolean": set(),
@@ -641,16 +830,34 @@ def _relation_supported(question: str, segment: str, kind: str) -> bool:
     }
     relation_tokens = question_tokens - noise_by_kind.get(kind, set())
     overlap = relation_tokens & segment_tokens
-    if kind == "amount":
-        return bool(overlap)
+    if kind in {"amount", "duration", "status"}:
+        value = _value_for(kind, segment, question)
+        if value is None:
+            return False
+        pattern = _AMOUNT if kind == "amount" else _DURATION if kind == "duration" else _ABSENCE
+        match = next(
+            (item for item in pattern.finditer(segment) if _fold(item.group(0)) == _fold(value)),
+            None,
+        )
+        context = _local_value_clause(segment, match.start(), match.end()) if match else segment
+        query_terms = _question_relation_tokens(question, kind)
+        if not query_terms:
+            return True
+        relation_overlap = query_terms & _relation_tokens(context)
+        return bool(relation_overlap) and len(relation_overlap) / len(query_terms) >= 0.4
     if kind == "date" and requested_role is None:
         return bool(relation_tokens) and len(overlap) >= min(2, len(relation_tokens))
     if kind == "boolean":
         return (
             len(overlap) >= 2
+            or bool(overlap & {"amend"})
             or _has_related_absence(question, segment, kind)
             or _has_negated_relation(question, segment, kind)
         )
+    if kind == "status":
+        return bool(overlap) and _value_for(kind, segment, question) is not None
+    if kind == "multi_slot":
+        return False
     if kind == "text":
         ordered: list[str] = []
         for raw in re.findall(r"[a-z0-9]+", _fold(question)):
@@ -700,6 +907,8 @@ def _field_name(kind: str) -> str:
         "severity": "severity",
         "responsible_people": "responsible_people",
         "organization_name": "organization_name",
+        "status": "status",
+        "multi_slot": "answer",
         "text": "answer",
     }[kind]
 
@@ -947,6 +1156,10 @@ class DeterministicGroundedAnswerProvider:
                 candidate_assessments=assessments,
             )
         kind = _question_kind(question)
+        if kind == "multi_slot":
+            return _abstained(
+                "The question asks for multiple facts that this answer mode cannot verify together."
+            )
         ranked = _scope_ranked(question, ranked)
         if not ranked:
             return _abstained()
@@ -991,7 +1204,7 @@ class DeterministicGroundedAnswerProvider:
                     _date_evidence_segments(segment, question) if kind == "date" else [segment]
                 )
                 for evidence_segment in evidence_segments:
-                    if kind != "boolean" and (
+                    if kind not in {"boolean", "status"} and (
                         _has_explicit_absence(evidence_segment)
                         or _has_negated_relation(question, evidence_segment, kind)
                     ):
@@ -1054,7 +1267,11 @@ class DeterministicGroundedAnswerProvider:
         distinct = [
             other
             for other in supported[1:]
-            if _fold(other[2] or "") != _fold(best[2] or "")
+            if (
+                _boolean_polarity(other[2]) != _boolean_polarity(best[2])
+                if kind == "boolean"
+                else _fold(other[2] or "") != _fold(best[2] or "")
+            )
         ]
         if distinct and kind in {"boolean", "date", "amount", "duration", "severity"}:
             other = distinct[0]

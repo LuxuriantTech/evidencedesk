@@ -116,6 +116,133 @@ def test_french_reserve_question_selects_the_related_euro_amount() -> None:
     assert "12 600 €" in result.citations[0].excerpt
 
 
+def test_amount_relation_stays_attached_to_the_amount_clause() -> None:
+    result = _provider().answer(
+        "What annual platform fee is charged under the agreement?",
+        [
+            _ranked(
+                "two-annual-values",
+                "Annual platform fee: EUR 61,400, billed in two equal instalments. "
+                "The annual security review budget is EUR 61,900 and is separate "
+                "from the platform fee.",
+                document_name="master_services_agreement.txt",
+            )
+        ],
+    )
+
+    assert result.status == "answered"
+    assert result.answer == "EUR 61,400"
+    assert result.supporting_excerpt is not None
+    assert "Annual platform fee" in result.supporting_excerpt
+
+
+def test_notice_period_question_extracts_the_deadline_duration() -> None:
+    result = _provider().answer(
+        "What notice period applies to a confirmed personal-data breach under the addendum?",
+        [
+            _ranked(
+                "breach-notice",
+                "For a confirmed personal-data breach, LumenGrid shall notify Orion "
+                "within 18 hours after discovery.",
+                document_name="orion_data_processing_addendum.txt",
+            )
+        ],
+    )
+
+    assert result.status == "answered"
+    assert result.answer == "18 hours"
+
+
+def test_duration_for_a_different_event_is_not_used_as_a_deadline() -> None:
+    result = _provider().answer(
+        "How soon must LumenGrid notify Orion after it confirms a cybersecurity incident?",
+        [
+            _ranked(
+                "personal-data-breach",
+                "For a confirmed personal-data breach, LumenGrid shall notify Orion "
+                "within 18 hours after discovery.",
+            )
+        ],
+    )
+
+    assert result.status == "abstained"
+    assert result.citations == ()
+
+
+def test_deadlines_for_two_explicit_event_types_remain_ambiguous() -> None:
+    result = _provider().answer(
+        "If one deadline must be selected when a confirmed cybersecurity incident is "
+        "also a personal-data breach, which term controls?",
+        [
+            _ranked(
+                "cyber-deadline",
+                "LumenGrid shall notify Orion of a confirmed cybersecurity incident "
+                "within 36 hours after confirmation.",
+                document_id="agreement",
+            ),
+            _ranked(
+                "privacy-deadline",
+                "For a confirmed personal-data breach, LumenGrid shall notify Orion "
+                "within 18 hours after discovery.",
+                document_id="addendum",
+            ),
+        ],
+    )
+
+    assert result.status == "ambiguous"
+    assert {citation.document_id for citation in result.citations} == {"agreement", "addendum"}
+
+
+def test_status_question_reports_explicitly_unrecorded_date() -> None:
+    result = _provider().answer(
+        "What is the recorded status of the contract renewal date?",
+        [
+            _ranked(
+                "renewal-status",
+                "Contract renewal date: non consignée.",
+                document_name="contract-record.txt",
+            )
+        ],
+    )
+
+    assert result.status == "answered"
+    assert "consign" in result.answer.casefold()
+    assert result.citations[0].excerpt == "Contract renewal date: non consignée."
+
+
+def test_amount_question_excludes_an_explicitly_excluded_service() -> None:
+    result = _provider().answer(
+        "Combien coûte l'archivage standard par mois, hors restauration express ?",
+        [
+            _ranked(
+                "storage-rates",
+                "Le stockage standard est facturé 2 100 EUR par mois. "
+                "Une option de restauration express coûte 2 190 EUR par intervention.",
+                document_name="rivage_archive_services_record.txt",
+            )
+        ],
+    )
+
+    assert result.status == "answered"
+    assert result.answer == "2 100 EUR"
+
+
+def test_compound_person_and_time_question_abstains_without_both_slots() -> None:
+    result = _provider().answer(
+        "Which employee at Orion received the incident notification, and at what time?",
+        [
+            _ranked(
+                "notice-deadline",
+                "LumenGrid shall notify Orion of a confirmed cybersecurity incident "
+                "within 36 hours after confirmation.",
+            )
+        ],
+    )
+
+    assert result.status == "abstained"
+    assert result.citations == ()
+
+
 def test_conflicting_amounts_remain_ambiguous_despite_score_difference() -> None:
     result = _provider(contradiction_margin=0.0).answer(
         "What amount is the remediation ceiling?",
@@ -387,6 +514,29 @@ def test_conflicting_yes_no_evidence_across_documents_is_ambiguous() -> None:
     assert {citation.document_id for citation in result.citations} == {"policy-a", "policy-b"}
 
 
+def test_equivalent_negative_evidence_is_not_a_conflict() -> None:
+    result = _provider().answer(
+        "Does the routing incident report amend the Aster agreement?",
+        [
+            _ranked(
+                "report-a",
+                "ROUTING INCIDENT REPORT\nThe report does not amend the Aster agreement "
+                "as currently signed.",
+                document_id="report-a",
+            ),
+            _ranked(
+                "report-b",
+                "ROUTING INCIDENT REPORT\nThe report does not amend the Aster agreement "
+                "in any way.",
+                document_id="report-b",
+            ),
+        ],
+    )
+
+    assert result.status == "answered"
+    assert result.answer.startswith("No. ")
+
+
 def test_possessive_named_subject_keeps_scoped_boolean_evidence() -> None:
     result = _provider().answer(
         "Can a subcontractor access production data without Northstar Harbor's written approval?",
@@ -429,6 +579,32 @@ def test_report_scope_reads_source_title_after_filename() -> None:
     assert result.status == "answered"
     assert result.answer.startswith("No. ")
     assert result.supporting_document == "report"
+
+
+def test_report_scope_ignores_a_nearby_sentence_without_the_requested_predicate() -> None:
+    result = _provider().answer(
+        "Does the service incident report change the signed Master Services Agreement?",
+        [
+            _ranked(
+                "report-page",
+                "SERVICE INCIDENT REPORT\nThe report distinguishes the interruption from "
+                "notification duties in the signed agreements.\nThis incident report does "
+                "not amend the Master Services Agreement.",
+                document_id="report",
+                document_name="service_incident_report.txt",
+            ),
+            _ranked(
+                "agreement-page",
+                "MASTER SERVICES AGREEMENT\nThe agreement governs the service.",
+                document_id="agreement",
+                document_name="master_services_agreement.txt",
+            ),
+        ],
+    )
+
+    assert result.status == "answered"
+    assert result.answer.startswith("No. ")
+    assert [citation.chunk_id for citation in result.citations] == ["report-page"]
 
 
 def test_past_event_date_does_not_return_deadline_as_partial_answer() -> None:
@@ -548,7 +724,11 @@ def test_conflicting_supported_values_are_ambiguous() -> None:
         "How long did restoration take?",
         [
             _ranked("c1", "The recovery log records a duration of 90 minutes.", page=1),
-            _ranked("c2", "The signed review records a duration of 110 minutes.", page=2),
+            _ranked(
+                "c2",
+                "The signed review records a restoration duration of 110 minutes.",
+                page=2,
+            ),
         ],
     )
 
