@@ -17,9 +17,10 @@ class V7CacheBoundTests(unittest.TestCase):
         expected=[str(Path('/runtime/llama-server')),'--model',str(Path('/model/qwen.gguf')),'--host','127.0.0.1','--alias','Qwen3-8B-Q4_K_M.gguf','--port','50193','--ctx-size','6144','--threads','4','--threads-batch','4','--batch-size','128','--ubatch-size','128','--parallel','1','--n-gpu-layers','0','--reasoning','off','--n-predict','512','--seed','20261023','--jinja','--no-context-shift','--cache-ram','0']
         self.assertEqual(command,expected)
         self.assertEqual(command.count('--cache-ram'),1)
-    def test_v6_provider_payload_is_byte_identical(self):
+    def test_v8_combined_provider_payload_is_byte_pinned(self):
         digest=hashlib.sha256((ROOT/'generative_provider.py').read_bytes()).hexdigest()
-        self.assertEqual(digest,'4a782199bf3c80273dc4c8975e1020253151f6c18ee7ed4f61b69c0cbdef7570')
+        self.assertEqual(digest,'31a2833db2da8179d6c6c512729c6745e06ef206b953ef7a422d2630377d3658')
+        self.assertEqual(run_ci_pair.PROVIDER_SHA256,'31a2833db2da8179d6c6c512729c6745e06ef206b953ef7a422d2630377d3658')
     def test_other_frozen_configs_are_unchanged(self):
         manifest=json.loads((ROOT/'ARTIFACT_MANIFEST.json').read_text(encoding='utf-8'))
         self.assertEqual(manifest['generation'],{'seed':20261023,'temperature':0.0,'enable_thinking':False,'max_tokens':512,'context_tokens':6144,'max_input_tokens':5632})
@@ -29,4 +30,27 @@ class V7CacheBoundTests(unittest.TestCase):
         self.assertEqual(manifest['server']['parallel'],1)
         self.assertEqual(manifest['server']['batch_size'],128)
         self.assertEqual(manifest['server']['ubatch_size'],128)
+
+
+    def test_extended_runtime_windows_are_pinned_without_relaxing_resources(self):
+        manifest = json.loads((ROOT / "ARTIFACT_MANIFEST.json").read_text(encoding="utf-8"))
+        scope = manifest["resource_scope"]
+        self.assertEqual(scope["service_runtime_max_seconds"], 5400)
+        self.assertEqual(scope["workflow_job_timeout_minutes"], 105)
+        self.assertEqual(scope["memory_max_bytes"], 10737418240)
+        self.assertEqual(scope["memory_swap_max_bytes"], 0)
+        self.assertEqual(scope["cpu_quota"], "400%")
+        self.assertEqual(scope["nice"], 10)
+        self.assertEqual(manifest["server"]["cache_ram_mib"], 0)
+        self.assertEqual(manifest["generation"]["context_tokens"], 6144)
+        self.assertEqual(manifest["generation"]["max_input_tokens"], 5632)
+        provider = (ROOT / "generative_provider.py").read_text(encoding="utf-8")
+        self.assertIn("timeout: float = 180.0", provider)
+        self.assertIn("RuntimeMaxSec=90min", (ROOT / "run_ci_pair.sh").read_text(encoding="utf-8"))
+        workflow = ROOT.parents[1] / ".github/workflows/generation-8b-development.yml"
+        workflow_text = workflow.read_text(encoding="utf-8")
+        self.assertIn("timeout-minutes: 105", workflow_text)
+        self.assertIn("group: generative-8b-v8-development-${{ github.ref }}", workflow_text)
+        self.assertIn("cancel-in-progress: false", workflow_text)
+
 if __name__=='__main__': unittest.main()

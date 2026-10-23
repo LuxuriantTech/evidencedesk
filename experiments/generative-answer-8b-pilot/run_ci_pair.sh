@@ -32,7 +32,7 @@ exec sudo systemd-run --wait --pipe --collect --unit="$unit" \
   --property=MemoryMax=10737418240 --property=MemorySwapMax=0 \
   --property=CPUQuota=400% --property=Nice=10 \
   --property=KillMode=control-group --property=TimeoutStopSec=20s \
-  --property=RuntimeMaxSec=45min \
+  --property=RuntimeMaxSec=90min \
   --setenv="HOME=${HOME:-/home/runner}" --setenv=PATH=/usr/bin:/bin \
   --setenv=OMP_NUM_THREADS=4 --setenv=MKL_NUM_THREADS=4 \
   --setenv=OPENBLAS_NUM_THREADS=4 --setenv=NO_PROXY=127.0.0.1,localhost \

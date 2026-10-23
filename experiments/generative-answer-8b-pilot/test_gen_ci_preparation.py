@@ -29,6 +29,15 @@ class FakeProvider:
 
 
 class PrepOnlyTests(unittest.TestCase):
+    def test_every_entrypoint_pins_the_actual_provider_bytes(self) -> None:
+        import hashlib
+        import run_smoke_cases as smoke
+
+        digest = hashlib.sha256((pair.HERE / "generative_provider.py").read_bytes()).hexdigest()
+        for entrypoint in (pair, generation, smoke):
+            with self.subTest(entrypoint=entrypoint.__name__):
+                self.assertEqual(entrypoint.PROVIDER_SHA256, digest)
+
     def test_all_declared_ci_code_files_exist(self) -> None:
         missing = [name for name in pair.CI_CODE_FILES if not (pair.HERE / name).is_file()]
         self.assertEqual(missing, [])

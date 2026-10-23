@@ -29,3 +29,8 @@ V7 keeps the V6 answer provider unchanged and explicitly sets `--cache-ram 0`.
 See PROVIDER_V7_RUNTIME_POLICY.md for the confirmed prior OOM and the unproven
 cache hypothesis. This is a separately measured runtime cohort, not a repair
 retroactively applied to V5/V6 results or a change to the 10 GiB limit.
+
+
+## V8 combined cohort
+
+V8 combines the generic prompt draft, strict primary-quote anchoring, and a 90-minute service / 105-minute job window. The V5 E4 45-minute timeout remains a failure; no quality gain is attributed to any one change. All quality gates and the 10 GiB, zero-swap, four-CPU, cache-zero, 6144/5632-token, and 180-second request limits remain fixed. See PROVIDER_V8_COMBINED_POLICY.md; V8 is exposed development, not release qualification.

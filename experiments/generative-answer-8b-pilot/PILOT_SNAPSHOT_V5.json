@@ -1,0 +1,203 @@
+{
+  "format": "generative-answer-pilot-snapshot-8b-v5-combined-v8",
+  "classification": "exposed development; not independent or release qualified",
+  "native_candidate_commit": "120e233bb8ff09cabc1bd3c5004a8545039459aa",
+  "published_baseline_commit": "ffeba12c4d4d64a1e1f003f211dfa1781c64515d",
+  "previous_snapshot_sha256": "0927630f0bde7da1191e76c5f84c051a0c46ff5519f2ae8cbb61c0afd3843dee",
+  "preserved_v7_snapshot_sha256": "0927630f0bde7da1191e76c5f84c051a0c46ff5519f2ae8cbb61c0afd3843dee",
+  "prior_confirmed_failure": "V5 V2 E5 OOM at 10.0G; V5 E4 reached its 45-minute service limit with 18/28 outputs; both remain failures",
+  "cache_causality_proven": false,
+  "combined_changes": [
+    "generic SYSTEM_PROMPT draft",
+    "strict shared primary-anchor selector",
+    "service runtime 90 minutes and workflow job timeout 105 minutes"
+  ],
+  "individual_change_effect_attribution": false,
+  "runtime_change": "Service RuntimeMaxSec 45min to 90min and workflow job timeout 55 to 105 minutes; all other resource limits unchanged",
+  "memory_max_bytes": 10737418240,
+  "memory_swap_max_bytes": 0,
+  "cpu_quota": "400%",
+  "nice": 10,
+  "cache_ram_mib": 0,
+  "context_tokens": 6144,
+  "max_input_tokens": 5632,
+  "per_request_timeout_seconds": 180,
+  "provider_sha256": "31a2833db2da8179d6c6c512729c6745e06ef206b953ef7a422d2630377d3658",
+  "historical_v7_release_criteria_unchanged": true,
+  "this_v8_cohort_inference_before_snapshot": false,
+  "all_quality_gates_unchanged": true,
+  "workflow_sha256": "6ef4c64a549b0b1873e14e47307369376a6f97096fa746e2d348e23e51891324",
+  "files": [
+    {
+      "path": ".gitattributes",
+      "bytes": 8,
+      "sha256": "705fd4d6451a31d36b3df7de96f83f30ac976c9b4a6d1e51671d8e2f33e2d0da"
+    },
+    {
+      "path": "ARTIFACT_MANIFEST.json",
+      "bytes": 1706,
+      "sha256": "1e49f0c8da294fe481607eabf66ab74d7f9182296691d2f9fe824bd650655045"
+    },
+    {
+      "path": "ci_common.py",
+      "bytes": 5982,
+      "sha256": "69b6334e93eb5e53fe065755598fcfc4be3c9386b3175bcb9fe61e01083a8814"
+    },
+    {
+      "path": "datasets/E4/corpus_manifest.json",
+      "bytes": 5595,
+      "sha256": "7fd7b7991557515c6007cf1a6982763b74c46e99929d0575f8be1023a8220951"
+    },
+    {
+      "path": "datasets/E4/evaluation_cases.json",
+      "bytes": 10679,
+      "sha256": "d8492380fd91ab058de0c05eb773d5fe79048cdd77894b24249be9de06baa228"
+    },
+    {
+      "path": "datasets/E5/corpus_manifest.json",
+      "bytes": 8395,
+      "sha256": "40b446b42516bd0840b69fc669f3bedd2d7f050849b41b55c3907bd7d0fa2329"
+    },
+    {
+      "path": "datasets/E5/evaluation_cases.json",
+      "bytes": 16414,
+      "sha256": "5185fbf6a621176e735fc8291383db2db2e7f340c269c0452fcbb5273c28a57e"
+    },
+    {
+      "path": "datasets/E6/corpus_manifest.json",
+      "bytes": 7003,
+      "sha256": "b64a0a8e310967b6825c5ec9340ae3e8081d1d6e53287f3cda4bf7fa31272029"
+    },
+    {
+      "path": "datasets/E6/evaluation_cases.json",
+      "bytes": 12658,
+      "sha256": "1c7de141d65795fec156a3c64cd20c25a17f977e1ddb2028e8749525839a1f3a"
+    },
+    {
+      "path": "GENERATION_DATASET_MANIFEST.json",
+      "bytes": 1995,
+      "sha256": "30225ca0f193c7983949628e0a33b748b63402d8b092d16242493b9fb6f70a65"
+    },
+    {
+      "path": "generative_provider.py",
+      "bytes": 34221,
+      "sha256": "31a2833db2da8179d6c6c512729c6745e06ef206b953ef7a422d2630377d3658"
+    },
+    {
+      "path": "prepare_artifacts.py",
+      "bytes": 27476,
+      "sha256": "58da9f2b505a540c00b788d75bd31e97d167d1c4f0947e5a2698c72da7611178"
+    },
+    {
+      "path": "PROVIDER_V5_POLICY.md",
+      "bytes": 1352,
+      "sha256": "91ee2a2c3aa780bd001d84ec14ab5f438903d212de1838c69cbeaf14195ee953"
+    },
+    {
+      "path": "PUBLIC_SAFE_REVIEW.md",
+      "bytes": 1278,
+      "sha256": "630fac747db0ff00c7a94c4d58b01344aabae471cd721fa60203dcd8a2a15f3d"
+    },
+    {
+      "path": "README.md",
+      "bytes": 2447,
+      "sha256": "c6a71b8bbc3eb6676012bfd4e36a6cd6860ada2fe3019717cc4f29c927f201a4"
+    },
+    {
+      "path": "RELEASE_CRITERIA.md",
+      "bytes": 4344,
+      "sha256": "21adf6dd50df9f470b52c8a0dbd6f982e22357b7c611917608b84881cd1871ad"
+    },
+    {
+      "path": "remote_baseline.py",
+      "bytes": 9747,
+      "sha256": "e8abdb64b4a84197cb5c0475434e61f7bfb6688f71e0a913b1fe0a817073eaa6"
+    },
+    {
+      "path": "run_ci_pair.py",
+      "bytes": 32592,
+      "sha256": "0914b7e59b15a126dbd01980c660e766d8516fe93ab716d059702cf8cfc4b14b"
+    },
+    {
+      "path": "run_ci_pair.sh",
+      "bytes": 1716,
+      "sha256": "2e308d607612f0de471c816d746f3221690c32296b777be554696fd782738c7a"
+    },
+    {
+      "path": "run_generation_case.py",
+      "bytes": 18442,
+      "sha256": "eb0674c364f420d4742d8c64a8489b16c03c708ff7500e0ccd6fb56723e978fe"
+    },
+    {
+      "path": "run_smoke_cases.py",
+      "bytes": 13306,
+      "sha256": "1dbe24e3eaa1509e5093ca9fc1b5c5186ef46346843f5ac0361d077e9a3554f2"
+    },
+    {
+      "path": "test_gen_ci_preparation.py",
+      "bytes": 11624,
+      "sha256": "655c6142f4802b630bb37e4fb0b243333b97122864fab40be2d8de79082f5efa"
+    },
+    {
+      "path": "test_generative_provider.py",
+      "bytes": 23270,
+      "sha256": "196ba8e188b98e7e702060d82e0c6113be3b94cb0b8eb0c5dd011c014ab89b40"
+    },
+    {
+      "path": "PILOT_SNAPSHOT_V1.json",
+      "bytes": 4521,
+      "sha256": "06f91e637d3764a8be3e90b825d25a721974e85e89b7553e7d9b26ab69898982"
+    },
+    {
+      "path": "V1_EXECUTION_NOTE.md",
+      "bytes": 1188,
+      "sha256": "6ca5f729202892b9d21ccf5247604e3306956b296d02edeb6782fc8a98a60d64"
+    },
+    {
+      "path": "PILOT_SNAPSHOT_V2.json",
+      "bytes": 4919,
+      "sha256": "e6163b83e1d7c58d0fa3d1d5921d1bd82d8adbc501e7c83d942bb4bc49f0dfbd"
+    },
+    {
+      "path": "PROVIDER_V6_POLICY.md",
+      "bytes": 1957,
+      "sha256": "715c8b640f2484ca55b503a80de3def09a9ccd60eb583b8aede9cc8c27648f04"
+    },
+    {
+      "path": "PILOT_SNAPSHOT_V3.json",
+      "bytes": 5308,
+      "sha256": "4fc98ecd113c1ffb6c5c19abb69d022e4a13a3b9b46104c2e0432286de730f7c"
+    },
+    {
+      "path": "PROVIDER_V7_RUNTIME_POLICY.md",
+      "bytes": 2377,
+      "sha256": "b08f6f2838fb451df9aa5332c518f98499f33bf1b887f152b7873b7f0e80a0cf"
+    },
+    {
+      "path": "test_v7_cache_bound.py",
+      "bytes": 4137,
+      "sha256": "0c9975b2b65eccf06e31722a1a97cd9eab9df31b01c2af2cc9ad8618b7b20793"
+    },
+    {
+      "path": "PILOT_SNAPSHOT_V4.json",
+      "bytes": 5709,
+      "sha256": "0927630f0bde7da1191e76c5f84c051a0c46ff5519f2ae8cbb61c0afd3843dee"
+    },
+    {
+      "path": "PROVIDER_V8_COMBINED_POLICY.md",
+      "bytes": 2139,
+      "sha256": "480660d9afdb1ef45730ce52b6ac1768a6274e7fa281e075f59db98b56bc0ec1"
+    },
+    {
+      "path": "history/v7/PILOT_SNAPSHOT_V4.json",
+      "bytes": 5709,
+      "sha256": "0927630f0bde7da1191e76c5f84c051a0c46ff5519f2ae8cbb61c0afd3843dee"
+    },
+    {
+      "path": "history/v7/test_v7_cache_bound.py",
+      "bytes": 2607,
+      "sha256": "b29251f38b421950abfc4e5042a857556cc93facd6e48200e8f6614b81fa4195"
+    }
+  ],
+  "prepublication_correction": "Both child entrypoint provider pins now match the combined provider, covered by a cross-entrypoint regression. The earlier unpublished snapshot is retained locally; no V8 inference occurred."
+}

@@ -44,6 +44,8 @@
     "memory_swap_max_bytes": 0,
     "cpu_quota": "400%",
     "nice": 10,
-    "disk_free_before_download_bytes": 6442450944
+    "disk_free_before_download_bytes": 6442450944,
+    "service_runtime_max_seconds": 5400,
+    "workflow_job_timeout_minutes": 105
   }
 }

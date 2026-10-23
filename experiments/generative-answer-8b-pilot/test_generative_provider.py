@@ -381,5 +381,84 @@ class GenerativeProviderTests(unittest.TestCase):
             self.provider.answer("q", [c(f"c{i}", "t") for i in range(21)])
 
 
+
+
+    def test_primary_anchor_wins_over_shorter_duplicate_value_in_another_source(self):
+        ranked = [
+            c("maintenance-log", "Maintenance log assigns device VX-22 to route R4."),
+            c("calibration-card", "Calibration code R4."),
+        ]
+        content = json.dumps({
+            "status": "answered",
+            "answer_spans": [{"chunk_id": "maintenance-log", "text": "R4"}],
+            "evidence": [
+                {"chunk_id": "calibration-card", "quote": "Calibration code R4."},
+                {"chunk_id": "maintenance-log", "quote": "Maintenance log assigns device VX-22 to route R4."},
+            ],
+        })
+        result, _ = self.call_with_content(content, ranked)
+        self.assertEqual(result.status, "answered")
+        self.assertEqual(result.answer, "R4")
+        self.assertEqual(result.supporting_document, "doc-maintenance-log")
+        self.assertEqual(result.supporting_excerpt, "Maintenance log assigns device VX-22 to route R4.")
+
+    def test_answer_spans_from_different_chunks_fail_closed(self):
+        ranked = [
+            c("maintenance-log", "Unit VX-22 uses route R4."),
+            c("work-order", "Work order for unit QZ-9 references route R4."),
+        ]
+        content = json.dumps({
+            "status": "answered",
+            "answer_spans": [
+                {"chunk_id": "maintenance-log", "text": "R4"},
+                {"chunk_id": "work-order", "text": "QZ-9"},
+            ],
+            "evidence": [
+                {"chunk_id": "maintenance-log", "quote": "Unit VX-22 uses route R4."},
+                {"chunk_id": "work-order", "quote": "Work order for unit QZ-9 references route R4."},
+            ],
+        })
+        result, _ = self.call_with_content(content, ranked)
+        self.assertEqual(result.status, "abstained")
+        self.assertEqual(self.provider.diagnostics[-1]["model_validation_reason"], "model_output_answer_spans_no_shared_quote")
+        validate_grounded_answer(result, ranked)
+
+    def test_spans_in_one_chunk_but_different_quotes_fail_closed(self):
+        ranked = [c("maintenance-log", "Unit VX-22 uses route R4. Unit QZ-9 uses route B7.")]
+        content = json.dumps({
+            "status": "answered",
+            "answer_spans": [
+                {"chunk_id": "maintenance-log", "text": "R4"},
+                {"chunk_id": "maintenance-log", "text": "QZ-9"},
+            ],
+            "evidence": [
+                {"chunk_id": "maintenance-log", "quote": "Unit VX-22 uses route R4."},
+                {"chunk_id": "maintenance-log", "quote": "Unit QZ-9 uses route B7."},
+            ],
+        })
+        result, _ = self.call_with_content(content, ranked)
+        self.assertEqual(result.status, "abstained")
+        self.assertEqual(self.provider.diagnostics[-1]["model_validation_reason"], "model_output_answer_spans_no_shared_quote")
+
+    def test_multiple_spans_may_use_one_shared_primary_quote(self):
+        quote = "Maintenance log assigns device VX-22 to route R4."
+        ranked = [c("maintenance-log", quote), c("other-record", "VX-22 and R4.")]
+        content = json.dumps({
+            "status": "answered",
+            "answer_spans": [
+                {"chunk_id": "maintenance-log", "text": "VX-22"},
+                {"chunk_id": "maintenance-log", "text": "R4"},
+            ],
+            "evidence": [
+                {"chunk_id": "other-record", "quote": "VX-22 and R4."},
+                {"chunk_id": "maintenance-log", "quote": quote},
+            ],
+        })
+        result, _ = self.call_with_content(content, ranked)
+        self.assertEqual(result.status, "answered")
+        self.assertEqual(result.supporting_document, "doc-maintenance-log")
+        self.assertEqual(result.supporting_excerpt, quote)
+        validate_grounded_answer(result, ranked)
+
 if __name__ == "__main__":
     unittest.main()
