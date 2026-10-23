@@ -86,9 +86,9 @@ _DATE = re.compile(
     re.IGNORECASE,
 )
 _AMOUNT = re.compile(
-    r"(?:\b(?:EUR|USD|GBP)\s*[$€£]?\s*\d[\d ,.]*\d(?:[.,]\d+)?k?\b|"
-    r"[$€£]\s*\d[\d ,.]*\d(?:[.,]\d+)?k?(?:\s*(?:EUR|USD|GBP))?\b|"
-    r"\b\d[\d ,.]*\d(?:[.,]\d+)?k?\s*(?:EUR|USD|GBP|€|£|\$)\b|"
+    r"(?:\b(?:EUR|USD|GBP)\s*[$€£]?\s*\d[\d ,.]*\d(?:[.,]\d+)?k?(?=$|[^\w])|"
+    r"[$€£]\s*\d[\d ,.]*\d(?:[.,]\d+)?k?(?:\s*(?:EUR|USD|GBP))?(?=$|[^\w])|"
+    r"\b\d[\d ,.]*\d(?:[.,]\d+)?k?\s*(?:EUR|USD|GBP|€|£|\$)(?=$|[^\w])|"
     r"\b(?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|"
     r"thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|"
     r"thirty|forty|fifty|sixty|seventy|eighty|ninety)(?:[- ](?:one|two|three|"
@@ -130,6 +130,20 @@ _QUESTION_NOISE = {
     "which",
     "whose",
 }
+
+_RELATION_EQUIVALENTS = {
+    "reserve": {"reserve", "reserves", "fund", "funds", "fond", "fonds", "pool"},
+    "maintenance": {"maintenance", "entretien"},
+    "coverage": {"coverage", "cover", "couverture"},
+}
+
+
+def _relation_tokens(text: str) -> set[str]:
+    tokens = set(lexical_tokens(text))
+    for equivalents in _RELATION_EQUIVALENTS.values():
+        if tokens & equivalents:
+            tokens.add(next(iter(sorted(equivalents))))
+    return tokens
 
 
 def _fold(text: str) -> str:
@@ -287,13 +301,13 @@ def _value_for(kind: str, segment: str, question: str) -> str | None:
         matches = list(_AMOUNT.finditer(segment))
         if not matches:
             return None
-        question_tokens = lexical_tokens(question)
+        question_relation_tokens = _relation_tokens(question)
         if len(matches) == 1:
             return matches[0].group(0).strip()
         clauses = re.split(r";|,(?=\s*[A-Za-zÀ-ÖØ-öø-ÿ])", segment)
         best = max(
             clauses,
-            key=lambda clause: len(question_tokens & lexical_tokens(clause)),
+            key=lambda clause: len(question_relation_tokens & _relation_tokens(clause)),
         )
         match = _AMOUNT.search(best)
         return (match or matches[0]).group(0).strip()
@@ -357,8 +371,8 @@ def _relation_categories(text: str) -> frozenset[str]:
 
 
 def _relation_supported(question: str, segment: str, kind: str) -> bool:
-    question_tokens = lexical_tokens(question) - _QUESTION_NOISE
-    segment_tokens = lexical_tokens(segment)
+    question_tokens = _relation_tokens(question) - _QUESTION_NOISE
+    segment_tokens = _relation_tokens(segment)
     if kind == "date":
         requested_role = _date_role(question)
         if requested_role is not None:
@@ -750,7 +764,6 @@ class DeterministicGroundedAnswerProvider:
             for other in supported[1:]
             if _fold(other[2] or "") != _fold(best[2] or "")
             and other[3].chunk.document_id == best[3].chunk.document_id
-            and best[0] - other[0] <= self.config.contradiction_margin
         ]
         if distinct and kind in {"date", "amount", "duration", "severity"}:
             other = distinct[0]

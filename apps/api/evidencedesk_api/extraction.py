@@ -298,7 +298,7 @@ _DATE_V3 = re.compile(
 _AMOUNT_V3 = re.compile(
     r"(?:\b(?:EUR|USD|GBP)\s*[$€£]?\s*\d[\d ,.]*\d(?:[.,]\d+)?k?\b|"
     r"[$€£]\s*\d[\d ,.]*\d(?:[.,]\d+)?k?(?:\s*(?:EUR|USD|GBP))?\b|"
-    r"\b\d[\d ,.]*\d(?:[.,]\d+)?k?\s*(?:EUR|USD|GBP|€|£|\$)\b|"
+    r"\b\d[\d ,.]*\d(?:[.,]\d+)?k?\s*(?:EUR|USD|GBP|€|£|\$)(?=$|[^\w])|"
     r"\b(?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|"
     r"thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|"
     r"thirty|forty|fifty|sixty|seventy|eighty|ninety)(?:[- ](?:one|two|three|"
@@ -316,9 +316,11 @@ _ROLE_VERBS_V3 = re.compile(
     re.IGNORECASE,
 )
 _OBLIGATION_VERBS_V3 = re.compile(
-    r"\b(?:keep|keeps|preserve|preserves|archive|archives|distribute|distributes|"
+    r"\b(?:keep|keeps|preserve|preserves|archives|archived|distribute|distributes|"
     r"circulate|circulates|send|sends|reopen|reopens|photograph|photographs|"
-    r"transmit|transmits|conserve|conservent|informe|informent|adresse|adressent)\b",
+    r"transmit|transmits|conserve|conservent|informe|informent|adresse|adressent|"
+    r"photographie|photographient|photographions|transmet|transmettent|"
+    r"entretient|entretiennent)\b",
     re.IGNORECASE,
 )
 _RISK_V3 = re.compile(
@@ -367,7 +369,8 @@ def _organization_v3(
     if labelled[0] is not None:
         return labelled
     patterns = (
-        r"(?:operator named for .+?|custodian covered .+?|beneficiary operationnel)"
+        r"(?:operator named for .+?|custodian covered .+?|beneficiary operationnel|"
+        r"bénéficiaire opérationnel)"
         r"\s+(?:is|est)\s+([^.;]+)",
         r"\b(?:dossier concerne|issued by)\s+([^.;]+?)(?=\s+(?:et non|for)\b|[.;])",
         r"\bconfirme que\s+([^,.;]+?)\s+(?:porte|gère|gere)\b",

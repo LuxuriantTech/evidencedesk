@@ -61,6 +61,60 @@ def test_semantic_extraction_handles_relational_prose_without_labels() -> None:
             assert field.citations
 
 
+def test_extraction_handles_french_currency_symbols_and_relational_duties() -> None:
+    result = extract_supplier_fields_v3(
+        [
+            _chunk(
+                "fr-handover",
+                "\n".join(
+                    [
+                        "Le bénéficiaire opérationnel est Lumen Atelier Civique; la commune reste "+
+                        "propriétaire.",
+                        "Le fonds d'entretien représente 12 600 €; GBP 800 couvrent les badges "+
+                        "temporaires.",
+                        "À chaque remise de clé, l'atelier photographie le compteur et transmet "+
+                        "la fiche d'accès au gardien.",
+                    ]
+                ),
+                1,
+            )
+        ],
+        embeddings=DeterministicEmbeddingProvider(dimension=384),
+    )
+
+    assert result.organization_name.value == "Lumen Atelier Civique"
+    assert result.important_amounts.value == ("12 600 €", "GBP 800")
+    assert result.obligations.value == (
+        "l'atelier photographie le compteur",
+        "transmet la fiche d'accès au gardien.",
+    )
+    for field_name in ("organization_name", "important_amounts", "obligations"):
+        assert result.as_mapping()[field_name].citations
+
+
+def test_common_noun_archive_does_not_create_obligation_false_positives() -> None:
+    result = extract_supplier_fields_v3(
+        [
+            _chunk(
+                "archive-title",
+                "\n".join(
+                    [
+                        "KESTREL ARCHIVE GUILD — CONTINUITY PLAYBOOK",
+                        "The custodian covered by this playbook is Kestrel Archive Guild.",
+                        "The guild preserves an offline index after every archive change.",
+                    ]
+                ),
+                1,
+            )
+        ],
+        embeddings=DeterministicEmbeddingProvider(dimension=384),
+    )
+
+    assert result.obligations.value == (
+        "The guild preserves an offline index after every archive change.",
+    )
+
+
 def test_semantic_extraction_preserves_explicit_contract_fields_and_modals() -> None:
     chunks = [
         _chunk(

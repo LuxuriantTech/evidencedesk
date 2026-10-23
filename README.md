@@ -80,7 +80,9 @@ le contrôle serveur.
 
 Le mode par défaut utilise réellement
 `Qdrant/paraphrase-multilingual-MiniLM-L12-v2-onnx-Q` (révision figée, Apache-2.0,
-environ 118 M paramètres, vecteurs 384 dimensions) sur CPU avec FastEmbed/ONNX Runtime. Le moteur
+environ 118 M paramètres, vecteurs 384 dimensions) sur CPU avec l'adaptateur texte ONNX Runtime.
+Le runtime de production charge directement le modèle texte et le tokenizer; il n'utilise ni FastEmbed
+ni Pillow. Le moteur
 `grounded-local-v3` reste déterministe et extractif : EvidenceDesk n'est pas présenté comme un LLM
 complet. Le holdout v7 confirme qu'une bonne récupération top-5 ne suffit pas à garantir une bonne
 réponse ou extraction.

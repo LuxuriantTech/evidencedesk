@@ -48,7 +48,7 @@ universellement la prompt injection.
 
 Le mode livré est `grounded-local-v3`. Son vecteur est l'embedding ONNX local
 `paraphrase-multilingual-minilm-l12-v2-onnx-q@faf4aa4225822f3bc6376869cb1164e8e3feedd0`,
-de dimension 384, calculé par fastembed/onnxruntime sur CPU. `embedding_model_id` définit l'espace
+de dimension 384, calculé par l'adaptateur texte ONNX Runtime sur CPU. `embedding_model_id` définit l'espace
 vectoriel : les embeddings feature-hashing historiques ne sont pas compatibles. La recherche
 lexicale PostgreSQL est fusionnée avec le dense par reciprocal-rank fusion. Le moteur de réponse
 retenu est déterministe et sourcé ; il ne doit pas être présenté comme un LLM complet et ne

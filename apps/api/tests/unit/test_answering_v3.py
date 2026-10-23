@@ -90,6 +90,46 @@ def test_renewal_question_selects_renewal_date_over_effective_date() -> None:
     assert [citation.chunk_id for citation in result.citations] == ["renewal"]
 
 
+def test_french_reserve_question_selects_the_related_euro_amount() -> None:
+    result = _provider().answer(
+        "Quel montant constitue la réserve de couverture ?",
+        [
+            _ranked(
+                "funding",
+                "Le fonds d'entretien représente 12 600 €; GBP 800 couvrent les badges "+
+                "temporaires.",
+            )
+        ],
+    )
+
+    assert result.status == "answered"
+    assert result.answer == "12 600 €"
+    assert result.extracted_fields["important_amounts"] == "12 600 €"
+    assert "12 600 €" in result.citations[0].excerpt
+
+
+def test_conflicting_amounts_remain_ambiguous_despite_score_difference() -> None:
+    result = _provider(contradiction_margin=0.0).answer(
+        "What amount is the remediation ceiling?",
+        [
+            _ranked(
+                "revision-a",
+                "Revision A marks the remediation ceiling as USD 31k and is signed.",
+                score=0.99,
+            ),
+            _ranked(
+                "revision-b",
+                "Revision B marks the remediation ceiling as USD 34k and is also signed.",
+                score=0.5,
+            ),
+        ],
+    )
+
+    assert result.status == "ambiguous"
+    assert result.answerable is False
+    assert len(result.citations) == 2
+
+
 @pytest.mark.parametrize("separator", ["; ", ", "])
 def test_effective_question_selects_its_date_from_a_mixed_role_line(separator: str) -> None:
     text = f"Effective date is 27 August 2031{separator}renewal date is 27 August 2032."
