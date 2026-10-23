@@ -314,15 +314,32 @@ def _document_type(item: RankedChunk, contents: str) -> str | None:
 
 def _named_subject_tokens(question: str) -> set[str]:
     tokens: set[str] = set()
-    for match in re.finditer(r"\b[A-ZÀ-ÖØ-Þ][A-Za-zÀ-ÖØ-öø-ÿ'-]+\b", question):
+    for match in re.finditer(
+        r"\b[A-ZÀ-ÖØ-Þ][A-Za-zÀ-ÖØ-öø-ÿ']*(?:-[A-Za-z0-9]+)*\b", question
+    ):
         raw = match.group(0)
         token = re.sub(r"(?:'s|s')$", "", _fold(raw))
-        if (raw.isupper() and len(raw) < 2) or token in _CAPITALIZED_QUERY_STOPWORDS:
+        if (
+            (raw.isupper() and len(raw) < 2)
+            or token in _CAPITALIZED_QUERY_STOPWORDS
+            or token in _QUESTION_NOISE
+        ):
             continue
         if token in set.union(*_DOCUMENT_TYPE_TERMS.values()):
             continue
         tokens.add(token)
     return tokens
+
+
+def _subject_matches(subject: str, contents: str) -> bool:
+    folded_subject = _fold(subject)
+    folded_contents = _fold(contents)
+    if re.fullmatch(r"[a-z]{1,8}-\d+[a-z0-9-]*", folded_subject):
+        return re.search(
+            rf"(?<![a-z0-9]){re.escape(folded_subject)}(?![a-z0-9])",
+            folded_contents,
+        ) is not None
+    return bool(_relation_tokens(subject) & _relation_tokens(contents))
 
 
 def _scope_ranked(question: str, ranked: list[RankedChunk]) -> list[RankedChunk]:
@@ -342,16 +359,31 @@ def _scope_ranked(question: str, ranked: list[RankedChunk]) -> list[RankedChunk]
         for document_id, items in grouped.items()
     }
     allowed: set[str] = set()
+    subjects_found_globally: set[str] = set()
+    fully_scoped_documents: set[str] = set()
     for document_id, items in grouped.items():
         contents = context_by_document[document_id]
         if requested_type is not None and _document_type(items[0], contents) != requested_type:
             continue
-        context_tokens = _relation_tokens(contents)
         if subject_tokens:
-            overlap = subject_tokens & context_tokens
+            overlap = {
+                subject for subject in subject_tokens if _subject_matches(subject, contents)
+            }
+            subjects_found_globally.update(overlap)
+            if overlap == subject_tokens:
+                fully_scoped_documents.add(document_id)
             if len(overlap) < max(1, (len(subject_tokens) * 2 + 2) // 3):
                 continue
         allowed.add(document_id)
+    if (
+        requested_type is None
+        and subject_tokens
+        and subjects_found_globally == subject_tokens
+        and not fully_scoped_documents
+    ):
+        # The named entities are all present, but the dossier links them across
+        # source documents rather than repeating them together in one record.
+        return ranked
     if not allowed:
         return []
     return [item for item in ranked if item.chunk.document_id in allowed]
@@ -796,6 +828,24 @@ def _semantic_similarity(left: str, right: str, provider: EmbeddingProvider) -> 
     return max(0.0, min(1.0, (value + 1.0) / 2.0))
 
 
+def _semantic_relation_fallback(
+    question: str,
+    evidence: str,
+    *,
+    provider: EmbeddingProvider | None,
+    threshold: float,
+) -> bool:
+    """Allow a local evidence clause to support a paraphrase missed lexically."""
+    kind = _question_kind(question)
+    lexical_anchor = _question_relation_tokens(question, kind) & _relation_tokens(evidence)
+    return (
+        provider is not None
+        and provider.mode == "local-semantic-onnx-v1"
+        and bool(lexical_anchor)
+        and _semantic_similarity(question, evidence, provider) >= threshold
+    )
+
+
 def _relation_categories(text: str) -> frozenset[str]:
     folded = _fold(text)
     categories: dict[str, str] = {
@@ -811,7 +861,14 @@ def _relation_categories(text: str) -> frozenset[str]:
     return frozenset(key for key, pattern in categories.items() if re.search(pattern, folded))
 
 
-def _relation_supported(question: str, segment: str, kind: str) -> bool:
+def _relation_supported(
+    question: str,
+    segment: str,
+    kind: str,
+    *,
+    provider: EmbeddingProvider | None = None,
+    semantic_threshold: float = 0.48,
+) -> bool:
     question_tokens = _question_relation_tokens(question, kind)
     segment_tokens = _relation_tokens(segment)
     if kind == "duration":
@@ -868,9 +925,29 @@ def _relation_supported(question: str, segment: str, kind: str) -> bool:
         if not query_terms:
             return True
         relation_overlap = query_terms & _relation_tokens(context)
-        return bool(relation_overlap) and len(relation_overlap) / len(query_terms) >= 0.4
+        if bool(relation_overlap) and len(relation_overlap) / len(query_terms) >= 0.4:
+            return True
+        if kind == "amount" and len(list(_AMOUNT.finditer(segment))) != 1:
+            return False
+        if kind == "duration" and len(list(_DURATION.finditer(segment))) != 1:
+            return False
+        return _semantic_relation_fallback(
+            question,
+            context,
+            provider=provider,
+            threshold=semantic_threshold,
+        )
     if kind == "date" and requested_role is None:
-        return bool(relation_tokens) and len(overlap) >= min(2, len(relation_tokens))
+        if bool(relation_tokens) and len(overlap) >= min(2, len(relation_tokens)):
+            return True
+        if len(list(_DATE.finditer(segment))) != 1:
+            return False
+        return _semantic_relation_fallback(
+            question,
+            segment,
+            provider=provider,
+            threshold=semantic_threshold,
+        )
     if kind == "boolean":
         return (
             len(overlap) >= 2
@@ -902,7 +979,7 @@ def _support_score(question: str, segment: str, kind: str, provider: EmbeddingPr
     lexical = len(query_tokens & segment_tokens) / max(1, len(query_tokens))
     semantic = _semantic_similarity(question, segment, provider)
     has_value = _value_for(kind, segment, question) is not None
-    relation = float(_relation_supported(question, segment, kind))
+    relation = float(_relation_supported(question, segment, kind, provider=provider))
     return min(1.0, 0.30 * lexical + 0.20 * semantic + 0.35 * float(has_value) + 0.15 * relation)
 
 
@@ -1249,7 +1326,13 @@ class DeterministicGroundedAnswerProvider:
                     evidence_text = admitted.text
                     score = _support_score(question, evidence_text, kind, self.embeddings)
                     value = _value_for(kind, evidence_text, question)
-                    relation = _relation_supported(question, evidence_text, kind)
+                    relation = _relation_supported(
+                        question,
+                        evidence_text,
+                        kind,
+                        provider=self.embeddings,
+                        semantic_threshold=self.config.support_threshold,
+                    )
                     evaluated.setdefault(item.chunk.id, []).append(
                         (score, evidence_text, value, relation)
                     )

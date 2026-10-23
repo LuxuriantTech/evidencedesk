@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 from dataclasses import asdict, replace
 
 import pytest
@@ -8,6 +9,9 @@ from evidencedesk_api.answering import (
     GroundingValidationError,
     PassageCandidateAssessment,
     _has_negated_relation,
+    _named_subject_tokens,
+    _scope_ranked,
+    _subject_matches,
     validate_grounded_answer,
 )
 from evidencedesk_api.providers import DeterministicEmbeddingProvider
@@ -652,6 +656,80 @@ def test_french_question_starter_is_not_treated_as_a_named_subject() -> None:
 
     assert result.status == "answered"
     assert result.answer == "Mira Vale"
+
+
+def test_named_subject_scope_can_rejoin_verified_entities_across_documents() -> None:
+    question = "What reference identifies the Meadowrun shipment received in Dijon?"
+    ranked = [
+        _ranked(
+            "manifest",
+            "Meadowrun shipment reference: SH-2841.",
+            document_id="manifest",
+            document_name="meadowrun_manifest.txt",
+        ),
+        _ranked(
+            "delivery",
+            "The shipment was received in Dijon.",
+            document_id="delivery",
+            document_name="delivery_note.txt",
+        ),
+    ]
+
+    assert {item.chunk.id for item in _scope_ranked(question, ranked)} == {
+        "manifest",
+        "delivery",
+    }
+    assert _scope_ranked(
+        "What reference identifies the Unlisted shipment received in Dijon?", ranked
+    ) == []
+
+
+def test_named_subject_scope_preserves_complete_hyphenated_identifiers() -> None:
+    subjects = _named_subject_tokens("Quand l\u2019échantillon du lot AP-73 a-t-il été prélevé ?")
+
+    assert "ap-73" in subjects
+    assert _subject_matches("ap-73", "Lot AP-73, pommes dessert.")
+    assert not _subject_matches("ap-73", "Lot AP-732, pommes dessert.")
+
+
+def test_local_semantic_fallback_recovers_a_paraphrased_scalar_relation() -> None:
+    class SemanticTestEmbeddingProvider:
+        mode = "local-semantic-onnx-v1"
+        model_id = "semantic-test"
+        dimension = 2
+        estimated_cost_usd = 0.0
+
+        def embed(self, text: str) -> list[float]:
+            return [1.0, 0.0]
+
+        def embed_many(self, texts: Sequence[str]) -> list[list[float]]:
+            return [self.embed(text) for text in texts]
+
+        def embed_batch(self, texts: Sequence[str]) -> list[list[float]]:
+            return self.embed_many(texts)
+
+    provider = SemanticTestEmbeddingProvider()
+    answerer = DeterministicGroundedAnswerProvider(
+        embeddings=provider,
+        config=DecisionConfig(
+            support_threshold=0.48,
+            partial_support_threshold=0.38,
+            contradiction_margin=0.08,
+        ),
+    )
+    evidence = _ranked(
+        "platform-fee",
+        "Annual platform fee: EUR 48,000",
+        document_name="northstar_master_services_agreement.pdf",
+    )
+
+    answer = answerer.answer("Quel montant de plateforme annuel est indiqué ?", [evidence])
+    unrelated = answerer.answer("What does the data review cost?", [evidence])
+
+    assert answer.status == "answered"
+    assert answer.answer == "EUR 48,000"
+    assert answer.citations[0].excerpt == "Annual platform fee: EUR 48,000"
+    assert unrelated.status == "abstained"
 
 
 def test_french_effective_future_question_keeps_date_role_and_scope() -> None:
