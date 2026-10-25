@@ -3,6 +3,7 @@ from dataclasses import asdict, replace
 
 import pytest
 from evidencedesk_api.answering import (
+    _MEASUREMENT,
     DecisionConfig,
     DeterministicGroundedAnswerProvider,
     GroundedAnswer,
@@ -10,10 +11,12 @@ from evidencedesk_api.answering import (
     PassageCandidateAssessment,
     _has_negated_relation,
     _named_subject_tokens,
+    _question_kind,
     _scope_ranked,
     _subject_matches,
     validate_grounded_answer,
 )
+from evidencedesk_api.processing import ParsedPage, chunk_pages
 from evidencedesk_api.providers import DeterministicEmbeddingProvider
 from evidencedesk_api.retrieval import Citation, EvidenceChunk, RankedChunk
 
@@ -1178,3 +1181,444 @@ def test_grounding_validator_requires_supporting_chunk_and_consistent_citation_m
             replace(valid, extracted_fields={"effective_date": "9 May 2099"}),
             ranked,
         )
+
+
+def test_direct_field_value_binds_record_identifier_and_cites_local_assertion() -> None:
+    passage = "WorkOrderID WO-31 links to ServiceRecordID SR-82."
+    result = _provider().answer(
+        "Which ServiceRecordID belongs to WorkOrderID WO-31?",
+        [_ranked("field", passage)],
+    )
+
+    assert _question_kind("Which ServiceRecordID belongs to WorkOrderID WO-31?") == "field_value"
+    assert result.status == "answered"
+    assert result.answer == "SR-82"
+    assert result.supporting_excerpt == passage
+    assert result.extracted_fields == {"answer": "SR-82"}
+
+
+def test_identifiers_in_separate_assertions_do_not_create_a_record_link() -> None:
+    result = _provider().answer(
+        "Which ServiceRecordID belongs to WorkOrderID WO-31?",
+        [
+            _ranked(
+                "separate-records",
+                "WorkOrderID WO-31 is open; ServiceRecordID SR-99 is inactive.",
+            )
+        ],
+    )
+
+    assert result.status == "abstained"
+
+
+def test_coordinated_predicates_do_not_create_a_record_link() -> None:
+    result = _provider().answer(
+        "Which ServiceRecordID belongs to WorkOrderID WO-31?",
+        [
+            _ranked(
+                "coordinated-records",
+                "WorkOrderID WO-31 is open and ServiceRecordID SR-99 is inactive.",
+            )
+        ],
+    )
+
+    assert result.status == "abstained"
+
+
+def test_coordinated_measurement_does_not_inherit_another_fact_condition() -> None:
+    result = _provider().answer(
+        "What pressure was recorded at valve D under heavy demand?",
+        [
+            _ranked(
+                "coordinated-conditions",
+                "Under heavy demand, turbine C logged 6, and pressure at valve D was 63 kPa.",
+            )
+        ],
+    )
+
+    assert result.status == "abstained"
+
+
+def test_measurement_selection_uses_exact_time_and_ignores_unrelated_absence() -> None:
+    first = "At 08:15, pressure at station QX-42/6 was 42 kPa."
+    second = "At 08:45, pressure at station QX-42/6 was 57 kPa."
+    result = _provider().answer(
+        "What pressure was recorded at 08:15 for station QX-42/6?",
+        [
+            _ranked("first", first),
+            _ranked("second", second),
+            _ranked("other-field", "Maintenance contact: not recorded."),
+        ],
+    )
+
+    assert result.status == "answered"
+    assert result.answer == "42 kPa"
+    assert result.supporting_excerpt == first
+    assert "57 kPa" not in result.answer
+
+
+def test_repeated_unscoped_measurement_values_are_reported_as_ambiguous() -> None:
+    first = "Pressure at station QX-42/6 was 42 kPa."
+    second = "Pressure at station QX-42/6 was 57 kPa."
+    result = _provider().answer(
+        "What pressure readings are recorded for station QX-42/6?",
+        [_ranked("first", first), _ranked("second", second)],
+    )
+
+    assert result.status == "ambiguous"
+    assert len(result.citations) == 2
+    assert {citation.excerpt for citation in result.citations} == {first, second}
+
+
+def test_field_query_uses_interrogative_label_before_a_later_camelcase_constraint() -> None:
+    passage = "Nitrate concentration for SampleBatchID XX-7: 0.84 mg/L."
+    question = "What nitrate concentration is reported for SampleBatchID XX-7?"
+    result = _provider().answer(question, [_ranked("batch", passage)])
+
+    assert result.status == "answered"
+    assert result.answer == "0.84 mg/L"
+    assert result.supporting_excerpt == passage
+
+
+def test_decimal_measurement_with_condition_is_bound_and_cited() -> None:
+    high = "Pressure was 42.6 kPa under high load."
+    low = "Pressure was 38.2 kPa under low load."
+    result = _provider().answer(
+        "What pressure was recorded under high load?",
+        [_ranked("high", high), _ranked("low", low)],
+    )
+
+    assert result.status == "answered"
+    assert result.answer == "42.6 kPa"
+    assert result.supporting_excerpt == high
+
+
+def test_requested_condition_is_required_when_selecting_labeled_values() -> None:
+    result = _provider().answer(
+        "What pressure was recorded under high load?",
+        [_ranked("low", "Pressure was 38.2 kPa under low load.")],
+    )
+
+    assert result.status == "abstained"
+
+
+def test_condition_in_an_adjacent_assertion_does_not_scope_a_field_value() -> None:
+    result = _provider().answer(
+        "What pressure was recorded at valve D under heavy demand?",
+        [
+            _ranked(
+                "adjacent-condition",
+                "Under high load, station A logged 5; "
+                "pressure at station B was 57 kPa.",
+            )
+        ],
+    )
+
+    assert result.status == "abstained"
+
+
+def test_similar_record_identifiers_do_not_allow_cross_record_field_join() -> None:
+    passage = (
+        "SampleBatchID XX-7; SampleBatchID XX-8; "
+        "Nitrate concentration: 0.84 mg/L."
+    )
+    result = _provider().answer(
+        "What nitrate concentration is reported for SampleBatchID XX-7?",
+        [_ranked("batches", passage)],
+    )
+
+    assert result.status == "abstained"
+
+
+def test_unique_header_record_identifier_can_scope_following_fact() -> None:
+    passage = "SampleBatchID SA-4.\nNitrate concentration: 3.27 mg/L."
+    result = _provider().answer(
+        "What nitrate concentration is reported for SampleBatchID SA-4?",
+        [_ranked("header", passage)],
+    )
+
+    assert result.status == "answered"
+    assert result.answer == "3.27 mg/L"
+    assert result.supporting_excerpt == "Nitrate concentration: 3.27 mg/L."
+    assert {citation.excerpt for citation in result.citations} == {
+        "SampleBatchID SA-4",
+        "Nitrate concentration: 3.27 mg/L.",
+    }
+
+
+def test_unique_header_in_prior_chunk_scopes_fact_and_gets_separate_citation() -> None:
+    result = _provider().answer(
+        "What nitrate concentration is reported for SampleBatchID SA-4?",
+        [
+            _ranked("sample:p1:c0", "SampleBatchID SA-4."),
+            _ranked("sample:p1:c1", "Nitrate concentration: 3.27 mg/L."),
+        ],
+    )
+
+    assert result.status == "answered"
+    assert result.answer == "3.27 mg/L"
+    assert result.supporting_excerpt == "Nitrate concentration: 3.27 mg/L."
+    assert {citation.chunk_id for citation in result.citations} == {
+        "sample:p1:c0",
+        "sample:p1:c1",
+    }
+
+
+def test_cross_chunk_header_does_not_scope_fact_when_page_has_competing_id() -> None:
+    result = _provider().answer(
+        "What nitrate concentration is reported for SampleBatchID SA-4?",
+        [
+            _ranked("sample:p1:c0", "SampleBatchID SA-4."),
+            _ranked("sample:p1:c1", "SampleBatchID SA-5."),
+            _ranked("sample:p1:c2", "Nitrate concentration: 3.27 mg/L."),
+        ],
+    )
+
+    assert result.status == "abstained"
+
+
+def test_competing_header_identifiers_prevent_cross_record_join() -> None:
+    passage = "SampleBatchID SA-4. SampleBatchID SA-5.\nNitrate concentration: 3.27 mg/L."
+    result = _provider().answer(
+        "What nitrate concentration is reported for SampleBatchID SA-4?",
+        [_ranked("headers", passage)],
+    )
+
+    assert result.status == "abstained"
+
+
+def test_measurement_parser_keeps_percent_and_rejects_plain_words_as_units() -> None:
+    percent = _MEASUREMENT.search("Completion rate: 72%.")
+    false_unit = _MEASUREMENT.search("The status is 2 is not recorded.")
+
+    assert percent is not None and percent.group(0) == "72%"
+    assert false_unit is None
+
+
+def test_camel_case_field_does_not_change_original_value() -> None:
+    result = _provider().answer(
+        "What is the model name?",
+        [_ranked("model", "ModelName: AeroMeter.")],
+    )
+
+    assert result.status == "answered"
+    assert result.answer == "AeroMeter"
+    assert result.supporting_excerpt == "ModelName: AeroMeter."
+
+
+def test_full_requested_label_is_not_reduced_to_a_generic_word() -> None:
+    result = _provider().answer(
+        "What is the access point?",
+        [_ranked("wrong-label", "Access badge: Moon Gate.")],
+    )
+
+    assert result.status == "abstained"
+
+
+def test_explicit_absence_of_requested_address_cannot_become_a_partial_answer() -> None:
+    result = _provider().answer(
+        "What is the emergency address for depot HN-9?",
+        [
+            _ranked(
+                "missing-address",
+                "The depot record does not provide an emergency address for depot HN-9.",
+            )
+        ],
+    )
+
+    assert result.status == "abstained"
+    assert result.citations == ()
+
+
+def test_structured_pipe_row_cites_only_the_related_id_and_requested_field() -> None:
+    passage = (
+        "Inspection log INSP-840 | VisitID V-204 | BayCode COVE-7 | "
+        "Visit date 2030-05-11 | Inspector Robin Vale."
+    )
+    result = _provider().answer(
+        "What BayCode is listed for VisitID V-204?",
+        [_ranked("plan", passage)],
+    )
+
+    assert result.status == "answered"
+    assert result.answer == "COVE-7"
+    assert result.supporting_excerpt == "VisitID V-204 | BayCode COVE-7"
+
+
+def test_explicit_source_request_excludes_document_that_only_quotes_the_source() -> None:
+    result = _provider().answer(
+        "According to the inspection report itself, what is the BayCode?",
+        [
+            _ranked(
+                "plan-source",
+                "Inspection Report INSP-840 | BayCode COVE-7.",
+                document_id="inspection-source",
+                document_name="inspection_report.txt",
+            ),
+            _ranked(
+                "permit-reference",
+                "The inspection report lists BayCode COVE-7.",
+                document_id="maintenance-note",
+                document_name="maintenance_note.txt",
+            ),
+        ],
+    )
+
+    assert result.status == "answered"
+    assert result.answer == "COVE-7"
+    assert result.supporting_document == "inspection-source"
+
+
+def test_explicit_source_identifier_selects_the_matching_document_identity() -> None:
+    result = _provider().answer(
+        "According to permit PR-72, what is the BayCode?",
+        [
+            _ranked(
+                "permit-72",
+                "Permit PR-72 | BayCode DELTA-8.",
+                document_id="permit-72",
+                document_name="permit_PR-72.txt",
+            ),
+            _ranked(
+                "permit-73",
+                "Permit PR-73 | BayCode ECHO-3.",
+                document_id="permit-73",
+                document_name="permit_PR-73.txt",
+            ),
+        ],
+    )
+
+    assert result.status == "answered"
+    assert result.answer == "DELTA-8"
+    assert result.supporting_document == "permit-72"
+
+
+def test_time_question_selects_the_requested_event_from_multiple_hours() -> None:
+    passage = "Entry window begins 07:30 UTC; exit by 18:00 UTC."
+    result = _provider().answer(
+        "What time does the entry window begin?",
+        [_ranked("hours", passage)],
+    )
+
+    assert result.status == "answered"
+    assert result.answer == "07:30 UTC"
+    assert result.supporting_excerpt == "Entry window begins 07:30 UTC"
+
+
+def test_source_document_as_grammatical_agent_limits_field_lookup() -> None:
+    result = _provider().answer(
+        "Quel SiteCode le plan associe-t-il au secteur ?",
+        [
+            _ranked(
+                "field-plan",
+                "Field Plan PL-87\nSiteCode: RIDGE-4 for the service corridor.",
+                document_id="plan",
+                document_name="field_plan.txt",
+            ),
+            _ranked(
+                "permit-copy",
+                "The permit lists SiteCode: DELTA-2 for the service corridor.",
+                document_id="permit",
+                document_name="permit_notice.txt",
+            ),
+        ],
+    )
+
+    assert result.status == "answered"
+    assert result.answer == "RIDGE-4"
+    assert result.supporting_document == "plan"
+
+
+def test_interrogative_id_field_accepts_source_label_without_literal_id_suffix() -> None:
+    result = _provider().answer(
+        "Which FieldPlanID is listed for CampaignID CA-53?",
+        [_ranked("field-plan", "CampaignID CA-53 | Field Plan FP-82")],
+    )
+
+    assert result.status == "answered"
+    assert result.answer == "FP-82"
+    assert result.supporting_excerpt == "CampaignID CA-53 | Field Plan FP-82"
+
+
+def test_person_initial_does_not_split_event_from_clock_evidence() -> None:
+    result = _provider().answer(
+        "What time was the valve replaced for WorkOrderID WO-66?",
+        [
+            _ranked("work-order:p1:c0", "WorkOrderID WO-66."),
+            _ranked(
+                "work-order:p1:c1",
+                "On 2031-06-04 at 13:15 UTC, technician R. Vale replaced the valve.",
+            ),
+        ],
+    )
+
+    assert result.status == "answered"
+    assert result.answer == "13:15 UTC"
+    assert result.supporting_excerpt is not None
+    assert "replaced the valve" in result.supporting_excerpt
+
+
+def test_time_requires_the_requested_action_and_chunking_preserves_name_initials() -> None:
+    question = "What time was the pump replaced for WorkOrderID WO-84?"
+    timestamp_only = _provider().answer(
+        question,
+        [_ranked("timestamp-only", "On 2032-05-08 at 09:35 UTC, technician A.")],
+    )
+    assert timestamp_only.status != "answered"
+    assert timestamp_only.answerable is False
+
+    source = (
+        "WorkOrderID WO-84. On 2032-05-08 at 09:35 UTC, "
+        "technician A. Martin replaced the pump."
+    )
+    chunks = chunk_pages(
+        [ParsedPage(page=1, blocks=(("Work order", source),))], max_chars=900
+    )
+    assert len(chunks) == 2
+    assert chunks[1].text == (
+        "On 2032-05-08 at 09:35 UTC, technician A. Martin replaced the pump."
+    )
+
+    result = _provider().answer(
+        question,
+        [
+            _ranked("work-order:p1:c0", "WorkOrderID WO-84."),
+            _ranked("work-order:p1:c1", chunks[1].text),
+        ],
+    )
+    assert result.status == "answered"
+    assert result.answer == "09:35 UTC"
+    assert result.supporting_excerpt is not None
+    assert "A. Martin replaced the pump" in result.supporting_excerpt
+
+
+def test_multiple_conditioned_values_in_one_sentence_are_not_guessed() -> None:
+    result = _provider().answer(
+        "What pressure was recorded under high load?",
+        [
+            _ranked(
+                "conditions",
+                "Pressure was 42.6 kPa under low load and 49.2 kPa under high load.",
+            )
+        ],
+    )
+
+    assert result.status == "abstained"
+
+
+def test_french_coordination_does_not_transfer_condition_between_subjects() -> None:
+    result = _provider().answer(
+        "Quelle pression est enregistrée au clapet B sous forte demande?",
+        [
+            _ranked(
+                "french-condition-coordination",
+                "Sous forte demande, le compresseur A a signalé 4, "
+                "et la pression au clapet B était de 71 kPa.",
+            )
+        ],
+    )
+
+    assert result.status == "abstained"
+    assert result.answerable is False
+    assert result.citations == ()
+    assert "71 kPa" not in result.answer

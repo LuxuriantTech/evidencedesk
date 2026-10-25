@@ -605,6 +605,7 @@ def create_app(*, settings: Settings | None = None, task_queue: TaskQueue | None
                 text=chunk.text,
                 embedding=list(chunk.embedding),
                 embedding_model_id=chunk.embedding_model_id,
+                ordinal=chunk.ordinal,
             )
         ranked = hybrid_rank(body.question, list(candidates.values()), provider=providers.embedding)
         result = providers.answer.answer(body.question, ranked)

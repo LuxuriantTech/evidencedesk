@@ -291,6 +291,7 @@ async def process_document(
                     text=parsed.text,
                     embedding=embedding,
                     embedding_model_id=worker.embeddings.model_id,
+                    ordinal=parsed.ordinal,
                 )
             )
         extraction = (
