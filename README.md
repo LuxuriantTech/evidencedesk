@@ -1,6 +1,6 @@
 # EvidenceDesk
 
-[Explore the prepared synthetic walkthrough](https://ardian-mehaj-portfolio.vercel.app/projects/evidencedesk/) · [Walkthrough source and local preview](docs/interactive-demo/README.md) · [Contact me](mailto:mehajardian@gmail.com)
+[Explore the prepared synthetic walkthrough](https://ardianmehaj.dev/projects/evidencedesk/) · [Walkthrough source and local preview](docs/interactive-demo/README.md) · [Contact me](mailto:mehajardian@gmail.com)
 
 [Read the synthetic example and its limits](docs/portfolio-walkthrough.md).
 
